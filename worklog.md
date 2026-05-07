@@ -1181,3 +1181,168 @@ The application is a comprehensive Word Snake game with 30+ major features.
 8. **Poem Collage**: Combine multiple poems into a collage image
 9. **Achievement Milestones**: Bonus rewards when reaching 25%, 50%, 75%, 100% achievement completion
 10. **Custom Word Lists**: Allow players to add their own words
+
+---
+Task ID: 11-a
+Agent: Weather Effects Agent
+Task: Add Weather Effects on Gameplay
+
+Work Log:
+- Added `WEATHER_CONFIG` constant to `src/components/snake-game.tsx` with gameplay effect configuration for each weather type (emoji, label, effect description, speed multiplier, point multiplier, badge background color)
+  - Clear (☀️): no effects, bg-slate-700
+  - Rain (🌧️): -10% speed (×1.1 multiplier), bg-blue-900/50
+  - Snow (❄️): Fog overlay + -5% speed (×1.05 multiplier), bg-cyan-900/50
+  - Stars (⭐): +20% points (×1.2 multiplier), bg-amber-900/50
+- Modified effectiveSpeed calculation in game loop: weather speed modifier applied before slow_mo modifier (order: base_speed → weather → slow_mo), creating multiplicative stacking (rain + slow_mo = ×1.76 slower)
+- Added weather point multiplier after rarity multiplier but before combo: `points = Math.floor(points * weatherPtConf.pointMultiplier)` for Stars weather
+- Added snow fog overlay on canvas: `rgba(200, 220, 240, 0.12)` covering entire canvas during snow weather, creating "blizzard" effect
+- Added ⭐ emoji to floating points text when word eaten during stars weather: `+${comboPoints} ⭐`
+- Enhanced weather indicator in header: replaced simple emoji display with a pill badge showing weather emoji, label, and effect description (e.g. "🌧️ Rain: -10% speed"), with weather-specific colored backgrounds
+- Added weather info note on start screen below rarity legend: "Weather changes each game — Rain slows, Snow fogs, Stars boost!"
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- Weather effects now impact gameplay beyond visual: Rain slows snake 10%, Snow adds fog overlay + 5% slowdown, Stars boosts points 20%
+- Weather speed modifiers stack multiplicatively with Slow-Mo power-up
+- Enhanced weather badge in header shows clear gameplay effect descriptions
+- Start screen educates players about weather mechanics
+- All code passes ESLint
+
+---
+Task ID: 11-b
+Agent: Custom Words Agent
+Task: Add Custom Word Lists Feature
+
+Work Log:
+- Created `src/lib/custom-words.ts`:
+  - `CustomWord` interface: `{ word: string; category: WordCategory; points: number }`
+  - `CUSTOM_WORDS_KEY = 'word-snake-custom-words'` localStorage key
+  - `getCustomWords()`: Returns array of CustomWord from localStorage
+  - `addCustomWord(word)`: Validates no duplicates (case-insensitive), max 50 words, 3-15 chars, letters only
+  - `removeCustomWord(word)`: Removes by word string
+  - `clearCustomWords()`: Removes all custom words
+  - `isCustomWord(word)`: Checks if word is in custom list
+  - `getCustomWordCount()`: Returns count
+  - `getCustomWordsByCategories(categories)`: Filters custom words by category set
+  - `calculatePoints(word)`: Auto-calculates points by length (3-5: 5pts, 6-8: 10pts, 9-12: 15pts, 13-15: 20pts)
+  - `validateWord(word)`: Returns `{ valid, error? }` for input validation
+- Modified `src/lib/word-pool.ts`:
+  - Added `CUSTOM_WORD_SPAWN_CHANCE = 0.10` constant
+  - Added `WordPick` interface: `{ word, category, points, isCustom }`
+  - Changed `getRandomWordWithCategories()` return type from `string` to `WordPick`
+  - In `getRandomWordWithCategories()`: 10% chance to pick from custom words if any exist and match categories
+  - Added `getWordEntryIncludingCustom(word)`: Returns entry from standard or custom words
+  - Added `getTotalWordCount()`: Returns standard + custom word count
+- Created `src/components/custom-words-dialog.tsx`:
+  - Dialog modal with `scrollbar-fancy` and `modal-backdrop-enhanced` classes
+  - Title: "✏️ Custom Words" with count badge "N/50"
+  - **Add Word Form**: text input (3-15 letters), category selector (8 pill buttons with colored dots), auto-calculated points preview, "Add" button with Enter key support, inline validation errors
+  - **Custom Words List**: scrollable list showing word, category dot + label, points, ✕ remove button
+  - Empty state: "📝 No custom words yet — add some to expand the word pool!"
+  - **Clear All** button with confirmation flow
+  - Reset confirm state when dialog closes
+- Modified `src/components/snake-game.tsx`:
+  - Added `showCustomWords` state (boolean, default false)
+  - Added "✏️ Words" button with count indicator next to 🏆 Achievements and 📊 Stats buttons (both before game start and after game over)
+  - Updated `spawnWord()` to use new `WordPick` return from `getRandomWordWithCategories()`
+  - Updated `getWordEntryIncludingCustom()` for eating custom words with correct point values
+  - Rendered `<CustomWordsDialog>` component
+- ESLint passes with zero errors
+
+Stage Summary:
+- Complete Custom Word Lists feature with dialog UI, localStorage persistence, and 10% spawn integration
+- Players can add up to 50 custom words with category assignment and auto-calculated points
+- Custom words spawn at 10% chance when they match active categories
+- Full validation: letters only, 3-15 chars, no duplicates, max 50 words
+
+---
+Task ID: 11
+Agent: Review Agent (cron Round 11)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA with agent-browser**: Tested game start/pause/die, navigation, poem page, stats dialog, achievement gallery, custom words dialog — all features working correctly
+- **Module-not-found error**: Dev server had a stale cache error referencing `@/components/custom-words` vs `@/components/custom-words-dialog`. Fixed by clearing .next cache and restarting the dev server. The source code was correct; it was a Turbopack cache issue.
+- **Feature: Weather Effects on Gameplay** (via Task agent 11-a):
+  - Added `WEATHER_CONFIG` constant with gameplay effects for each weather type
+  - Rain (🌧️): -10% speed, blue badge glow
+  - Snow (❄️): -5% speed + fog overlay (rgba(200,220,240,0.12)), cyan badge glow
+  - Stars (⭐): +20% points bonus, amber badge glow with extra sparkle
+  - Clear (☀️): No effect
+  - Weather speed modifier stacks multiplicatively with Slow-Mo power-up
+  - Weather badge pill in header shows emoji + label + effect description
+  - Start screen weather note added below rarity legend
+- **Feature: Custom Word Lists** (via Task agent 11-b):
+  - Created `src/lib/custom-words.ts` with CRUD operations, validation (3-15 chars, letters only, max 50, no dupes)
+  - Created `src/components/custom-words-dialog.tsx` with add form, word list, clear all
+  - Modified `src/lib/word-pool.ts` for 10% custom word spawn chance
+  - "✏️ Words" button on game page with custom word count indicator
+- **Visual Polish** (direct edits):
+  - 10 new CSS animations: weather-rain-glow, weather-snow-glow, weather-stars-glow, word-added-flash, dialog-slide-up, btn-ripple, stat-breathe, pu-burst, sidebar-divider, score-count-up, game-over-shake
+  - Weather badge glow classes applied to snake-game weather indicator
+  - game-over-shake applied to canvas container on game over
+  - stat-breathe applied to stat cards in game-stats.tsx
+  - dialog-slide-up applied to custom-words-dialog.tsx
+- ESLint passes with zero errors
+
+Stage Summary:
+- 1 bug fix (stale Turbopack cache module-not-found error)
+- 2 major new features (weather gameplay effects, custom word lists)
+- 10 new CSS animation classes
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 32+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **8 Snake Skins**: Classic, Ocean, Fire Wyrm, Royal, Frost, Shadow, Rainbow, Golden with unique patterns
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **4 Word Rarities**: Common, Uncommon (×1.5), Rare (×2.5), Legendary (×5) with special visual effects
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **Custom Word Lists**: Add up to 50 custom words with category and auto-points
+- **5 Power-ups**: Slow-Mo (🐢), Double Points (💎), Shrink (✂️), Magnet (🧲), Shield (🛡️)
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Canvas Weather with Gameplay Effects**: Rain (-10% speed), Snow (fog -5% speed), Stars (+20% points), Clear (no effect)
+- **Canvas Mini-map**: Bird's eye view of snake, words, and power-ups (toggleable)
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Sound Effects**: Web Audio API sounds for all interactions including power-ups (with mute toggle)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **Game Statistics Dashboard**: 20+ tracked metrics across 4 categories
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **Poem Sharing**: Generate 1080×1080 shareable social image, Web Share API
+- **Poem Favorites**: Mark/unmark poems as favorites, persistent collection (max 20)
+- **Achievement Gallery**: Full modal with progress bars, locked/unlocked states, 11 achievements
+- **Achievement Queue**: Multiple achievements shown in sequence with cascading toasts
+- **11 Achievements**: Toast notifications, canvas floating text, gallery modal
+- **Word Definitions + Etymology**: Tooltips on hover showing definition, example, and word origin
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Visual Polish**: 45+ CSS animations, particles, confetti, page transitions, aurora background, shimmer effects, glow rings, combo fire flicker, rarity effects, weather particles/badges, skin patterns, card hover lift, streak fire, word item highlight, progress bar shine, header shimmer, footer wave, weather badge glow, game over shake, stat breathe, dialog slide-up
+- **Copy/Download/Share Poem**: Copy to clipboard, download as PNG, share via Web Share API
+
+### Known Issues / Risks
+- Poem download PNG doesn't wrap long lines well
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Confetti canvas doesn't resize on window resize
+- Shield power-up wrapping behavior might be unexpected
+- Some etymology entries are approximate
+- Turbopack cache can become stale — may need .next cache clearing after large changes
+
+### Suggested Next Steps
+1. **Snake Skin Preview**: Animated preview of selected skin on the start screen canvas
+2. **Multi-language Support**: Word sets in other languages (Chinese, Japanese, etc.)
+3. **Game Replay**: Record and replay game sessions
+4. **Sound Customization**: Choose different sound themes
+5. **Accessibility**: Screen reader support, high contrast mode
+6. **Online Leaderboard**: Server-side leaderboard with global rankings
+7. **Poem Collage**: Combine multiple poems into a collage image
+8. **Custom Word Import/Export**: Allow bulk import of word lists via JSON/CSV
+9. **Achievement Milestones**: Bonus rewards at 25%/50%/75%/100% completion
+10. **Canvas Grid Themes**: Different visual themes for the game grid (neon, retro, nature)

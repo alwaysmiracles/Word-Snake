@@ -1,5 +1,10 @@
 // Pool of interesting English words for the snake game, organized by category
+import { getCustomWordsByCategories, getCustomWordCount, type CustomWord } from '@/lib/custom-words'
+
 export type WordCategory = 'nature' | 'emotion' | 'element' | 'time' | 'creature' | 'quality' | 'object' | 'action'
+
+// Custom words spawn chance (10% if any custom words exist)
+export const CUSTOM_WORD_SPAWN_CHANCE = 0.10
 
 export type WordRarity = 'common' | 'uncommon' | 'rare' | 'legendary'
 
@@ -31,6 +36,13 @@ export interface WordEntry {
   word: string
   category: WordCategory
   points: number // points per letter
+}
+
+export interface WordPick {
+  word: string
+  category: WordCategory
+  points: number
+  isCustom: boolean
 }
 
 const WORD_ENTRIES: WordEntry[] = [
@@ -154,6 +166,16 @@ export function getWordEntry(word: string): WordEntry | undefined {
   return WORD_MAP.get(word)
 }
 
+/** Get word entry including custom words */
+export function getWordEntryIncludingCustom(word: string): { word: string; category: WordCategory; points: number } | undefined {
+  const standard = WORD_MAP.get(word)
+  if (standard) return standard
+  // Check custom words
+  const customWords = getCustomWords()
+  const normalized = word.toLowerCase()
+  return customWords.find((w) => w.word.toLowerCase() === normalized)
+}
+
 export function getAllWords(): string[] {
   return WORD_ENTRIES.map((e) => e.word)
 }
@@ -178,7 +200,19 @@ export function getRandomWord(exclude: string[] = []): string {
   return available[Math.floor(Math.random() * available.length)].word
 }
 
-export function getRandomWordWithCategories(exclude: string[] = [], categories?: Set<WordCategory>): string {
+export function getRandomWordWithCategories(exclude: string[] = [], categories?: Set<WordCategory>): WordPick {
+  // Try custom words first with 10% chance
+  const customCount = getCustomWordCount()
+  if (customCount > 0 && Math.random() < CUSTOM_WORD_SPAWN_CHANCE) {
+    const customWords = getCustomWordsByCategories(categories ?? new Set<WordCategory>())
+    const available = customWords.filter((w: CustomWord) => !exclude.includes(w.word))
+    if (available.length > 0) {
+      const picked = available[Math.floor(Math.random() * available.length)]
+      return { word: picked.word, category: picked.category, points: picked.points, isCustom: true }
+    }
+  }
+
+  // Standard word pool
   let pool = categories && categories.size > 0
     ? WORD_ENTRIES.filter((e) => categories.has(e.category))
     : WORD_ENTRIES
@@ -186,14 +220,24 @@ export function getRandomWordWithCategories(exclude: string[] = [], categories?:
   if (available.length === 0) {
     // Fallback: if no words available in selected categories, use full pool
     const fallback = WORD_ENTRIES.filter((e) => !exclude.includes(e.word))
-    if (fallback.length === 0) return WORD_ENTRIES[Math.floor(Math.random() * WORD_ENTRIES.length)].word
-    return fallback[Math.floor(Math.random() * fallback.length)].word
+    if (fallback.length === 0) {
+      const pick = WORD_ENTRIES[Math.floor(Math.random() * WORD_ENTRIES.length)]
+      return { word: pick.word, category: pick.category, points: pick.points, isCustom: false }
+    }
+    const pick = fallback[Math.floor(Math.random() * fallback.length)]
+    return { word: pick.word, category: pick.category, points: pick.points, isCustom: false }
   }
-  return available[Math.floor(Math.random() * available.length)].word
+  const pick = available[Math.floor(Math.random() * available.length)]
+  return { word: pick.word, category: pick.category, points: pick.points, isCustom: false }
 }
 
 export function getWordCountByCategory(category: WordCategory): number {
   return WORD_ENTRIES.filter((e) => e.category === category).length
+}
+
+/** Returns total word count (standard + custom) */
+export function getTotalWordCount(): number {
+  return WORD_ENTRIES.length + getCustomWordCount()
 }
 
 export { WORD_ENTRIES }

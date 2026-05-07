@@ -609,3 +609,101 @@
 .footer-wave {
   animation: footer-wave 4s ease-in-out infinite;
 }
+
+/* ===== Round 11 Visual Polish ===== */
+
+/* Weather badge glow based on weather type */
+@keyframes weather-rain-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+}
+@keyframes weather-snow-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(6, 182, 212, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+}
+@keyframes weather-stars-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(251, 191, 36, 0.5), 0 0 20px rgba(251, 191, 36, 0.15); }
+}
+
+.weather-badge-rain { animation: weather-rain-glow 2s ease-in-out infinite; }
+.weather-badge-snow { animation: weather-snow-glow 2s ease-in-out infinite; }
+.weather-badge-stars { animation: weather-stars-glow 2s ease-in-out infinite; }
+
+/* Custom word added flash */
+@keyframes word-added-flash {
+  0% { background-color: rgba(34, 197, 94, 0.2); }
+  100% { background-color: transparent; }
+}
+.word-added-flash {
+  animation: word-added-flash 0.6s ease-out;
+}
+
+/* Dialog slide-in from bottom */
+@keyframes dialog-slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.dialog-slide-up {
+  animation: dialog-slide-up 0.25s ease-out;
+}
+
+/* Button ripple on click */
+@keyframes btn-ripple {
+  0% { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Stat card subtle breathing glow */
+@keyframes stat-breathe {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.1); }
+  50% { box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2), 0 0 8px rgba(148, 163, 184, 0.05); }
+}
+.stat-breathe {
+  animation: stat-breathe 3s ease-in-out infinite;
+}
+
+/* Power-up collected burst */
+@keyframes pu-burst {
+  0% { transform: scale(1); filter: brightness(1); }
+  30% { transform: scale(1.15); filter: brightness(1.4); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.pu-burst {
+  animation: pu-burst 0.4s ease-out;
+}
+
+/* Sidebar section divider with gradient */
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(148, 163, 184, 0.2) 20%,
+    rgba(148, 163, 184, 0.3) 50%,
+    rgba(148, 163, 184, 0.2) 80%,
+    transparent 100%
+  );
+}
+
+/* Score change counter animation */
+@keyframes score-count-up {
+  0% { transform: translateY(4px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.score-count-up {
+  animation: score-count-up 0.2s ease-out;
+}
+
+/* Game over shake */
+@keyframes game-over-shake {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-3px); }
+  30% { transform: translateX(3px); }
+  50% { transform: translateX(-2px); }
+  70% { transform: translateX(2px); }
+  90% { transform: translateX(-1px); }
+}
+.game-over-shake {
+  animation: game-over-shake 0.5s ease-out;
+}

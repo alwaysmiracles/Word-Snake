@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
-import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
+import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getWordEntryIncludingCustom, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import AchievementGallery from '@/components/achievement-gallery'
 import GameStatsDialog from '@/components/game-stats'
+import CustomWordsDialog from '@/components/custom-words-dialog'
+import { getCustomWordCount } from '@/lib/custom-words'
 import { getDailyChallenge, getDailyChallengeResult, saveDailyChallengeResult, isDailyChallengePlayed, type DailyChallenge } from '@/lib/daily-challenge'
 import { getStreak, updateStreak, getStreakMultiplier, getActiveStreakBonus, applyStreakBonus, STREAK_BONUSES, type StreakInfo } from '@/lib/streak'
 import { addLeaderboardEntry, getBestScore, getEntryCount, type Difficulty } from '@/lib/leaderboard'
@@ -128,6 +130,21 @@ const DIFFICULTY_THRESHOLDS = { easy: 0, medium: 50, hard: 150 }
 
 const ALL_CATEGORIES: WordCategory[] = ['nature', 'emotion', 'element', 'time', 'creature', 'quality', 'object', 'action']
 
+// Weather gameplay configuration
+const WEATHER_CONFIG: Record<GameState['weather'], {
+  emoji: string
+  label: string
+  effect: string
+  speedMultiplier: number // 1.0 = normal, higher = slower tick
+  pointMultiplier: number // 1.0 = normal, higher = more points
+  badgeBg: string
+}> = {
+  clear: { emoji: '☀️', label: 'Clear', effect: '', speedMultiplier: 1.0, pointMultiplier: 1.0, badgeBg: 'bg-slate-700' },
+  rain: { emoji: '🌧️', label: 'Rain', effect: '-10% speed', speedMultiplier: 1.1, pointMultiplier: 1.0, badgeBg: 'bg-blue-900/50' },
+  snow: { emoji: '❄️', label: 'Snow', effect: 'Fog & -5% speed', speedMultiplier: 1.05, pointMultiplier: 1.0, badgeBg: 'bg-cyan-900/50' },
+  stars: { emoji: '⭐', label: 'Stars', effect: '+20% points', speedMultiplier: 1.0, pointMultiplier: 1.2, badgeBg: 'bg-amber-900/50' },
+}
+
 // Module-level achievement queue for cascading toasts
 const achievementQueue = new AchievementQueue()
 
@@ -172,6 +189,9 @@ export default function SnakeGame() {
 
   // Game stats dialog
   const [showGameStats, setShowGameStats] = useState(false)
+
+  // Custom words dialog
+  const [showCustomWords, setShowCustomWords] = useState(false)
 
   // Daily challenge state (lazy init to avoid hydration mismatch)
   const [dailyInfo, setDailyInfo] = useState<{
@@ -418,9 +438,9 @@ export default function SnakeGame() {
       category = entry?.category ?? 'nature'
     } else {
       const collected = Array.from(collectedWordsRef.current)
-      word = getRandomWordWithCategories(collected, gs.activeCategories)
-      const entry = getWordEntry(word)
-      category = entry?.category ?? 'nature'
+      const pick = getRandomWordWithCategories(collected, gs.activeCategories)
+      word = pick.word
+      category = pick.category
     }
 
     const margin = 3
@@ -521,6 +541,12 @@ export default function SnakeGame() {
         }
       }
       ctx.globalAlpha = 1
+    }
+
+    // Snow fog overlay (blizzard effect)
+    if (gs.weather === 'snow' && gameStarted && !gameOver) {
+      ctx.fillStyle = 'rgba(200, 220, 240, 0.12)'
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
     }
 
     // Draw border glow
@@ -1154,6 +1180,12 @@ export default function SnakeGame() {
       })
       ctx.textAlign = 'start'
 
+      // Weather info note
+      ctx.textAlign = 'center'
+      ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'
+      ctx.fillText('Weather changes each game — Rain slows, Snow fogs, Stars boost!', CANVAS_WIDTH / 2, rarityY + 16)
+      ctx.textAlign = 'start'
+
       ctx.textAlign = 'center'
       ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif'
       ctx.fillText('Arrow Keys / WASD  •  Space to start  •  Swipe on mobile', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 60)
@@ -1299,10 +1331,14 @@ export default function SnakeGame() {
         gs.powerUp = null
       }
 
-      // Slow-Mo effect on game tick speed
+      // Speed modifiers: base_speed → weather_modifier → slow_mo_modifier
       let effectiveSpeed = gs.speed
+      const weatherConf = WEATHER_CONFIG[gs.weather]
+      if (weatherConf.speedMultiplier > 1) {
+        effectiveSpeed = Math.floor(effectiveSpeed * weatherConf.speedMultiplier)
+      }
       if (gs.activePowerUps.some(pu => pu.type === 'slow_mo')) {
-        effectiveSpeed = Math.floor(gs.speed * 1.6) // 60% slower = speed value 1.6x higher
+        effectiveSpeed = Math.floor(effectiveSpeed * 1.6) // 60% slower = speed value 1.6x higher
       }
 
       if (timestamp - lastRenderRef.current < effectiveSpeed) {
@@ -1439,7 +1475,7 @@ export default function SnakeGame() {
         if (ate) {
           const diff = gs.difficulty
           const settings = DIFFICULTY_SETTINGS[diff]
-          const entry = getWordEntry(wordFood.word)
+          const entry = getWordEntryIncludingCustom(wordFood.word)
           let points = entry ? entry.points : wordFood.word.length * 10
 
           // Double Points power-up
@@ -1452,6 +1488,12 @@ export default function SnakeGame() {
           if (rarityConfig && rarityConfig.pointMultiplier > 1) {
             const rarityBonus = Math.floor(points * (rarityConfig.pointMultiplier - 1))
             points += rarityBonus
+          }
+
+          // Weather point multiplier (e.g. Stars gives +20%)
+          const weatherPtConf = WEATHER_CONFIG[gs.weather]
+          if (weatherPtConf.pointMultiplier > 1) {
+            points = Math.floor(points * weatherPtConf.pointMultiplier)
           }
 
           // Combo chain logic
@@ -1489,7 +1531,7 @@ export default function SnakeGame() {
 
           const wx = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
           const wy = wordFood.position.y * CELL_SIZE
-          spawnFloatingText(`+${comboPoints}`, wx, wy, '#4ade80')
+          spawnFloatingText(`+${comboPoints}${gs.weather === 'stars' ? ' ⭐' : ''}`, wx, wy, '#4ade80')
           if (rarityConfig && rarityConfig.pointMultiplier > 1) {
             spawnFloatingText(`${rarityConfig.emoji} ${rarityConfig.label}!`, wx, wy - 66, rarityConfig.color)
           }
@@ -1827,12 +1869,17 @@ export default function SnakeGame() {
                     <div className="flex items-center gap-1.5 text-slate-400 text-xs">
                       <Clock className="h-3 w-3" />
                       <span className="font-mono">{formatTime(uiState.elapsedTime)}</span>
-                      {uiState.weather !== 'clear' && (
-                        <span className="text-xs">
-                          {uiState.weather === 'rain' ? '🌧️' : uiState.weather === 'snow' ? '❄️' : '⭐'}
-                        </span>
-                      )}
                     </div>
+                  )}
+                  {/* Weather badge pill */}
+                  {uiState.gameStarted && !uiState.gameOver && (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${WEATHER_CONFIG[uiState.weather].badgeBg} text-slate-300 border border-slate-600/30 ${uiState.weather === 'rain' ? 'weather-badge-rain' : uiState.weather === 'snow' ? 'weather-badge-snow' : uiState.weather === 'stars' ? 'weather-badge-stars' : ''}`}>
+                      <span>{WEATHER_CONFIG[uiState.weather].emoji}</span>
+                      <span>{WEATHER_CONFIG[uiState.weather].label}</span>
+                      {WEATHER_CONFIG[uiState.weather].effect && (
+                        <span className="text-slate-400">: {WEATHER_CONFIG[uiState.weather].effect}</span>
+                      )}
+                    </span>
                   )}
                   {highScore > 0 && (
                     <div className="flex items-center gap-1 text-amber-400 text-sm">
@@ -1999,7 +2046,7 @@ export default function SnakeGame() {
               )}
 
               {/* Canvas with dramatic border and inner glow */}
-              <div className="relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring">
+              <div className={`relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring ${uiState.gameOver ? 'game-over-shake' : ''}`}>
                 <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
                 <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
               </div>
@@ -2032,6 +2079,13 @@ export default function SnakeGame() {
                     >
                       📊 Stats
                     </Button>
+                    <Button
+                      onClick={() => setShowCustomWords(true)}
+                      variant="outline"
+                      className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform"
+                    >
+                      ✏️ Words{getCustomWordCount() > 0 && <span className="ml-1 text-[10px] opacity-70">({getCustomWordCount()})</span>}
+                    </Button>
                   </>
                 )}
                 {uiState.gameStarted && !uiState.gameOver && (
@@ -2057,6 +2111,13 @@ export default function SnakeGame() {
                       className="border-slate-600/50 text-slate-300 hover:bg-slate-800/50 active:scale-95 transition-transform"
                     >
                       📊 Stats
+                    </Button>
+                    <Button
+                      onClick={() => setShowCustomWords(true)}
+                      variant="outline"
+                      className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform"
+                    >
+                      ✏️ Words{getCustomWordCount() > 0 && <span className="ml-1 text-[10px] opacity-70">({getCustomWordCount()})</span>}
                     </Button>
                   </>
                 )}
@@ -2334,6 +2395,12 @@ export default function SnakeGame() {
       <GameStatsDialog
         open={showGameStats}
         onOpenChange={setShowGameStats}
+      />
+
+      {/* Custom Words Modal */}
+      <CustomWordsDialog
+        open={showCustomWords}
+        onOpenChange={setShowCustomWords}
       />
 
       {/* Achievement Gallery Modal */}
