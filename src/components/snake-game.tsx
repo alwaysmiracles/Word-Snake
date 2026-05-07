@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
 import { getRandomWord, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound } from '@/lib/sounds'
+import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -74,6 +75,7 @@ interface GameState {
   elapsedTime: number
   soundEnabled: boolean
   activeCategory: WordCategory | 'all'
+  lastAchievement: { title: string; description: string; emoji: string } | null
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -113,6 +115,7 @@ export default function SnakeGame() {
     elapsedTime: 0,
     soundEnabled: true,
     activeCategory: 'all',
+    lastAchievement: null,
   })
 
   const lastRenderRef = useRef(0)
@@ -135,6 +138,7 @@ export default function SnakeGame() {
     elapsedTime: 0,
     soundEnabled: true,
     activeCategory: 'all' as WordCategory | 'all',
+    lastAchievement: null as { title: string; description: string; emoji: string } | null,
   })
 
   const updateUI = useCallback(() => {
@@ -150,6 +154,7 @@ export default function SnakeGame() {
       elapsedTime: gs.elapsedTime,
       soundEnabled: gs.soundEnabled,
       activeCategory: gs.activeCategory,
+      lastAchievement: gs.lastAchievement ?? null,
     })
   }, [])
 
@@ -550,6 +555,11 @@ export default function SnakeGame() {
     particlesRef.current = []
     spawnWord()
     playSound(playStartSound)
+    // Track games played
+    try {
+      const games = parseInt(localStorage.getItem('word-snake-games') ?? '0', 10) + 1
+      localStorage.setItem('word-snake-games', String(games))
+    } catch { /* ignore */ }
     updateUI()
   }, [spawnWord, updateUI, playSound])
 
@@ -617,6 +627,24 @@ export default function SnakeGame() {
         const hy = snake[0].y * CELL_SIZE + CELL_SIZE / 2
         spawnParticles(hx, hy, '#ef4444', 20)
         playSound(playGameOverSound)
+        // Check achievements
+        try {
+          const wordList = Object.entries(useWordStore.getState().collectedWords)
+          const categories = [...new Set(wordList.map(([w]) => { const e = getWordEntry(w); return e?.category }).filter(Boolean))] as string[]
+          const stats: AchievementStats = {
+            totalWordsCollected: wordList.reduce((s, [, c]) => s + c, 0),
+            totalWordsEaten: gs.wordsEaten,
+            poemsCreated: 0,
+            highScore: Math.max(gs.score, stored),
+            categories,
+            gamesPlayed: parseInt(localStorage.getItem('word-snake-games') ?? '0', 10),
+          }
+          const newlyUnlocked = checkAchievements(stats)
+          if (newlyUnlocked.length > 0) {
+            const first = newlyUnlocked[0]
+            gs.lastAchievement = { title: first.title, description: first.description, emoji: first.emoji }
+          }
+        } catch { /* ignore */ }
         updateUI()
       }
 
@@ -668,6 +696,27 @@ export default function SnakeGame() {
           spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 12)
           spawnParticles(wx, wy + CELL_SIZE / 2, '#4ade80', 8)
           playSound(playEatSound)
+
+          // Check achievements after eating a word
+          try {
+            const wl = Object.entries(useWordStore.getState().collectedWords)
+            const cats = [...new Set(wl.map(([w]) => { const e = getWordEntry(w); return e?.category }).filter(Boolean))] as string[]
+            const stats: AchievementStats = {
+              totalWordsCollected: wl.reduce((s, [, c]) => s + c, 0),
+              totalWordsEaten: gs.wordsEaten,
+              poemsCreated: 0,
+              highScore: Math.max(gs.score, parseInt(localStorage.getItem('word-snake-highscore') ?? '0', 10)),
+              categories: cats,
+              gamesPlayed: parseInt(localStorage.getItem('word-snake-games') ?? '0', 10),
+            }
+            const newlyUnlocked = checkAchievements(stats)
+            if (newlyUnlocked.length > 0) {
+              const first = newlyUnlocked[0]
+              gs.lastAchievement = { title: first.title, description: first.description, emoji: first.emoji }
+              // Show floating achievement text on canvas
+              spawnFloatingText(`🏆 ${first.title}`, wx, wy - 44, '#fbbf24')
+            }
+          } catch { /* ignore */ }
 
           spawnWord()
         } else {
@@ -876,13 +925,44 @@ export default function SnakeGame() {
               )}
             </div>
 
-            <div className="flex items-center justify-center gap-4 mt-2 text-xs text-slate-500">
+            {/* Mobile D-pad */}
+            <div className="flex items-center justify-center gap-4 mt-3 text-xs text-slate-500">
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">↑↓←→</kbd>
                 / WASD
               </span>
               <span>Space - Start/Pause</span>
               <span className="hidden sm:inline">Swipe on mobile</span>
+            </div>
+
+            {/* On-screen D-pad for mobile */}
+            <div className="flex justify-center mt-3 lg:hidden">
+              <div className="grid grid-cols-3 gap-1.5 w-36">
+                <div />
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('UP'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
+                >↑</button>
+                <div />
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('LEFT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
+                >←</button>
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); const gs = gameStateRef.current; if (!gs.gameStarted || gs.gameOver) { resetGame() } else { gs.paused = !gs.paused; playSound(playPauseSound); updateUI() } }}
+                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-400 text-[10px] select-none"
+                >⏸</button>
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('RIGHT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
+                >→</button>
+                <div />
+                <button
+                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('DOWN'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
+                >↓</button>
+                <div />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -967,6 +1047,20 @@ export default function SnakeGame() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Achievement toast */}
+      {uiState.lastAchievement && (
+        <div className="fixed top-20 right-4 z-[90] animate-in slide-in-from-right-5 fade-in duration-500">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-900/90 border border-amber-600/50 shadow-xl shadow-amber-900/30 backdrop-blur-sm">
+            <span className="text-2xl">{uiState.lastAchievement.emoji}</span>
+            <div>
+              <p className="text-amber-300 text-sm font-bold">{uiState.lastAchievement.title}</p>
+              <p className="text-amber-400/80 text-xs">{uiState.lastAchievement.description}</p>
+            </div>
+            <Trophy className="h-4 w-4 text-amber-500" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

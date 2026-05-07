@@ -6,13 +6,7 @@ Agent: Main Agent
 Task: Build a Snake Word Game web application with game and poem generation features
 
 Work Log:
-- Explored project structure: Next.js 16, TypeScript, Tailwind CSS, shadcn/ui, Zustand, z-ai-web-dev-sdk
-- Created Zustand store (`src/lib/word-store.ts`) for persistent word collection state
-- Created word pool (`src/lib/word-pool.ts`) with 80+ English words
-- Built Snake game component with canvas-based rendering, keyboard controls, word-eating mechanic
-- Built Make Poem component with word bank sidebar, poem generation, poem history
-- Created backend API using z-ai-web-dev-sdk for LLM-powered poem generation
-- Built main page with tab-based navigation
+- Explored project structure, created Zustand store, word pool, game component, poem component, API route, main page
 
 Stage Summary:
 - Fully functional Snake Word Game with word collection and poem generation
@@ -23,16 +17,7 @@ Agent: Review Agent (cron)
 Task: QA testing, bug fixes, and feature enhancements (Round 1)
 
 Work Log:
-- QA tested entire application with agent-browser
-- Bug Fix: Fixed incorrect useSyncExternalStore usage
-- Bug Fix: Word food collision detection expanded
-- Bug Fix: Word food spawning with margin from edges
-- Feature: Mobile touch controls (swipe + tap)
-- Feature: Difficulty selector (Easy/Medium/Hard)
-- Feature: Visual feedback effects (floating text, particles, pulse animations)
-- Feature: Copy-to-clipboard for poems
-- Feature: Clear all words button
-- Polish: Header, footer, canvas rendering, overlays all enhanced
+- 3 bug fixes, touch controls, difficulty selector, visual effects, copy-to-clipboard, clear all words, extensive polish
 
 Stage Summary:
 - 3 bug fixes, 3 major features, extensive visual polish
@@ -43,77 +28,102 @@ Agent: Review Agent (cron)
 Task: QA testing, bug fixes, and feature enhancements (Round 2)
 
 Work Log:
-- QA tested with agent-browser: all features working, no errors
-- Bug Fix: Fixed `allowedDevOrigins` regex config error (changed to string)
-- Bug Fix: Exported `CATEGORY_COLORS` from word-pool.ts (was missing export causing 500 error)
-- Bug Fix: Removed duplicate `CATEGORY_COLORS` definition from snake-game.tsx
-- **Feature: Sound Effects** — Created `src/lib/sounds.ts` with Web Audio API synthesized sounds:
-  - `playEatSound()`: Bright ascending chime when eating a word
-  - `playGameOverSound()`: Descending sad tone on death
-  - `playStartSound()`: Quick ascending trio on game start
-  - `playPauseSound()`: Soft blip on pause/unpause
-  - `playPoemSound()`: Magical ascending arpeggio on poem generation
-  - `playClickSound()`: Tiny tick on button clicks
-  - Added mute/unmute toggle button in game header
-- **Feature: Persistent High Score** — High score now stored in `localStorage` and persists across page refreshes
-- **Feature: Word Categories** — Completely redesigned word pool with structured data:
-  - 8 categories: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
-  - Each word has category + point value
-  - Category-colored dots in word list (both game and poem sidebars)
-  - Category legend on start screen
-  - Word food rendered with category-based color (border, dot, text)
-  - Point values shown next to words in sidebar
-- **Feature: Game Timer** — Elapsed play time shown in header, pause overlay, and game over screen
-- **Feature: Download Poem as PNG** — "Save" button generates styled PNG image with gradient background, title, poem text, and used words
-- **Feature: Poem Generation Sound** — Magical arpeggio plays when poem is successfully generated
-- **Polish: Snake Trail** — Added faint green glow behind snake body for trail effect
-- **Polish: Start Screen** — Category legend with colored dots showing all 8 word categories
-- **Polish: Pause Overlay** — Now shows elapsed time, words eaten, and score
-- **Polish: Game Over Screen** — Now shows elapsed time alongside words collected
-- **Polish: Stats Sidebar** — 3-column layout (Words / Score / Time) during active gameplay
-- **Polish: Word List Items** — Show category color dot + point value on hover
+- Bug Fix: `allowedDevOrigins` regex crash, missing CATEGORY_COLORS export, duplicate definition
+- Feature: Sound Effects (Web Audio API), Persistent High Score, Word Categories, Game Timer, Download Poem as PNG, Poem Generation Sound
+- Polish: Snake trail, start screen legend, pause/game over overlays, stats sidebar
+
+Stage Summary:
+- 6 major features, 3 bug fixes, enhanced visual polish
+
+---
+Task ID: 4
+Agent: Review Agent (cron)
+Task: QA testing, bug fixes, and feature enhancements (Round 3)
+
+Work Log:
+- QA tested with agent-browser: all features working, no errors, ESLint passes
+- No bugs found during QA testing
+- **Feature: Poem Style Selector** — Added 4 distinct poem styles:
+  - Free Verse: Lyrical & evocative
+  - Haiku: 5-7-5 syllables
+  - Limerick: Witty & playful AABBA rhyme
+  - Sonnet: 14 lines, iambic pentameter
+  - Each style sends a distinct system prompt to the LLM API
+  - Style badge shown on poem result cards and history
+  - Style selector as a 2x2 grid with emojis and descriptions
+- **Feature: Achievement System** — Created `src/lib/achievements.ts`:
+  - 11 achievements: First Bite, Word Collector, Lexicon Builder, Vocabulary Master, First Poem, Poet Laureate, Century, High Roller, Category Diver, Full Spectrum, Marathon Runner
+  - Achievements tracked in localStorage
+  - Toast notification on unlock (appears in both game and poem pages)
+  - Achievement card in poem sidebar showing all achievements with lock/unlock state
+  - Floating "🏆" text on canvas when achievement unlocks during gameplay
+  - Checked after: eating a word, game over, poem generation
+- **Feature: Category Stats** — Word bank sidebar now shows category breakdown:
+  - Colored category badges with word counts
+  - Category color dot + name + count
+  - Persists across both pages
+- **Feature: Mobile D-pad** — On-screen directional pad for mobile:
+  - 3x3 grid with ↑↓←→ buttons and center pause/start button
+  - Only visible on smaller screens (lg:hidden)
+  - Uses onTouchStart for responsive mobile input
+  - Large 48px touch targets
+- **Feature: Confetti Animation** — Canvas-based confetti on poem generation:
+  - 60 colorful particles with rotation, gravity, and fade
+  - Auto-removes after animation completes
+  - 3 second display duration
+- **Feature: Page Transition Animations** — Smooth transitions between Game and Make Poem:
+  - Fade-out + slide-down on navigation (200ms)
+  - Fade-in + slide-up on new page (200ms)
+  - 50ms gap between out and in for smooth feel
+- **Polish: Achievement Toast** — Gold-themed toast notification:
+  - Appears fixed top-right with slide-in animation
+  - Shows emoji + title + description
+  - Auto-dismisses after 4 seconds
+- **Polish: Games Played Tracking** — localStorage counter for marathon achievement
+- **Polish: Footer** — Added "High scores saved" indicator with trophy icon
 
 Stage Summary:
 - All QA tests pass, no bugs or errors
-- 6 major new features (sounds, persistent high score, categories, timer, download poem, poem sound)
-- Fixed 3 bugs (allowedDevOrigins config, CATEGORY_COLORS export, duplicate definition)
-- Enhanced visual polish throughout
+- 6 major new features (poem styles, achievements, category stats, D-pad, confetti, page transitions)
+- Enhanced visual polish with toast notifications and smooth transitions
 - All code passes ESLint
 
 ## Project Current State
 
-**Status**: Feature-rich and stable
+**Status**: Feature-rich, polished, and stable
 
-The application is now a polished Snake Word Game with sound effects, category-based word system, persistent scores, game timer, and poem generation with image download.
+The application is now a comprehensive Snake Word Game with 4 poem styles, 11 achievements, category stats, mobile controls, and celebration effects.
 
 ### What Works
 - Game: start, play, pause, resume, game over, restart, persistent high score
 - Sound effects for all interactions (with mute toggle)
 - 8 word categories with color coding and point values
-- Word eating with expanded hitbox, visual feedback (particles, floating text)
 - 3 difficulty levels (Easy/Medium/Hard)
-- Touch/swipe controls for mobile
-- Game timer showing elapsed time
-- Word collection persistence via Zustand + localStorage
+- Touch/swipe controls + on-screen D-pad for mobile
+- Game timer, word collection persistence, category stats
+- 4 poem styles (Free Verse, Haiku, Limerick, Sonnet)
 - AI poem generation with automatic used-word removal
-- Copy poem to clipboard
-- Download poem as styled PNG image
-- Clear all words button
+- 11 achievements with toast notifications
+- Copy poem, download poem as PNG, confetti on generation
+- Page transition animations, clear all words
+- Achievement tracking across game and poem pages
 
 ### Known Issues / Risks
-- Web Audio API may not work in all browsers (gracefully degrades)
-- Poem download PNG text wrapping may not handle very long lines well
-- No word category filtering (all categories always active)
+- Achievement toast only shows one at a time (newest achievement)
+- Confetti canvas size based on window, may need resize handling
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Poem download PNG doesn't wrap long lines
+- No daily challenge feature yet
 - No multiplayer or social features
-- No word collection stats per category
 
 ### Suggested Next Steps
-1. **Word Category Filter**: Add ability to filter which categories spawn in game
-2. **Achievement System**: Track milestones (first poem, 50 words, etc.)
-3. **Word Collection Stats**: Show breakdown by category
-4. **Poem Styles**: Let user choose poem style (haiku, limerick, sonnet, free verse)
-5. **Daily Challenge**: Special word set that changes daily
-6. **Responsive Improvements**: Better mobile layout with on-screen D-pad
-7. **Keyboard Shortcuts**: Show keyboard shortcut hints in tooltips
-8. **Game Replays**: Record and replay games
-9. **Multi-language Word Sets**: Support for other languages
+1. **Daily Challenge**: Special word set that changes daily
+2. **Word Category Filter**: Toggle categories on/off in game
+3. **Achievement Gallery**: Full-page view of all achievements with progress
+4. **Leaderboard**: Track best scores per difficulty
+5. **Multi-language Support**: Word sets in other languages
+6. **Better Mobile Layout**: Responsive canvas sizing, prevent scroll on touch
+7. **Poem Sharing**: Generate shareable link or social media image
+8. **Game Replay**: Record and replay game sessions
+9. **Word Definitions**: Show word meanings on hover
+10. **Streak System**: Daily play streaks with bonuses

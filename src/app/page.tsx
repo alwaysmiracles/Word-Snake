@@ -6,18 +6,28 @@ import MakePoem from '@/components/make-poem'
 import { useWordStore } from '@/lib/word-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Gamepad2, BookOpen, Sparkles } from 'lucide-react'
+import { Gamepad2, Sparkles, Trophy } from 'lucide-react'
 
 type Page = 'game' | 'poem'
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>('game')
   const [mounted, setMounted] = useState(false)
+  const [transitioning, setTransitioning] = useState(false)
   const { getTotalCount } = useWordStore()
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true) }, [])
   const totalCount = mounted ? getTotalCount() : 0
+
+  const navigateTo = (page: Page) => {
+    if (page === currentPage) return
+    setTransitioning(true)
+    setTimeout(() => {
+      setCurrentPage(page)
+      setTimeout(() => setTransitioning(false), 50)
+    }, 200)
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
@@ -39,27 +49,27 @@ export default function Home() {
 
           <nav className="flex items-center gap-2">
             <Button
-              onClick={() => setCurrentPage('game')}
+              onClick={() => navigateTo('game')}
               variant={currentPage === 'game' ? 'default' : 'ghost'}
               size="sm"
-              className={
+              className={`transition-all duration-200 ${
                 currentPage === 'game'
                   ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }
+              }`}
             >
               <Gamepad2 className="h-4 w-4 mr-1.5" />
               Game
             </Button>
             <Button
-              onClick={() => setCurrentPage('poem')}
+              onClick={() => navigateTo('poem')}
               variant={currentPage === 'poem' ? 'default' : 'ghost'}
               size="sm"
-              className={
+              className={`transition-all duration-200 ${
                 currentPage === 'poem'
                   ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/30'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }
+              }`}
             >
               <Sparkles className="h-4 w-4 mr-1.5" />
               Make Poem
@@ -67,7 +77,7 @@ export default function Home() {
             {mounted && totalCount > 0 && (
               <Badge
                 variant="secondary"
-                className="bg-amber-900/50 text-amber-400 border border-amber-700/50 ml-2 animate-in fade-in slide-in-from-right-2 duration-300"
+                className="bg-amber-900/50 text-amber-400 border border-amber-700/50 ml-2"
               >
                 {totalCount} word{totalCount !== 1 ? 's' : ''}
               </Badge>
@@ -76,9 +86,17 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content with transition */}
       <main className="flex-1 p-4">
-        {currentPage === 'game' ? <SnakeGame /> : <MakePoem />}
+        <div
+          className={`transition-all duration-200 ${
+            transitioning
+              ? 'opacity-0 translate-y-2'
+              : 'opacity-100 translate-y-0'
+          }`}
+        >
+          {currentPage === 'game' ? <SnakeGame /> : <MakePoem />}
+        </div>
       </main>
 
       {/* Footer */}
@@ -87,7 +105,7 @@ export default function Home() {
           <span className="flex items-center gap-1.5">
             Word Snake — Collect words, create poetry
           </span>
-          <span className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">↑↓←→</kbd>
               Move
@@ -96,7 +114,11 @@ export default function Home() {
               <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">Space</kbd>
               Start / Pause
             </span>
-          </span>
+            <span className="hidden sm:flex items-center gap-1">
+              <Trophy className="h-3 w-3 text-amber-600" />
+              High scores saved
+            </span>
+          </div>
         </div>
       </footer>
     </div>

@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 
+export type PoemStyle = 'free_verse' | 'haiku' | 'limerick' | 'sonnet'
+
+const STYLE_PROMPTS: Record<PoemStyle, string> = {
+  free_verse:
+    'Write a free verse poem. It should be lyrical, evocative, and naturally incorporate all the given words. There are no constraints on rhyme or meter — focus on imagery and emotion.',
+  haiku:
+    'Write a haiku (5-7-5 syllable pattern) for each given word. Each haiku should capture the essence of its word. Keep them concise and nature-focused. Create one haiku per word if possible.',
+  limerick:
+    'Write a limerick (AABBA rhyme scheme with humorous tone) that incorporates the given words. Make it witty, playful, and light-hearted while including as many words as possible.',
+  sonnet:
+    'Write a Shakespearean sonnet (14 lines, ABABCDCDEFEFGG rhyme scheme, iambic pentameter) that incorporates the given words. Make it elegant and romantic.',
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { words } = await request.json()
+    const { words, style } = await request.json()
 
     if (!words || !Array.isArray(words) || words.length === 0) {
       return NextResponse.json(
@@ -12,18 +25,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const poemStyle: PoemStyle = style && STYLE_PROMPTS[style] ? style : 'free_verse'
+    const stylePrompt = STYLE_PROMPTS[poemStyle]
+
     const zai = await ZAI.create()
 
     const completion = await zai.chat.completions.create({
       messages: [
         {
           role: 'assistant',
-          content:
-            'You are a creative poet. Write beautiful, meaningful poems that incorporate all the given words naturally. The poem should be elegant and evocative. Write in English. After the poem, list the words you used on a separate line prefixed with "USED:". Example format:\n\n[Rose poem text]\n\nUSED: rose, garden, love',
+          content: `You are a creative poet. ${stylePrompt} Write in English. After the poem, list ALL the given words you used on a separate line prefixed with "USED:". Example format:\n\n[Poem text]\n\nUSED: word1, word2, word3`,
         },
         {
           role: 'user',
-          content: `Write a poem using these words: ${words.join(', ')}`,
+          content: `Write a ${poemStyle.replace('_', ' ')} poem using these words: ${words.join(', ')}`,
         },
       ],
       thinking: { type: 'disabled' },
@@ -55,6 +70,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       poem,
       usedWords,
+      style: poemStyle,
     })
   } catch (error) {
     console.error('Poem generation error:', error)
