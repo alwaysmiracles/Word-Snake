@@ -267,8 +267,8 @@
 .poem-card-ornate::after {
   content: '✦';
   position: absolute;
-  font-size: 10px;
-  color: rgba(168, 85, 247, 0.35);
+  font-size: 12px;
+  color: rgba(168, 85, 247, 0.45);
   line-height: 1;
 }
 
@@ -304,4 +304,108 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.6);
+}
+
+/* ===== Additional Visual Enhancement Animations ===== */
+
+/* Power-up pulse glow for active indicators */
+@keyframes powerup-pulse {
+  0%, 100% { box-shadow: 0 0 4px currentColor; opacity: 1; }
+  50% { box-shadow: 0 0 12px currentColor; opacity: 0.85; }
+}
+
+.powerup-active {
+  animation: powerup-pulse 1.5s ease-in-out infinite;
+}
+
+/* Combo fire flicker */
+@keyframes combo-flicker {
+  0%, 100% { text-shadow: 0 0 4px rgba(245, 158, 11, 0.5); }
+  25% { text-shadow: 0 0 8px rgba(245, 158, 11, 0.8), 0 0 16px rgba(239, 68, 68, 0.3); }
+  50% { text-shadow: 0 0 6px rgba(245, 158, 11, 0.6), 0 0 12px rgba(245, 158, 11, 0.4); }
+  75% { text-shadow: 0 0 10px rgba(245, 158, 11, 0.9), 0 0 20px rgba(239, 68, 68, 0.4); }
+}
+
+.combo-fire {
+  animation: combo-flicker 0.8s ease-in-out infinite;
+}
+
+/* Floating bounce for score badges */
+@keyframes float-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.float-badge {
+  animation: float-bounce 2s ease-in-out infinite;
+}
+
+/* Card shimmer border effect */
+@keyframes border-shimmer {
+  0% { border-color: rgba(148, 163, 184, 0.2); }
+  50% { border-color: rgba(148, 163, 184, 0.35); }
+  100% { border-color: rgba(148, 163, 184, 0.2); }
+}
+
+.card-shimmer-border {
+  animation: border-shimmer 3s ease-in-out infinite;
+}
+
+/* Subtle float animation for empty state icons */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.02); }
+}
+
+.gentle-float {
+  animation: gentle-float 3s ease-in-out infinite;
+}
+
+/* Glow ring around canvas on hover */
+.canvas-glow-ring {
+  transition: box-shadow 0.3s ease;
+}
+
+.canvas-glow-ring:hover {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15), 0 0 40px rgba(168, 85, 247, 0.08);
+}
+
+/* Poem result typing effect */
+@keyframes typewriter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.poem-typewriter {
+  animation: typewriter 0.6s ease-out;
+}
+
+/* Stats number pop animation */
+@keyframes number-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.number-pop {
+  animation: number-pop 0.3s ease-out;
+}
+
+/* Leaderboard highlight shimmer */
+@keyframes leaderboard-shine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.leaderboard-first {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.08) 45%,
+    rgba(251, 191, 36, 0.15) 50%,
+    rgba(251, 191, 36, 0.08) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: leaderboard-shine 3s ease-in-out infinite;
 }

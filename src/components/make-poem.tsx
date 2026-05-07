@@ -343,7 +343,7 @@ export default function MakePoem() {
 
       {/* Poem Generation Area */}
       <div className="flex-1 min-w-0">
-        <Card className="border-slate-700 bg-slate-900 h-full">
+        <Card className="border-slate-700 bg-slate-900 h-full card-shimmer-border">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-purple-400 flex items-center gap-2">
@@ -416,10 +416,10 @@ export default function MakePoem() {
                   <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-500/5 to-transparent" />
                   <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500/5 to-transparent" />
                   {/* Decorative corner lines */}
-                  <div className="absolute top-2 left-2 w-6 h-6 border-t border-l border-purple-600/20 rounded-tl" />
-                  <div className="absolute top-2 right-2 w-6 h-6 border-t border-r border-purple-600/20 rounded-tr" />
-                  <div className="absolute bottom-2 left-2 w-6 h-6 border-b border-l border-purple-600/20 rounded-bl" />
-                  <div className="absolute bottom-2 right-2 w-6 h-6 border-b border-r border-purple-600/20 rounded-br" />
+                  <div className="absolute top-2 left-2 w-6 h-6 border-t border-l border-purple-500/30 rounded-tl" />
+                  <div className="absolute top-2 right-2 w-6 h-6 border-t border-r border-purple-500/30 rounded-tr" />
+                  <div className="absolute bottom-2 left-2 w-6 h-6 border-b border-l border-purple-500/30 rounded-bl" />
+                  <div className="absolute bottom-2 right-2 w-6 h-6 border-b border-r border-purple-500/30 rounded-br" />
 
                   <div className="flex items-center justify-between mb-3 relative">
                     <div className="flex items-center gap-2">
@@ -438,7 +438,7 @@ export default function MakePoem() {
                       </Button>
                     </div>
                   </div>
-                  <div className="text-slate-200 leading-relaxed whitespace-pre-wrap font-serif italic text-base relative">
+                  <div className="text-slate-200 leading-relaxed whitespace-pre-wrap font-serif italic text-base relative poem-typewriter">
                     {poemResult.poem}
                   </div>
                   {poemResult.usedWords.length > 0 && (
@@ -531,7 +531,7 @@ export default function MakePoem() {
             {!poemResult && !loading && poemHistory.length === 0 && (
               <div className="text-center py-12 text-slate-500">
                 <div className="relative inline-block">
-                  <p className="text-5xl mb-4 sparkle-pulse">✨</p>
+                  <p className="text-5xl mb-4 gentle-float">✨</p>
                   <div className="absolute inset-0 bg-purple-500/10 rounded-full blur-xl" />
                 </div>
                 <p className="text-lg font-medium text-slate-400">Your poems will appear here</p>
@@ -563,7 +563,7 @@ export default function MakePoem() {
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 )}
-                <Badge variant="secondary" className="bg-amber-900/50 text-amber-400 border-amber-700 text-xs">{totalCount}</Badge>
+                <Badge key={totalCount} variant="secondary" className="bg-amber-900/50 text-amber-400 border-amber-700 text-xs number-pop">{totalCount}</Badge>
               </div>
             </div>
           </CardHeader>
@@ -737,7 +737,7 @@ export default function MakePoem() {
                         key={`${entry.date}-${i}`}
                         className={`flex items-center gap-1.5 px-2 py-1 rounded text-[11px] transition-all ${
                           isBest
-                            ? 'bg-amber-900/20 border border-amber-700/30 shadow-sm shadow-amber-900/20'
+                            ? 'bg-amber-900/20 border border-amber-700/30 shadow-sm shadow-amber-900/20 leaderboard-first'
                             : 'bg-slate-800/30 border border-transparent'
                         }`}
                       >

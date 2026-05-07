@@ -414,3 +414,185 @@ Stage Summary:
 - Poem page sidebar shows top 5 leaderboard with difficulty tabs
 - Visual polish: crown/medal emojis, amber glow for #1, difficulty-colored tabs
 - Backward compatible with existing `word-snake-highscore` key
+
+---
+Task ID: 6-a
+Agent: Power-ups & Combo Agent
+Task: Add Power-ups System and Combo Chain System to Word Snake Game
+
+Work Log:
+- Created `src/lib/powerups.ts`:
+  - `PowerUpType` type: 'slow_mo' | 'double_points' | 'shrink' | 'magnet' | 'shield'
+  - `POWERUP_CONFIG` record with type, emoji, label, color, duration, description for each power-up
+  - `getRandomPowerUpType()` — returns a random PowerUpType
+  - `POWERUP_SPAWN_CHANCE` = 0.15 (15% chance after eating a word)
+  - `POWERUP_DESPAWN_TIME` = 15000 (15 seconds before uncollected power-up disappears)
+- Added `playPowerUpSound()` to `src/lib/sounds.ts`:
+  - Bright, magical ascending arpeggio (E5→A5→C6→E6, 60ms apart)
+  - Triangle-wave sparkle overlay (A6→C7)
+  - Shorter duration than poem sound
+- Modified `src/components/snake-game.tsx` (1590→1851 lines):
+  - Added `PowerUp` and `ActivePowerUp` interfaces
+  - Extended `GameState` with: `powerUp`, `activePowerUps`, `comboCount`, `lastEatenCategory`, `comboMultiplier`
+  - Extended `uiState` with same new fields
+  - Updated `updateUI()` to include all new fields
+  - **Power-up Spawning**: After eating a word, 15% chance to spawn a random power-up at an empty position (not on snake or word food)
+  - **Power-up Collection**: Snake head on power-up position triggers effect:
+    - Shrink: removes last 3 segments instantly
+    - Timed effects (slow_mo, double_points, magnet, shield): added to `activePowerUps` with `expiresAt` timestamp
+    - Visual feedback: floating emoji + label text, particles, sound
+  - **Power-up Expiry**: Active power-ups filtered each tick; uncollected grid power-ups despawn after 15 seconds
+  - **Slow-Mo Effect**: Game tick speed multiplied by 1.6 (40% slower) when active
+  - **Double Points Effect**: Points doubled before combo multiplier is applied
+  - **Magnet Effect**: Word food position moves 1 cell closer to snake head each tick
+  - **Shield Effect**: Wall collision wraps snake to opposite side; self collision lets head pass through. Shield consumed on use.
+  - **Drawing Power-ups on Canvas**: Pulsing glow circle with emoji, colored border ring
+  - **Active Power-ups HUD on Canvas**: Bottom of canvas shows colored badges with remaining time
+  - **Combo Chain System**: 
+    - Eating words from same category consecutively increases combo count
+    - Combo multiplier = 1 + 0.5 × (comboCount - 1)
+    - Different category resets combo to 1
+    - Combo multiplier applied to points (stacks with double points power-up)
+    - Floating text shows combo multiplier when combo > 1
+  - **Combo Indicator on Canvas**: Top-right shows pulsing "🔥 ×N.N COMBO" with category info
+  - **Sidebar Indicators**: 
+    - Combo badge with multiplier and category count
+    - Active power-ups as colored badges with emoji, label, and remaining time
+  - **Reset**: All power-up and combo state properly cleared in `resetGame()`
+  - ESLint passes with zero errors
+  - Dev server compiles successfully
+
+Stage Summary:
+- **Power-ups System**: 5 power-up types (Slow-Mo, Double Points, Shrink, Magnet, Shield) with spawning, collection, timed effects, visual/audio feedback, and canvas/sidebar HUD
+- **Combo Chain System**: Consecutive same-category eating builds multiplier (×1.5, ×2.0, ×2.5...) with visual indicators on canvas and sidebar
+- Double Points stacks with combo multiplier for massive score potential
+- All new state properly reset on game restart
+
+---
+Task ID: 6-b
+Agent: Frontend Styling Expert
+Task: Visual refinement + CSS enhancements across the Word Snake application
+
+Work Log:
+- **globals.css**: Added 9 new CSS animations and utility classes:
+  - `powerup-pulse`: Pulsing glow for active indicators (keyframe + class)
+  - `combo-flicker`: Fire-like text-shadow flicker for combo indicators
+  - `float-bounce`: Subtle vertical bounce for floating badges (2s loop)
+  - `border-shimmer`: Card border color shimmer effect (3s loop)
+  - `gentle-float`: Soft float + scale for empty state icons (3s loop)
+  - `canvas-glow-ring`: Hover glow ring on canvas containers (green/purple)
+  - `poem-typewriter`: Fade-in typewriter effect for poem results
+  - `number-pop`: Scale pop animation for stat numbers (0.3s)
+  - `leaderboard-first`: Shimmer highlight for #1 leaderboard entries
+- **globals.css**: Enhanced poem card corner ornaments — increased font-size from 10px→12px, color opacity from 0.35→0.45 for better visibility
+- **page.tsx**: Applied visual enhancements:
+  - Added `canvas-glow-ring` class to main content wrapper div
+  - Improved header gradient text: `via-emerald-400` → `via-cyan-400` + `drop-shadow-sm`
+  - Footer: Added `bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900` gradient background
+  - Version badge: Added `powerup-active` glow class, changed color to `text-green-400/70` with `border-green-700/20`
+- **snake-game.tsx**: Applied visual enhancements:
+  - Added `canvas-glow-ring` class to canvas container div (rounded-lg overflow-hidden)
+  - Applied `number-pop` animation to score badge with `key={uiState.score}` for re-trigger on change
+  - Applied `gentle-float` to empty state emoji (🎯)
+  - Applied `float-badge` to streak indicator div
+  - Added subtle `shadow-inner` to stats row cards (green, purple, cyan variants)
+  - Added `ring-1 ring-slate-700/50` to sidebar card
+  - Added `card-shimmer-border` to main game card
+- **make-poem.tsx**: Applied visual enhancements:
+  - Applied `poem-typewriter` animation to poem result text div
+  - Applied `gentle-float` to empty state sparkle emoji (✨)
+  - Applied `leaderboard-first` class to #1 leaderboard entry div
+  - Made poem card corner ornaments more visible (`border-purple-600/20` → `border-purple-500/30`)
+  - Added `card-shimmer-border` to main poem card
+  - Applied `number-pop` to word count badge with `key={totalCount}` for re-trigger on change
+- All code passes ESLint with zero errors
+- No existing functionality broken
+
+Stage Summary:
+- Added 9 new CSS animation classes to globals.css
+- Enhanced poem card corner ornament visibility (CSS pseudo-element font-size & color)
+- Applied visual enhancements across 4 files (globals.css, page.tsx, snake-game.tsx, make-poem.tsx)
+- All new CSS classes are actively used in components
+- Zero lint errors
+
+---
+Task ID: 7
+Agent: Review Agent (cron Round 7)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA with agent-browser**: Tested game start/pause/die, navigation, poem page, category filter — all features working correctly, no JS errors
+- **No bugs found during QA** — app loads cleanly, no hydration errors, no console errors, ESLint passes
+- **Feature: Power-ups System** (via Task agent 6-a):
+  - Created `src/lib/powerups.ts` with 5 power-up types (Slow-Mo, Double Points, Shrink, Magnet, Shield)
+  - Added `playPowerUpSound()` to `src/lib/sounds.ts`
+  - Integrated into `src/components/snake-game.tsx`:
+    - 15% spawn chance after eating a word
+    - Power-ups despawn after 15 seconds if uncollected
+    - Visual: pulsing glow circle with emoji on canvas, colored badges with countdown
+    - Audio: bright magical ascending arpeggio
+    - Effects: Slow-Mo (40% slower for 8s), Double Points (2× for 10s), Shrink (instant -3 segments), Magnet (food moves closer for 7s), Shield (survive one collision for 12s)
+- **Feature: Combo Chain System** (via Task agent 6-a):
+  - Eating words from same category consecutively builds combo multiplier
+  - Formula: 1 + 0.5 × (comboCount - 1) → ×1.5, ×2.0, ×2.5, etc.
+  - Different category resets combo to ×1.0
+  - Double Points stacks with combo for massive scores
+  - Visual: pulsing "🔥 ×N.N COMBO" on canvas top-right, combo badge in sidebar
+- **Visual Refinements** (via Task agent 6-b):
+  - Added 9 new CSS animations to `globals.css`: powerup-pulse, combo-flicker, float-bounce, card-shimmer-border, gentle-float, canvas-glow-ring, poem-typewriter, number-pop, leaderboard-first
+  - Enhanced `page.tsx`: canvas-glow-ring, header gradient, footer gradient, version badge glow
+  - Enhanced `snake-game.tsx`: canvas-glow-ring, number-pop on score change, gentle-float on empty state, float-badge on streak, shadow-inner on stats, card-shimmer-border on game card
+  - Enhanced `make-poem.tsx`: poem-typewriter on poem result, gentle-float on sparkle, leaderboard-first on #1 entry, card-shimmer-border, number-pop on word count
+- **Post-implementation QA**: Verified all features compile and render correctly via agent-browser
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- No bugs found in QA
+- 2 major features (power-ups system, combo chain system)
+- Extensive visual refinements (9 CSS animations, 4 files enhanced)
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 18+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **5 Power-ups**: Slow-Mo (🐢), Double Points (💎), Shrink (✂️), Magnet (🧲), Shield (🛡️)
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Sound Effects**: Web Audio API sounds for all interactions including power-ups (with mute toggle)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **11 Achievements**: Toast notifications, canvas floating text
+- **Word Definitions**: Tooltips on hover showing definition and example
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Visual Polish**: 20+ CSS animations, particles, confetti, page transitions, aurora background, shimmer effects, glow rings, combo fire flicker
+- **Copy/Download Poem**: Copy to clipboard, download as PNG
+
+### Known Issues / Risks
+- Poem download PNG doesn't wrap long lines well
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Achievement toast only shows one at a time
+- Confetti canvas doesn't resize on window resize
+- Shield power-up wrapping behavior might be unexpected (wall wraps to opposite side)
+
+### Suggested Next Steps
+1. **Poem Favorites**: Mark poems as favorites, persistent poem collection
+2. **Achievement Gallery**: Full-page/modal view of all achievements with progress bars
+3. **Poem Sharing**: Generate shareable social media image
+4. **Multi-language Support**: Word sets in other languages
+5. **Game Replay**: Record and replay game sessions
+6. **Sound Customization**: Choose different sound themes
+7. **Accessibility**: Screen reader support, high contrast mode
+8. **Weather System**: Visual weather effects on canvas (rain, snow, fog)
+9. **Word Rarity System**: Rare words worth more points with special glow
+10. **Mini-map**: Small overview map showing word and power-up positions

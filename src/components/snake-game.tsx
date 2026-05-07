@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
 import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES } from '@/lib/word-pool'
-import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound } from '@/lib/sounds'
+import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { getDailyChallenge, getDailyChallengeResult, saveDailyChallengeResult, isDailyChallengePlayed, type DailyChallenge } from '@/lib/daily-challenge'
 import { getStreak, updateStreak, getStreakMultiplier, getActiveStreakBonus, applyStreakBonus, STREAK_BONUSES, type StreakInfo } from '@/lib/streak'
@@ -14,6 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { getWordDefinition } from '@/lib/word-definitions'
+import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DESPAWN_TIME, type PowerUpType, type PowerUpConfig } from '@/lib/powerups'
 import {
   Play,
   RotateCcw,
@@ -69,6 +70,17 @@ interface Particle {
   size: number
 }
 
+interface PowerUp {
+  type: PowerUpType
+  position: Position
+  spawnTime: number
+}
+
+interface ActivePowerUp {
+  type: PowerUpType
+  expiresAt: number // Date.now() when it expires, 0 for instant
+}
+
 interface GameState {
   snake: Position[]
   direction: Direction
@@ -90,6 +102,11 @@ interface GameState {
   dailyWordsCollected: string[]
   dailyTargetScore: number
   streakMultiplier: number
+  powerUp: PowerUp | null
+  activePowerUps: ActivePowerUp[]
+  comboCount: number
+  lastEatenCategory: WordCategory | null
+  comboMultiplier: number
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -191,6 +208,11 @@ export default function SnakeGame() {
     dailyWordsCollected: [],
     dailyTargetScore: 0,
     streakMultiplier: 1,
+    powerUp: null,
+    activePowerUps: [],
+    comboCount: 0,
+    lastEatenCategory: null,
+    comboMultiplier: 1,
   })
 
   const lastRenderRef = useRef(0)
@@ -219,6 +241,11 @@ export default function SnakeGame() {
     dailyWordsCollected: [] as string[],
     dailyTargetScore: 0,
     streakMultiplier: 1,
+    powerUp: null as PowerUp | null,
+    activePowerUps: [] as ActivePowerUp[],
+    comboCount: 0,
+    lastEatenCategory: null as WordCategory | null,
+    comboMultiplier: 1,
   })
 
   // Track word additions for entrance animation - key increments trigger re-render with animation
@@ -243,6 +270,11 @@ export default function SnakeGame() {
       dailyWordsCollected: gs.dailyWordsCollected,
       dailyTargetScore: gs.dailyTargetScore,
       streakMultiplier: gs.streakMultiplier,
+      powerUp: gs.powerUp,
+      activePowerUps: gs.activePowerUps,
+      comboCount: gs.comboCount,
+      lastEatenCategory: gs.lastEatenCategory,
+      comboMultiplier: gs.comboMultiplier,
     })
   }, [])
 
@@ -539,6 +571,83 @@ export default function SnakeGame() {
       ctx.textBaseline = 'alphabetic'
     }
 
+    // Draw power-up
+    if (gs.powerUp) {
+      const pu = gs.powerUp
+      const config = POWERUP_CONFIG[pu.type]
+      const elapsed = Date.now() - pu.spawnTime
+      const pulse = 1 + Math.sin(elapsed / 250) * 0.12
+
+      const cx = pu.position.x * CELL_SIZE + CELL_SIZE / 2
+      const cy = pu.position.y * CELL_SIZE + CELL_SIZE / 2
+
+      // Outer glow
+      ctx.shadowColor = config.color
+      ctx.shadowBlur = 20 + Math.sin(elapsed / 200) * 8
+
+      // Background circle
+      ctx.fillStyle = `${config.color}25`
+      ctx.beginPath()
+      ctx.arc(cx, cy, CELL_SIZE * pulse, 0, Math.PI * 2)
+      ctx.fill()
+
+      // Border ring
+      ctx.strokeStyle = config.color
+      ctx.lineWidth = 1.5
+      ctx.globalAlpha = 0.5 + Math.sin(elapsed / 200) * 0.3
+      ctx.beginPath()
+      ctx.arc(cx, cy, CELL_SIZE * pulse, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.globalAlpha = 1
+
+      // Emoji
+      ctx.font = `${14 * pulse}px sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(config.emoji, cx, cy)
+      ctx.textAlign = 'start'
+      ctx.textBaseline = 'alphabetic'
+      ctx.shadowBlur = 0
+    }
+
+    // Combo indicator
+    if (gs.comboCount > 1 && gameStarted && !gameOver && !paused) {
+      const comboAlpha = Math.min(1, 0.5 + Math.sin(Date.now() / 300) * 0.3)
+      ctx.globalAlpha = comboAlpha
+      ctx.fillStyle = '#f59e0b'
+      ctx.font = 'bold 14px sans-serif'
+      ctx.textAlign = 'right'
+      ctx.fillText(`🔥 ×${gs.comboMultiplier.toFixed(1)} COMBO`, CANVAS_WIDTH - 12, 22)
+      if (gs.lastEatenCategory) {
+        ctx.fillStyle = CATEGORY_COLORS[gs.lastEatenCategory] ?? '#f59e0b'
+        ctx.font = '10px sans-serif'
+        ctx.fillText(`${gs.comboCount}× ${getCategoryInfo(gs.lastEatenCategory).label}`, CANVAS_WIDTH - 12, 36)
+      }
+      ctx.textAlign = 'start'
+      ctx.globalAlpha = 1
+    }
+
+    // Active power-ups HUD at bottom
+    if (gs.activePowerUps.length > 0 && gameStarted && !gameOver) {
+      const hudY = CANVAS_HEIGHT - 24
+      gs.activePowerUps.forEach((apu, i) => {
+        const config = POWERUP_CONFIG[apu.type]
+        const remaining = apu.expiresAt > 0 ? Math.max(0, Math.ceil((apu.expiresAt - Date.now()) / 1000)) : 0
+        const x = 12 + i * 70
+
+        ctx.fillStyle = `${config.color}30`
+        ctx.beginPath()
+        ctx.roundRect(x, hudY - 8, 60, 18, 4)
+        ctx.fill()
+
+        ctx.fillStyle = config.color
+        ctx.font = '11px sans-serif'
+        ctx.textAlign = 'left'
+        ctx.fillText(`${config.emoji} ${remaining > 0 ? remaining + 's' : '✓'}`, x + 4, hudY + 4)
+      })
+      ctx.textAlign = 'start'
+    }
+
     // Draw floating texts
     const ft = floatingTextsRef.current
     for (let i = ft.length - 1; i >= 0; i--) {
@@ -761,6 +870,13 @@ export default function SnakeGame() {
     const streak = getStreak()
     gs.streakMultiplier = getStreakMultiplier(streak.currentStreak)
 
+    // Reset power-ups and combo
+    gs.powerUp = null
+    gs.activePowerUps = []
+    gs.comboCount = 0
+    gs.lastEatenCategory = null
+    gs.comboMultiplier = 1
+
     spawnWord()
     playSound(playStartSound)
 
@@ -803,7 +919,22 @@ export default function SnakeGame() {
         return
       }
 
-      if (timestamp - lastRenderRef.current < gs.speed) {
+      // Expire active power-ups
+      const now = Date.now()
+      gs.activePowerUps = gs.activePowerUps.filter(pu => pu.expiresAt === 0 || pu.expiresAt > now)
+
+      // Expire uncollected power-up on the grid after 15 seconds
+      if (gs.powerUp && (now - gs.powerUp.spawnTime) > POWERUP_DESPAWN_TIME) {
+        gs.powerUp = null
+      }
+
+      // Slow-Mo effect on game tick speed
+      let effectiveSpeed = gs.speed
+      if (gs.activePowerUps.some(pu => pu.type === 'slow_mo')) {
+        effectiveSpeed = Math.floor(gs.speed * 1.6) // 60% slower = speed value 1.6x higher
+      }
+
+      if (timestamp - lastRenderRef.current < effectiveSpeed) {
         draw()
         animFrameRef.current = requestAnimationFrame(gameLoop)
         return
@@ -888,17 +1019,35 @@ export default function SnakeGame() {
       }
 
       if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT) {
-        handleDeath()
-        draw()
-        animFrameRef.current = requestAnimationFrame(gameLoop)
-        return
+        const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+        if (hasShield) {
+          gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
+          // Wrap to opposite side
+          if (head.x < 0) head.x = GRID_WIDTH - 1
+          else if (head.x >= GRID_WIDTH) head.x = 0
+          else if (head.y < 0) head.y = GRID_HEIGHT - 1
+          else if (head.y >= GRID_HEIGHT) head.y = 0
+          spawnFloatingText('🛡️', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
+        } else {
+          handleDeath()
+          draw()
+          animFrameRef.current = requestAnimationFrame(gameLoop)
+          return
+        }
       }
 
       if (snake.some((s) => s.x === head.x && s.y === head.y)) {
-        handleDeath()
-        draw()
-        animFrameRef.current = requestAnimationFrame(gameLoop)
-        return
+        const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+        if (hasShield) {
+          gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
+          spawnFloatingText('🛡️', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
+          // Let it pass through — the head overlaps one body segment for one frame
+        } else {
+          handleDeath()
+          draw()
+          animFrameRef.current = requestAnimationFrame(gameLoop)
+          return
+        }
       }
 
       const newSnake = [head, ...snake]
@@ -918,12 +1067,30 @@ export default function SnakeGame() {
           const diff = gs.difficulty
           const settings = DIFFICULTY_SETTINGS[diff]
           const entry = getWordEntry(wordFood.word)
-          const points = entry ? entry.points : wordFood.word.length * 10
+          let points = entry ? entry.points : wordFood.word.length * 10
+
+          // Double Points power-up
+          if (gs.activePowerUps.some(pu => pu.type === 'double_points')) {
+            points *= 2
+          }
+
+          // Combo chain logic
+          if (wordFood.category === gs.lastEatenCategory) {
+            gs.comboCount += 1
+            gs.comboMultiplier = 1 + 0.5 * (gs.comboCount - 1)
+          } else {
+            gs.comboCount = 1
+            gs.comboMultiplier = 1
+            gs.lastEatenCategory = wordFood.category
+          }
+          // Apply combo multiplier to points
+          const comboPoints = Math.floor(points * gs.comboMultiplier)
+
           const catColor = CATEGORY_COLORS[wordFood.category] ?? '#f59e0b'
 
           addWord(wordFood.word)
           collectedWordsRef.current.add(wordFood.word)
-          gs.score += points
+          gs.score += comboPoints
           gs.speed = Math.max(settings.minSpeed, gs.speed - settings.speedInc)
           gs.wordsEaten += 1
           gs.wordFood = null
@@ -938,8 +1105,11 @@ export default function SnakeGame() {
 
           const wx = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
           const wy = wordFood.position.y * CELL_SIZE
-          spawnFloatingText(`+${points}`, wx, wy, '#4ade80')
+          spawnFloatingText(`+${comboPoints}`, wx, wy, '#4ade80')
           spawnFloatingText(wordFood.word, wx, wy - 22, catColor)
+          if (gs.comboCount > 1) {
+            spawnFloatingText(`🔥 ×${gs.comboMultiplier.toFixed(1)}`, wx, wy - 44, '#f59e0b')
+          }
           spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 12)
           spawnParticles(wx, wy + CELL_SIZE / 2, '#4ade80', 8)
           playSound(playEatSound)
@@ -974,6 +1144,26 @@ export default function SnakeGame() {
           }
 
           spawnWord()
+
+          // Chance to spawn power-up
+          if (Math.random() < POWERUP_SPAWN_CHANCE && !gs.powerUp) {
+            const puType = getRandomPowerUpType()
+            // Find empty position (not on snake, not on word food)
+            const occupied = new Set([
+              ...gs.snake.map(s => `${s.x},${s.y}`),
+              gs.wordFood ? `${gs.wordFood.position.x},${gs.wordFood.position.y}` : '',
+            ])
+            let puPos: Position
+            let attempts = 0
+            do {
+              puPos = {
+                x: Math.floor(Math.random() * (GRID_WIDTH - 6)) + 3,
+                y: Math.floor(Math.random() * (GRID_HEIGHT - 6)) + 3,
+              }
+              attempts++
+            } while (occupied.has(`${puPos.x},${puPos.y}`) && attempts < 50)
+            gs.powerUp = { type: puType, position: puPos, spawnTime: Date.now() }
+          }
         } else {
           newSnake.pop()
         }
@@ -982,6 +1172,47 @@ export default function SnakeGame() {
       }
 
       gs.snake = newSnake
+
+      // Power-up collection check
+      if (gs.powerUp) {
+        const pu = gs.powerUp
+        const puAte = (
+          head.x === pu.position.x && head.y === pu.position.y
+        )
+        if (puAte) {
+          const config = POWERUP_CONFIG[pu.type]
+          // Apply instant effects
+          if (pu.type === 'shrink') {
+            const removeCount = Math.min(3, gs.snake.length - 1)
+            gs.snake = gs.snake.slice(0, gs.snake.length - removeCount)
+          } else {
+            // Add timed effect
+            gs.activePowerUps.push({
+              type: pu.type,
+              expiresAt: config.duration > 0 ? Date.now() + config.duration * 1000 : 0,
+            })
+          }
+          // Effects
+          const px = pu.position.x * CELL_SIZE + CELL_SIZE / 2
+          const py = pu.position.y * CELL_SIZE + CELL_SIZE / 2
+          spawnFloatingText(config.emoji, px, py - 10, config.color)
+          spawnFloatingText(config.label, px, py - 30, config.color)
+          spawnParticles(px, py, config.color, 15)
+          playSound(playPowerUpSound)
+          gs.powerUp = null
+        }
+      }
+
+      // Magnet: move word food closer to snake head
+      if (gs.activePowerUps.some(pu => pu.type === 'magnet') && gs.wordFood) {
+        const headPos = gs.snake[0]
+        const foodPos = gs.wordFood.position
+        const dx = headPos.x - foodPos.x
+        const dy = headPos.y - foodPos.y
+        if (Math.abs(dx) > 0) foodPos.x += Math.sign(dx)
+        if (Math.abs(dy) > 0) foodPos.y += Math.sign(dy)
+      }
+
       updateUI()
       draw()
       animFrameRef.current = requestAnimationFrame(gameLoop)
@@ -1167,7 +1398,7 @@ export default function SnakeGame() {
         {/* Aurora background behind card */}
         <div className="relative">
           <div className="absolute -inset-2 aurora-bg rounded-xl pointer-events-none" />
-          <Card className="overflow-hidden border-slate-700 bg-slate-900 relative">
+          <Card className="overflow-hidden border-slate-700 bg-slate-900 relative card-shimmer-border">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <CardTitle className="text-green-400 flex items-center gap-2">
@@ -1182,7 +1413,7 @@ export default function SnakeGame() {
                 <div className="flex items-center gap-2 flex-wrap">
                   {/* Streak indicator */}
                   {streakInfo && streakInfo.currentStreak > 0 && (
-                    <div className={`flex items-center gap-1 text-sm ${streakDisplay ? 'text-amber-400' : 'text-slate-500'}`}>
+                    <div className={`flex items-center gap-1 text-sm float-badge ${streakDisplay ? 'text-amber-400' : 'text-slate-500'}`}>
                       <Flame className="h-4 w-4" />
                       <span className="font-bold">{streakInfo.currentStreak}</span>
                     </div>
@@ -1200,7 +1431,7 @@ export default function SnakeGame() {
                     </div>
                   )}
                   <div className="relative">
-                    <Badge variant="secondary" className="bg-green-900/50 text-green-400 border-green-700">
+                    <Badge key={uiState.score} variant="secondary" className="bg-green-900/50 text-green-400 border-green-700 number-pop">
                       <Zap className="h-3 w-3 mr-1" />
                       {uiState.score}
                     </Badge>
@@ -1312,7 +1543,7 @@ export default function SnakeGame() {
               )}
 
               {/* Canvas with dramatic border and inner glow */}
-              <div className="relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50">
+              <div className="relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring">
                 <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
                 <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
               </div>
@@ -1403,7 +1634,7 @@ export default function SnakeGame() {
 
       {/* Word Collection Sidebar - collapsible on mobile */}
       <div className={`w-full lg:w-72 shrink-0 ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
-        <Card className="border-slate-700 bg-slate-900 h-full">
+        <Card className="border-slate-700 bg-slate-900 h-full ring-1 ring-slate-700/50">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-amber-400 text-base flex items-center gap-2">
@@ -1418,15 +1649,15 @@ export default function SnakeGame() {
             {/* Stats row with gradient backgrounds */}
             {uiState.gameStarted && (
               <div className="grid grid-cols-3 gap-1.5 mb-3">
-                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-green-900/30 to-green-950/20 border border-green-800/30 text-center">
+                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-green-900/30 to-green-950/20 border border-green-800/30 text-center shadow-inner shadow-green-950/20">
                   <div className="text-green-400 text-xs font-bold">{uiState.wordsEaten}</div>
                   <div className="text-green-600 text-[9px] uppercase tracking-wider">Words</div>
                 </div>
-                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-purple-900/30 to-purple-950/20 border border-purple-800/30 text-center">
+                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-purple-900/30 to-purple-950/20 border border-purple-800/30 text-center shadow-inner shadow-purple-950/20">
                   <div className="text-purple-400 text-xs font-bold">{uiState.score}</div>
                   <div className="text-purple-600 text-[9px] uppercase tracking-wider">Score</div>
                 </div>
-                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-cyan-900/30 to-cyan-950/20 border border-cyan-800/30 text-center">
+                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-cyan-900/30 to-cyan-950/20 border border-cyan-800/30 text-center shadow-inner shadow-cyan-950/20">
                   <div className="text-cyan-400 text-xs font-bold">{formatTime(uiState.elapsedTime)}</div>
                   <div className="text-cyan-600 text-[9px] uppercase tracking-wider">Time</div>
                 </div>
@@ -1443,6 +1674,37 @@ export default function SnakeGame() {
                     <span className="text-amber-400/80"> — {streakDisplay.name} (×{streakDisplay.multiplier})</span>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Combo indicator */}
+            {uiState.comboCount > 1 && uiState.gameStarted && (
+              <div className="mb-2 px-2 py-1.5 rounded-md bg-gradient-to-r from-orange-900/20 to-amber-900/10 border border-amber-700/30 flex items-center gap-2">
+                <span className="text-sm">🔥</span>
+                <div className="text-xs">
+                  <span className="text-amber-300 font-bold">×{uiState.comboMultiplier.toFixed(1)} Combo</span>
+                  {uiState.lastEatenCategory && (
+                    <span className="text-amber-400/60 ml-1">({uiState.comboCount}× {getCategoryInfo(uiState.lastEatenCategory).label})</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Active power-ups indicator */}
+            {uiState.activePowerUps.length > 0 && uiState.gameStarted && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {uiState.activePowerUps.map((apu, i) => {
+                  const config = POWERUP_CONFIG[apu.type]
+                  const remaining = apu.expiresAt > 0 ? Math.max(0, Math.ceil((apu.expiresAt - Date.now()) / 1000)) : 0
+                  return (
+                    <div key={`${apu.type}-${i}`} className="flex items-center gap-1 px-2 py-1 rounded-md text-xs border"
+                      style={{ borderColor: `${config.color}40`, backgroundColor: `${config.color}15`, color: config.color }}>
+                      <span>{config.emoji}</span>
+                      <span className="font-medium">{config.label}</span>
+                      {remaining > 0 && <span className="opacity-70">{remaining}s</span>}
+                    </div>
+                  )
+                })}
               </div>
             )}
 
@@ -1484,7 +1746,7 @@ export default function SnakeGame() {
 
             {wordList.length === 0 ? (
               <div className="text-center py-8 text-slate-500">
-                <p className="text-3xl mb-2">🎯</p>
+                <p className="text-3xl mb-2 gentle-float">🎯</p>
                 <p className="text-sm">No words collected yet</p>
                 <p className="text-xs mt-1">Play the game to collect words!</p>
               </div>

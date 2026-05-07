@@ -49,7 +49,7 @@ export default function Home() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent drop-shadow-sm">
                 Word Snake
               </h1>
               <p className="text-[10px] text-slate-500 -mt-0.5 tracking-wider uppercase">Collect &bull; Create &bull; Compose</p>
@@ -116,7 +116,7 @@ export default function Home() {
       {/* Main Content with transition */}
       <main className="flex-1 p-2 sm:p-4">
         <div
-          className={`transition-all duration-200 ${
+          className={`transition-all duration-200 canvas-glow-ring ${
             transitioning
               ? 'opacity-0 translate-y-2'
               : 'opacity-100 translate-y-0'
@@ -130,14 +130,14 @@ export default function Home() {
       <footer className="relative">
         {/* Animated gradient line above footer */}
         <div className="animate-gradient-line h-[1px] w-full opacity-40" />
-        <div className="bg-slate-900/80 py-3">
+        <div className="bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900 py-3">
           <div className="max-w-[1100px] mx-auto px-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5">
                 Word Snake — Collect words, create poetry
               </span>
               <span className="text-slate-800">|</span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-500 text-[10px] font-mono border border-slate-700/30">
+              <span className="px-1.5 py-0.5 rounded bg-slate-800/60 text-green-400/70 text-[10px] font-mono border border-green-700/20 powerup-active">
                 v1.0
               </span>
             </div>

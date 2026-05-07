@@ -168,6 +168,44 @@ export function playPoemSound() {
   }
 }
 
+export function playPowerUpSound() {
+  try {
+    const ctx = getAudioContext()
+    const now = ctx.currentTime
+
+    // Bright, magical ascending sound (shorter than poem sound)
+    const notes = [659, 880, 1047, 1319] // E5, A5, C6, E6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      const startTime = now + i * 0.06
+      osc.frequency.setValueAtTime(freq, startTime)
+      gain.gain.setValueAtTime(0.12, startTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(startTime)
+      osc.stop(startTime + 0.2)
+    })
+
+    // Sparkle overlay
+    const osc2 = ctx.createOscillator()
+    const gain2 = ctx.createGain()
+    osc2.type = 'triangle'
+    osc2.frequency.setValueAtTime(1760, now + 0.15) // A6
+    osc2.frequency.linearRampToValueAtTime(2093, now + 0.25) // C7
+    gain2.gain.setValueAtTime(0.06, now + 0.15)
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+    osc2.connect(gain2)
+    gain2.connect(ctx.destination)
+    osc2.start(now + 0.15)
+    osc2.stop(now + 0.4)
+  } catch {
+    // Audio not available
+  }
+}
+
 export function playClickSound() {
   try {
     const ctx = getAudioContext()
