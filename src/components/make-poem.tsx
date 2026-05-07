@@ -5,11 +5,15 @@ import { useWordStore } from '@/lib/word-store'
 import { getWordEntry, CATEGORY_COLORS, getCategoryInfo, type WordCategory } from '@/lib/word-pool'
 import { playPoemSound } from '@/lib/sounds'
 import { checkAchievements, getUnlockedAchievements, ACHIEVEMENTS, type AchievementStats } from '@/lib/achievements'
+import { getStreak, getActiveStreakBonus, type StreakInfo } from '@/lib/streak'
+import { getLeaderboard, getBestScore, type Difficulty, type LeaderboardEntry } from '@/lib/leaderboard'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
+import { getWordDefinition } from '@/lib/word-definitions'
 import {
   Sparkles,
   Loader2,
@@ -21,6 +25,9 @@ import {
   Download,
   Trophy,
   Palette,
+  Flame,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 
 type PoemStyle = 'free_verse' | 'haiku' | 'limerick' | 'sonnet'
@@ -128,7 +135,7 @@ function AchievementToast({ achievement, onClose }: { achievement: { title: stri
           <p className="text-amber-300 text-sm font-bold">{achievement.title}</p>
           <p className="text-amber-400/80 text-xs">{achievement.description}</p>
         </div>
-        <Trophy className="h-4 w-4 text-amber-500" />
+        <Sparkles className="h-4 w-4 text-amber-500 sparkle-spin" />
       </div>
     </div>
   )
@@ -145,14 +152,18 @@ export default function MakePoem() {
   const [showConfetti, setShowConfetti] = useState(false)
   const [achievementToast, setAchievementToast] = useState<{ title: string; description: string; emoji: string } | null>(null)
   const [unlockedIds, setUnlockedIds] = useState<string[]>([])
+  const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [leaderboardTab, setLeaderboardTab] = useState<Difficulty>('medium')
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
   const hasWords = wordList.length > 0
 
-  // Load unlocked achievements
+  // Load unlocked achievements and streak
   useEffect(() => {
     setUnlockedIds(getUnlockedAchievements())
+    setStreakInfo(getStreak())
   }, [])
 
   const handleAchievementCheck = useCallback((extraStats?: Partial<AchievementStats>) => {
@@ -174,7 +185,6 @@ export default function MakePoem() {
     const newlyUnlocked = checkAchievements(stats)
     if (newlyUnlocked.length > 0) {
       setUnlockedIds(getUnlockedAchievements())
-      // Show the first new achievement
       const first = newlyUnlocked[0]
       setAchievementToast({ title: first.title, description: first.description, emoji: first.emoji })
     }
@@ -346,7 +356,7 @@ export default function MakePoem() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            {/* Poem Style Selector */}
+            {/* Poem Style Selector with glow on selected */}
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <Palette className="h-3.5 w-3.5 text-slate-500" />
@@ -357,9 +367,9 @@ export default function MakePoem() {
                   <button
                     key={key}
                     onClick={() => setPoemStyle(key)}
-                    className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg border transition-all duration-200 text-center ${
+                    className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg border transition-all duration-200 text-center active:scale-95 ${
                       poemStyle === key
-                        ? 'bg-purple-900/40 border-purple-600/50 text-purple-300 shadow-lg shadow-purple-900/20'
+                        ? 'bg-purple-900/40 border-purple-600/50 text-purple-300 style-glow'
                         : 'bg-slate-800/40 border-slate-700/30 text-slate-500 hover:text-slate-300 hover:border-slate-600/50 hover:bg-slate-800/60'
                     }`}
                   >
@@ -371,12 +381,14 @@ export default function MakePoem() {
               </div>
             </div>
 
-            {/* Generate Button */}
+            {/* Generate Button with shimmer when active */}
             <div className="mb-6">
               <Button
                 onClick={handleMakePoem}
                 disabled={!hasWords || loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-900/30 transition-all duration-200"
+                className={`w-full bg-purple-600 hover:bg-purple-700 text-white h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-900/30 transition-all duration-200 active:scale-[0.98] relative overflow-hidden ${
+                  hasWords && !loading ? 'btn-shimmer' : ''
+                }`}
               >
                 {loading ? (
                   <><Loader2 className="h-5 w-5 mr-2 animate-spin" />Crafting your {POEM_STYLES[poemStyle].label.toLowerCase()}...</>
@@ -397,12 +409,17 @@ export default function MakePoem() {
               </div>
             )}
 
-            {/* Current Poem Result */}
+            {/* Current Poem Result with decorative border pattern */}
             {poemResult && (
               <div className="mb-6">
-                <div className="p-5 rounded-lg bg-gradient-to-br from-purple-900/20 via-slate-800/80 to-slate-800/40 border border-purple-700/30 relative overflow-hidden">
+                <div className="poem-card-ornate p-5 rounded-lg bg-gradient-to-br from-purple-900/20 via-slate-800/80 to-slate-800/40 border border-purple-700/30 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-500/5 to-transparent" />
                   <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500/5 to-transparent" />
+                  {/* Decorative corner lines */}
+                  <div className="absolute top-2 left-2 w-6 h-6 border-t border-l border-purple-600/20 rounded-tl" />
+                  <div className="absolute top-2 right-2 w-6 h-6 border-t border-r border-purple-600/20 rounded-tr" />
+                  <div className="absolute bottom-2 left-2 w-6 h-6 border-b border-l border-purple-600/20 rounded-bl" />
+                  <div className="absolute bottom-2 right-2 w-6 h-6 border-b border-r border-purple-600/20 rounded-br" />
 
                   <div className="flex items-center justify-between mb-3 relative">
                     <div className="flex items-center gap-2">
@@ -413,10 +430,10 @@ export default function MakePoem() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200" onClick={() => copyToClipboard(poemResult.poem, poemResult.timestamp)}>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform" onClick={() => copyToClipboard(poemResult.poem, poemResult.timestamp)}>
                         {copiedId === poemResult.timestamp ? <><Check className="h-3.5 w-3.5 mr-1 text-green-400" /><span className="text-xs text-green-400">Copied!</span></> : <><Copy className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Copy</span></>}
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200" onClick={() => downloadPoemAsImage(poemResult)} title="Download as image">
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform" onClick={() => downloadPoemAsImage(poemResult)} title="Download as image">
                         <Download className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Save</span>
                       </Button>
                     </div>
@@ -427,21 +444,55 @@ export default function MakePoem() {
                   {poemResult.usedWords.length > 0 && (
                     <>
                       <Separator className="my-3 bg-slate-700/50" />
-                      <div className="flex flex-wrap gap-1.5">
-                        <span className="text-slate-500 text-xs">Words woven in:</span>
-                        {poemResult.usedWords.map((word, i) => (
-                          <Badge key={`${word}-${i}`} variant="secondary" className="bg-purple-900/40 text-purple-300 text-xs border-purple-700/50">
-                            {word}
-                          </Badge>
-                        ))}
-                      </div>
+                      <TooltipProvider delayDuration={250}>
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="text-slate-500 text-xs">Words woven in:</span>
+                          {poemResult.usedWords.map((word, i) => {
+                            const wordDef = getWordDefinition(word)
+                            const entry = getWordEntry(word)
+                            const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
+                            const catInfo = entry ? getCategoryInfo(entry.category) : null
+                            return (
+                              <Tooltip key={`${word}-${i}`}>
+                                <TooltipTrigger asChild>
+                                  <Badge variant="secondary" className="bg-purple-900/40 text-purple-300 text-xs border-purple-700/50 cursor-default hover:bg-purple-900/60 transition-colors">
+                                    <span className="w-1.5 h-1.5 rounded-full mr-1 shrink-0" style={{ backgroundColor: catColor }} />
+                                    {word}
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="bottom"
+                                  align="center"
+                                  className="bg-slate-900 border border-slate-700 text-slate-200 shadow-xl shadow-slate-900/50 rounded-lg px-3 py-2.5 max-w-[240px]"
+                                >
+                                  {wordDef ? (
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: catColor }} />
+                                        <span className="font-bold text-sm text-white">{word}</span>
+                                        {catInfo && (
+                                          <span className="text-[10px] text-slate-400 ml-0.5">{catInfo.label}</span>
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
+                                      <p className="text-xs text-slate-400 italic leading-relaxed">&ldquo;{wordDef.example}&rdquo;</p>
+                                    </div>
+                                  ) : (
+                                    <span className="font-bold text-sm text-white">{word}</span>
+                                  )}
+                                </TooltipContent>
+                              </Tooltip>
+                            )
+                          })}
+                        </div>
+                      </TooltipProvider>
                     </>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Poem History */}
+            {/* Poem History with hover elevation */}
             {poemHistory.length > 1 && (
               <div>
                 <h3 className="text-sm font-medium text-slate-400 mb-3 flex items-center gap-2">
@@ -452,7 +503,7 @@ export default function MakePoem() {
                 <ScrollArea className="h-[250px]">
                   <div className="space-y-3 pr-2">
                     {poemHistory.slice(1).map((poem) => (
-                      <div key={poem.timestamp} className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 transition-colors relative group">
+                      <div key={poem.timestamp} className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 hover:shadow-lg hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all duration-200 relative group">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="secondary" className="bg-purple-900/20 text-purple-400 text-[10px] border-purple-700/20 px-1.5 h-4">
                             {POEM_STYLES[poem.style]?.label ?? 'Free Verse'}
@@ -466,7 +517,7 @@ export default function MakePoem() {
                             ))}
                           </div>
                         )}
-                        <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-300" onClick={() => copyToClipboard(poem.poem, poem.timestamp)}>
+                        <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-300 active:scale-95" onClick={() => copyToClipboard(poem.poem, poem.timestamp)}>
                           {copiedId === poem.timestamp ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
                         </Button>
                       </div>
@@ -476,11 +527,11 @@ export default function MakePoem() {
               </div>
             )}
 
-            {/* Empty State */}
+            {/* Empty State with pulsing sparkle */}
             {!poemResult && !loading && poemHistory.length === 0 && (
               <div className="text-center py-12 text-slate-500">
                 <div className="relative inline-block">
-                  <p className="text-5xl mb-4">✨</p>
+                  <p className="text-5xl mb-4 sparkle-pulse">✨</p>
                   <div className="absolute inset-0 bg-purple-500/10 rounded-full blur-xl" />
                 </div>
                 <p className="text-lg font-medium text-slate-400">Your poems will appear here</p>
@@ -501,14 +552,14 @@ export default function MakePoem() {
       </div>
 
       {/* Word Collection Sidebar */}
-      <div className="w-full lg:w-72 shrink-0 flex flex-col gap-4">
+      <div className={`w-full lg:w-72 shrink-0 flex flex-col gap-4 ${sidebarOpen ? 'block' : 'hidden lg:flex'}`}>
         <Card className="border-slate-700 bg-slate-900">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-amber-400 text-base flex items-center gap-2">📚 Word Bank</CardTitle>
               <div className="flex items-center gap-2">
                 {hasWords && (
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-red-400" onClick={clearAll} title="Clear all words">
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-red-400 active:scale-95 transition-transform" onClick={clearAll} title="Clear all words">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 )}
@@ -543,28 +594,176 @@ export default function MakePoem() {
                 <p className="text-xs mt-1">Play the Snake game to fill it up!</p>
               </div>
             ) : (
-              <ScrollArea className="h-[300px] lg:h-[360px]">
-                <div className="space-y-1 pr-2">
-                  {wordList.map(({ word, count }) => {
-                    const entry = getWordEntry(word)
-                    const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
-                    const catInfo = entry ? getCategoryInfo(entry.category) : null
+              <TooltipProvider delayDuration={250}>
+                <ScrollArea className="h-[300px] lg:h-[360px]">
+                  <div className="space-y-1 pr-2 custom-scrollbar">
+                    {wordList.map(({ word, count }) => {
+                      const entry = getWordEntry(word)
+                      const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
+                      const catInfo = entry ? getCategoryInfo(entry.category) : null
+                      const wordDef = getWordDefinition(word)
+                      return (
+                        <Tooltip key={word}>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default">
+                              <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125" style={{ backgroundColor: catColor }} />
+                                {word}
+                                {/* Category emoji on hover */}
+                                {catInfo && (
+                                  <span className="text-[10px] opacity-0 group-hover:opacity-60 transition-opacity duration-200">
+                                    {catInfo.emoji}
+                                  </span>
+                                )}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                {entry && <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">{entry.points}pt{entry.points !== 1 ? 's' : ''}</span>}
+                                {count > 1 && <Badge variant="secondary" className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center">×{count}</Badge>}
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="left"
+                            align="center"
+                            className="bg-slate-900 border border-slate-700 text-slate-200 shadow-xl shadow-slate-900/50 rounded-lg px-3 py-2.5 max-w-[240px]"
+                          >
+                            {wordDef ? (
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: catColor }} />
+                                  <span className="font-bold text-sm text-white">{word}</span>
+                                  {catInfo && (
+                                    <span className="text-[10px] text-slate-400 ml-0.5">{catInfo.label}</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
+                                <p className="text-xs text-slate-400 italic leading-relaxed">&ldquo;{wordDef.example}&rdquo;</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1">
+                                <span className="font-bold text-sm text-white">{word}</span>
+                                {catInfo && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
+                                    <span className="text-[10px] text-slate-400">{catInfo.label}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
+              </TooltipProvider>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Streak Badge */}
+        {streakInfo && streakInfo.currentStreak > 0 && (() => {
+          const activeBonus = getActiveStreakBonus(streakInfo.currentStreak)
+          return (
+            <div className="px-3 py-2.5 rounded-lg bg-gradient-to-r from-amber-900/15 to-orange-900/10 border border-amber-700/30 flex items-center gap-2.5">
+              <Flame className="h-5 w-5 text-amber-400 shrink-0" />
+              <div className="text-xs">
+                <span className="text-amber-300 font-bold">{streakInfo.currentStreak}-day streak</span>
+                {activeBonus && (
+                  <span className="text-amber-400/80"> — {activeBonus.name} ({activeBonus.multiplier}× bonus)</span>
+                )}
+                {!activeBonus && (
+                  <span className="text-amber-500/60 block text-[10px] mt-0.5">Keep going for rewards!</span>
+                )}
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* Leaderboard Section */}
+        <Card className="border-slate-700 bg-slate-900">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-amber-400 text-sm flex items-center gap-2">
+                🏆 Leaderboard
+              </CardTitle>
+              <div className="flex items-center gap-1">
+                {(['easy', 'medium', 'hard'] as const).map((diff) => (
+                  <button
+                    key={diff}
+                    onClick={() => setLeaderboardTab(diff)}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-all duration-200 ${
+                      leaderboardTab === diff
+                        ? diff === 'easy'
+                          ? 'bg-green-900/60 text-green-400 border border-green-700/50'
+                          : diff === 'medium'
+                          ? 'bg-amber-900/60 text-amber-400 border border-amber-700/50'
+                          : 'bg-red-900/60 text-red-400 border border-red-700/50'
+                        : 'bg-slate-800/40 text-slate-500 border border-slate-700/30 hover:text-slate-300'
+                    }`}
+                  >
+                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {(() => {
+              const entries = getLeaderboard(leaderboardTab).slice(0, 5)
+              const bestScore = getBestScore(leaderboardTab)
+              if (entries.length === 0) {
+                return (
+                  <div className="text-center py-4 text-slate-500">
+                    <p className="text-sm">No scores yet</p>
+                    <p className="text-[10px] mt-1">Play to set a record!</p>
+                  </div>
+                )
+              }
+              return (
+                <div className="space-y-0.5">
+                  {entries.map((entry, i) => {
+                    const rank = i + 1
+                    const rankEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : ''
+                    const isBest = entry.score === bestScore && rank === 1
+                    const dateStr = (() => {
+                      try {
+                        const d = new Date(entry.date)
+                        return `${d.getMonth() + 1}/${d.getDate()}`
+                      } catch { return '' }
+                    })()
                     return (
-                      <div key={word} className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200">
-                        <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: catColor }} title={catInfo?.label ?? ''} />
-                          {word}
+                      <div
+                        key={`${entry.date}-${i}`}
+                        className={`flex items-center gap-1.5 px-2 py-1 rounded text-[11px] transition-all ${
+                          isBest
+                            ? 'bg-amber-900/20 border border-amber-700/30 shadow-sm shadow-amber-900/20'
+                            : 'bg-slate-800/30 border border-transparent'
+                        }`}
+                      >
+                        <span className="w-4 text-center shrink-0">
+                          {rankEmoji || <span className="text-slate-500">{rank}</span>}
                         </span>
-                        <div className="flex items-center gap-1.5">
-                          {entry && <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">{entry.points}pt{entry.points !== 1 ? 's' : ''}</span>}
-                          {count > 1 && <Badge variant="secondary" className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center">×{count}</Badge>}
-                        </div>
+                        <span className={`font-mono font-bold ${isBest ? 'text-amber-300' : 'text-slate-300'}`}>
+                          {entry.score}
+                        </span>
+                        <span className="text-slate-500 text-[10px]">
+                          {entry.wordsEaten}w
+                        </span>
+                        {dateStr && (
+                          <span className="text-slate-600 text-[10px] ml-auto">
+                            {dateStr}
+                          </span>
+                        )}
+                        {entry.isDailyChallenge && (
+                          <span className="text-[9px] text-amber-500/70">📅</span>
+                        )}
                       </div>
                     )
                   })}
                 </div>
-              </ScrollArea>
-            )}
+              )
+            })()}
           </CardContent>
         </Card>
 
@@ -583,7 +782,7 @@ export default function MakePoem() {
           </CardHeader>
           <CardContent className="pt-0">
             <ScrollArea className="h-[140px]">
-              <div className="space-y-1 pr-2">
+              <div className="space-y-1 pr-2 custom-scrollbar">
                 {ACHIEVEMENTS.map((a) => {
                   const unlocked = unlockedIds.includes(a.id)
                   return (
@@ -601,6 +800,19 @@ export default function MakePoem() {
             </ScrollArea>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Mobile sidebar toggle */}
+      <div className="flex justify-center lg:hidden mt-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="text-slate-400 hover:text-slate-200 text-xs gap-1 active:scale-95 transition-transform"
+        >
+          {sidebarOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          {sidebarOpen ? 'Hide Sidebar' : `Word Bank (${totalCount})`}
+        </Button>
       </div>
     </div>
   )

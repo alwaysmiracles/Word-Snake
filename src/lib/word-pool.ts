@@ -152,4 +152,22 @@ export function getRandomWord(exclude: string[] = []): string {
   return available[Math.floor(Math.random() * available.length)].word
 }
 
+export function getRandomWordWithCategories(exclude: string[] = [], categories?: Set<WordCategory>): string {
+  let pool = categories && categories.size > 0
+    ? WORD_ENTRIES.filter((e) => categories.has(e.category))
+    : WORD_ENTRIES
+  const available = pool.filter((e) => !exclude.includes(e.word))
+  if (available.length === 0) {
+    // Fallback: if no words available in selected categories, use full pool
+    const fallback = WORD_ENTRIES.filter((e) => !exclude.includes(e.word))
+    if (fallback.length === 0) return WORD_ENTRIES[Math.floor(Math.random() * WORD_ENTRIES.length)].word
+    return fallback[Math.floor(Math.random() * fallback.length)].word
+  }
+  return available[Math.floor(Math.random() * available.length)].word
+}
+
+export function getWordCountByCategory(category: WordCategory): number {
+  return WORD_ENTRIES.filter((e) => e.category === category).length
+}
+
 export { WORD_ENTRIES }

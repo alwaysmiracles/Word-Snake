@@ -2,24 +2,33 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
-import { getRandomWord, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory } from '@/lib/word-pool'
+import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
+import { getDailyChallenge, getDailyChallengeResult, saveDailyChallengeResult, isDailyChallengePlayed, type DailyChallenge } from '@/lib/daily-challenge'
+import { getStreak, updateStreak, getStreakMultiplier, getActiveStreakBonus, applyStreakBonus, STREAK_BONUSES, type StreakInfo } from '@/lib/streak'
+import { addLeaderboardEntry, getBestScore, getEntryCount, type Difficulty } from '@/lib/leaderboard'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
+import { getWordDefinition } from '@/lib/word-definitions'
 import {
   Play,
   RotateCcw,
   Pause,
   Trophy,
-  ChevronRight,
   Zap,
   Timer,
   Volume2,
   VolumeX,
   Clock,
+  Calendar,
+  Flame,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
 } from 'lucide-react'
 
 // Game constants
@@ -74,27 +83,88 @@ interface GameState {
   startTime: number
   elapsedTime: number
   soundEnabled: boolean
-  activeCategory: WordCategory | 'all'
+  activeCategories: Set<WordCategory>
   lastAchievement: { title: string; description: string; emoji: string } | null
+  isDailyChallenge: boolean
+  dailyChallengeWords: string[]
+  dailyWordsCollected: string[]
+  dailyTargetScore: number
+  streakMultiplier: number
 }
 
 const DIFFICULTY_SETTINGS = {
-  easy: { speed: 180, speedInc: 1, minSpeed: 90, label: 'Easy' },
-  medium: { speed: 140, speedInc: 2, minSpeed: 65, label: 'Medium' },
-  hard: { speed: 100, speedInc: 3, minSpeed: 45, label: 'Hard' },
+  easy: { speed: 180, speedInc: 1, minSpeed: 90, label: 'Easy', dotColor: 'bg-green-400' },
+  medium: { speed: 140, speedInc: 2, minSpeed: 65, label: 'Medium', dotColor: 'bg-amber-400' },
+  hard: { speed: 100, speedInc: 3, minSpeed: 45, label: 'Hard', dotColor: 'bg-red-400' },
+}
+
+const DIFFICULTY_THRESHOLDS = { easy: 0, medium: 50, hard: 150 }
+
+const ALL_CATEGORIES: WordCategory[] = ['nature', 'emotion', 'element', 'time', 'creature', 'quality', 'object', 'action']
+
+function loadActiveCategories(): Set<WordCategory> {
+  if (typeof window === 'undefined') return new Set(ALL_CATEGORIES)
+  try {
+    const stored = localStorage.getItem('word-snake-categories')
+    if (stored) {
+      const parsed = JSON.parse(stored) as string[]
+      const valid = parsed.filter((c): c is WordCategory => ALL_CATEGORIES.includes(c as WordCategory))
+      if (valid.length > 0) return new Set(valid)
+    }
+  } catch { /* ignore */ }
+  return new Set(ALL_CATEGORIES)
+}
+
+function saveActiveCategories(categories: Set<WordCategory>) {
+  try {
+    localStorage.setItem('word-snake-categories', JSON.stringify([...categories]))
+  } catch { /* ignore */ }
 }
 
 
 export default function SnakeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { addWord, getWordList, getTotalCount } = useWordStore()
-  const [highScore, setHighScore] = useState(() => {
-    if (typeof window !== 'undefined') {
+  const [highScore, setHighScore] = useState(0)
+  const [leaderboardRank, setLeaderboardRank] = useState(0)
+
+  // Mobile sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Daily challenge state (lazy init to avoid hydration mismatch)
+  const [dailyInfo, setDailyInfo] = useState<{
+    challenge: DailyChallenge | null
+    played: boolean
+    result: { completed: boolean; score: number } | null
+  }>({ challenge: null, played: false, result: null })
+
+  // Streak state (lazy init to avoid hydration mismatch)
+  const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null)
+
+  // Track if mounted (client-side only data loading)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
+  // Load client-only state after mount using microtask to avoid cascading render lint
+  useEffect(() => {
+    if (!mounted) return
+    const loadData = () => {
       const stored = localStorage.getItem('word-snake-highscore')
-      return stored ? parseInt(stored, 10) : 0
+      if (stored) setHighScore(parseInt(stored, 10))
+      // Load difficulty-specific best score
+      const gs = gameStateRef.current
+      const diffBest = getBestScore(gs.difficulty)
+      if (diffBest > 0) setHighScore(diffBest)
+      setDailyInfo({
+        challenge: getDailyChallenge(),
+        played: isDailyChallengePlayed(),
+        result: getDailyChallengeResult(),
+      })
+      setStreakInfo(getStreak())
     }
-    return 0
-  })
+    const id = requestAnimationFrame(loadData)
+    return () => cancelAnimationFrame(id)
+  }, [mounted])
 
   const gameStateRef = useRef<GameState>({
     snake: [
@@ -114,8 +184,13 @@ export default function SnakeGame() {
     startTime: 0,
     elapsedTime: 0,
     soundEnabled: true,
-    activeCategory: 'all',
+    activeCategories: loadActiveCategories(),
     lastAchievement: null,
+    isDailyChallenge: false,
+    dailyChallengeWords: [],
+    dailyWordsCollected: [],
+    dailyTargetScore: 0,
+    streakMultiplier: 1,
   })
 
   const lastRenderRef = useRef(0)
@@ -137,9 +212,17 @@ export default function SnakeGame() {
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
     elapsedTime: 0,
     soundEnabled: true,
-    activeCategory: 'all' as WordCategory | 'all',
+    activeCategories: loadActiveCategories(),
     lastAchievement: null as { title: string; description: string; emoji: string } | null,
+    isDailyChallenge: false,
+    dailyChallengeWords: [] as string[],
+    dailyWordsCollected: [] as string[],
+    dailyTargetScore: 0,
+    streakMultiplier: 1,
   })
+
+  // Track word additions for entrance animation - key increments trigger re-render with animation
+  const [newWordKey, setNewWordKey] = useState(0)
 
   const updateUI = useCallback(() => {
     const gs = gameStateRef.current
@@ -153,8 +236,13 @@ export default function SnakeGame() {
       difficulty: gs.difficulty,
       elapsedTime: gs.elapsedTime,
       soundEnabled: gs.soundEnabled,
-      activeCategory: gs.activeCategory,
+      activeCategories: gs.activeCategories,
       lastAchievement: gs.lastAchievement ?? null,
+      isDailyChallenge: gs.isDailyChallenge,
+      dailyChallengeWords: gs.dailyChallengeWords,
+      dailyWordsCollected: gs.dailyWordsCollected,
+      dailyTargetScore: gs.dailyTargetScore,
+      streakMultiplier: gs.streakMultiplier,
     })
   }, [])
 
@@ -196,10 +284,24 @@ export default function SnakeGame() {
   const spawnWord = useCallback(() => {
     const gs = gameStateRef.current
     const occupiedPositions = new Set(gs.snake.map((s) => `${s.x},${s.y}`))
-    const collected = Array.from(collectedWordsRef.current)
-    const word = getRandomWord(collected)
-    const entry = getWordEntry(word)
-    const category = entry?.category ?? 'nature'
+
+    let word: string
+    let category: WordCategory
+
+    if (gs.isDailyChallenge && gs.dailyChallengeWords.length > 0) {
+      const remaining = gs.dailyChallengeWords.filter(
+        (w) => !gs.dailyWordsCollected.includes(w)
+      )
+      const pool = remaining.length > 0 ? remaining : gs.dailyChallengeWords
+      word = pool[Math.floor(Math.random() * pool.length)]
+      const entry = getWordEntry(word)
+      category = entry?.category ?? 'nature'
+    } else {
+      const collected = Array.from(collectedWordsRef.current)
+      word = getRandomWordWithCategories(collected, gs.activeCategories)
+      const entry = getWordEntry(word)
+      category = entry?.category ?? 'nature'
+    }
 
     const margin = 3
     let pos: Position
@@ -247,17 +349,45 @@ export default function SnakeGame() {
 
     // Draw border glow
     const gradient = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, 0)
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.1)')
-    gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.1)')
-    gradient.addColorStop(1, 'rgba(245, 158, 11, 0.1)')
+    if (gs.isDailyChallenge && gameStarted) {
+      gradient.addColorStop(0, 'rgba(245, 158, 11, 0.15)')
+      gradient.addColorStop(0.5, 'rgba(239, 68, 68, 0.15)')
+      gradient.addColorStop(1, 'rgba(245, 158, 11, 0.15)')
+    } else {
+      gradient.addColorStop(0, 'rgba(34, 197, 94, 0.1)')
+      gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.1)')
+      gradient.addColorStop(1, 'rgba(245, 158, 11, 0.1)')
+    }
     ctx.strokeStyle = gradient
     ctx.lineWidth = 2
     ctx.strokeRect(1, 1, CANVAS_WIDTH - 2, CANVAS_HEIGHT - 2)
 
+    // Daily challenge banner during gameplay
+    if (gs.isDailyChallenge && gameStarted && !gameOver && !paused) {
+      const remaining = gs.dailyChallengeWords.filter(
+        (w) => !gs.dailyWordsCollected.includes(w)
+      ).length
+      const total = gs.dailyChallengeWords.length
+
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)'
+      ctx.fillRect(0, 0, CANVAS_WIDTH, 28)
+      ctx.fillStyle = '#fbbf24'
+      ctx.font = 'bold 11px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(
+        `📅 Daily Challenge  •  ${gs.dailyTargetScore} pts target  •  ${remaining}/${total} words remaining`,
+        CANVAS_WIDTH / 2,
+        14
+      )
+      ctx.textAlign = 'start'
+      ctx.textBaseline = 'alphabetic'
+    }
+
     // Draw snake body trail (faint glow behind snake)
     if (snake.length > 1) {
       ctx.globalAlpha = 0.04
-      ctx.fillStyle = '#22c55e'
+      ctx.fillStyle = gs.isDailyChallenge ? '#f59e0b' : '#22c55e'
       for (const seg of snake) {
         ctx.beginPath()
         ctx.arc(
@@ -276,9 +406,9 @@ export default function SnakeGame() {
     snake.forEach((segment, index) => {
       if (index === 0) {
         // Snake head
-        ctx.shadowColor = '#22c55e'
+        ctx.shadowColor = gs.isDailyChallenge ? '#f59e0b' : '#22c55e'
         ctx.shadowBlur = 12
-        ctx.fillStyle = '#4ade80'
+        ctx.fillStyle = gs.isDailyChallenge ? '#fbbf24' : '#4ade80'
         ctx.beginPath()
         ctx.roundRect(
           segment.x * CELL_SIZE + 1,
@@ -314,9 +444,15 @@ export default function SnakeGame() {
       } else {
         // Body
         const ratio = 1 - index / snake.length
-        const green = Math.floor(160 + ratio * 95)
-        const alpha = 0.6 + ratio * 0.4
-        ctx.fillStyle = `rgba(34, ${green}, 80, ${alpha})`
+        if (gs.isDailyChallenge) {
+          const red = Math.floor(160 + ratio * 95)
+          const alpha = 0.6 + ratio * 0.4
+          ctx.fillStyle = `rgba(${red}, 158, 34, ${alpha})`
+        } else {
+          const green = Math.floor(160 + ratio * 95)
+          const alpha = 0.6 + ratio * 0.4
+          ctx.fillStyle = `rgba(34, ${green}, 80, ${alpha})`
+        }
 
         const prev = snake[index - 1]
         const dx = prev.x - segment.x
@@ -445,25 +581,60 @@ export default function SnakeGame() {
       lineGrad.addColorStop(1, 'rgba(239, 68, 68, 0)')
 
       ctx.strokeStyle = lineGrad; ctx.lineWidth = 1
-      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 - 70); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 - 70); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 - 80); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 - 80); ctx.stroke()
 
       ctx.fillStyle = '#ef4444'
       ctx.font = 'bold 40px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('GAME OVER', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30)
+      ctx.fillText('GAME OVER', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40)
 
+      // Score with streak bonus
+      const bonusInfo = applyStreakBonus(gs.score, streakInfo?.currentStreak ?? 0)
       ctx.fillStyle = '#94a3b8'; ctx.font = '18px sans-serif'
-      ctx.fillText(`Score: ${gs.score}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 10)
+      if (bonusInfo.multiplier > 1) {
+        ctx.fillText(`Score: ${gs.score} (×${bonusInfo.multiplier} streak bonus)`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+      } else {
+        ctx.fillText(`Score: ${gs.score}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+      }
 
       ctx.fillStyle = '#64748b'; ctx.font = '14px sans-serif'
-      ctx.fillText(`${gs.wordsEaten} words collected  •  ${formatTime(gs.elapsedTime)}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 35)
+      ctx.fillText(`${gs.wordsEaten} words collected  •  ${formatTime(gs.elapsedTime)}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 25)
+
+      // Daily challenge result
+      if (gs.isDailyChallenge) {
+        const dailyCompleted = gs.score >= gs.dailyTargetScore
+        ctx.fillStyle = dailyCompleted ? '#4ade80' : '#f87171'
+        ctx.font = 'bold 16px sans-serif'
+        ctx.fillText(
+          dailyCompleted
+            ? 'Daily Complete! 🎉'
+            : `Target missed (${gs.dailyTargetScore} pts needed)`,
+          CANVAS_WIDTH / 2,
+          CANVAS_HEIGHT / 2 + 55
+        )
+      }
+
+      // Leaderboard rank
+      if (leaderboardRank > 0) {
+        const rankY = gs.isDailyChallenge ? CANVAS_HEIGHT / 2 + 75 : CANVAS_HEIGHT / 2 + 55
+        const totalEntries = getEntryCount(gs.difficulty)
+        if (leaderboardRank === 1) {
+          ctx.fillStyle = '#fbbf24'
+          ctx.font = 'bold 16px sans-serif'
+          ctx.fillText('New High Score! 🏆', CANVAS_WIDTH / 2, rankY)
+        } else {
+          ctx.fillStyle = '#94a3b8'
+          ctx.font = '14px sans-serif'
+          ctx.fillText(`Rank #${leaderboardRank} of ${totalEntries}`, CANVAS_WIDTH / 2, rankY)
+        }
+      }
 
       ctx.strokeStyle = lineGrad
-      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 + 55); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 + 55); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 + 90); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 + 90); ctx.stroke()
 
       const alpha = 0.5 + Math.sin(Date.now() / 500) * 0.3
       ctx.fillStyle = `rgba(74, 222, 128, ${alpha})`; ctx.font = '14px sans-serif'
-      ctx.fillText('Press Space or click to restart', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 80)
+      ctx.fillText('Press Space or click to restart', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 115)
       ctx.textAlign = 'start'
     }
 
@@ -475,16 +646,16 @@ export default function SnakeGame() {
       ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 20
       ctx.fillStyle = '#4ade80'; ctx.font = 'bold 38px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('WORD SNAKE', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 60)
+      ctx.fillText('WORD SNAKE', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80)
       ctx.shadowBlur = 0
 
       ctx.fillStyle = '#94a3b8'; ctx.font = '14px sans-serif'
-      ctx.fillText('Eat words, collect them, make poetry', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 25)
+      ctx.fillText('Eat words, collect them, make poetry', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 48)
 
       // Category legend
       const categories: WordCategory[] = ['nature', 'emotion', 'element', 'time', 'creature', 'quality', 'object', 'action']
       const cols = 4
-      const startY = CANVAS_HEIGHT / 2 + 5
+      const startY = CANVAS_HEIGHT / 2 - 20
       const rowH = 18
       const colW = 140
       categories.forEach((cat, i) => {
@@ -500,13 +671,29 @@ export default function SnakeGame() {
         ctx.fillText(info.label, x + 8, y + 4)
       })
 
+      // Streak bonus legend
+      if (streakInfo && streakInfo.currentStreak > 0) {
+        const activeBonus = getActiveStreakBonus(streakInfo.currentStreak)
+        const bonusY = startY + 50
+        ctx.textAlign = 'center'
+        ctx.fillStyle = '#f59e0b'; ctx.font = '11px sans-serif'
+        if (activeBonus) {
+          ctx.fillText(`🔥 ${streakInfo.currentStreak}-day streak: ${activeBonus.name} (×${activeBonus.multiplier} bonus)`, CANVAS_WIDTH / 2, bonusY)
+        } else {
+          const next = STREAK_BONUSES.find((b) => b.days > streakInfo.currentStreak)
+          if (next) {
+            ctx.fillText(`🔥 ${streakInfo.currentStreak}-day streak (${next.days - streakInfo.currentStreak} days to ${next.name})`, CANVAS_WIDTH / 2, bonusY)
+          }
+        }
+      }
+
       ctx.textAlign = 'center'
       ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif'
-      ctx.fillText('Arrow Keys / WASD  •  Space to start  •  Swipe on mobile', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 75)
+      ctx.fillText('Arrow Keys / WASD  •  Space to start  •  Swipe on mobile', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 60)
 
       const alpha = 0.5 + Math.sin(Date.now() / 500) * 0.3
       ctx.fillStyle = `rgba(74, 222, 128, ${alpha})`; ctx.font = 'bold 16px sans-serif'
-      ctx.fillText('Press Space or click to start', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 105)
+      ctx.fillText('Press Space or click to start', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 90)
       ctx.textAlign = 'start'
     }
 
@@ -529,9 +716,9 @@ export default function SnakeGame() {
       ctx.fillText('Press Space or Esc to resume', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 45)
       ctx.textAlign = 'start'
     }
-  }, [])
+  }, [streakInfo, leaderboardRank])
 
-  const resetGame = useCallback(() => {
+  const resetGame = useCallback((isDaily: boolean = false) => {
     const gs = gameStateRef.current
     const diff = gs.difficulty
     const settings = DIFFICULTY_SETTINGS[diff]
@@ -553,13 +740,40 @@ export default function SnakeGame() {
     directionQueueRef.current = []
     floatingTextsRef.current = []
     particlesRef.current = []
+    collectedWordsRef.current = new Set()
+    setLeaderboardRank(0)
+
+    // Daily challenge setup
+    if (isDaily) {
+      const challenge = getDailyChallenge()
+      gs.isDailyChallenge = true
+      gs.dailyChallengeWords = challenge.words
+      gs.dailyWordsCollected = []
+      gs.dailyTargetScore = challenge.targetScore
+    } else {
+      gs.isDailyChallenge = false
+      gs.dailyChallengeWords = []
+      gs.dailyWordsCollected = []
+      gs.dailyTargetScore = 0
+    }
+
+    // Streak multiplier
+    const streak = getStreak()
+    gs.streakMultiplier = getStreakMultiplier(streak.currentStreak)
+
     spawnWord()
     playSound(playStartSound)
-    // Track games played
+
+    // Track games played & update streak
     try {
       const games = parseInt(localStorage.getItem('word-snake-games') ?? '0', 10) + 1
       localStorage.setItem('word-snake-games', String(games))
     } catch { /* ignore */ }
+
+    // Update streak
+    const updatedStreak = updateStreak()
+    setStreakInfo(updatedStreak)
+
     updateUI()
   }, [spawnWord, updateUI, playSound])
 
@@ -622,11 +836,36 @@ export default function SnakeGame() {
         if (gs.score > stored) {
           localStorage.setItem('word-snake-highscore', String(gs.score))
         }
-        setHighScore((prev) => Math.max(prev, gs.score))
+
+        // Save to leaderboard
+        const rank = addLeaderboardEntry({
+          score: gs.score,
+          wordsEaten: gs.wordsEaten,
+          difficulty: gs.difficulty,
+          date: new Date().toISOString(),
+          isDailyChallenge: gs.isDailyChallenge,
+        })
+        setLeaderboardRank(rank)
+
+        // Update high score to difficulty-specific best
+        const diffBest = getBestScore(gs.difficulty)
+        setHighScore(Math.max(diffBest, gs.score))
         const hx = snake[0].x * CELL_SIZE + CELL_SIZE / 2
         const hy = snake[0].y * CELL_SIZE + CELL_SIZE / 2
         spawnParticles(hx, hy, '#ef4444', 20)
         playSound(playGameOverSound)
+
+        // Save daily challenge result if applicable
+        if (gs.isDailyChallenge) {
+          const completed = gs.score >= gs.dailyTargetScore
+          saveDailyChallengeResult(completed, gs.score)
+          setDailyInfo((prev) => ({
+            ...prev,
+            played: true,
+            result: { completed, score: gs.score },
+          }))
+        }
+
         // Check achievements
         try {
           const wordList = Object.entries(useWordStore.getState().collectedWords)
@@ -689,6 +928,14 @@ export default function SnakeGame() {
           gs.wordsEaten += 1
           gs.wordFood = null
 
+          // Track daily challenge words
+          if (gs.isDailyChallenge && !gs.dailyWordsCollected.includes(wordFood.word)) {
+            gs.dailyWordsCollected.push(wordFood.word)
+          }
+
+          // Trigger word entrance animation
+          setNewWordKey((k) => k + 1)
+
           const wx = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
           const wy = wordFood.position.y * CELL_SIZE
           spawnFloatingText(`+${points}`, wx, wy, '#4ade80')
@@ -713,10 +960,18 @@ export default function SnakeGame() {
             if (newlyUnlocked.length > 0) {
               const first = newlyUnlocked[0]
               gs.lastAchievement = { title: first.title, description: first.description, emoji: first.emoji }
-              // Show floating achievement text on canvas
               spawnFloatingText(`🏆 ${first.title}`, wx, wy - 44, '#fbbf24')
             }
           } catch { /* ignore */ }
+
+          // Check streak milestones
+          const currentStreak = streakInfo?.currentStreak ?? 0
+          for (const bonus of STREAK_BONUSES) {
+            if (currentStreak === bonus.days) {
+              spawnFloatingText(`🔥 ${bonus.name}!`, wx, wy - 66, '#f59e0b')
+              break
+            }
+          }
 
           spawnWord()
         } else {
@@ -736,7 +991,7 @@ export default function SnakeGame() {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
-  }, [draw, addWord, spawnWord, updateUI, spawnFloatingText, spawnParticles, playSound])
+  }, [draw, addWord, spawnWord, updateUI, spawnFloatingText, spawnParticles, playSound, streakInfo])
 
   // Keyboard controls
   useEffect(() => {
@@ -744,7 +999,7 @@ export default function SnakeGame() {
       const gs = gameStateRef.current
       if (e.key === ' ') {
         e.preventDefault()
-        if (gs.gameOver) { resetGame() }
+        if (gs.gameOver) { resetGame(gs.isDailyChallenge) }
         else if (!gs.gameStarted) { resetGame() }
         else { gs.paused = !gs.paused; playSound(playPauseSound); updateUI() }
         return
@@ -771,7 +1026,7 @@ export default function SnakeGame() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [resetGame, updateUI, playSound])
 
-  // Touch controls
+  // Touch controls - also prevent page scroll
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -787,7 +1042,7 @@ export default function SnakeGame() {
       const minSwipe = 20
       if (Math.abs(dx) < minSwipe && Math.abs(dy) < minSwipe) {
         const gs = gameStateRef.current
-        if (!gs.gameStarted || gs.gameOver) { resetGame() }
+        if (!gs.gameStarted || gs.gameOver) { resetGame(gs.isDailyChallenge) }
         else { gs.paused = !gs.paused; playSound(playPauseSound); updateUI() }
         touchStartRef.current = null
         return
@@ -809,13 +1064,22 @@ export default function SnakeGame() {
     }
   }, [resetGame, updateUI, playSound])
 
+  // Prevent page scroll when touching D-pad
+  useEffect(() => {
+    const dpadContainer = document.getElementById('mobile-dpad')
+    if (!dpadContainer) return
+    const prevent = (e: TouchEvent) => e.preventDefault()
+    dpadContainer.addEventListener('touchmove', prevent, { passive: false })
+    return () => dpadContainer.removeEventListener('touchmove', prevent)
+  }, [])
+
   // Canvas click to start
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const handleClick = () => {
       const gs = gameStateRef.current
-      if (!gs.gameStarted || gs.gameOver) resetGame()
+      if (!gs.gameStarted || gs.gameOver) resetGame(gs.isDailyChallenge)
     }
     canvas.addEventListener('click', handleClick)
     return () => canvas.removeEventListener('click', handleClick)
@@ -828,6 +1092,9 @@ export default function SnakeGame() {
     const gs = gameStateRef.current
     if (gs.gameStarted && !gs.gameOver) return
     gs.difficulty = diff
+    // Update best score for the new difficulty
+    const diffBest = getBestScore(diff)
+    setHighScore(diffBest)
     playSound(playClickSound)
     updateUI()
   }
@@ -838,138 +1105,304 @@ export default function SnakeGame() {
     updateUI()
   }
 
+  const toggleCategory = (cat: WordCategory) => {
+    const gs = gameStateRef.current
+    if (gs.gameStarted && !gs.gameOver) return
+    const current = gs.activeCategories
+    if (current.size <= 1 && current.has(cat)) return
+    if (current.has(cat)) {
+      current.delete(cat)
+    } else {
+      current.add(cat)
+    }
+    saveActiveCategories(current)
+    playSound(playClickSound)
+    updateUI()
+  }
+
+  const toggleAllCategories = () => {
+    const gs = gameStateRef.current
+    if (gs.gameStarted && !gs.gameOver) return
+    const current = gs.activeCategories
+    if (current.size === ALL_CATEGORIES.length) {
+      gs.activeCategories = new Set([ALL_CATEGORIES[0]])
+    } else {
+      gs.activeCategories = new Set(ALL_CATEGORIES)
+    }
+    saveActiveCategories(gs.activeCategories)
+    playSound(playClickSound)
+    updateUI()
+  }
+
+  const handleDailyChallenge = () => {
+    playSound(playClickSound)
+    resetGame(true)
+  }
+
+  // Streak display data
+  const streakDisplay = streakInfo && streakInfo.currentStreak > 0
+    ? getActiveStreakBonus(streakInfo.currentStreak)
+    : null
+
+  // Score progress to next difficulty threshold
+  const scoreProgress = (() => {
+    const thresholds = [
+      { score: DIFFICULTY_THRESHOLDS.hard, label: 'Hard' },
+      { score: DIFFICULTY_THRESHOLDS.medium, label: 'Medium' },
+      { score: DIFFICULTY_THRESHOLDS.easy, label: 'Easy' },
+    ]
+    const next = thresholds.find((t) => uiState.score < t.score)
+    if (!next) return { percent: 100, label: 'Max' }
+    const prev = thresholds.find((t) => t.score < next.score)
+    const base = prev ? prev.score : 0
+    const range = next.score - base
+    const current = uiState.score - base
+    return { percent: Math.min(100, Math.round((current / range) * 100)), label: next.label }
+  })()
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 w-full max-w-[1100px] mx-auto">
       {/* Game Area */}
       <div className="flex-1 min-w-0">
-        <Card className="overflow-hidden border-slate-700 bg-slate-900">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-green-400 flex items-center gap-2">
-                <span className="text-2xl">🐍</span> Word Snake
-              </CardTitle>
-              <div className="flex items-center gap-2">
+        {/* Aurora background behind card */}
+        <div className="relative">
+          <div className="absolute -inset-2 aurora-bg rounded-xl pointer-events-none" />
+          <Card className="overflow-hidden border-slate-700 bg-slate-900 relative">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <CardTitle className="text-green-400 flex items-center gap-2">
+                  <span className="text-2xl">🐍</span> Word Snake
+                  {uiState.isDailyChallenge && uiState.gameStarted && (
+                    <Badge className="bg-amber-900/60 text-amber-300 border-amber-700/50 text-xs ml-1">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      Daily
+                    </Badge>
+                  )}
+                </CardTitle>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Streak indicator */}
+                  {streakInfo && streakInfo.currentStreak > 0 && (
+                    <div className={`flex items-center gap-1 text-sm ${streakDisplay ? 'text-amber-400' : 'text-slate-500'}`}>
+                      <Flame className="h-4 w-4" />
+                      <span className="font-bold">{streakInfo.currentStreak}</span>
+                    </div>
+                  )}
+                  {uiState.gameStarted && !uiState.gameOver && (
+                    <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+                      <Clock className="h-3 w-3" />
+                      <span className="font-mono">{formatTime(uiState.elapsedTime)}</span>
+                    </div>
+                  )}
+                  {highScore > 0 && (
+                    <div className="flex items-center gap-1 text-amber-400 text-sm">
+                      <Trophy className="h-4 w-4" />
+                      <span>Best ({DIFFICULTY_SETTINGS[uiState.difficulty].label}): {highScore}</span>
+                    </div>
+                  )}
+                  <div className="relative">
+                    <Badge variant="secondary" className="bg-green-900/50 text-green-400 border-green-700">
+                      <Zap className="h-3 w-3 mr-1" />
+                      {uiState.score}
+                    </Badge>
+                    {/* Mini progress bar under score badge */}
+                    {uiState.gameStarted && !uiState.gameOver && (
+                      <div className="absolute -bottom-1.5 left-1 right-1 h-0.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-300"
+                          style={{ width: `${scoreProgress.percent}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform"
+                    onClick={toggleSound}
+                    title={uiState.soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
+                  >
+                    {uiState.soundEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-2 sm:p-4">
+              {/* Difficulty selector with colored dots */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <Timer className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="text-xs text-slate-500">Difficulty:</span>
+                  {(['easy', 'medium', 'hard'] as const).map((diff) => (
+                    <button
+                      key={diff}
+                      onClick={() => changeDifficulty(diff)}
+                      className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium transition-all duration-200 active:scale-95 ${
+                        uiState.difficulty === diff
+                          ? diff === 'easy'
+                            ? 'bg-green-900/60 text-green-400 border border-green-700/50'
+                            : diff === 'medium'
+                            ? 'bg-amber-900/60 text-amber-400 border border-amber-700/50'
+                            : 'bg-red-900/60 text-red-400 border border-red-700/50'
+                          : 'bg-slate-800/60 text-slate-500 border border-slate-700/30 hover:text-slate-300'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_SETTINGS[diff].dotColor} ${uiState.difficulty === diff ? 'opacity-100' : 'opacity-40'}`} />
+                      {DIFFICULTY_SETTINGS[diff].label}
+                    </button>
+                  ))}
+
+                  {/* Daily challenge status */}
+                  {dailyInfo.played && dailyInfo.result && (
+                    <span className="ml-auto text-xs text-green-400 flex items-center gap-1">
+                      ✅ Today&apos;s challenge: {dailyInfo.result.score} pts
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Category Filter - wraps on small screens */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <svg className="h-3.5 w-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    <span className="text-xs text-slate-500 font-medium">Categories:</span>
+                    <button
+                      onClick={toggleAllCategories}
+                      className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all duration-200 active:scale-95 ${
+                        uiState.activeCategories.size === ALL_CATEGORIES.length
+                          ? 'bg-slate-600/60 text-slate-200 border border-slate-500/50'
+                          : 'bg-slate-800/40 text-slate-500 border border-slate-700/30 hover:text-slate-300'
+                      }`}
+                    >
+                      All
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ALL_CATEGORIES.map((cat) => {
+                      const info = getCategoryInfo(cat)
+                      const color = CATEGORY_COLORS[cat]
+                      const active = uiState.activeCategories.has(cat)
+                      const count = getWordCountByCategory(cat)
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => toggleCategory(cat)}
+                          className={`category-bounce flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-all duration-200 border active:scale-95 ${
+                            active
+                              ? `border-current`
+                              : 'bg-slate-800/40 border-slate-700/30 text-slate-500 hover:text-slate-300'
+                          }`}
+                          style={active ? {
+                            backgroundColor: `${color}15`,
+                            borderColor: `${color}50`,
+                            color: color,
+                          } : undefined}
+                        >
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 transition-all duration-200 ${active ? 'scale-100' : 'scale-75 opacity-50'}`}
+                            style={{ backgroundColor: color }}
+                          />
+                          {info.label}
+                          <span className="text-[9px] opacity-60">({count})</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Canvas with dramatic border and inner glow */}
+              <div className="relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50">
+                <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
+                <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
+              </div>
+
+              {/* Start / Daily buttons - side by side on larger screens */}
+              <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
+                {!uiState.gameStarted && (
+                  <>
+                    <Button onClick={() => resetGame()} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 active:scale-95 transition-transform">
+                      <Play className="h-4 w-4 mr-1" /> Start Game
+                    </Button>
+                    <Button
+                      onClick={handleDailyChallenge}
+                      className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-900/30 active:scale-95 transition-transform"
+                      title={mounted && dailyInfo.challenge ? `${dailyInfo.challenge.category} — ${dailyInfo.challenge.targetScore} pts target` : 'Daily Challenge'}
+                    >
+                      <Calendar className="h-4 w-4 mr-1" /> Daily Challenge
+                    </Button>
+                  </>
+                )}
                 {uiState.gameStarted && !uiState.gameOver && (
-                  <div className="flex items-center gap-1.5 text-slate-400 text-xs">
-                    <Clock className="h-3 w-3" />
-                    <span className="font-mono">{formatTime(uiState.elapsedTime)}</span>
-                  </div>
+                  <Button onClick={() => { const gs = gameStateRef.current; gs.paused = !gs.paused; playSound(playPauseSound); updateUI() }} variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800 active:scale-95 transition-transform">
+                    {uiState.paused ? <><Play className="h-4 w-4 mr-1" /> Resume</> : <><Pause className="h-4 w-4 mr-1" /> Pause</>}
+                  </Button>
                 )}
-                {highScore > 0 && (
-                  <div className="flex items-center gap-1 text-amber-400 text-sm">
-                    <Trophy className="h-4 w-4" />
-                    <span>Best: {highScore}</span>
-                  </div>
+                {uiState.gameOver && (
+                  <Button onClick={() => resetGame(uiState.isDailyChallenge)} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 active:scale-95 transition-transform">
+                    <RotateCcw className="h-4 w-4 mr-1" /> Play Again
+                  </Button>
                 )}
-                <Badge variant="secondary" className="bg-green-900/50 text-green-400 border-green-700">
-                  <Zap className="h-3 w-3 mr-1" />
-                  {uiState.score}
-                </Badge>
+              </div>
+
+              <div className="flex items-center justify-center gap-4 mt-3 text-xs text-slate-500">
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">↑↓←→</kbd>
+                  / WASD
+                </span>
+                <span>Space - Start/Pause</span>
+                <span className="hidden sm:inline">Swipe on mobile</span>
+              </div>
+
+              {/* On-screen D-pad for mobile - glass-morphism style */}
+              <div id="mobile-dpad" className="flex justify-center mt-3 lg:hidden">
+                <div className="grid grid-cols-3 gap-1.5 w-36">
+                  <div />
+                  <button
+                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('UP'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
+                  >↑</button>
+                  <div />
+                  <button
+                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('LEFT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
+                  >←</button>
+                  <button
+                    onTouchStart={(e) => { e.preventDefault(); const gs = gameStateRef.current; if (!gs.gameStarted || gs.gameOver) { resetGame(gs.isDailyChallenge) } else { gs.paused = !gs.paused; playSound(playPauseSound); updateUI() } }}
+                    className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-400 text-[10px] select-none transition-transform"
+                  >⏸</button>
+                  <button
+                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('RIGHT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
+                  >→</button>
+                  <div />
+                  <button
+                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('DOWN'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
+                  >↓</button>
+                  <div />
+                </div>
+              </div>
+
+              {/* Mobile sidebar toggle */}
+              <div className="flex justify-center mt-2 lg:hidden">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 w-7 p-0 text-slate-400 hover:text-slate-200"
-                  onClick={toggleSound}
-                  title={uiState.soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="text-slate-400 hover:text-slate-200 text-xs gap-1 active:scale-95 transition-transform"
                 >
-                  {uiState.soundEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+                  {sidebarOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  {sidebarOpen ? 'Hide Words' : `Show Words (${totalCount})`}
                 </Button>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            {/* Difficulty selector */}
-            {(!uiState.gameStarted || uiState.gameOver) && (
-              <div className="flex items-center gap-2 mb-3">
-                <Timer className="h-3.5 w-3.5 text-slate-500" />
-                <span className="text-xs text-slate-500">Difficulty:</span>
-                {(['easy', 'medium', 'hard'] as const).map((diff) => (
-                  <button
-                    key={diff}
-                    onClick={() => changeDifficulty(diff)}
-                    className={`px-2.5 py-0.5 rounded text-xs font-medium transition-all ${
-                      uiState.difficulty === diff
-                        ? diff === 'easy'
-                          ? 'bg-green-900/60 text-green-400 border border-green-700/50'
-                          : diff === 'medium'
-                          ? 'bg-amber-900/60 text-amber-400 border border-amber-700/50'
-                          : 'bg-red-900/60 text-red-400 border border-red-700/50'
-                        : 'bg-slate-800/60 text-slate-500 border border-slate-700/30 hover:text-slate-300'
-                    }`}
-                  >
-                    {DIFFICULTY_SETTINGS[diff].label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="relative rounded-lg overflow-hidden border border-slate-700/80 shadow-lg shadow-slate-950/50">
-              <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
-            </div>
-
-            <div className="flex items-center justify-center gap-2 mt-3">
-              {!uiState.gameStarted && (
-                <Button onClick={resetGame} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30">
-                  <Play className="h-4 w-4 mr-1" /> Start Game
-                </Button>
-              )}
-              {uiState.gameStarted && !uiState.gameOver && (
-                <Button onClick={() => { const gs = gameStateRef.current; gs.paused = !gs.paused; playSound(playPauseSound); updateUI() }} variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
-                  {uiState.paused ? <><Play className="h-4 w-4 mr-1" /> Resume</> : <><Pause className="h-4 w-4 mr-1" /> Pause</>}
-                </Button>
-              )}
-              {uiState.gameOver && (
-                <Button onClick={resetGame} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30">
-                  <RotateCcw className="h-4 w-4 mr-1" /> Play Again
-                </Button>
-              )}
-            </div>
-
-            {/* Mobile D-pad */}
-            <div className="flex items-center justify-center gap-4 mt-3 text-xs text-slate-500">
-              <span className="flex items-center gap-1">
-                <kbd className="px-1 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] font-mono">↑↓←→</kbd>
-                / WASD
-              </span>
-              <span>Space - Start/Pause</span>
-              <span className="hidden sm:inline">Swipe on mobile</span>
-            </div>
-
-            {/* On-screen D-pad for mobile */}
-            <div className="flex justify-center mt-3 lg:hidden">
-              <div className="grid grid-cols-3 gap-1.5 w-36">
-                <div />
-                <button
-                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('UP'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
-                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
-                >↑</button>
-                <div />
-                <button
-                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('LEFT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
-                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
-                >←</button>
-                <button
-                  onTouchStart={(e) => { e.preventDefault(); const gs = gameStateRef.current; if (!gs.gameStarted || gs.gameOver) { resetGame() } else { gs.paused = !gs.paused; playSound(playPauseSound); updateUI() } }}
-                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-400 text-[10px] select-none"
-                >⏸</button>
-                <button
-                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('RIGHT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
-                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
-                >→</button>
-                <div />
-                <button
-                  onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('DOWN'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
-                  className="h-12 rounded-lg bg-slate-800 border border-slate-600 active:bg-slate-700 flex items-center justify-center text-slate-300 text-lg select-none"
-                >↓</button>
-                <div />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Word Collection Sidebar */}
-      <div className="w-full lg:w-72 shrink-0">
+      {/* Word Collection Sidebar - collapsible on mobile */}
+      <div className={`w-full lg:w-72 shrink-0 ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
         <Card className="border-slate-700 bg-slate-900 h-full">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -982,20 +1415,69 @@ export default function SnakeGame() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            {/* Stats row */}
+            {/* Stats row with gradient backgrounds */}
             {uiState.gameStarted && (
               <div className="grid grid-cols-3 gap-1.5 mb-3">
-                <div className="px-2 py-1.5 rounded-md bg-green-900/20 border border-green-800/30 text-center">
+                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-green-900/30 to-green-950/20 border border-green-800/30 text-center">
                   <div className="text-green-400 text-xs font-bold">{uiState.wordsEaten}</div>
                   <div className="text-green-600 text-[9px] uppercase tracking-wider">Words</div>
                 </div>
-                <div className="px-2 py-1.5 rounded-md bg-purple-900/20 border border-purple-800/30 text-center">
+                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-purple-900/30 to-purple-950/20 border border-purple-800/30 text-center">
                   <div className="text-purple-400 text-xs font-bold">{uiState.score}</div>
                   <div className="text-purple-600 text-[9px] uppercase tracking-wider">Score</div>
                 </div>
-                <div className="px-2 py-1.5 rounded-md bg-cyan-900/20 border border-cyan-800/30 text-center">
+                <div className="px-2 py-1.5 rounded-md bg-gradient-to-br from-cyan-900/30 to-cyan-950/20 border border-cyan-800/30 text-center">
                   <div className="text-cyan-400 text-xs font-bold">{formatTime(uiState.elapsedTime)}</div>
                   <div className="text-cyan-600 text-[9px] uppercase tracking-wider">Time</div>
+                </div>
+              </div>
+            )}
+
+            {/* Streak bonus indicator */}
+            {streakInfo && streakInfo.currentStreak > 0 && (
+              <div className="mb-3 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-amber-900/20 to-orange-900/10 border border-amber-800/30 flex items-center gap-2">
+                <Flame className="h-4 w-4 text-amber-400 shrink-0" />
+                <div className="text-xs">
+                  <span className="text-amber-300 font-bold">{streakInfo.currentStreak}-day streak</span>
+                  {streakDisplay && (
+                    <span className="text-amber-400/80"> — {streakDisplay.name} (×{streakDisplay.multiplier})</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Daily challenge words */}
+            {uiState.isDailyChallenge && uiState.gameStarted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-amber-900/15 border border-amber-700/30">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-amber-400" />
+                  <span className="text-amber-300 text-xs font-bold">Daily Challenge Words</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {uiState.dailyChallengeWords.map((w) => {
+                    const collected = uiState.dailyWordsCollected.includes(w)
+                    const entry = getWordEntry(w)
+                    const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
+                    return (
+                      <span
+                        key={w}
+                        className={`text-[11px] px-1.5 py-0.5 rounded border transition-all ${
+                          collected
+                            ? 'bg-amber-900/30 text-amber-300 border-amber-600/30'
+                            : 'bg-slate-800/50 text-slate-500 border-slate-700/30'
+                        }`}
+                      >
+                        {collected && '✓ '}{w}
+                        <span
+                          className="inline-block w-1.5 h-1.5 rounded-full ml-1"
+                          style={{ backgroundColor: catColor }}
+                        />
+                      </span>
+                    )
+                  })}
+                </div>
+                <div className="text-[10px] text-amber-500/60 mt-1.5">
+                  Target: {uiState.dailyTargetScore} pts
                 </div>
               </div>
             )}
@@ -1007,48 +1489,89 @@ export default function SnakeGame() {
                 <p className="text-xs mt-1">Play the game to collect words!</p>
               </div>
             ) : (
-              <ScrollArea className="h-[340px] lg:h-[400px]">
-                <div className="space-y-1 pr-2">
-                  {wordList.map(({ word, count }) => {
-                    const entry = getWordEntry(word)
-                    const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
-                    const catInfo = entry ? getCategoryInfo(entry.category) : null
-                    return (
-                      <div
-                        key={word}
-                        className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200"
-                      >
-                        <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
-                          <span
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ backgroundColor: catColor }}
-                            title={catInfo?.label ?? ''}
-                          />
-                          {word}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          {entry && (
-                            <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">
-                              {entry.points}pt{entry.points !== 1 ? 's' : ''}
-                            </span>
-                          )}
-                          {count > 1 && (
-                            <Badge variant="secondary" className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center">
-                              ×{count}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </ScrollArea>
+              <TooltipProvider delayDuration={250}>
+                <ScrollArea className="h-[340px] lg:h-[400px]">
+                  <div className="space-y-1 pr-2 custom-scrollbar">
+                    {wordList.map(({ word, count }, idx) => {
+                      const entry = getWordEntry(word)
+                      const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
+                      const catInfo = entry ? getCategoryInfo(entry.category) : null
+                      const wordDef = getWordDefinition(word)
+                      const isNew = idx === 0 && newWordKey > 0
+                      return (
+                        <Tooltip key={`${word}-${newWordKey}`}>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default ${isNew ? 'word-entrance' : ''}`}
+                            >
+                              <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
+                                <span
+                                  className="w-2 h-2 rounded-full shrink-0 transition-all duration-200 group-hover:scale-125"
+                                  style={{ backgroundColor: catColor }}
+                                />
+                                {word}
+                                {/* Category emoji on hover */}
+                                {catInfo && (
+                                  <span className="text-[10px] opacity-0 group-hover:opacity-60 transition-opacity duration-200">
+                                    {catInfo.emoji}
+                                  </span>
+                                )}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                {entry && (
+                                  <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">
+                                    {entry.points}pt{entry.points !== 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                {count > 1 && (
+                                  <Badge variant="secondary" className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center">
+                                    ×{count}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="left"
+                            align="center"
+                            className="bg-slate-900 border border-slate-700 text-slate-200 shadow-xl shadow-slate-900/50 rounded-lg px-3 py-2.5 max-w-[240px]"
+                          >
+                            {wordDef ? (
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: catColor }} />
+                                  <span className="font-bold text-sm text-white">{word}</span>
+                                  {catInfo && (
+                                    <span className="text-[10px] text-slate-400 ml-0.5">{catInfo.label}</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
+                                <p className="text-xs text-slate-400 italic leading-relaxed">&ldquo;{wordDef.example}&rdquo;</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-1">
+                                <span className="font-bold text-sm text-white">{word}</span>
+                                {catInfo && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
+                                    <span className="text-[10px] text-slate-400">{catInfo.label}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
+              </TooltipProvider>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Achievement toast */}
+      {/* Achievement toast with rotating sparkle */}
       {uiState.lastAchievement && (
         <div className="fixed top-20 right-4 z-[90] animate-in slide-in-from-right-5 fade-in duration-500">
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-900/90 border border-amber-600/50 shadow-xl shadow-amber-900/30 backdrop-blur-sm">
@@ -1057,7 +1580,7 @@ export default function SnakeGame() {
               <p className="text-amber-300 text-sm font-bold">{uiState.lastAchievement.title}</p>
               <p className="text-amber-400/80 text-xs">{uiState.lastAchievement.description}</p>
             </div>
-            <Trophy className="h-4 w-4 text-amber-500" />
+            <Sparkles className="h-4 w-4 text-amber-500 sparkle-spin" />
           </div>
         </div>
       )}
