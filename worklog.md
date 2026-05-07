@@ -902,3 +902,282 @@ The application is a comprehensive Word Snake game with 25+ major features.
 8. **Poem Collage**: Combine multiple poems into a collage image
 9. **Weather Effects on Score**: Rain slows snake, snow reduces visibility, stars boost score
 10. **Online Leaderboard**: Server-side leaderboard with global rankings
+
+---
+Task ID: 10-a
+Agent: Achievement Queue Agent
+Task: Add Achievement Notification Queue
+
+Work Log:
+- Created `src/lib/achievement-queue.ts` with `AchievementQueue` class:
+  - `AchievementNotification` interface: `{ title, description, emoji }`
+  - FIFO queue with `enqueue()`, `dequeue()`, `peek()`, `isEmpty()`, `clear()`, `size` getter
+- Modified `src/components/snake-game.tsx`:
+  - Added import for `AchievementQueue` and `AchievementNotification`
+  - Created module-level `achievementQueue` instance
+  - Added `toastTimerRef` for managing auto-dismiss timing
+  - Added `achievementQueueSize` to `uiState` for "N more" indicator
+  - Added `showNextAchievement()` callback: dequeues and shows next, auto-dismisses after 4s, then waits 500ms before showing next
+  - Added `enqueueAchievements()` callback: adds ALL newly unlocked to queue, shows first immediately if no toast currently visible
+  - Replaced `handleDeath()` achievement check: now uses `enqueueAchievements()` instead of setting `lastAchievement` directly
+  - Replaced word-eating achievement check: same queue-based approach
+  - Added "N more" indicator on toast: `(+N more)` suffix on title when queue has items
+  - Added auto-dismiss after 4 seconds with cascading 500ms gap between toasts
+  - Queue cleared on `resetGame()` and on component unmount
+- Modified `src/components/make-poem.tsx`:
+  - Added import for `AchievementQueue` and `AchievementNotification`
+  - Created module-level `poemAchievementQueue` instance
+  - Added `achievementQueueSize` state and `toastTimerRef` ref
+  - Added `showNextPoemAchievement()` callback with same cascading logic (4s display, 500ms gap)
+  - Added `enqueuePoemAchievements()` callback
+  - Replaced `handleAchievementCheck()` to use queue: all newly unlocked achievements are enqueued
+  - Updated `AchievementToast` component to accept `queueSize` prop and show "(+N more)" indicator
+  - Added cleanup on unmount: clears queue and timer
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- **Achievement Queue System**: Multiple achievements now display in sequence with cascading toast notifications
+- FIFO queue with auto-dismiss (4s per toast) and 500ms gap between toasts
+- "N more" indicator shows remaining queued achievements on current toast
+- Both snake-game.tsx and make-poem.tsx use independent queue instances
+- Queues properly cleaned up on game reset and component unmount
+- Resolves the long-standing "Achievement toast only shows one at a time" issue
+
+---
+Task ID: 10-b
+Agent: Game Stats Agent
+Task: Add Game Statistics Dashboard
+
+Work Log:
+- Created `src/lib/game-stats.ts`:
+  - `GameStats` interface with 20+ fields: totalGamesPlayed, totalWordsEaten, totalScore, bestScore, bestScoreDifficulty, averageScore, totalPoemsCreated, totalWordsUsedInPoems, favoriteStyle, longestStreak, currentStreak, totalPlayTime, achievementsUnlocked, totalAchievements, mostEatenCategory, mostEatenCategoryCount, rarestWordEaten, dailyChallengesCompleted, dailyChallengesPlayed, powerUpsCollected, maxCombo, skinsUsed
+  - `getGameStats()`: Computes all stats from localStorage data (uses existing keys + new keys for cumulative tracking)
+  - `trackGameEnd(score, wordsEaten, difficulty, playTimeMs, isDailyChallenge)`: Updates cumulative stats (totalWordsEaten, totalScore, totalPlayTime, daily tracking, skin usage)
+  - `trackWordEaten(category, rarity)`: Updates category and rarity stats in localStorage
+  - `trackPoemCreated(style, wordsUsed)`: Updates poem count, words total, and style frequency
+  - `trackPowerUpCollected()`: Increments power-ups counter
+  - `trackCombo(comboCount)`: Updates max combo if current exceeds stored max
+  - `trackDailyPlayed()` / `trackDailyCompleted()`: Track daily challenge participation
+  - `formatPlayTime(ms)`: Formats milliseconds to "Xh Ym" display format
+  - New localStorage keys: `word-snake-total-words-eaten`, `word-snake-total-score`, `word-snake-category-stats`, `word-snake-rarity-stats`, `word-snake-total-play-time`, `word-snake-powerups-collected`, `word-snake-max-combo`, `word-snake-skins-used`, `word-snake-poems-count`, `word-snake-poem-style-stats`, `word-snake-poem-words-total`, `word-snake-daily-played`, `word-snake-daily-completed`
+- Created `src/components/game-stats.tsx`:
+  - Dialog modal component using Dialog from `@/components/ui/dialog`
+  - Title: "📊 Game Statistics"
+  - Four sections with categorized stat cards:
+    - **Overall Stats**: Games Played, Total Score, Avg Score, Best Score (with difficulty), Play Time, Words Eaten
+    - **Poetry Stats**: Poems Created, Words in Poems, Favorite Style
+    - **Challenge Stats**: Daily Played, Daily Completed, Current/Longest Streak, Achievements
+    - **Records**: Max Combo, Power-ups Collected, Rarest Word Eaten, Most Eaten Category, Skins Used
+  - StatCard component with icon, value, label, and configurable value color
+  - Dark theme consistent with app (bg-slate-900, border-slate-700)
+  - Values in bright colors (amber for numbers, green for records, purple for poetry)
+  - Icons from lucide-react: Gamepad2, Trophy, BarChart3, Medal, Clock, BookOpen, Sparkles, Pen, Palette, Flame, Zap, Gift, Star, Tag
+  - Scrollable with `scrollbar-fancy` class and `modal-backdrop-enhanced` overlay
+  - Stats loaded on dialog open via useEffect
+- Created `src/lib/achievement-queue.ts` (stub for Task 10-a dependency):
+  - `AchievementNotification` interface and `AchievementQueue` class
+  - FIFO queue with enqueue, dequeue, peek, isEmpty, clear, size
+- Modified `src/components/snake-game.tsx`:
+  - Added import for `GameStatsDialog` and tracking functions from game-stats
+  - Added `showGameStats` state (boolean, default false)
+  - On game over: calls `trackGameEnd(gs.score, gs.wordsEaten, gs.difficulty, gs.elapsedTime, gs.isDailyChallenge)`
+  - On eating a word: calls `trackWordEaten(wordFood.category, wordFood.rarity)` and `trackCombo(gs.comboCount)`
+  - On collecting power-up: calls `trackPowerUpCollected()`
+  - Added "📊 Stats" button next to 🏆 Achievements button (before start and after game over)
+  - Rendered `<GameStatsDialog>` component with open/onOpenChange props
+- Modified `src/components/make-poem.tsx`:
+  - Added import for `trackPoemCreated` and `GameStatsDialog`
+  - Added `showGameStats` state (boolean, default false)
+  - After poem generation: calls `trackPoemCreated(result.style, result.usedWords.length)`
+  - Added "📊 Stats" button in sidebar below 🏆 View All achievements button
+  - Rendered `<GameStatsDialog>` component with open/onOpenChange props
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- **Game Statistics Dashboard**: Comprehensive stats modal with 20+ metrics across 4 categories (Overall, Poetry, Challenge, Records)
+- **Tracking System**: Automatic stat recording on game end, word eating, power-up collection, combo chains, and poem creation
+- **New localStorage keys**: 13 new keys for persistent cumulative stat tracking
+- **Stats accessible from both game and poem pages** via 📊 Stats buttons
+- All code passes ESLint with zero errors
+
+---
+Task ID: 10-c
+Agent: Mini-map Agent
+Task: Add Canvas Mini-map Feature
+
+Work Log:
+- Added `showMiniMap: boolean` field to `GameState` interface (default: true)
+- Added `showMiniMap: true` to `gameStateRef` initial value and `uiState` initial state
+- Added `showMiniMap: gs.showMiniMap` to `updateUI()` callback
+- Added localStorage persistence for mini-map visibility (key: `word-snake-minimap`) loaded on mount
+- Added `toggleMiniMap()` handler that toggles `showMiniMap`, saves to localStorage, and updates UI
+- Added mini-map rendering in `draw()` function:
+  - Positioned in bottom-right corner (120×100 pixels)
+  - Background: Semi-transparent dark rectangle (rgba(15, 23, 42, 0.85)) with rounded corners
+  - Border: 1px solid rgba(148, 163, 184, 0.3) with 6px rounded corners
+  - "MAP" label (8px) in top-left corner
+  - Scales the game grid (30×25) to fit in mini-map (each cell ≈ 4×4 pixels)
+  - Snake: head dot (3px) in skin's headColor, body dots (2px) in skin's bodyGradient[1]
+  - Word food: colored dot (3px) using the word's category color
+  - Power-up: colored dot (3px) using the power-up's config color
+  - Draws above active power-ups HUD when present (offset by 44px)
+  - Only shown when game is active (started and not game over)
+  - Dimmed to 40% opacity during pause
+  - NOT shown on start screen or game over overlay
+  - NOT shown when `showMiniMap` is false
+- Added 🗺️ toggle button next to sound toggle in game header
+  - Active state: text-slate-200
+  - Inactive state: text-slate-500
+  - Title tooltip: "Hide mini-map" / "Show mini-map"
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- Complete Canvas Mini-map feature with bird's eye view of snake, words, and power-ups
+- Toggle button in header with localStorage persistence
+- Mini-map only visible during active gameplay, dimmed during pause
+- All code passes ESLint with zero errors
+
+---
+Task ID: 10-d
+Agent: Etymology & Polish Agent
+Task: Add Word Etymology and Visual Polish
+
+Work Log:
+- Modified `src/lib/word-definitions.ts`:
+  - Added `etymology: string` field to `WordDefinition` interface
+  - Added etymology entries to all 88 words across 8 categories
+  - Nature: Latin/Old English/Spanish/French/Greek origins (e.g., river from Latin 'ripa', aurora from Latin 'aurora')
+  - Emotion: Latin/Old English/Greek/French origins (e.g., joy from Latin 'gaudia', zeal from Greek 'zēlos')
+  - Element: Old English/Latin/Greek origins (e.g., fire from OE 'fȳr', crystal from Greek 'krystallos')
+  - Time: Old English/Latin/Greek origins (e.g., dawn from OE 'dagung', epoch from Greek 'epochē')
+  - Creature: Latin/Old English/Greek/Persian origins (e.g., eagle from Latin 'aquila', tiger from Persian 'tigra')
+  - Quality: Old English/Latin/Greek origins (e.g., wisdom from OE 'wīsdōm', beauty from Latin 'bellus')
+  - Object: Old English/Latin/French origins (e.g., sword from OE 'sweord', crown from Latin 'corona')
+  - Action: Latin/French/Old English/Old Norse origins (e.g., soar from Latin 'exaltare', drift from Norse 'drífa')
+- Modified `src/components/snake-game.tsx`:
+  - Added etymology line below example sentence in word tooltips
+  - Styled with `text-[10px] text-slate-500 mt-1 etymology-highlight` class
+  - Uses 📖 emoji prefix for visual distinction
+  - Conditional render: only shows if `wordDef.etymology` exists
+- Modified `src/components/make-poem.tsx`:
+  - Added etymology line to both tooltip locations: "Words woven in" badges and Word Bank sidebar
+  - Same styling as snake-game tooltips for consistency
+- Added 5 new CSS animations to `src/app/globals.css`:
+  - `minimap-pulse`: Border pulse effect on mini-map (3s loop)
+  - `stats-value-glow`: Amber text-shadow glow on stat values (2s loop)
+  - `etymology-highlight`: Fade-in + translateY for etymology text (0.3s ease-out)
+  - `header-title-shimmer`: Multi-color shimmer gradient on Word Snake title (6s linear infinite)
+  - `footer-wave`: Opacity pulse on footer text (4s ease-in-out infinite)
+- Applied CSS classes to components:
+  - `src/app/page.tsx`: Replaced header title gradient with `header-title-shimmer` class, applied `footer-wave` to footer tagline
+  - `src/components/game-stats.tsx`: Applied `stats-value-glow` to StatCard value span
+  - Tooltip etymology lines use `etymology-highlight` class in both snake-game.tsx and make-poem.tsx
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- **Word Etymology Feature**: All 88 words now have etymology/origin information displayed in tooltips
+- Brief etymology entries showing language of origin (Old English, Latin, Greek, French, Spanish, Norse, Persian) and root word
+- Consistent 📖 emoji prefix distinguishes etymology from example sentences
+- **5 New CSS Animations**: minimap-pulse, stats-value-glow, etymology-highlight, header-title-shimmer, footer-wave
+- Applied visual polish across 5 files (word-definitions.ts, globals.css, page.tsx, game-stats.tsx, snake-game.tsx, make-poem.tsx)
+- Zero lint errors, all features working
+
+---
+Task ID: 10
+Agent: Review Agent (cron Round 10)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA with agent-browser**: Tested game start/pause/die, navigation, poem page, achievement gallery, stats dialog, skin selector, mini-map toggle — all features working correctly, no JS errors
+- **No bugs found during QA** — app loads cleanly, ESLint passes with zero errors, no console errors
+- **Feature: Achievement Notification Queue** (via Task agent 10-a):
+  - Created `src/lib/achievement-queue.ts` with FIFO queue class (enqueue, dequeue, peek, isEmpty, clear, size)
+  - Modified `src/components/snake-game.tsx`: module-level queue instance, showNextAchievement() cascading toast logic, "(+N more)" indicator
+  - Modified `src/components/make-poem.tsx`: same queue logic for poem page achievements
+  - Multiple achievements now show in sequence with 500ms gap between toasts
+- **Feature: Game Statistics Dashboard** (via Task agent 10-b):
+  - Created `src/lib/game-stats.ts` with GameStats interface (20+ fields), getGameStats(), trackGameEnd(), trackWordEaten(), trackPoemCreated(), trackPowerUpCollected(), trackCombo(), formatPlayTime()
+  - Created `src/components/game-stats.tsx` with 4-section dialog: Overall Stats, Poetry Stats, Challenge Stats, Records
+  - 📊 Stats button added to game page and poem page
+  - All game events now tracked to localStorage for cumulative stats
+- **Feature: Canvas Mini-map** (via Task agent 10-c):
+  - Added mini-map in bottom-right corner of canvas (120×100px)
+  - Shows snake position (skin-colored dots), word food (category-colored), power-ups (config-colored)
+  - 🗺️ toggle button in game header, localStorage persistence
+  - Only visible during active gameplay, dimmed during pause
+  - Shifts up when active power-ups HUD is displayed
+- **Feature: Word Etymology** (via Task agent 10-d):
+  - Added `etymology` field to all 88 words in `src/lib/word-definitions.ts`
+  - Origins from Latin, Old English, Greek, French, Spanish, Persian, Old Norse, etc.
+  - Etymology line added to tooltips in both game sidebar and poem page (📖 prefix, etymology-highlight animation)
+- **Visual Polish** (via Task agent 10-d):
+  - 5 new CSS animations: minimap-pulse, stats-value-glow, etymology-highlight, header-title-shimmer, footer-wave
+  - Header title now uses animated multi-color shimmer (green→cyan→purple→cyan→green)
+  - Footer uses subtle opacity wave
+  - Stats dashboard values have amber glow effect
+- **Post-implementation QA**: Verified all features compile and render correctly via agent-browser
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- No bugs found in QA
+- 5 major new features (achievement queue, game stats dashboard, canvas mini-map, word etymology, visual polish)
+- 5 new CSS animation classes
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 30+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **8 Snake Skins**: Classic, Ocean, Fire Wyrm, Royal, Frost, Shadow, Rainbow, Golden with unique patterns
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **4 Word Rarities**: Common, Uncommon (×1.5), Rare (×2.5), Legendary (×5) with special visual effects
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **5 Power-ups**: Slow-Mo (🐢), Double Points (💎), Shrink (✂️), Magnet (🧲), Shield (🛡️)
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Canvas Weather**: Rain, Snow, Stars — randomly selected each game
+- **Canvas Mini-map**: Bird's eye view of snake, words, and power-ups (toggleable)
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Sound Effects**: Web Audio API sounds for all interactions including power-ups (with mute toggle)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **Game Statistics Dashboard**: 20+ tracked metrics across 4 categories
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **Poem Sharing**: Generate 1080×1080 shareable social image, Web Share API
+- **Poem Favorites**: Mark/unmark poems as favorites, persistent collection (max 20)
+- **Achievement Gallery**: Full modal with progress bars, locked/unlocked states, 11 achievements
+- **Achievement Queue**: Multiple achievements shown in sequence with cascading toasts
+- **11 Achievements**: Toast notifications, canvas floating text, gallery modal
+- **Word Definitions + Etymology**: Tooltips on hover showing definition, example, and word origin
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Visual Polish**: 35+ CSS animations, particles, confetti, page transitions, aurora background, shimmer effects, glow rings, combo fire flicker, rarity effects, weather particles, skin patterns, card hover lift, streak fire, word item highlight, progress bar shine, header shimmer, footer wave
+- **Copy/Download/Share Poem**: Copy to clipboard, download as PNG, share via Web Share API
+
+### Known Issues / Risks
+- Poem download PNG doesn't wrap long lines well
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Confetti canvas doesn't resize on window resize
+- Shield power-up wrapping behavior might be unexpected (wall wraps to opposite side)
+- Some etymology entries are approximate (not academically rigorous)
+
+### Suggested Next Steps
+1. **Snake Skin Preview**: Animated preview of selected skin on the start screen canvas
+2. **Weather Effects on Gameplay**: Rain slows snake, snow reduces visibility, stars boost score
+3. **Multi-language Support**: Word sets in other languages (Chinese, Japanese, etc.)
+4. **Game Replay**: Record and replay game sessions
+5. **Sound Customization**: Choose different sound themes
+6. **Accessibility**: Screen reader support, high contrast mode
+7. **Online Leaderboard**: Server-side leaderboard with global rankings
+8. **Poem Collage**: Combine multiple poems into a collage image
+9. **Achievement Milestones**: Bonus rewards when reaching 25%, 50%, 75%, 100% achievement completion
+10. **Custom Word Lists**: Allow players to add their own words

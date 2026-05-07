@@ -5,6 +5,7 @@ import { useWordStore } from '@/lib/word-store'
 import { getWordEntry, CATEGORY_COLORS, getCategoryInfo, type WordCategory } from '@/lib/word-pool'
 import { playPoemSound } from '@/lib/sounds'
 import { checkAchievements, getUnlockedAchievements, ACHIEVEMENTS, type AchievementStats } from '@/lib/achievements'
+import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import AchievementGallery from '@/components/achievement-gallery'
 import { getStreak, getActiveStreakBonus, type StreakInfo } from '@/lib/streak'
 import { getLeaderboard, getBestScore, type Difficulty, type LeaderboardEntry } from '@/lib/leaderboard'
@@ -17,6 +18,8 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { getWordDefinition } from '@/lib/word-definitions'
 import { getFavoritePoems, addFavoritePoem, removeFavoritePoem, isFavoritePoem, type FavoritePoem } from '@/lib/poem-favorites'
 import { generateShareImage, sharePoem } from '@/lib/poem-share'
+import { trackPoemCreated } from '@/lib/game-stats'
+import GameStatsDialog from '@/components/game-stats'
 import {
   Sparkles,
   Loader2,
@@ -44,6 +47,9 @@ const POEM_STYLES: Record<PoemStyle, { label: string; emoji: string; desc: strin
   limerick: { label: 'Limerick', emoji: '🎭', desc: 'Witty & playful' },
   sonnet: { label: 'Sonnet', emoji: '🌹', desc: '14 lines, iambic' },
 }
+
+// Module-level achievement queue for cascading toasts
+const poemAchievementQueue = new AchievementQueue()
 
 interface PoemResult {
   poem: string
@@ -127,7 +133,7 @@ function Confetti() {
 }
 
 // Achievement toast
-function AchievementToast({ achievement, onClose }: { achievement: { title: string; description: string; emoji: string }; onClose: () => void }) {
+function AchievementToast({ achievement, queueSize, onClose }: { achievement: { title: string; description: string; emoji: string }; queueSize: number; onClose: () => void }) {
   useEffect(() => {
     const timer = setTimeout(onClose, 4000)
     return () => clearTimeout(timer)
@@ -138,7 +144,12 @@ function AchievementToast({ achievement, onClose }: { achievement: { title: stri
       <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-900/90 border border-amber-600/50 shadow-xl shadow-amber-900/30 backdrop-blur-sm">
         <span className="text-2xl">{achievement.emoji}</span>
         <div>
-          <p className="text-amber-300 text-sm font-bold">{achievement.title}</p>
+          <p className="text-amber-300 text-sm font-bold">
+            {achievement.title}
+            {queueSize > 0 && (
+              <span className="text-amber-400/70 text-xs font-normal ml-1.5">(+{queueSize} more)</span>
+            )}
+          </p>
           <p className="text-amber-400/80 text-xs">{achievement.description}</p>
         </div>
         <Sparkles className="h-4 w-4 text-amber-500 sparkle-spin" />
@@ -157,6 +168,8 @@ export default function MakePoem() {
   const [poemStyle, setPoemStyle] = useState<PoemStyle>('free_verse')
   const [showConfetti, setShowConfetti] = useState(false)
   const [achievementToast, setAchievementToast] = useState<{ title: string; description: string; emoji: string } | null>(null)
+  const [achievementQueueSize, setAchievementQueueSize] = useState(0)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [unlockedIds, setUnlockedIds] = useState<string[]>([])
   const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -164,6 +177,7 @@ export default function MakePoem() {
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
   const [showAchievementGallery, setShowAchievementGallery] = useState(false)
   const [sharingId, setSharingId] = useState<number | null>(null)
+  const [showGameStats, setShowGameStats] = useState(false)
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
@@ -177,6 +191,43 @@ export default function MakePoem() {
     const favs = getFavoritePoems()
     setFavoriteIds(new Set(favs.map(f => f.timestamp)))
   }, [])
+
+  // Clean up achievement queue on unmount
+  useEffect(() => {
+    return () => {
+      poemAchievementQueue.clear()
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    }
+  }, [])
+
+  const showNextPoemAchievement = useCallback(() => {
+    const next = poemAchievementQueue.dequeue()
+    if (next) {
+      setAchievementToast(next)
+      setAchievementQueueSize(poemAchievementQueue.size)
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+      toastTimerRef.current = setTimeout(() => {
+        setAchievementToast(null)
+        setAchievementQueueSize(poemAchievementQueue.size)
+        if (!poemAchievementQueue.isEmpty()) {
+          toastTimerRef.current = setTimeout(() => {
+            showNextPoemAchievement()
+          }, 500)
+        }
+      }, 4000)
+    }
+  }, [])
+
+  const enqueuePoemAchievements = useCallback((newlyUnlocked: AchievementNotification[]) => {
+    const wasEmpty = poemAchievementQueue.isEmpty() && !achievementToast
+    for (const a of newlyUnlocked) {
+      poemAchievementQueue.enqueue(a)
+    }
+    setAchievementQueueSize(poemAchievementQueue.size)
+    if (wasEmpty) {
+      showNextPoemAchievement()
+    }
+  }, [achievementToast, showNextPoemAchievement])
 
   const handleAchievementCheck = useCallback((extraStats?: Partial<AchievementStats>) => {
     const categories = [...new Set(wordList.map(({ word }) => {
@@ -197,8 +248,8 @@ export default function MakePoem() {
     const newlyUnlocked = checkAchievements(stats)
     if (newlyUnlocked.length > 0) {
       setUnlockedIds(getUnlockedAchievements())
-      const first = newlyUnlocked[0]
-      setAchievementToast({ title: first.title, description: first.description, emoji: first.emoji })
+      const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
+      enqueuePoemAchievements(notifications)
     }
   }, [wordList, totalCount, poemHistory, poemResult])
 
@@ -245,6 +296,9 @@ export default function MakePoem() {
       playPoemSound()
       setShowConfetti(true)
       setTimeout(() => setShowConfetti(false), 3000)
+
+      // Track poem stats
+      trackPoemCreated(result.style, result.usedWords.length)
 
       // Check achievements after a short delay so state updates
       setTimeout(() => {
@@ -372,6 +426,7 @@ export default function MakePoem() {
       {achievementToast && (
         <AchievementToast
           achievement={achievementToast}
+          queueSize={achievementQueueSize}
           onClose={() => setAchievementToast(null)}
         />
       )}
@@ -518,6 +573,9 @@ export default function MakePoem() {
                                       </div>
                                       <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
                                       <p className="text-xs text-slate-400 italic leading-relaxed">&ldquo;{wordDef.example}&rdquo;</p>
+                                      {wordDef.etymology && (
+                                        <p className="text-[10px] text-slate-500 mt-1 etymology-highlight">📖 {wordDef.etymology}</p>
+                                      )}
                                     </div>
                                   ) : (
                                     <span className="font-bold text-sm text-white">{word}</span>
@@ -742,6 +800,9 @@ export default function MakePoem() {
                                 </div>
                                 <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
                                 <p className="text-xs text-slate-400 italic leading-relaxed">&ldquo;{wordDef.example}&rdquo;</p>
+                                {wordDef.etymology && (
+                                  <p className="text-[10px] text-slate-500 mt-1 etymology-highlight">📖 {wordDef.etymology}</p>
+                                )}
                               </div>
                             ) : (
                               <div className="space-y-1">
@@ -908,8 +969,20 @@ export default function MakePoem() {
             >
               🏆 View All
             </button>
+            <button
+              onClick={() => setShowGameStats(true)}
+              className="w-full mt-1.5 px-3 py-1.5 rounded-md bg-slate-800/40 border border-slate-700/30 text-slate-400 text-xs font-medium hover:bg-slate-800/60 hover:border-slate-600/40 hover:text-slate-300 transition-all duration-200 active:scale-[0.98]"
+            >
+              📊 Stats
+            </button>
           </CardContent>
         </Card>
+
+      {/* Game Stats Modal */}
+      <GameStatsDialog
+        open={showGameStats}
+        onOpenChange={setShowGameStats}
+      />
 
       {/* Achievement Gallery Modal */}
       <AchievementGallery

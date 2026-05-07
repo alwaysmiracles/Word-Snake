@@ -5,7 +5,9 @@ import { useWordStore } from '@/lib/word-store'
 import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
+import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import AchievementGallery from '@/components/achievement-gallery'
+import GameStatsDialog from '@/components/game-stats'
 import { getDailyChallenge, getDailyChallengeResult, saveDailyChallengeResult, isDailyChallengePlayed, type DailyChallenge } from '@/lib/daily-challenge'
 import { getStreak, updateStreak, getStreakMultiplier, getActiveStreakBonus, applyStreakBonus, STREAK_BONUSES, type StreakInfo } from '@/lib/streak'
 import { addLeaderboardEntry, getBestScore, getEntryCount, type Difficulty } from '@/lib/leaderboard'
@@ -16,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { getWordDefinition } from '@/lib/word-definitions'
 import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DESPAWN_TIME, type PowerUpType, type PowerUpConfig } from '@/lib/powerups'
+import { trackGameEnd, trackWordEaten, trackPowerUpCollected, trackCombo, trackDailyPlayed } from '@/lib/game-stats'
 import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, type SnakeSkin } from '@/lib/snake-skins'
 import {
   Play,
@@ -112,6 +115,7 @@ interface GameState {
   comboMultiplier: number
   weather: 'clear' | 'rain' | 'snow' | 'stars'
   activeSkin: SnakeSkin
+  showMiniMap: boolean
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -123,6 +127,9 @@ const DIFFICULTY_SETTINGS = {
 const DIFFICULTY_THRESHOLDS = { easy: 0, medium: 50, hard: 150 }
 
 const ALL_CATEGORIES: WordCategory[] = ['nature', 'emotion', 'element', 'time', 'creature', 'quality', 'object', 'action']
+
+// Module-level achievement queue for cascading toasts
+const achievementQueue = new AchievementQueue()
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
@@ -163,6 +170,9 @@ export default function SnakeGame() {
   // Achievement gallery
   const [showAchievementGallery, setShowAchievementGallery] = useState(false)
 
+  // Game stats dialog
+  const [showGameStats, setShowGameStats] = useState(false)
+
   // Daily challenge state (lazy init to avoid hydration mismatch)
   const [dailyInfo, setDailyInfo] = useState<{
     challenge: DailyChallenge | null
@@ -197,6 +207,15 @@ export default function SnakeGame() {
       const savedSkin = getSavedSkin()
       gameStateRef.current.activeSkin = savedSkin
       setActiveSkin(savedSkin)
+      // Load mini-map visibility
+      try {
+        const mapPref = localStorage.getItem('word-snake-minimap')
+        if (mapPref !== null) {
+          const showMap = mapPref === 'true'
+          gameStateRef.current.showMiniMap = showMap
+          updateUI()
+        }
+      } catch { /* ignore */ }
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -234,6 +253,7 @@ export default function SnakeGame() {
     comboMultiplier: 1,
     weather: 'clear' as const,
     activeSkin: 'classic' as SnakeSkin,
+    showMiniMap: true,
   })
 
   const lastRenderRef = useRef(0)
@@ -245,6 +265,7 @@ export default function SnakeGame() {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [uiState, setUiState] = useState({
     score: 0,
@@ -258,6 +279,7 @@ export default function SnakeGame() {
     soundEnabled: true,
     activeCategories: loadActiveCategories(),
     lastAchievement: null as { title: string; description: string; emoji: string } | null,
+    achievementQueueSize: 0,
     isDailyChallenge: false,
     dailyChallengeWords: [] as string[],
     dailyWordsCollected: [] as string[],
@@ -270,6 +292,7 @@ export default function SnakeGame() {
     comboMultiplier: 1,
     weather: 'clear' as GameState['weather'],
     activeSkin: 'classic' as SnakeSkin,
+    showMiniMap: true,
   })
 
   // Skin state
@@ -295,6 +318,7 @@ export default function SnakeGame() {
       soundEnabled: gs.soundEnabled,
       activeCategories: gs.activeCategories,
       lastAchievement: gs.lastAchievement ?? null,
+      achievementQueueSize: achievementQueue.size,
       isDailyChallenge: gs.isDailyChallenge,
       dailyChallengeWords: gs.dailyChallengeWords,
       dailyWordsCollected: gs.dailyWordsCollected,
@@ -307,8 +331,40 @@ export default function SnakeGame() {
       comboMultiplier: gs.comboMultiplier,
       weather: gs.weather,
       activeSkin: gs.activeSkin,
+      showMiniMap: gs.showMiniMap,
     })
   }, [])
+
+  const showNextAchievement = useCallback(() => {
+    const next = achievementQueue.dequeue()
+    if (next) {
+      gameStateRef.current.lastAchievement = next
+      updateUI()
+      // Auto-dismiss after 4 seconds
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+      toastTimerRef.current = setTimeout(() => {
+        gameStateRef.current.lastAchievement = null
+        updateUI()
+        // If more in queue, show next after 500ms delay
+        if (!achievementQueue.isEmpty()) {
+          toastTimerRef.current = setTimeout(() => {
+            showNextAchievement()
+          }, 500)
+        }
+      }, 4000)
+    }
+  }, [updateUI])
+
+  const enqueueAchievements = useCallback((newlyUnlocked: AchievementNotification[]) => {
+    const wasEmpty = achievementQueue.isEmpty() && !gameStateRef.current.lastAchievement
+    for (const a of newlyUnlocked) {
+      achievementQueue.enqueue(a)
+    }
+    if (wasEmpty) {
+      showNextAchievement()
+    }
+    updateUI()
+  }, [showNextAchievement, updateUI])
 
   const playSound = useCallback((soundFn: () => void) => {
     if (gameStateRef.current.soundEnabled) {
@@ -841,6 +897,97 @@ export default function SnakeGame() {
       ctx.textAlign = 'start'
     }
 
+    // Mini-map (only during active gameplay)
+    if (gs.showMiniMap && gameStarted && !gameOver) {
+      const MAP_W = 120
+      const MAP_H = 100
+      const MAP_PAD = 10
+      // Position above active power-ups HUD if present
+      const mapBottomOffset = gs.activePowerUps.length > 0 ? 44 : MAP_PAD
+      const mapX = CANVAS_WIDTH - MAP_W - MAP_PAD
+      const mapY = CANVAS_HEIGHT - MAP_H - mapBottomOffset
+
+      // Dim during pause
+      if (paused) {
+        ctx.globalAlpha = 0.4
+      }
+
+      // Background
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'
+      ctx.beginPath()
+      ctx.roundRect(mapX, mapY, MAP_W, MAP_H, 6)
+      ctx.fill()
+
+      // Border
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.roundRect(mapX, mapY, MAP_W, MAP_H, 6)
+      ctx.stroke()
+
+      // "MAP" label
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.5)'
+      ctx.font = '8px sans-serif'
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'top'
+      ctx.fillText('MAP', mapX + 4, mapY + 3)
+
+      // Scale: grid (30×25) → map (120×100), so cellW = 4, cellH = 4
+      const cellW = MAP_W / GRID_WIDTH
+      const cellH = MAP_H / GRID_HEIGHT
+
+      // Draw word food as a small colored dot
+      if (wordFood) {
+        const wfCatColor = CATEGORY_COLORS[wordFood.category] ?? '#f59e0b'
+        ctx.fillStyle = wfCatColor
+        ctx.beginPath()
+        ctx.arc(
+          mapX + wordFood.position.x * cellW + cellW / 2,
+          mapY + wordFood.position.y * cellH + cellH / 2,
+          3, 0, Math.PI * 2
+        )
+        ctx.fill()
+      }
+
+      // Draw power-up as a small colored dot
+      if (gs.powerUp) {
+        const puConfig = POWERUP_CONFIG[gs.powerUp.type]
+        ctx.fillStyle = puConfig.color
+        ctx.beginPath()
+        ctx.arc(
+          mapX + gs.powerUp.position.x * cellW + cellW / 2,
+          mapY + gs.powerUp.position.y * cellH + cellH / 2,
+          3, 0, Math.PI * 2
+        )
+        ctx.fill()
+      }
+
+      // Draw snake as small dots — head in headColor, body in bodyGradient[1]
+      const mapSkin = getSnakeSkin(gs.activeSkin)
+      snake.forEach((segment, index) => {
+        if (index === 0) {
+          ctx.fillStyle = gs.isDailyChallenge ? '#fbbf24' : mapSkin.headColor
+        } else {
+          ctx.fillStyle = gs.isDailyChallenge ? '#f59e0b' : mapSkin.bodyGradient[1]
+        }
+        ctx.beginPath()
+        ctx.arc(
+          mapX + segment.x * cellW + cellW / 2,
+          mapY + segment.y * cellH + cellH / 2,
+          index === 0 ? 3 : 2,
+          0, Math.PI * 2
+        )
+        ctx.fill()
+      })
+
+      ctx.textAlign = 'start'
+      ctx.textBaseline = 'alphabetic'
+
+      if (paused) {
+        ctx.globalAlpha = 1
+      }
+    }
+
     // Draw floating texts
     const ft = floatingTextsRef.current
     for (let i = ft.length - 1; i >= 0; i--) {
@@ -1088,6 +1235,14 @@ export default function SnakeGame() {
     gs.lastEatenCategory = null
     gs.comboMultiplier = 1
 
+    // Clear achievement queue and toast
+    achievementQueue.clear()
+    gs.lastAchievement = null
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current)
+      toastTimerRef.current = null
+    }
+
     // Random weather
     const weathers: GameState['weather'][] = ['clear', 'rain', 'snow', 'stars']
     gs.weather = weathers[Math.floor(Math.random() * weathers.length)]
@@ -1213,6 +1368,9 @@ export default function SnakeGame() {
           }))
         }
 
+        // Track game end stats
+        trackGameEnd(gs.score, gs.wordsEaten, gs.difficulty, gs.elapsedTime, gs.isDailyChallenge)
+
         // Check achievements
         try {
           const wordList = Object.entries(useWordStore.getState().collectedWords)
@@ -1227,11 +1385,10 @@ export default function SnakeGame() {
           }
           const newlyUnlocked = checkAchievements(stats)
           if (newlyUnlocked.length > 0) {
-            const first = newlyUnlocked[0]
-            gs.lastAchievement = { title: first.title, description: first.description, emoji: first.emoji }
+            const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
+            enqueueAchievements(notifications)
           }
         } catch { /* ignore */ }
-        updateUI()
       }
 
       if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT) {
@@ -1318,6 +1475,10 @@ export default function SnakeGame() {
           gs.wordsEaten += 1
           gs.wordFood = null
 
+          // Track word eaten for stats
+          trackWordEaten(wordFood.category, wordFood.rarity)
+          trackCombo(gs.comboCount)
+
           // Track daily challenge words
           if (gs.isDailyChallenge && !gs.dailyWordsCollected.includes(wordFood.word)) {
             gs.dailyWordsCollected.push(wordFood.word)
@@ -1354,9 +1515,9 @@ export default function SnakeGame() {
             }
             const newlyUnlocked = checkAchievements(stats)
             if (newlyUnlocked.length > 0) {
-              const first = newlyUnlocked[0]
-              gs.lastAchievement = { title: first.title, description: first.description, emoji: first.emoji }
-              spawnFloatingText(`🏆 ${first.title}`, wx, wy - 44, '#fbbf24')
+              const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
+              enqueueAchievements(notifications)
+              spawnFloatingText(`🏆 ${newlyUnlocked[0].title}`, wx, wy - 44, '#fbbf24')
             }
           } catch { /* ignore */ }
 
@@ -1426,6 +1587,7 @@ export default function SnakeGame() {
           spawnParticles(px, py, config.color, 15)
           playSound(playPowerUpSound)
           gs.powerUp = null
+          trackPowerUpCollected()
         }
       }
 
@@ -1542,6 +1704,14 @@ export default function SnakeGame() {
     return () => canvas.removeEventListener('click', handleClick)
   }, [resetGame])
 
+  // Clean up achievement queue on unmount
+  useEffect(() => {
+    return () => {
+      achievementQueue.clear()
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    }
+  }, [])
+
   const wordList = getWordList()
   const totalCount = getTotalCount()
 
@@ -1559,6 +1729,15 @@ export default function SnakeGame() {
   const toggleSound = () => {
     const gs = gameStateRef.current
     gs.soundEnabled = !gs.soundEnabled
+    updateUI()
+  }
+
+  const toggleMiniMap = () => {
+    const gs = gameStateRef.current
+    gs.showMiniMap = !gs.showMiniMap
+    try {
+      localStorage.setItem('word-snake-minimap', String(gs.showMiniMap))
+    } catch { /* ignore */ }
     updateUI()
   }
 
@@ -1684,6 +1863,15 @@ export default function SnakeGame() {
                     title={uiState.soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
                   >
                     {uiState.soundEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-7 w-7 p-0 active:scale-95 transition-transform ${uiState.showMiniMap ? 'text-slate-200' : 'text-slate-500'}`}
+                    onClick={toggleMiniMap}
+                    title={uiState.showMiniMap ? 'Hide mini-map' : 'Show mini-map'}
+                  >
+                    <span className="text-sm">🗺️</span>
                   </Button>
                 </div>
               </div>
@@ -1837,6 +2025,13 @@ export default function SnakeGame() {
                     >
                       🏆 Achievements
                     </Button>
+                    <Button
+                      onClick={() => setShowGameStats(true)}
+                      variant="outline"
+                      className="border-slate-600/50 text-slate-300 hover:bg-slate-800/50 active:scale-95 transition-transform"
+                    >
+                      📊 Stats
+                    </Button>
                   </>
                 )}
                 {uiState.gameStarted && !uiState.gameOver && (
@@ -1855,6 +2050,13 @@ export default function SnakeGame() {
                       className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform"
                     >
                       🏆 Achievements
+                    </Button>
+                    <Button
+                      onClick={() => setShowGameStats(true)}
+                      variant="outline"
+                      className="border-slate-600/50 text-slate-300 hover:bg-slate-800/50 active:scale-95 transition-transform"
+                    >
+                      📊 Stats
                     </Button>
                   </>
                 )}
@@ -2101,6 +2303,9 @@ export default function SnakeGame() {
                                 </div>
                                 <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
                                 <p className="text-xs text-slate-400 italic leading-relaxed">&ldquo;{wordDef.example}&rdquo;</p>
+                                {wordDef.etymology && (
+                                  <p className="text-[10px] text-slate-500 mt-1 etymology-highlight">📖 {wordDef.etymology}</p>
+                                )}
                               </div>
                             ) : (
                               <div className="space-y-1">
@@ -2125,6 +2330,12 @@ export default function SnakeGame() {
         </Card>
       </div>
 
+      {/* Game Stats Modal */}
+      <GameStatsDialog
+        open={showGameStats}
+        onOpenChange={setShowGameStats}
+      />
+
       {/* Achievement Gallery Modal */}
       <AchievementGallery
         open={showAchievementGallery}
@@ -2148,7 +2359,12 @@ export default function SnakeGame() {
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-900/90 border border-amber-600/50 shadow-xl shadow-amber-900/30 backdrop-blur-sm">
             <span className="text-2xl">{uiState.lastAchievement.emoji}</span>
             <div>
-              <p className="text-amber-300 text-sm font-bold">{uiState.lastAchievement.title}</p>
+              <p className="text-amber-300 text-sm font-bold">
+                {uiState.lastAchievement.title}
+                {uiState.achievementQueueSize > 0 && (
+                  <span className="text-amber-400/70 text-xs font-normal ml-1.5">(+{uiState.achievementQueueSize} more)</span>
+                )}
+              </p>
               <p className="text-amber-400/80 text-xs">{uiState.lastAchievement.description}</p>
             </div>
             <Sparkles className="h-4 w-4 text-amber-500 sparkle-spin" />

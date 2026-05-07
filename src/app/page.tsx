@@ -49,7 +49,7 @@ export default function Home() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent drop-shadow-sm">
+              <h1 className="text-xl font-bold header-title-shimmer text-transparent drop-shadow-sm">
                 Word Snake
               </h1>
               <p className="text-[10px] text-slate-500 -mt-0.5 tracking-wider uppercase">Collect &bull; Create &bull; Compose</p>
@@ -133,7 +133,7 @@ export default function Home() {
         <div className="bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900 py-3">
           <div className="max-w-[1100px] mx-auto px-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 footer-wave">
                 Word Snake — Collect words, create poetry
               </span>
               <span className="text-slate-800">|</span>

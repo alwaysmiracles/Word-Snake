@@ -546,3 +546,66 @@
 .scrollbar-fancy::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(168, 85, 247, 0.6), rgba(34, 197, 94, 0.6));
 }
+
+/* ===== Etymology & Polish Animations ===== */
+
+/* Mini-map border pulse */
+@keyframes minimap-pulse {
+  0%, 100% { border-color: rgba(148, 163, 184, 0.3); }
+  50% { border-color: rgba(148, 163, 184, 0.5); }
+}
+
+.minimap-pulse {
+  animation: minimap-pulse 3s ease-in-out infinite;
+}
+
+/* Stats value glow */
+@keyframes value-glow {
+  0%, 100% { text-shadow: 0 0 4px rgba(251, 191, 36, 0.3); }
+  50% { text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+}
+
+.stats-value-glow {
+  animation: value-glow 2s ease-in-out infinite;
+}
+
+/* Etymology fade-in highlight */
+@keyframes etymology-fade {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.etymology-highlight {
+  animation: etymology-fade 0.3s ease-out;
+}
+
+/* Header title shimmer */
+@keyframes title-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.header-title-shimmer {
+  background-size: 200% auto;
+  background-image: linear-gradient(
+    90deg,
+    #4ade80 0%,
+    #22d3ee 25%,
+    #c084fc 50%,
+    #22d3ee 75%,
+    #4ade80 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: title-shimmer 6s linear infinite;
+}
+
+/* Footer wave opacity */
+@keyframes footer-wave {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+.footer-wave {
+  animation: footer-wave 4s ease-in-out infinite;
+}
