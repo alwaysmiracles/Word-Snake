@@ -5,6 +5,7 @@ import { useWordStore } from '@/lib/word-store'
 import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
+import AchievementGallery from '@/components/achievement-gallery'
 import { getDailyChallenge, getDailyChallengeResult, saveDailyChallengeResult, isDailyChallengePlayed, type DailyChallenge } from '@/lib/daily-challenge'
 import { getStreak, updateStreak, getStreakMultiplier, getActiveStreakBonus, applyStreakBonus, STREAK_BONUSES, type StreakInfo } from '@/lib/streak'
 import { addLeaderboardEntry, getBestScore, getEntryCount, type Difficulty } from '@/lib/leaderboard'
@@ -15,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { getWordDefinition } from '@/lib/word-definitions'
 import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DESPAWN_TIME, type PowerUpType, type PowerUpConfig } from '@/lib/powerups'
+import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, type SnakeSkin } from '@/lib/snake-skins'
 import {
   Play,
   RotateCcw,
@@ -109,6 +111,7 @@ interface GameState {
   lastEatenCategory: WordCategory | null
   comboMultiplier: number
   weather: 'clear' | 'rain' | 'snow' | 'stars'
+  activeSkin: SnakeSkin
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -120,6 +123,13 @@ const DIFFICULTY_SETTINGS = {
 const DIFFICULTY_THRESHOLDS = { easy: 0, medium: 50, hard: 150 }
 
 const ALL_CATEGORIES: WordCategory[] = ['nature', 'emotion', 'element', 'time', 'creature', 'quality', 'object', 'action']
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result
+    ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) }
+    : { r: 0, g: 0, b: 0 }
+}
 
 function loadActiveCategories(): Set<WordCategory> {
   if (typeof window === 'undefined') return new Set(ALL_CATEGORIES)
@@ -149,6 +159,9 @@ export default function SnakeGame() {
 
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Achievement gallery
+  const [showAchievementGallery, setShowAchievementGallery] = useState(false)
 
   // Daily challenge state (lazy init to avoid hydration mismatch)
   const [dailyInfo, setDailyInfo] = useState<{
@@ -180,6 +193,10 @@ export default function SnakeGame() {
         result: getDailyChallengeResult(),
       })
       setStreakInfo(getStreak())
+      // Load saved skin
+      const savedSkin = getSavedSkin()
+      gameStateRef.current.activeSkin = savedSkin
+      setActiveSkin(savedSkin)
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -216,6 +233,7 @@ export default function SnakeGame() {
     lastEatenCategory: null,
     comboMultiplier: 1,
     weather: 'clear' as const,
+    activeSkin: 'classic' as SnakeSkin,
   })
 
   const lastRenderRef = useRef(0)
@@ -251,10 +269,17 @@ export default function SnakeGame() {
     lastEatenCategory: null as WordCategory | null,
     comboMultiplier: 1,
     weather: 'clear' as GameState['weather'],
+    activeSkin: 'classic' as SnakeSkin,
   })
+
+  // Skin state
+  const [activeSkin, setActiveSkin] = useState<SnakeSkin>('classic')
 
   // Track word additions for entrance animation - key increments trigger re-render with animation
   const [newWordKey, setNewWordKey] = useState(0)
+
+  // Skin bounce state for temporary class
+  const [skinBounce, setSkinBounce] = useState(false)
 
   const updateUI = useCallback(() => {
     const gs = gameStateRef.current
@@ -281,6 +306,7 @@ export default function SnakeGame() {
       lastEatenCategory: gs.lastEatenCategory,
       comboMultiplier: gs.comboMultiplier,
       weather: gs.weather,
+      activeSkin: gs.activeSkin,
     })
   }, [])
 
@@ -481,7 +507,8 @@ export default function SnakeGame() {
     // Draw snake body trail (faint glow behind snake)
     if (snake.length > 1) {
       ctx.globalAlpha = 0.04
-      ctx.fillStyle = gs.isDailyChallenge ? '#f59e0b' : '#22c55e'
+      const skin = getSnakeSkin(gs.activeSkin)
+      ctx.fillStyle = gs.isDailyChallenge ? '#f59e0b' : skin.glowColor
       for (const seg of snake) {
         ctx.beginPath()
         ctx.arc(
@@ -497,12 +524,13 @@ export default function SnakeGame() {
     }
 
     // Draw snake
+    const skin = getSnakeSkin(gs.activeSkin)
     snake.forEach((segment, index) => {
       if (index === 0) {
         // Snake head
-        ctx.shadowColor = gs.isDailyChallenge ? '#f59e0b' : '#22c55e'
+        ctx.shadowColor = gs.isDailyChallenge ? '#f59e0b' : skin.glowColor
         ctx.shadowBlur = 12
-        ctx.fillStyle = gs.isDailyChallenge ? '#fbbf24' : '#4ade80'
+        ctx.fillStyle = gs.isDailyChallenge ? '#fbbf24' : skin.headColor
         ctx.beginPath()
         ctx.roundRect(
           segment.x * CELL_SIZE + 1,
@@ -529,7 +557,7 @@ export default function SnakeGame() {
         } else {
           eye1x = cx - 3.5; eye1y = cy + 4; eye2x = cx + 3.5; eye2y = cy + 4
         }
-        ctx.fillStyle = '#ffffff'
+        ctx.fillStyle = gs.isDailyChallenge ? '#ffffff' : skin.eyeColor
         ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
         ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
         ctx.fillStyle = '#0f172a'
@@ -538,37 +566,89 @@ export default function SnakeGame() {
       } else {
         // Body
         const ratio = 1 - index / snake.length
+
+        // Determine fill color based on pattern
         if (gs.isDailyChallenge) {
           const red = Math.floor(160 + ratio * 95)
           const alpha = 0.6 + ratio * 0.4
           ctx.fillStyle = `rgba(${red}, 158, 34, ${alpha})`
-        } else {
-          const green = Math.floor(160 + ratio * 95)
+        } else if (skin.pattern === 'rainbow') {
+          const hue = (index * 360 / snake.length + Date.now() / 50) % 360
+          ctx.fillStyle = `hsl(${hue}, 70%, 55%)`
+        } else if (skin.pattern === 'gradient') {
+          // Interpolate from bodyGradient[0] to bodyGradient[1]
+          const c0 = hexToRgb(skin.bodyGradient[0])
+          const c1 = hexToRgb(skin.bodyGradient[1])
           const alpha = 0.6 + ratio * 0.4
-          ctx.fillStyle = `rgba(34, ${green}, 80, ${alpha})`
+          const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+          const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+          const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+        } else if (skin.pattern === 'striped') {
+          const c0 = hexToRgb(skin.bodyGradient[0])
+          const c1 = hexToRgb(skin.bodyGradient[1])
+          const alpha = (0.6 + ratio * 0.4) * (index % 2 === 0 ? 1 : 0.55)
+          const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+          const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+          const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+        } else if (skin.pattern === 'dotted') {
+          const c0 = hexToRgb(skin.bodyGradient[0])
+          const c1 = hexToRgb(skin.bodyGradient[1])
+          const alpha = 0.6 + ratio * 0.4
+          const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+          const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+          const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+        } else {
+          // solid pattern (classic + shadow)
+          const c0 = hexToRgb(skin.bodyGradient[0])
+          const c1 = hexToRgb(skin.bodyGradient[1])
+          const alpha = 0.6 + ratio * 0.4
+          const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+          const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+          const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
         }
 
-        const prev = snake[index - 1]
-        const dx = prev.x - segment.x
-        const dy = prev.y - segment.y
-        if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
-          ctx.fillRect(
-            Math.min(prev.x, segment.x) * CELL_SIZE + 2,
-            Math.min(prev.y, segment.y) * CELL_SIZE + 2,
-            (Math.abs(dx) + 1) * CELL_SIZE - 4,
-            (Math.abs(dy) + 1) * CELL_SIZE - 4
+        // Draw connector between adjacent segments (for all patterns)
+        if (skin.pattern !== 'dotted') {
+          const prev = snake[index - 1]
+          const dx = prev.x - segment.x
+          const dy = prev.y - segment.y
+          if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+            ctx.fillRect(
+              Math.min(prev.x, segment.x) * CELL_SIZE + 2,
+              Math.min(prev.y, segment.y) * CELL_SIZE + 2,
+              (Math.abs(dx) + 1) * CELL_SIZE - 4,
+              (Math.abs(dy) + 1) * CELL_SIZE - 4
+            )
+          }
+        }
+
+        // Draw segment shape based on pattern
+        if (skin.pattern === 'dotted') {
+          // Small circles instead of rectangles
+          ctx.beginPath()
+          ctx.arc(
+            segment.x * CELL_SIZE + CELL_SIZE / 2,
+            segment.y * CELL_SIZE + CELL_SIZE / 2,
+            CELL_SIZE / 2 - 3,
+            0,
+            Math.PI * 2
           )
+          ctx.fill()
+        } else {
+          ctx.beginPath()
+          ctx.roundRect(
+            segment.x * CELL_SIZE + 2,
+            segment.y * CELL_SIZE + 2,
+            CELL_SIZE - 4,
+            CELL_SIZE - 4,
+            3
+          )
+          ctx.fill()
         }
-
-        ctx.beginPath()
-        ctx.roundRect(
-          segment.x * CELL_SIZE + 2,
-          segment.y * CELL_SIZE + 2,
-          CELL_SIZE - 4,
-          CELL_SIZE - 4,
-          3
-        )
-        ctx.fill()
       }
     })
 
@@ -865,8 +945,9 @@ export default function SnakeGame() {
       ctx.fillStyle = 'rgba(15, 23, 42, 0.92)'
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-      ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 20
-      ctx.fillStyle = '#4ade80'; ctx.font = 'bold 38px sans-serif'
+      const startSkin = getSnakeSkin(gs.activeSkin)
+      ctx.shadowColor = startSkin.glowColor; ctx.shadowBlur = 20
+      ctx.fillStyle = startSkin.headColor; ctx.font = 'bold 38px sans-serif'
       ctx.textAlign = 'center'
       ctx.fillText('WORD SNAKE', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80)
       ctx.shadowBlur = 0
@@ -1543,7 +1624,7 @@ export default function SnakeGame() {
         {/* Aurora background behind card */}
         <div className="relative">
           <div className="absolute -inset-2 aurora-bg rounded-xl pointer-events-none" />
-          <Card className="overflow-hidden border-slate-700 bg-slate-900 relative card-shimmer-border">
+          <Card className="overflow-hidden border-slate-700 bg-slate-900 relative card-shimmer-border card-hover-lift">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <CardTitle className="text-green-400 flex items-center gap-2">
@@ -1558,7 +1639,7 @@ export default function SnakeGame() {
                 <div className="flex items-center gap-2 flex-wrap">
                   {/* Streak indicator */}
                   {streakInfo && streakInfo.currentStreak > 0 && (
-                    <div className={`flex items-center gap-1 text-sm float-badge ${streakDisplay ? 'text-amber-400' : 'text-slate-500'}`}>
+                    <div className={`flex items-center gap-1 text-sm float-badge ${streakDisplay ? 'text-amber-400' : 'text-slate-500'} streak-fire`}>
                       <Flame className="h-4 w-4" />
                       <span className="font-bold">{streakInfo.currentStreak}</span>
                     </div>
@@ -1581,7 +1662,7 @@ export default function SnakeGame() {
                     </div>
                   )}
                   <div className="relative">
-                    <Badge key={uiState.score} variant="secondary" className="bg-green-900/50 text-green-400 border-green-700 number-pop">
+                    <Badge key={uiState.score} variant="secondary" className="bg-green-900/50 text-green-400 border-green-700 stat-counter-flash">
                       <Zap className="h-3 w-3 mr-1" />
                       {uiState.score}
                     </Badge>
@@ -1692,6 +1773,43 @@ export default function SnakeGame() {
                 </div>
               )}
 
+              {/* Skin Selector */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-slate-500 font-medium">🎨 Skins</span>
+                    <span className="text-[10px] text-slate-600">— {getSnakeSkin(activeSkin).name}: {getSnakeSkin(activeSkin).description}</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                    {getAllSkins().map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          setActiveSkin(s.id)
+                          gameStateRef.current.activeSkin = s.id
+                          saveSnakeSkin(s.id)
+                          setSkinBounce(true)
+                          setTimeout(() => setSkinBounce(false), 400)
+                          updateUI()
+                        }}
+                        className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border-2 active:scale-95 ${
+                          activeSkin === s.id
+                            ? 'border-white scale-110 shadow-lg'
+                            : 'border-slate-700/50 hover:border-slate-500/60'
+                        } ${skinBounce && activeSkin === s.id ? 'skin-select-bounce' : ''}`}
+                        style={{
+                          backgroundColor: s.headColor + '30',
+                          boxShadow: activeSkin === s.id ? `0 0 12px ${s.glowColor}40` : undefined,
+                        }}
+                        title={`${s.name}: ${s.description}`}
+                      >
+                        {s.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Canvas with dramatic border and inner glow */}
               <div className="relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring">
                 <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
@@ -1712,6 +1830,13 @@ export default function SnakeGame() {
                     >
                       <Calendar className="h-4 w-4 mr-1" /> Daily Challenge
                     </Button>
+                    <Button
+                      onClick={() => setShowAchievementGallery(true)}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform"
+                    >
+                      🏆 Achievements
+                    </Button>
                   </>
                 )}
                 {uiState.gameStarted && !uiState.gameOver && (
@@ -1720,9 +1845,18 @@ export default function SnakeGame() {
                   </Button>
                 )}
                 {uiState.gameOver && (
-                  <Button onClick={() => resetGame(uiState.isDailyChallenge)} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 active:scale-95 transition-transform">
-                    <RotateCcw className="h-4 w-4 mr-1" /> Play Again
-                  </Button>
+                  <>
+                    <Button onClick={() => resetGame(uiState.isDailyChallenge)} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 active:scale-95 transition-transform">
+                      <RotateCcw className="h-4 w-4 mr-1" /> Play Again
+                    </Button>
+                    <Button
+                      onClick={() => setShowAchievementGallery(true)}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform"
+                    >
+                      🏆 Achievements
+                    </Button>
+                  </>
                 )}
               </div>
 
@@ -1817,9 +1951,9 @@ export default function SnakeGame() {
             {/* Streak bonus indicator */}
             {streakInfo && streakInfo.currentStreak > 0 && (
               <div className="mb-3 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-amber-900/20 to-orange-900/10 border border-amber-800/30 flex items-center gap-2">
-                <Flame className="h-4 w-4 text-amber-400 shrink-0" />
+                <Flame className="h-4 w-4 text-amber-400 shrink-0 streak-fire" />
                 <div className="text-xs">
-                  <span className="text-amber-300 font-bold">{streakInfo.currentStreak}-day streak</span>
+                  <span className="text-amber-300 font-bold streak-fire">{streakInfo.currentStreak}-day streak</span>
                   {streakDisplay && (
                     <span className="text-amber-400/80"> — {streakDisplay.name} (×{streakDisplay.multiplier})</span>
                   )}
@@ -1914,7 +2048,7 @@ export default function SnakeGame() {
                         <Tooltip key={`${word}-${newWordKey}`}>
                           <TooltipTrigger asChild>
                             <div
-                              className={`flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default ${isNew ? 'word-entrance' : ''}`}
+                              className={`flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default word-item-highlight ${isNew ? 'word-entrance' : ''}`}
                             >
                               <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
                                 <span
@@ -1990,6 +2124,23 @@ export default function SnakeGame() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Achievement Gallery Modal */}
+      <AchievementGallery
+        open={showAchievementGallery}
+        onOpenChange={setShowAchievementGallery}
+        stats={{
+          totalWordsCollected: getTotalCount(),
+          totalWordsEaten: getTotalCount(),
+          poemsCreated: typeof window !== 'undefined' ? parseInt(localStorage.getItem('word-snake-poems-count') ?? '0', 10) : 0,
+          highScore,
+          categories: [...new Set(getWordList().map(({ word }) => {
+            const entry = getWordEntry(word)
+            return entry?.category
+          }).filter(Boolean))] as string[],
+          gamesPlayed: typeof window !== 'undefined' ? parseInt(localStorage.getItem('word-snake-games') ?? '0', 10) : 0,
+        }}
+      />
 
       {/* Achievement toast with rotating sparkle */}
       {uiState.lastAchievement && (

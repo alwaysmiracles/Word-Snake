@@ -5,6 +5,7 @@ import { useWordStore } from '@/lib/word-store'
 import { getWordEntry, CATEGORY_COLORS, getCategoryInfo, type WordCategory } from '@/lib/word-pool'
 import { playPoemSound } from '@/lib/sounds'
 import { checkAchievements, getUnlockedAchievements, ACHIEVEMENTS, type AchievementStats } from '@/lib/achievements'
+import AchievementGallery from '@/components/achievement-gallery'
 import { getStreak, getActiveStreakBonus, type StreakInfo } from '@/lib/streak'
 import { getLeaderboard, getBestScore, type Difficulty, type LeaderboardEntry } from '@/lib/leaderboard'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { getWordDefinition } from '@/lib/word-definitions'
 import { getFavoritePoems, addFavoritePoem, removeFavoritePoem, isFavoritePoem, type FavoritePoem } from '@/lib/poem-favorites'
+import { generateShareImage, sharePoem } from '@/lib/poem-share'
 import {
   Sparkles,
   Loader2,
@@ -31,6 +33,7 @@ import {
   ChevronUp,
   Heart,
   Star,
+  Share,
 } from 'lucide-react'
 
 type PoemStyle = 'free_verse' | 'haiku' | 'limerick' | 'sonnet'
@@ -159,6 +162,8 @@ export default function MakePoem() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [leaderboardTab, setLeaderboardTab] = useState<Difficulty>('medium')
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
+  const [showAchievementGallery, setShowAchievementGallery] = useState(false)
+  const [sharingId, setSharingId] = useState<number | null>(null)
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
@@ -278,6 +283,19 @@ export default function MakePoem() {
       document.body.removeChild(textarea)
       setCopiedId(id)
       setTimeout(() => setCopiedId(null), 2000)
+    }
+  }
+
+  const handleSharePoem = async (poem: PoemResult) => {
+    setSharingId(poem.timestamp)
+    try {
+      const styleLabel = POEM_STYLES[poem.style]?.label ?? 'Poem'
+      const blob = await generateShareImage(poem.poem, styleLabel, poem.usedWords)
+      await sharePoem(blob)
+    } catch {
+      // Silently handle share errors
+    } finally {
+      setSharingId(null)
     }
   }
 
@@ -457,6 +475,9 @@ export default function MakePoem() {
                       <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform" onClick={() => downloadPoemAsImage(poemResult)} title="Download as image">
                         <Download className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Save</span>
                       </Button>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-purple-400 active:scale-95 transition-transform" onClick={() => handleSharePoem(poemResult)} disabled={sharingId === poemResult.timestamp} title="Share poem">
+                        {sharingId === poemResult.timestamp ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Share className="h-3.5 w-3.5 mr-1" />}<span className="text-xs">Share</span>
+                      </Button>
                     </div>
                   </div>
                   <div className="text-slate-200 leading-relaxed whitespace-pre-wrap font-serif italic text-base relative poem-typewriter">
@@ -524,7 +545,7 @@ export default function MakePoem() {
                 <ScrollArea className="h-[250px]">
                   <div className="space-y-3 pr-2">
                     {poemHistory.slice(1).map((poem) => (
-                      <div key={poem.timestamp} className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 hover:shadow-lg hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all duration-200 relative group">
+                      <div key={poem.timestamp} className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 hover:shadow-lg hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all duration-200 relative group card-hover-lift">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="secondary" className="bg-purple-900/20 text-purple-400 text-[10px] border-purple-700/20 px-1.5 h-4">
                             {POEM_STYLES[poem.style]?.label ?? 'Free Verse'}
@@ -544,6 +565,9 @@ export default function MakePoem() {
                           </Button>
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-slate-300 active:scale-95" onClick={() => copyToClipboard(poem.poem, poem.timestamp)}>
                             {copiedId === poem.timestamp ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-purple-400 active:scale-95" onClick={() => handleSharePoem(poem)} disabled={sharingId === poem.timestamp} title="Share poem">
+                            {sharingId === poem.timestamp ? <Loader2 className="h-3 w-3 animate-spin" /> : <Share className="h-3 w-3" />}
                           </Button>
                         </div>
                       </div>
@@ -685,7 +709,7 @@ export default function MakePoem() {
                       return (
                         <Tooltip key={word}>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default">
+                            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default word-item-highlight">
                               <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125" style={{ backgroundColor: catColor }} />
                                 {word}
@@ -746,9 +770,9 @@ export default function MakePoem() {
           const activeBonus = getActiveStreakBonus(streakInfo.currentStreak)
           return (
             <div className="px-3 py-2.5 rounded-lg bg-gradient-to-r from-amber-900/15 to-orange-900/10 border border-amber-700/30 flex items-center gap-2.5">
-              <Flame className="h-5 w-5 text-amber-400 shrink-0" />
+              <Flame className="h-5 w-5 text-amber-400 shrink-0 streak-fire" />
               <div className="text-xs">
-                <span className="text-amber-300 font-bold">{streakInfo.currentStreak}-day streak</span>
+                <span className="text-amber-300 font-bold streak-fire">{streakInfo.currentStreak}-day streak</span>
                 {activeBonus && (
                   <span className="text-amber-400/80"> — {activeBonus.name} ({activeBonus.multiplier}× bonus)</span>
                 )}
@@ -878,8 +902,31 @@ export default function MakePoem() {
                 })}
               </div>
             </ScrollArea>
+            <button
+              onClick={() => setShowAchievementGallery(true)}
+              className="w-full mt-2 px-3 py-1.5 rounded-md bg-amber-900/20 border border-amber-700/30 text-amber-400 text-xs font-medium hover:bg-amber-900/30 hover:border-amber-600/40 transition-all duration-200 active:scale-[0.98]"
+            >
+              🏆 View All
+            </button>
           </CardContent>
         </Card>
+
+      {/* Achievement Gallery Modal */}
+      <AchievementGallery
+        open={showAchievementGallery}
+        onOpenChange={setShowAchievementGallery}
+        stats={{
+          totalWordsCollected: totalCount,
+          totalWordsEaten: totalCount,
+          poemsCreated: poemHistory.length + (poemResult ? 1 : 0),
+          highScore: parseInt(localStorage.getItem('word-snake-highscore') ?? '0', 10),
+          categories: [...new Set(wordList.map(({ word }) => {
+            const entry = getWordEntry(word)
+            return entry?.category
+          }).filter(Boolean))] as string[],
+          gamesPlayed: parseInt(localStorage.getItem('word-snake-games') ?? '0', 10),
+        }}
+      />
       </div>
 
       {/* Mobile sidebar toggle */}

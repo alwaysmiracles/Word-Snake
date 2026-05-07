@@ -409,3 +409,140 @@
   background-size: 200% 100%;
   animation: leaderboard-shine 3s ease-in-out infinite;
 }
+
+/* ===== Visual Polish Micro-Interactions ===== */
+
+/* Skin select bounce effect */
+@keyframes skin-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.2); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.skin-select-bounce {
+  animation: skin-bounce 0.4s ease-out;
+}
+
+/* Achievement unlock glow */
+@keyframes unlock-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 0 40px rgba(251, 191, 36, 0.2); }
+}
+
+.achievement-unlock-glow {
+  animation: unlock-glow 1.5s ease-in-out 3;
+}
+
+/* Card hover lift */
+.card-hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Tab indicator glow */
+@keyframes tab-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+.tab-indicator-glow {
+  animation: tab-glow 2s ease-in-out infinite;
+}
+
+/* Streak fire animation */
+@keyframes fire-flicker {
+  0% { text-shadow: 0 0 4px rgba(251, 191, 36, 0.5), 0 -2px 6px rgba(239, 68, 68, 0.3); }
+  25% { text-shadow: 0 0 8px rgba(251, 191, 36, 0.7), 0 -4px 10px rgba(239, 68, 68, 0.5); }
+  50% { text-shadow: 0 0 6px rgba(251, 191, 36, 0.6), 0 -3px 8px rgba(239, 68, 68, 0.4); }
+  75% { text-shadow: 0 0 10px rgba(251, 191, 36, 0.8), 0 -5px 12px rgba(239, 68, 68, 0.5); }
+  100% { text-shadow: 0 0 4px rgba(251, 191, 36, 0.5), 0 -2px 6px rgba(239, 68, 68, 0.3); }
+}
+
+.streak-fire {
+  animation: fire-flicker 1.2s ease-in-out infinite;
+}
+
+/* Word bank item hover highlight */
+.word-item-highlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.word-item-highlight::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.06), transparent);
+  transition: left 0.4s ease;
+}
+
+.word-item-highlight:hover::after {
+  left: 100%;
+}
+
+/* Progress bar shine */
+@keyframes progress-shine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.progress-bar-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: progress-shine 2s ease-in-out infinite;
+}
+
+/* Modal backdrop blur */
+.modal-backdrop-enhanced {
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* Stat counter flash */
+@keyframes counter-flash {
+  0% { color: inherit; }
+  25% { color: #4ade80; text-shadow: 0 0 8px rgba(74, 222, 128, 0.5); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+.stat-counter-flash {
+  animation: counter-flash 0.5s ease-out;
+}
+
+/* Fancy scrollbar for dialogs */
+.scrollbar-fancy::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-fancy::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 4px;
+}
+
+.scrollbar-fancy::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.4), rgba(34, 197, 94, 0.4));
+  border-radius: 4px;
+}
+
+.scrollbar-fancy::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.6), rgba(34, 197, 94, 0.6));
+}

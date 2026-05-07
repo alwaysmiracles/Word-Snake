@@ -61,7 +61,7 @@ export default function Home() {
             <div className="relative flex items-center bg-slate-800/60 rounded-full p-0.5 border border-slate-700/40">
               {/* Sliding pill indicator */}
               <div
-                className={`absolute top-0.5 bottom-0.5 rounded-full transition-all duration-300 ease-out ${
+                className={`absolute top-0.5 bottom-0.5 rounded-full transition-all duration-300 ease-out tab-indicator-glow ${
                   currentPage === 'game'
                     ? 'bg-green-600 shadow-lg shadow-green-900/30 left-0.5 w-[calc(50%-2px)]'
                     : 'bg-purple-600 shadow-lg shadow-purple-900/30 left-[calc(50%+1px)] w-[calc(50%-2px)]'
