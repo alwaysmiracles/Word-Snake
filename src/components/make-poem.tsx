@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
+import { getWordEntry, CATEGORY_COLORS, getCategoryInfo, type WordCategory } from '@/lib/word-pool'
+import { playPoemSound } from '@/lib/sounds'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -16,6 +18,7 @@ import {
   Copy,
   Check,
   Trash2,
+  Download,
 } from 'lucide-react'
 
 interface PoemResult {
@@ -75,6 +78,7 @@ export default function MakePoem() {
       if (result.usedWords.length > 0) {
         removeWords(result.usedWords)
       }
+      playPoemSound()
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred'
@@ -90,7 +94,6 @@ export default function MakePoem() {
       setCopiedId(id)
       setTimeout(() => setCopiedId(null), 2000)
     } catch {
-      // Fallback
       const textarea = document.createElement('textarea')
       textarea.value = text
       document.body.appendChild(textarea)
@@ -100,6 +103,66 @@ export default function MakePoem() {
       setCopiedId(id)
       setTimeout(() => setCopiedId(null), 2000)
     }
+  }
+
+  const downloadPoemAsImage = async (poem: PoemResult) => {
+    const canvas = document.createElement('canvas')
+    const width = 600
+    const padding = 40
+    const lineHeight = 24
+    const lines = poem.poem.split('\n')
+    const titleHeight = 40
+    const wordsHeight = poem.usedWords.length > 0 ? 40 : 0
+    const height = padding * 2 + titleHeight + lines.length * lineHeight + wordsHeight + 20
+
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, width, height)
+    grad.addColorStop(0, '#1e1b4b')
+    grad.addColorStop(0.5, '#0f172a')
+    grad.addColorStop(1, '#1a0533')
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, width, height)
+
+    // Border
+    ctx.strokeStyle = '#7c3aed40'
+    ctx.lineWidth = 2
+    ctx.roundRect(8, 8, width - 16, height - 16, 12)
+    ctx.stroke()
+
+    // Title
+    ctx.fillStyle = '#c084fc'
+    ctx.font = 'bold 18px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('✨ Word Snake Poem', width / 2, padding + 20)
+
+    // Poem text
+    ctx.fillStyle = '#e2e8f0'
+    ctx.font = 'italic 14px serif'
+    ctx.textAlign = 'left'
+    let y = padding + titleHeight + 10
+    for (const line of lines) {
+      ctx.fillText(line, padding, y)
+      y += lineHeight
+    }
+
+    // Used words
+    if (poem.usedWords.length > 0) {
+      y += 10
+      ctx.fillStyle = '#64748b'
+      ctx.font = '11px sans-serif'
+      ctx.fillText('Words: ' + poem.usedWords.join(', '), padding, y)
+    }
+
+    // Download
+    const link = document.createElement('a')
+    link.download = `word-snake-poem-${Date.now()}.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
   }
 
   return (
@@ -171,24 +234,30 @@ export default function MakePoem() {
                         Your Poem
                       </span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 px-2 text-slate-400 hover:text-slate-200"
-                      onClick={() => copyToClipboard(poemResult.poem, poemResult.timestamp)}
-                    >
-                      {copiedId === poemResult.timestamp ? (
-                        <>
-                          <Check className="h-3.5 w-3.5 mr-1 text-green-400" />
-                          <span className="text-xs text-green-400">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-3.5 w-3.5 mr-1" />
-                          <span className="text-xs">Copy</span>
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-slate-400 hover:text-slate-200"
+                        onClick={() => copyToClipboard(poemResult.poem, poemResult.timestamp)}
+                      >
+                        {copiedId === poemResult.timestamp ? (
+                          <><Check className="h-3.5 w-3.5 mr-1 text-green-400" /><span className="text-xs text-green-400">Copied!</span></>
+                        ) : (
+                          <><Copy className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Copy</span></>
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-slate-400 hover:text-slate-200"
+                        onClick={() => downloadPoemAsImage(poemResult)}
+                        title="Download as image"
+                      >
+                        <Download className="h-3.5 w-3.5 mr-1" />
+                        <span className="text-xs">Save</span>
+                      </Button>
+                    </div>
                   </div>
                   <div className="text-slate-200 leading-relaxed whitespace-pre-wrap font-serif italic text-base relative">
                     {poemResult.poem}
@@ -343,25 +412,41 @@ export default function MakePoem() {
             ) : (
               <ScrollArea className="h-[400px] lg:h-[520px]">
                 <div className="space-y-1 pr-2">
-                  {wordList.map(({ word, count }) => (
-                    <div
-                      key={word}
-                      className="flex items-center justify-between px-3 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200"
-                    >
-                      <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
-                        <ChevronRight className="h-3 w-3 text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {word}
-                      </span>
-                      {count > 1 && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center"
-                        >
-                          ×{count}
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
+                  {wordList.map(({ word, count }) => {
+                    const entry = getWordEntry(word)
+                    const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
+                    const catInfo = entry ? getCategoryInfo(entry.category) : null
+                    return (
+                      <div
+                        key={word}
+                        className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200"
+                      >
+                        <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ backgroundColor: catColor }}
+                            title={catInfo?.label ?? ''}
+                          />
+                          {word}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {entry && (
+                            <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">
+                              {entry.points}pt{entry.points !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {count > 1 && (
+                            <Badge
+                              variant="secondary"
+                              className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center"
+                            >
+                              ×{count}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </ScrollArea>
             )}
