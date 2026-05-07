@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { getWordDefinition } from '@/lib/word-definitions'
+import { getFavoritePoems, addFavoritePoem, removeFavoritePoem, isFavoritePoem, type FavoritePoem } from '@/lib/poem-favorites'
 import {
   Sparkles,
   Loader2,
@@ -28,6 +29,8 @@ import {
   Flame,
   ChevronDown,
   ChevronUp,
+  Heart,
+  Star,
 } from 'lucide-react'
 
 type PoemStyle = 'free_verse' | 'haiku' | 'limerick' | 'sonnet'
@@ -155,6 +158,7 @@ export default function MakePoem() {
   const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [leaderboardTab, setLeaderboardTab] = useState<Difficulty>('medium')
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
@@ -164,6 +168,9 @@ export default function MakePoem() {
   useEffect(() => {
     setUnlockedIds(getUnlockedAchievements())
     setStreakInfo(getStreak())
+    // Load favorites
+    const favs = getFavoritePoems()
+    setFavoriteIds(new Set(favs.map(f => f.timestamp)))
   }, [])
 
   const handleAchievementCheck = useCallback((extraStats?: Partial<AchievementStats>) => {
@@ -244,6 +251,16 @@ export default function MakePoem() {
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleFavorite = (poem: PoemResult) => {
+    if (favoriteIds.has(poem.timestamp)) {
+      removeFavoritePoem(poem.timestamp)
+      setFavoriteIds(new Set([...favoriteIds].filter(id => id !== poem.timestamp)))
+    } else {
+      addFavoritePoem(poem)
+      setFavoriteIds(new Set([...favoriteIds, poem.timestamp]))
     }
   }
 
@@ -433,6 +450,10 @@ export default function MakePoem() {
                       <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform" onClick={() => copyToClipboard(poemResult.poem, poemResult.timestamp)}>
                         {copiedId === poemResult.timestamp ? <><Check className="h-3.5 w-3.5 mr-1 text-green-400" /><span className="text-xs text-green-400">Copied!</span></> : <><Copy className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Copy</span></>}
                       </Button>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-red-400 active:scale-95 transition-transform" onClick={() => toggleFavorite(poemResult)}>
+                        <Heart className={`h-3.5 w-3.5 mr-1 ${favoriteIds.has(poemResult.timestamp) ? 'fill-red-400 text-red-400' : ''}`} />
+                        <span className="text-xs">{favoriteIds.has(poemResult.timestamp) ? 'Saved' : 'Save'}</span>
+                      </Button>
                       <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform" onClick={() => downloadPoemAsImage(poemResult)} title="Download as image">
                         <Download className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Save</span>
                       </Button>
@@ -517,15 +538,74 @@ export default function MakePoem() {
                             ))}
                           </div>
                         )}
-                        <Button variant="ghost" size="sm" className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-300 active:scale-95" onClick={() => copyToClipboard(poem.poem, poem.timestamp)}>
-                          {copiedId === poem.timestamp ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
-                        </Button>
+                        <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-red-400 active:scale-95" onClick={() => toggleFavorite(poem)}>
+                            <Heart className={`h-3 w-3 ${favoriteIds.has(poem.timestamp) ? 'fill-red-400 text-red-400' : ''}`} />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-slate-300 active:scale-95" onClick={() => copyToClipboard(poem.poem, poem.timestamp)}>
+                            {copiedId === poem.timestamp ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </ScrollArea>
               </div>
             )}
+
+            {/* Favorite Poems */}
+            {(() => {
+              const favPoems = getFavoritePoems()
+              if (favPoems.length === 0) return null
+              return (
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-slate-400 mb-3 flex items-center gap-2">
+                    <Heart className="h-4 w-4 text-red-400" />
+                    Favorite Poems
+                    <Badge variant="secondary" className="bg-red-900/30 text-red-400 text-[10px] h-4 px-1.5 border-red-700/30">{favPoems.length}</Badge>
+                  </h3>
+                  <ScrollArea className="h-[200px]">
+                    <div className="space-y-3 pr-2">
+                      {favPoems.map((fav) => (
+                        <div key={fav.timestamp} className="p-4 rounded-lg bg-gradient-to-br from-red-900/10 via-slate-800/40 to-slate-800/20 border border-red-700/20 hover:border-red-600/30 transition-all duration-200 relative group">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="bg-purple-900/20 text-purple-400 text-[10px] border-purple-700/20 px-1.5 h-4">
+                              {POEM_STYLES[fav.style as PoemStyle]?.label ?? 'Poem'}
+                            </Badge>
+                            <Badge variant="secondary" className="bg-red-900/20 text-red-400 text-[10px] border-red-700/20 px-1.5 h-4">
+                              <Heart className="h-2.5 w-2.5 mr-0.5 fill-red-400" />
+                              Favorite
+                            </Badge>
+                          </div>
+                          <div className="text-slate-300 leading-relaxed whitespace-pre-wrap font-serif italic text-sm">{fav.poem}</div>
+                          {fav.usedWords.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {fav.usedWords.slice(0, 8).map((word, i) => (
+                                <Badge key={`${word}-${i}`} variant="secondary" className="bg-slate-700/60 text-slate-400 text-xs">{word}</Badge>
+                              ))}
+                              {fav.usedWords.length > 8 && (
+                                <Badge variant="secondary" className="bg-slate-700/40 text-slate-500 text-xs">+{fav.usedWords.length - 8}</Badge>
+                              )}
+                            </div>
+                          )}
+                          <div className="absolute top-2 right-2 flex items-center gap-0.5">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-400 hover:text-red-300 active:scale-95" onClick={() => {
+                              removeFavoritePoem(fav.timestamp)
+                              setFavoriteIds(new Set([...favoriteIds].filter(id => id !== fav.timestamp)))
+                            }}>
+                              <Heart className="h-3 w-3 fill-red-400" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity active:scale-95" onClick={() => copyToClipboard(fav.poem, fav.timestamp)}>
+                              {copiedId === fav.timestamp ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )
+            })()}
 
             {/* Empty State with pulsing sparkle */}
             {!poemResult && !loading && poemHistory.length === 0 && (

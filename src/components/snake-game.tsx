@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
-import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES } from '@/lib/word-pool'
+import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { getDailyChallenge, getDailyChallengeResult, saveDailyChallengeResult, isDailyChallengePlayed, type DailyChallenge } from '@/lib/daily-challenge'
@@ -47,6 +47,7 @@ interface WordFood {
   position: Position
   spawnTime: number
   category: WordCategory
+  rarity: WordRarity
 }
 
 interface FloatingText {
@@ -107,6 +108,7 @@ interface GameState {
   comboCount: number
   lastEatenCategory: WordCategory | null
   comboMultiplier: number
+  weather: 'clear' | 'rain' | 'snow' | 'stars'
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -213,6 +215,7 @@ export default function SnakeGame() {
     comboCount: 0,
     lastEatenCategory: null,
     comboMultiplier: 1,
+    weather: 'clear' as const,
   })
 
   const lastRenderRef = useRef(0)
@@ -223,6 +226,7 @@ export default function SnakeGame() {
   const particlesRef = useRef<Particle[]>([])
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
 
   const [uiState, setUiState] = useState({
     score: 0,
@@ -246,6 +250,7 @@ export default function SnakeGame() {
     comboCount: 0,
     lastEatenCategory: null as WordCategory | null,
     comboMultiplier: 1,
+    weather: 'clear' as GameState['weather'],
   })
 
   // Track word additions for entrance animation - key increments trigger re-render with animation
@@ -275,6 +280,7 @@ export default function SnakeGame() {
       comboCount: gs.comboCount,
       lastEatenCategory: gs.lastEatenCategory,
       comboMultiplier: gs.comboMultiplier,
+      weather: gs.weather,
     })
   }, [])
 
@@ -346,7 +352,8 @@ export default function SnakeGame() {
       attempts++
     } while (occupiedPositions.has(`${pos.x},${pos.y}`) && attempts < 100)
 
-    gs.wordFood = { word, position: pos, spawnTime: Date.now(), category }
+    const rarity = getRandomRarity()
+    gs.wordFood = { word, position: pos, spawnTime: Date.now(), category, rarity }
   }, [])
 
   const formatTime = (ms: number) => {
@@ -377,6 +384,61 @@ export default function SnakeGame() {
         ctx.arc(x * CELL_SIZE, y * CELL_SIZE, 0.5, 0, Math.PI * 2)
         ctx.fill()
       }
+    }
+
+    // Weather effects
+    if (gs.weather !== 'clear' && gameStarted && !gameOver) {
+      const wp = weatherParticlesRef.current
+      
+      // Initialize weather particles if empty
+      if (wp.length === 0) {
+        const count = gs.weather === 'rain' ? 80 : gs.weather === 'snow' ? 50 : 30
+        for (let i = 0; i < count; i++) {
+          wp.push({
+            x: Math.random() * CANVAS_WIDTH,
+            y: Math.random() * CANVAS_HEIGHT,
+            vx: gs.weather === 'rain' ? -1 : gs.weather === 'snow' ? (Math.random() - 0.5) * 0.5 : 0,
+            vy: gs.weather === 'rain' ? 4 + Math.random() * 3 : gs.weather === 'snow' ? 0.5 + Math.random() * 1 : 0,
+            size: gs.weather === 'rain' ? 1 : gs.weather === 'snow' ? 2 + Math.random() * 2 : 1 + Math.random(),
+            alpha: gs.weather === 'stars' ? Math.random() : 0.3 + Math.random() * 0.4,
+          })
+        }
+      }
+      
+      // Update and draw weather particles
+      for (const p of wp) {
+        p.x += p.vx
+        p.y += p.vy
+        
+        if (gs.weather === 'rain') {
+          if (p.y > CANVAS_HEIGHT) { p.y = -5; p.x = Math.random() * CANVAS_WIDTH }
+          ctx.globalAlpha = p.alpha
+          ctx.strokeStyle = '#94a3b8'
+          ctx.lineWidth = 0.5
+          ctx.beginPath()
+          ctx.moveTo(p.x, p.y)
+          ctx.lineTo(p.x + p.vx * 2, p.y + p.vy * 2)
+          ctx.stroke()
+        } else if (gs.weather === 'snow') {
+          if (p.y > CANVAS_HEIGHT) { p.y = -5; p.x = Math.random() * CANVAS_WIDTH }
+          p.vx = Math.sin(Date.now() / 1000 + p.x) * 0.3
+          ctx.globalAlpha = p.alpha
+          ctx.fillStyle = '#e2e8f0'
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+          ctx.fill()
+        } else if (gs.weather === 'stars') {
+          p.alpha = 0.3 + Math.sin(Date.now() / 500 + p.x + p.y) * 0.3
+          if (p.alpha > 0) {
+            ctx.globalAlpha = p.alpha
+            ctx.fillStyle = '#fbbf24'
+            ctx.beginPath()
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+            ctx.fill()
+          }
+        }
+      }
+      ctx.globalAlpha = 1
     }
 
     // Draw border glow
@@ -560,6 +622,57 @@ export default function SnakeGame() {
       ctx.beginPath()
       ctx.arc(boxX + 8, boxY + boxHeight / 2, 2.5, 0, Math.PI * 2)
       ctx.fill()
+
+      // Rarity effects
+      const rarity = wordFood.rarity
+      const rarityConf = RARITY_CONFIG[rarity]
+      if (rarity !== 'common' && rarityConf) {
+        // Extra glow for uncommon/rare/legendary
+        ctx.shadowColor = rarityConf.color
+        ctx.shadowBlur = rarity === 'legendary' ? 30 : rarity === 'rare' ? 22 : 14
+        
+        // Legendary: rotating rays
+        if (rarity === 'legendary') {
+          const rayAngle = elapsed / 1000
+          ctx.save()
+          ctx.translate(boxX + boxWidth / 2, boxY + boxHeight / 2)
+          for (let r = 0; r < 8; r++) {
+            const angle = rayAngle + (r * Math.PI) / 4
+            ctx.strokeStyle = `rgba(245, 158, 11, ${0.15 + Math.sin(elapsed / 200 + r) * 0.1})`
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.moveTo(Math.cos(angle) * 10, Math.sin(angle) * 10)
+            ctx.lineTo(Math.cos(angle) * (boxWidth / 2 + 8), Math.sin(angle) * (boxHeight / 2 + 8))
+            ctx.stroke()
+          }
+          ctx.restore()
+        }
+        
+        // Rare: sparkle particles around the word
+        if (rarity === 'rare') {
+          for (let s = 0; s < 4; s++) {
+            const sparkleAngle = elapsed / 500 + s * Math.PI / 2
+            const sparkleX = boxX + boxWidth / 2 + Math.cos(sparkleAngle) * (boxWidth / 2 + 4)
+            const sparkleY = boxY + boxHeight / 2 + Math.sin(sparkleAngle) * (boxHeight / 2 + 4)
+            const sparkleAlpha = 0.4 + Math.sin(elapsed / 200 + s) * 0.3
+            ctx.globalAlpha = sparkleAlpha
+            ctx.fillStyle = rarityConf.color
+            ctx.beginPath()
+            ctx.arc(sparkleX, sparkleY, 2, 0, Math.PI * 2)
+            ctx.fill()
+          }
+          ctx.globalAlpha = 1
+        }
+        
+        // Rarity indicator badge (small colored diamond in top-right of word box)
+        ctx.fillStyle = rarityConf.color
+        ctx.font = `bold 8px sans-serif`
+        ctx.textAlign = 'right'
+        ctx.fillText(rarityConf.emoji || '◆', boxX + boxWidth - 4, boxY + 10)
+        ctx.textAlign = 'start'
+        
+        ctx.shadowBlur = 0
+      }
 
       // Text
       ctx.fillStyle = catColor
@@ -796,6 +909,23 @@ export default function SnakeGame() {
         }
       }
 
+      // Rarity legend
+      const rarityY = startY + (Math.ceil(categories.length / cols)) * rowH + 10
+      ctx.textAlign = 'center'
+      ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'
+      ctx.fillText('Rarity:', CANVAS_WIDTH / 2 - 80, rarityY)
+      const rarities: WordRarity[] = ['common', 'uncommon', 'rare', 'legendary']
+      let rx = CANVAS_WIDTH / 2 - 50
+      rarities.forEach((r) => {
+        const rc = RARITY_CONFIG[r]
+        ctx.fillStyle = rc.color
+        ctx.font = '10px sans-serif'
+        ctx.textAlign = 'left'
+        ctx.fillText(`${rc.emoji || '•'} ${rc.label}`, rx, rarityY)
+        rx += 65
+      })
+      ctx.textAlign = 'start'
+
       ctx.textAlign = 'center'
       ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif'
       ctx.fillText('Arrow Keys / WASD  •  Space to start  •  Swipe on mobile', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 60)
@@ -876,6 +1006,11 @@ export default function SnakeGame() {
     gs.comboCount = 0
     gs.lastEatenCategory = null
     gs.comboMultiplier = 1
+
+    // Random weather
+    const weathers: GameState['weather'][] = ['clear', 'rain', 'snow', 'stars']
+    gs.weather = weathers[Math.floor(Math.random() * weathers.length)]
+    weatherParticlesRef.current = []
 
     spawnWord()
     playSound(playStartSound)
@@ -1074,6 +1209,13 @@ export default function SnakeGame() {
             points *= 2
           }
 
+          // Rarity multiplier
+          const rarityConfig = RARITY_CONFIG[wordFood.rarity]
+          if (rarityConfig && rarityConfig.pointMultiplier > 1) {
+            const rarityBonus = Math.floor(points * (rarityConfig.pointMultiplier - 1))
+            points += rarityBonus
+          }
+
           // Combo chain logic
           if (wordFood.category === gs.lastEatenCategory) {
             gs.comboCount += 1
@@ -1106,6 +1248,9 @@ export default function SnakeGame() {
           const wx = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
           const wy = wordFood.position.y * CELL_SIZE
           spawnFloatingText(`+${comboPoints}`, wx, wy, '#4ade80')
+          if (rarityConfig && rarityConfig.pointMultiplier > 1) {
+            spawnFloatingText(`${rarityConfig.emoji} ${rarityConfig.label}!`, wx, wy - 66, rarityConfig.color)
+          }
           spawnFloatingText(wordFood.word, wx, wy - 22, catColor)
           if (gs.comboCount > 1) {
             spawnFloatingText(`🔥 ×${gs.comboMultiplier.toFixed(1)}`, wx, wy - 44, '#f59e0b')
@@ -1422,6 +1567,11 @@ export default function SnakeGame() {
                     <div className="flex items-center gap-1.5 text-slate-400 text-xs">
                       <Clock className="h-3 w-3" />
                       <span className="font-mono">{formatTime(uiState.elapsedTime)}</span>
+                      {uiState.weather !== 'clear' && (
+                        <span className="text-xs">
+                          {uiState.weather === 'rain' ? '🌧️' : uiState.weather === 'snow' ? '❄️' : '⭐'}
+                        </span>
+                      )}
                     </div>
                   )}
                   {highScore > 0 && (
@@ -1778,6 +1928,14 @@ export default function SnakeGame() {
                                     {catInfo.emoji}
                                   </span>
                                 )}
+                                {/* Rarity indicator */}
+                                {(() => {
+                                  const rarity = entry ? getRarityForPoints(entry.points) : 'common'
+                                  const rConf = RARITY_CONFIG[rarity]
+                                  return rarity !== 'common' ? (
+                                    <span className="text-[8px] opacity-70" style={{ color: rConf.color }}>{rConf.emoji}</span>
+                                  ) : null
+                                })()}
                               </span>
                               <div className="flex items-center gap-1.5">
                                 {entry && (

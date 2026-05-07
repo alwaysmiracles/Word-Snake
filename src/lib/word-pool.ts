@@ -1,6 +1,32 @@
 // Pool of interesting English words for the snake game, organized by category
 export type WordCategory = 'nature' | 'emotion' | 'element' | 'time' | 'creature' | 'quality' | 'object' | 'action'
 
+export type WordRarity = 'common' | 'uncommon' | 'rare' | 'legendary'
+
+export const RARITY_CONFIG: Record<WordRarity, { label: string; color: string; glowColor: string; emoji: string; pointMultiplier: number; chance: number }> = {
+  common: { label: 'Common', color: '#94a3b8', glowColor: '#94a3b820', emoji: '', pointMultiplier: 1, chance: 0.55 },
+  uncommon: { label: 'Uncommon', color: '#22c55e', glowColor: '#22c55e30', emoji: '◆', pointMultiplier: 1.5, chance: 0.28 },
+  rare: { label: 'Rare', color: '#3b82f6', glowColor: '#3b82f640', emoji: '★', pointMultiplier: 2.5, chance: 0.13 },
+  legendary: { label: 'Legendary', color: '#f59e0b', glowColor: '#f59e0b50', emoji: '♛', pointMultiplier: 5, chance: 0.04 },
+}
+
+export function getRarityForPoints(points: number): WordRarity {
+  if (points >= 16) return 'legendary'
+  if (points >= 14) return 'rare'
+  if (points >= 12) return 'uncommon'
+  return 'common'
+}
+
+export function getRandomRarity(): WordRarity {
+  const roll = Math.random()
+  let cumulative = 0
+  for (const [rarity, config] of Object.entries(RARITY_CONFIG)) {
+    cumulative += config.chance
+    if (roll < cumulative) return rarity as WordRarity
+  }
+  return 'common'
+}
+
 export interface WordEntry {
   word: string
   category: WordCategory

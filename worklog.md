@@ -595,4 +595,182 @@ The application is a comprehensive Word Snake game with 18+ major features.
 7. **Accessibility**: Screen reader support, high contrast mode
 8. **Weather System**: Visual weather effects on canvas (rain, snow, fog)
 9. **Word Rarity System**: Rare words worth more points with special glow
-10. **Mini-map**: Small overview map showing word and power-up positions
+10. ~~**Mini-map**: Small overview map showing word and power-up positions~~
+
+---
+Task ID: 8
+Agent: Review Agent (cron Round 8)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA with agent-browser**: Tested game start/play, navigation to poem page — all features working correctly, no JS errors
+- **No bugs found during QA** — app loads cleanly, ESLint passes with zero errors
+- **Feature: Word Rarity System** (via Task agent 8-a):
+  - Modified `src/lib/word-pool.ts`: Added `WordRarity` type ('common' | 'uncommon' | 'rare' | 'legendary'), `RARITY_CONFIG` with colors/emojis/point multipliers/spawn chances, `getRarityForPoints()`, `getRandomRarity()`
+  - Modified `src/components/snake-game.tsx`: Added `rarity` field to WordFood, random rarity assignment in spawnWord(), rarity point multiplier (after double-points, before combo), floating text for uncommon/rare/legendary, canvas visual effects (extra glow, rotating rays for legendary, sparkle orbit for rare, rarity badge emoji), rarity legend on start screen, rarity indicator in sidebar word list
+  - Rarity tiers: Common (55%, gray, ×1), Uncommon (28%, green, ×1.5), Rare (13%, blue, ×2.5), Legendary (4%, gold, ×5)
+- **Feature: Canvas Weather Effects** (via Task agent 8-a):
+  - Added `weather` field to GameState ('clear' | 'rain' | 'snow' | 'stars')
+  - Random weather selection each game session
+  - Rain: 80 diagonal streak particles
+  - Snow: 50 drifting circles with sinusoidal motion
+  - Stars: 30 twinkling golden dots
+  - Weather emoji indicator in header (🌧️/❄️/⭐)
+- **Feature: Poem Favorites** (via Task agent 8-b):
+  - Created `src/lib/poem-favorites.ts`: `FavoritePoem` interface, `getFavoritePoems()`, `addFavoritePoem()`, `removeFavoritePoem()`, `isFavoritePoem()` — all localStorage-backed, max 20 favorites
+  - Modified `src/components/make-poem.tsx`: Heart favorite button on current poem result, heart button on poem history cards, "Favorite Poems" section with red-themed cards, style badges, scrollable list, persistent favorites across sessions
+- **Post-implementation QA**: Verified all features compile and render correctly
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- No bugs found in QA
+- 3 major new features (word rarity system, canvas weather effects, poem favorites)
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 21+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **4 Word Rarities**: Common, Uncommon (×1.5), Rare (×2.5), Legendary (×5) with special visual effects
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **5 Power-ups**: Slow-Mo (🐢), Double Points (💎), Shrink (✂️), Magnet (🧲), Shield (🛡️)
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Canvas Weather**: Rain, Snow, Stars — randomly selected each game
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Sound Effects**: Web Audio API sounds for all interactions including power-ups (with mute toggle)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **Poem Favorites**: Mark/unmark poems as favorites, persistent collection (max 20)
+- **11 Achievements**: Toast notifications, canvas floating text
+- **Word Definitions**: Tooltips on hover showing definition and example
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Visual Polish**: 20+ CSS animations, particles, confetti, page transitions, aurora background, shimmer effects, glow rings, combo fire flicker, rarity effects, weather particles
+- **Copy/Download Poem**: Copy to clipboard, download as PNG
+
+### Known Issues / Risks
+- Poem download PNG doesn't wrap long lines well
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Achievement toast only shows one at a time
+- Confetti canvas doesn't resize on window resize
+- Shield power-up wrapping behavior might be unexpected (wall wraps to opposite side)
+
+### Suggested Next Steps
+1. **Achievement Gallery**: Full-page/modal view of all achievements with progress bars
+2. **Poem Sharing**: Generate shareable social media image
+3. **Multi-language Support**: Word sets in other languages
+4. **Game Replay**: Record and replay game sessions
+5. **Sound Customization**: Choose different sound themes
+6. **Accessibility**: Screen reader support, high contrast mode
+7. **Word Etymology**: Show word origins and language roots
+8. **Snake Skins**: Choose different snake visual styles
+9. **Achievement Notifications Queue**: Show multiple achievements in sequence
+10. **Canvas Mini-map**: Small overview map showing word and power-up positions
+
+---
+Task ID: 8-a
+Agent: Rarity & Weather Agent
+Task: Add Word Rarity System and Canvas Weather Effects
+
+Work Log:
+- Modified `src/lib/word-pool.ts`:
+  - Added `WordRarity` type: `'common' | 'uncommon' | 'rare' | 'legendary'`
+  - Added `RARITY_CONFIG` with color, glow color, emoji, point multiplier, and chance for each rarity
+    - Common: #94a3b8, ×1, 55% chance
+    - Uncommon: #22c55e, ◆, ×1.5, 28% chance
+    - Rare: #3b82f6, ★, ×2.5, 13% chance
+    - Legendary: #f59e0b, ♛, ×5, 4% chance
+  - Added `getRarityForPoints(points)`: maps point values to rarity tiers (≥16=legendary, ≥14=rare, ≥12=uncommon, else common)
+  - Added `getRandomRarity()`: weighted random selection based on chance values
+- Modified `src/components/snake-game.tsx`:
+  - **WordFood interface**: Added `rarity: WordRarity` field
+  - **Import**: Added `WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity` from word-pool
+  - **spawnWord()**: Assigns random rarity via `getRandomRarity()` when creating word food
+  - **Point calculation**: Rarity multiplier applied AFTER double-points power-up but BEFORE combo multiplier
+    - Adds `Math.floor(points * (pointMultiplier - 1))` as bonus
+    - Shows floating text with rarity emoji and label for uncommon/rare/legendary
+  - **Canvas rarity effects on word food**:
+    - Extra glow (shadowBlur) scaled by rarity: uncommon=14, rare=22, legendary=30
+    - Legendary: 8 rotating rays emanating from word box center
+    - Rare: 4 sparkle particles orbiting around the word box
+    - Rarity indicator badge (emoji or ◆) in top-right corner of word box
+  - **Sidebar rarity indicator**: Colored emoji next to word items based on their point-based rarity
+  - **Start screen rarity legend**: Shows "Rarity:" label with all 4 tiers (colored with emoji)
+  - **GameState weather field**: Added `weather: 'clear' | 'rain' | 'snow' | 'stars'`
+  - **weatherParticlesRef**: Stores weather particle array `{x, y, vx, vy, size, alpha}`
+  - **resetGame()**: Picks random weather type, clears weather particles
+  - **uiState weather field**: Added to state and updateUI()
+  - **Canvas weather effects** (drawn after grid dots, before border glow):
+    - Rain: 80 particles, diagonal streaks, gray, wrap around
+    - Snow: 50 particles, white circles, sinusoidal horizontal drift, wrap around
+    - Stars: 30 particles, golden twinkling dots, pulsing alpha
+    - Clear: no particles
+  - **Weather indicator in header**: Shows emoji (🌧️/❄️/⭐) next to timer when weather is not clear
+  - All code passes ESLint with zero errors
+  - Dev server compiles successfully
+
+Stage Summary:
+- **Word Rarity System**: 4 rarity tiers with visual effects, point multipliers, and UI indicators
+- **Canvas Weather Effects**: 4 weather types (clear/rain/snow/stars) with ambient particles
+- Rarity multiplier stacks between double-points power-up and combo multiplier
+- Weather randomly selected each game session, particles reset on restart
+- No existing functionality broken
+
+---
+Task ID: 8-b
+Agent: Poem Favorites Agent
+Task: Add Poem Favorites feature — mark poems as favorites, persisted to localStorage
+
+Work Log:
+- Created `src/lib/poem-favorites.ts`:
+  - `FavoritePoem` interface: poem, usedWords, timestamp, style, favoritedAt
+  - `STORAGE_KEY = 'word-snake-poem-favorites'`
+  - `getFavoritePoems()`: Reads from localStorage, returns parsed array or empty on error
+  - `addFavoritePoem(poem)`: Adds favorite with `favoritedAt: Date.now()`, prevents duplicates by timestamp, keeps max 20 entries, prepends to list
+  - `removeFavoritePoem(timestamp)`: Filters out by timestamp and saves
+  - `isFavoritePoem(timestamp)`: Checks if poem is favorited
+  - SSR-safe: `typeof window === 'undefined'` check returns []
+- Modified `src/components/make-poem.tsx`:
+  - Added imports: `getFavoritePoems`, `addFavoritePoem`, `removeFavoritePoem`, `isFavoritePoem`, `type FavoritePoem` from `@/lib/poem-favorites`
+  - Added imports: `Heart`, `Star` from `lucide-react`
+  - Added `favoriteIds` state: `useState<Set<number>>(new Set())` to track which poems are favorited
+  - Updated `useEffect` on mount: loads favorites from localStorage via `getFavoritePoems()` and populates `favoriteIds` Set
+  - Added `toggleFavorite(poem: PoemResult)` handler: adds/removes from favorites and updates state
+  - Added favorite button (Heart icon) to current poem result card between Copy and Save/Download buttons:
+    - Unfavorited: outline Heart with "Save" label, hover:text-red-400
+    - Favorited: filled red Heart with "Saved" label
+    - active:scale-95 transition-transform for press feedback
+  - Added favorite button to poem history cards:
+    - Replaced single copy button with flex container holding Heart + Copy buttons
+    - Both buttons appear on group-hover with opacity transition
+    - Heart filled red when favorited
+  - Added "Favorite Poems" section after poem history and before empty state:
+    - Only renders when `getFavoritePoems().length > 0`
+    - Red-themed header with Heart icon and count Badge
+    - ScrollArea with 200px height for scrollable list
+    - Each favorite poem card: gradient background (red-900/10), red border, group hover effect
+    - Style badge (purple) + Favorite badge (red with filled Heart)
+    - Poem text in italic serif font
+    - Used words badges (max 8 shown, "+N" for overflow)
+    - Action buttons: remove favorite (always visible filled Heart) + copy (visible on hover)
+    - Remove favorite updates both localStorage and React state
+- ESLint passes with zero errors
+- Dev server compiles successfully
+- All existing functionality preserved (copy, download, poem generation, achievements, leaderboard, etc.)
+
+Stage Summary:
+- **Poem Favorites Feature**: Complete favorites system with localStorage persistence
+- Max 20 favorites to prevent storage bloat
+- Favorite state tracked via Set<number> for O(1) lookup
+- Heart icon with filled red state for visual feedback
+- Favorite poems section with scrollable list, style badges, word badges, and action buttons
+- Current poem and history poems both support favoriting
+- All existing functionality preserved
