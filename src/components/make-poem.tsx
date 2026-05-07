@@ -12,22 +12,25 @@ import {
   Loader2,
   BookOpen,
   ChevronRight,
-  Trash2,
   AlertCircle,
+  Copy,
+  Check,
+  Trash2,
 } from 'lucide-react'
 
 interface PoemResult {
   poem: string
   usedWords: string[]
+  timestamp: number
 }
 
 export default function MakePoem() {
-  const { collectedWords, removeWords, getWordList, getTotalCount } =
-    useWordStore()
+  const { removeWords, getWordList, getTotalCount, clearAll } = useWordStore()
   const [loading, setLoading] = useState(false)
   const [poemResult, setPoemResult] = useState<PoemResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [poemHistory, setPoemHistory] = useState<PoemResult[]>([])
+  const [copiedId, setCopiedId] = useState<number | null>(null)
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
@@ -41,7 +44,6 @@ export default function MakePoem() {
     setPoemResult(null)
 
     try {
-      // Send all collected words (with their counts as repeated entries)
       const wordsToSend: string[] = []
       for (const { word, count } of wordList) {
         for (let i = 0; i < count; i++) {
@@ -64,12 +66,12 @@ export default function MakePoem() {
       const result: PoemResult = {
         poem: data.poem,
         usedWords: data.usedWords || [],
+        timestamp: Date.now(),
       }
 
       setPoemResult(result)
       setPoemHistory((prev) => [result, ...prev])
 
-      // Remove used words from collection
       if (result.usedWords.length > 0) {
         removeWords(result.usedWords)
       }
@@ -79,6 +81,24 @@ export default function MakePoem() {
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  const copyToClipboard = async (text: string, id: number) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
+    } catch {
+      // Fallback
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
     }
   }
 
@@ -97,7 +117,7 @@ export default function MakePoem() {
                 variant="secondary"
                 className="bg-purple-900/50 text-purple-400 border-purple-700"
               >
-                {poemHistory.length} poem{poemHistory.length !== 1 ? 's' : ''} created
+                {poemHistory.length} poem{poemHistory.length !== 1 ? 's' : ''} crafted
               </Badge>
             </div>
           </CardHeader>
@@ -107,7 +127,7 @@ export default function MakePoem() {
               <Button
                 onClick={handleMakePoem}
                 disabled={!hasWords || loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-900/30 transition-all duration-200"
               >
                 {loading ? (
                   <>
@@ -118,7 +138,7 @@ export default function MakePoem() {
                   <>
                     <Sparkles className="h-5 w-5 mr-2" />
                     {hasWords
-                      ? `Make Poem with ${totalCount} Word${totalCount !== 1 ? 's' : ''}`
+                      ? `Compose Poem with ${totalCount} Word${totalCount !== 1 ? 's' : ''}`
                       : 'Collect Words in the Game First'}
                   </>
                 )}
@@ -139,26 +159,50 @@ export default function MakePoem() {
             {/* Current Poem Result */}
             {poemResult && (
               <div className="mb-6">
-                <div className="p-5 rounded-lg bg-gradient-to-br from-slate-800/80 to-slate-800/40 border border-purple-700/30">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="h-4 w-4 text-purple-400" />
-                    <span className="text-purple-300 text-sm font-medium">
-                      Your Poem
-                    </span>
+                <div className="p-5 rounded-lg bg-gradient-to-br from-purple-900/20 via-slate-800/80 to-slate-800/40 border border-purple-700/30 relative overflow-hidden">
+                  {/* Decorative corner accent */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-500/5 to-transparent" />
+                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500/5 to-transparent" />
+
+                  <div className="flex items-center justify-between mb-3 relative">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-purple-400" />
+                      <span className="text-purple-300 text-sm font-medium">
+                        Your Poem
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-slate-400 hover:text-slate-200"
+                      onClick={() => copyToClipboard(poemResult.poem, poemResult.timestamp)}
+                    >
+                      {copiedId === poemResult.timestamp ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 mr-1 text-green-400" />
+                          <span className="text-xs text-green-400">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5 mr-1" />
+                          <span className="text-xs">Copy</span>
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <div className="text-slate-200 leading-relaxed whitespace-pre-wrap font-serif italic text-base">
+                  <div className="text-slate-200 leading-relaxed whitespace-pre-wrap font-serif italic text-base relative">
                     {poemResult.poem}
                   </div>
                   {poemResult.usedWords.length > 0 && (
                     <>
-                      <Separator className="my-3 bg-slate-700" />
+                      <Separator className="my-3 bg-slate-700/50" />
                       <div className="flex flex-wrap gap-1.5">
-                        <span className="text-slate-500 text-xs">Words used:</span>
+                        <span className="text-slate-500 text-xs">Words woven in:</span>
                         {poemResult.usedWords.map((word, i) => (
                           <Badge
                             key={`${word}-${i}`}
                             variant="secondary"
-                            className="bg-purple-900/40 text-purple-300 text-xs border-purple-700/50"
+                            className="bg-purple-900/40 text-purple-300 text-xs border-purple-700/50 hover:bg-purple-800/50 transition-colors"
                           >
                             {word}
                           </Badge>
@@ -176,13 +220,16 @@ export default function MakePoem() {
                 <h3 className="text-sm font-medium text-slate-400 mb-3 flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
                   Previous Poems
+                  <Badge variant="secondary" className="bg-slate-800 text-slate-500 text-[10px] h-4 px-1.5 ml-1">
+                    {poemHistory.length - 1}
+                  </Badge>
                 </h3>
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-3 pr-2">
-                    {poemHistory.slice(1).map((poem, index) => (
+                    {poemHistory.slice(1).map((poem) => (
                       <div
-                        key={index}
-                        className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50"
+                        key={poem.timestamp}
+                        className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 transition-colors relative group"
                       >
                         <div className="text-slate-300 leading-relaxed whitespace-pre-wrap font-serif italic text-sm">
                           {poem.poem}
@@ -200,6 +247,18 @@ export default function MakePoem() {
                             ))}
                           </div>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-slate-300"
+                          onClick={() => copyToClipboard(poem.poem, poem.timestamp)}
+                        >
+                          {copiedId === poem.timestamp ? (
+                            <Check className="h-3 w-3 text-green-400" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -210,14 +269,33 @@ export default function MakePoem() {
             {/* Empty State */}
             {!poemResult && !loading && poemHistory.length === 0 && (
               <div className="text-center py-12 text-slate-500">
-                <p className="text-5xl mb-4">✨</p>
+                <div className="relative inline-block">
+                  <p className="text-5xl mb-4">✨</p>
+                  <div className="absolute inset-0 bg-purple-500/10 rounded-full blur-xl" />
+                </div>
                 <p className="text-lg font-medium text-slate-400">
                   Your poems will appear here
                 </p>
-                <p className="text-sm mt-2 max-w-sm mx-auto">
+                <p className="text-sm mt-2 max-w-sm mx-auto leading-relaxed">
                   Collect words by playing the Snake game, then come back here to
                   weave them into poetry
                 </p>
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <div className="flex items-center gap-1 text-xs text-slate-600">
+                    <span className="w-2 h-2 rounded-full bg-green-500" />
+                    Collect
+                  </div>
+                  <span className="text-slate-700">→</span>
+                  <div className="flex items-center gap-1 text-xs text-slate-600">
+                    <span className="w-2 h-2 rounded-full bg-purple-500" />
+                    Compose
+                  </div>
+                  <span className="text-slate-700">→</span>
+                  <div className="flex items-center gap-1 text-xs text-slate-600">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    Create
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
@@ -229,15 +307,28 @@ export default function MakePoem() {
         <Card className="border-slate-700 bg-slate-900 h-full">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-amber-400 text-base">
+              <CardTitle className="text-amber-400 text-base flex items-center gap-2">
                 📚 Word Bank
               </CardTitle>
-              <Badge
-                variant="secondary"
-                className="bg-amber-900/50 text-amber-400 border-amber-700 text-xs"
-              >
-                {totalCount} words
-              </Badge>
+              <div className="flex items-center gap-2">
+                {hasWords && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-slate-500 hover:text-red-400"
+                    onClick={clearAll}
+                    title="Clear all words"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+                <Badge
+                  variant="secondary"
+                  className="bg-amber-900/50 text-amber-400 border-amber-700 text-xs"
+                >
+                  {totalCount}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
@@ -251,11 +342,11 @@ export default function MakePoem() {
               </div>
             ) : (
               <ScrollArea className="h-[400px] lg:h-[520px]">
-                <div className="space-y-1.5 pr-2">
+                <div className="space-y-1 pr-2">
                   {wordList.map(({ word, count }) => (
                     <div
                       key={word}
-                      className="flex items-center justify-between px-3 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-colors"
+                      className="flex items-center justify-between px-3 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200"
                     >
                       <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
                         <ChevronRight className="h-3 w-3 text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity" />
