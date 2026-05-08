@@ -106,6 +106,10 @@ import { createScoreBreakdown, loadBreakdown, getTopScoringWords, getCategoryCon
 import { createNotificationQueue, pushQuick, dismissActive, getActive, getNotificationStats, getTypeConfig, createAchievementNotification, createComboNotification, type NotificationType, type NotificationQueue, type Notification } from '@/lib/notification-manager'
 import { GAME_MODES, getMode, getAllModes, getUnlockedModes, getModeStats, getModeProgress, getTimeDisplay, getScoreDisplay, getDifficultyColor as getModeDifficultyColor, getRecommendedMode, type GameMode, type GameModeConfig } from '@/lib/game-mode-selector'
 import { createDefaultProfile, loadProfile, saveProfile, setPlayerName, setAvatar, addXP, calculateLevel, getProfileCard, getUnlockedAvatars, getUnlockedTitles, checkTitleUnlocks, AVATARS, PLAYER_TITLES, XP_PER_LEVEL, type PlayerProfile, type Avatar, type PlayerTitle } from '@/lib/player-profile'
+import { createGameModeEngine, applyModeRules, updateModeTimer, handleCollisionForMode, getScoreMultiplier as getModeScoreMultiplier, getFrameIntervalModifier, getSpawnRateModifier, getObstacleModifier, shouldEndGame, getModeDisplayInfo, activateMode, recordModeSession, getModeSummary, type GameModeEngine, type MutableGameState, type ModeDisplayInfo } from '@/lib/game-mode-engine'
+import { createXPScoringWire, awardXP, addMultiplier, removeMultiplier, updateMultipliers as updateXPMultipliers, getSessionStats, resetSessionStats, getXPProgress, formatXP, getXPBreakdown, activateDoubleXP, activateStreakBonus, activateDifficultyBonus, type XPScoringWire, type XPProgress } from '@/lib/xp-scoring-wire'
+import { createScoreLiveWire, recordWordEaten, recordPowerUpBonus, recordComboEvent, updateTimeEfficiency, getMiniSummary, resetForNewGame, getChartJSData, type ScoreLiveWire } from '@/lib/score-live-wire'
+import { createNotifEventWire, onAchievementUnlocked, onComboMilestone, onPowerUpCollected, onLevelUp, onStreakMilestone, onDailyChallengeComplete, onNewWordDiscovered, onBossDefeated, onXPBonus, onGameComplete, getActiveNotifications, dismissAll, updateCooldowns, toggleSetting as toggleNotifSetting, getSettings, getNotifStats, type NotifEventWire } from '@/lib/notif-event-wire'
 import {
   Play,
   RotateCcw,
@@ -801,6 +805,19 @@ export default function SnakeGame() {
   // Player Profile
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile>(createDefaultProfile())
   const [showPlayerProfile, setShowPlayerProfile] = useState(false)
+  // Game Mode Engine (Round 37)
+  const modeEngineRef = useRef<GameModeEngine>(createGameModeEngine())
+  const [modeDisplayInfo, setModeDisplayInfo] = useState<ModeDisplayInfo>(getModeDisplayInfo(modeEngineRef.current))
+  // XP Scoring Wire (Round 37)
+  const xpWireRef = useRef<XPScoringWire>(createXPScoringWire())
+  const [xpProgress, setXPProgress] = useState<XPProgress>(getXPProgress(xpWireRef.current))
+  // Score Live Wire (Round 37)
+  const scoreLiveWireRef = useRef<ScoreLiveWire>(createScoreLiveWire())
+  // Notification Event Wire (Round 37)
+  const notifEventWireRef = useRef<NotifEventWire>(createNotifEventWire())
+  const [showModeEngine, setShowModeEngine] = useState(false)
+  const [showXPPanel, setShowXPPanel] = useState(false)
+  const [showNotifSettings, setShowNotifSettings] = useState(false)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -3585,6 +3602,9 @@ export default function SnakeGame() {
             if (activeMultilingualPack) {
               multilingualProgressRef.current[activeMultilingualPack] = getMultilingualPackProgress(activeMultilingualPack, collectedWordsRef.current)
             }
+            // Apply mode score multiplier (Round 37)
+            const modeMult = getModeScoreMultiplier(modeEngineRef.current)
+            points = Math.floor(points * modeMult)
             gs.score += points
             gs.wordsEaten += 1
             whoAte = 'p1'
@@ -3594,6 +3614,37 @@ export default function SnakeGame() {
             spawnFloatingText(wordFood.word, wx, wy - 22, catColor)
             spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 10)
             playSound(playEatSound)
+            // Round 37: Score Live Wire
+            recordWordEaten(scoreLiveWireRef.current, {
+              word: wordFood.word,
+              basePoints: entry ? entry.points : wordFood.word.length * 10,
+              combo: gs.comboCount || 0,
+              activePowerUps: gs.activePowerUps.map(p => p.type),
+              difficulty: gs.difficulty || 'medium',
+              rarity: wordFood.rarity || 'common',
+              category: wordFood.category || 'general',
+              timeElapsed: gs.elapsedTime || 0,
+            })
+            // Round 37: XP Scoring Wire
+            const isNewWord = !collectedWordsRef.current.has(wordFood.word)
+            const xpResult = awardXP(xpWireRef.current, isNewWord ? 'newWordCollected' : 'wordEat', {
+              word: wordFood.word,
+              points,
+              combo: gs.comboCount || 0,
+              difficulty: gs.difficulty || 'medium',
+            })
+            if (xpResult.levelUp) {
+              setXPProgress(getXPProgress(xpWireRef.current))
+              onLevelUp(notifEventWireRef.current, xpResult.newLevel || calculateLevel(loadProfile().xp).level)
+            }
+            if (isNewWord) {
+              onNewWordDiscovered(notifEventWireRef.current, wordFood.word)
+            }
+            // Round 37: Combo notification
+            if (gs.comboCount > 1 && gs.comboCount % 5 === 0) {
+              onComboMilestone(notifEventWireRef.current, gs.comboCount)
+              recordComboEvent(scoreLiveWireRef.current, gs.comboCount)
+            }
           } else if (isNear(p2Head.x, p2Head.y)) {
             // P2 eats food?
             const entry = getWordEntryIncludingCustom(wordFood.word)
@@ -3847,6 +3898,16 @@ export default function SnakeGame() {
         recordGamePerformance(gs.score, gs.wordsEaten, gs.elapsedTime, gs.difficulty)
         setDynDiff(getDifficultyAdjustment())
 
+        // Round 37: Game end wires
+        const gameEndXP = awardXP(xpWireRef.current, 'gameComplete', { score: gs.score, wordsEaten: gs.wordsEaten, timeElapsed: gs.elapsedTime })
+        if (gameEndXP.levelUp) {
+          setXPProgress(getXPProgress(xpWireRef.current))
+        }
+        updateTimeEfficiency(scoreLiveWireRef.current, gs.elapsedTime)
+        onGameComplete(notifEventWireRef.current, gs.score, Math.floor(gs.elapsedTime / 1000))
+        recordModeSession(modeEngineRef.current, gs.score, gs.elapsedTime)
+        setModeDisplayInfo(getModeDisplayInfo(modeEngineRef.current))
+
         // Check achievements
         try {
           const wordList = Object.entries(useWordStore.getState().collectedWords)
@@ -3863,6 +3924,11 @@ export default function SnakeGame() {
           if (newlyUnlocked.length > 0) {
             const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
             enqueueAchievements(notifications)
+            // Round 37: Notification wire for achievements
+            for (const a of newlyUnlocked) {
+              onAchievementUnlocked(notifEventWireRef.current, a.title, a.description, a.emoji)
+              awardXP(xpWireRef.current, 'achievementUnlocked', { achievementTitle: a.title })
+            }
             // Check if any newly unlocked achievement unlocks a skin
             const skinMap = getSkinUnlockMap()
             for (const a of newlyUnlocked) {
@@ -6498,6 +6564,33 @@ export default function SnakeGame() {
                     >
                       👤 Profile
                     </Button>
+                    {/* Round 37: Mode Engine Button */}
+                    <Button
+                      onClick={() => { setShowModeEngine(!showModeEngine); setModeDisplayInfo(getModeDisplayInfo(modeEngineRef.current)) }}
+                      variant="outline"
+                      className="border-cyan-700/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform mode-engine-btn"
+                      title="Mode Engine"
+                    >
+                      ⚙️ Engine
+                    </Button>
+                    {/* Round 37: XP Panel Button */}
+                    <Button
+                      onClick={() => { setShowXPPanel(!showXPPanel); setXPProgress(getXPProgress(xpWireRef.current)) }}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform xp-panel-btn"
+                      title="XP & Progress"
+                    >
+                      ✨ XP
+                    </Button>
+                    {/* Round 37: Notification Settings Button */}
+                    <Button
+                      onClick={() => { setShowNotifSettings(!showNotifSettings) }}
+                      variant="outline"
+                      className="border-pink-700/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform notif-settings-btn"
+                      title="Notification Settings"
+                    >
+                      🔔 Alerts
+                    </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
@@ -7974,6 +8067,157 @@ export default function SnakeGame() {
               </div>
             )}
 
+            {/* Round 37: Mode Engine Panel */}
+            {showModeEngine && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-cyan-900/20 to-teal-900/15 border border-cyan-700/25 mode-engine-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">⚙️</span>
+                    <span className="text-[10px] text-cyan-300 font-bold">Mode Engine</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-cyan-900/40 text-cyan-300">{modeDisplayInfo.modeEmoji} {modeDisplayInfo.modeName}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  <div className="text-center p-1 rounded bg-cyan-900/20 engine-stat-cell">
+                    <div className="text-[7px] text-slate-500">Score ×</div>
+                    <div className="text-[10px] text-cyan-300 font-bold">{modeDisplayInfo.multiplierDisplay || getModeScoreMultiplier(modeEngineRef.current).toFixed(1)}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-cyan-900/20 engine-stat-cell">
+                    <div className="text-[7px] text-slate-500">Speed</div>
+                    <div className="text-[10px] text-cyan-300 font-bold">{getFrameIntervalModifier(modeEngineRef.current).toFixed(2)}x</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-cyan-900/20 engine-stat-cell">
+                    <div className="text-[7px] text-slate-500">Obstacles</div>
+                    <div className="text-[10px] text-cyan-300 font-bold">{getObstacleModifier(modeEngineRef.current).toFixed(1)}x</div>
+                  </div>
+                </div>
+                {modeDisplayInfo.timeDisplay && (
+                  <div className="text-center py-1 rounded bg-cyan-900/15 mb-2">
+                    <div className="text-[7px] text-slate-500">Time Remaining</div>
+                    <div className="text-sm text-cyan-300 font-bold font-mono">{modeDisplayInfo.timeDisplay}</div>
+                  </div>
+                )}
+                {modeDisplayInfo.livesDisplay && (
+                  <div className="text-center py-1 rounded bg-cyan-900/15 mb-2">
+                    <div className="text-[7px] text-slate-500">Lives</div>
+                    <div className="text-sm text-cyan-300 font-bold">{modeDisplayInfo.livesDisplay}</div>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-1">
+                  <div className="text-[7px] px-1.5 py-0.5 rounded bg-cyan-900/30 text-cyan-400">Spawn: {getSpawnRateModifier(modeEngineRef.current).toFixed(1)}x</div>
+                  <div className="text-[7px] px-1.5 py-0.5 rounded bg-cyan-900/30 text-cyan-400">Frame: {getFrameIntervalModifier(modeEngineRef.current).toFixed(2)}x</div>
+                </div>
+              </div>
+            )}
+
+            {/* Round 37: XP Panel */}
+            {showXPPanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-amber-900/20 to-orange-900/15 border border-amber-700/25 xp-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">✨</span>
+                    <span className="text-[10px] text-amber-300 font-bold">XP Progress</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-amber-900/40 text-amber-300">Lv.{xpProgress.level}</span>
+                </div>
+                <div className="mb-2">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[7px] text-slate-500">Level Progress</span>
+                    <span className="text-[7px] text-amber-400 font-bold">{formatXP(xpProgress.currentXp)}/{formatXP(xpProgress.xpToNext)}</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-500 xp-progress-fill" style={{ width: `${xpProgress.progressPercent}%` }}>
+                      <div className="w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent xp-shimmer" />
+                    </div>
+                  </div>
+                  <div className="text-[6px] text-slate-500 text-right mt-0.5">{xpProgress.progressPercent.toFixed(1)}%</div>
+                </div>
+                {xpProgress.activeMultipliers.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {xpProgress.activeMultipliers.map((m, i) => (
+                      <div key={i} className="text-[7px] px-1.5 py-0.5 rounded bg-amber-900/30 text-amber-400 animate-pulse">
+                        {m.source}: ×{m.multiplier.toFixed(1)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-1 mb-1">
+                  <div className="text-center p-1 rounded bg-amber-900/20 xp-stat-cell">
+                    <div className="text-[7px] text-slate-500">Session XP</div>
+                    <div className="text-[10px] text-amber-300 font-bold">{formatXP(getSessionStats(xpWireRef.current).totalXPEarned)}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-amber-900/20 xp-stat-cell">
+                    <div className="text-[7px] text-slate-500">Total XP</div>
+                    <div className="text-[10px] text-amber-300 font-bold">{formatXP(xpProgress.currentXp)}</div>
+                  </div>
+                </div>
+                <div className="text-[7px] text-slate-500 mt-1">
+                  Breakdown: {Object.entries(getXPBreakdown(xpWireRef.current)).map(([k, v]) => `${k}:${formatXP(v)}`).join(' | ')}
+                </div>
+              </div>
+            )}
+
+            {/* Round 37: Notification Settings Panel */}
+            {showNotifSettings && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-pink-900/20 to-rose-900/15 border border-pink-700/25 notif-settings-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🔔</span>
+                    <span className="text-[10px] text-pink-300 font-bold">Alert Settings</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-pink-900/40 text-pink-300">{getNotifStats(notifEventWireRef.current).totalShown} shown</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 mb-2">
+                  {[
+                    { key: 'showAchievements' as const, label: 'Achievements', emoji: '🏆' },
+                    { key: 'showCombos' as const, label: 'Combos', emoji: '🔥' },
+                    { key: 'showPowerUps' as const, label: 'Power-ups', emoji: '⚡' },
+                    { key: 'showChallenges' as const, label: 'Challenges', emoji: '🎯' },
+                    { key: 'showLevelUps' as const, label: 'Level Ups', emoji: '📈' },
+                    { key: 'showStreaks' as const, label: 'Streaks', emoji: '🔥' },
+                  ].map(item => (
+                    <button
+                      key={item.key}
+                      onClick={() => { toggleNotifSetting(notifEventWireRef.current, item.key); setShowNotifSettings(true) }}
+                      className={`flex items-center gap-1 p-1 rounded text-[7px] transition-all notif-toggle-btn ${getSettings(notifEventWireRef.current)[item.key] ? 'bg-pink-900/30 text-pink-300 border border-pink-700/30' : 'bg-slate-800/30 text-slate-500 border border-slate-700/20'}`}
+                    >
+                      <span>{item.emoji}</span>
+                      <span className="truncate">{item.label}</span>
+                      <span className="ml-auto">{getSettings(notifEventWireRef.current)[item.key] ? '✓' : '✗'}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[7px] text-slate-500">Max Visible</span>
+                  <span className="text-[8px] text-pink-300 font-bold">{getSettings(notifEventWireRef.current).maxVisible}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Round 37: Live Notification Toasts */}
+            {(() => {
+              const activeNotifs = getActiveNotifications(notifEventWireRef.current)
+              if (activeNotifs.length === 0) return null
+              return (
+                <div className="mb-3 space-y-1.5">
+                  {activeNotifs.slice(0, 3).map((notif, i) => (
+                    <div key={notif.id || i} className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-slate-800/90 to-slate-900/90 border border-slate-600/30 backdrop-blur-sm live-notif-toast" style={{ animationDelay: `${i * 100}ms` }}>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{notif.icon || '📌'}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[8px] text-white font-bold truncate">{notif.title}</div>
+                          {notif.message && <div className="text-[7px] text-slate-400 truncate">{notif.message}</div>}
+                        </div>
+                        <button onClick={() => dismissNotification(notifEventWireRef.current, notif.id || '')} className="text-slate-500 hover:text-white transition-colors">
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+
             {/* Active easter egg effects indicator */}
             {activeEasterEggs.length > 0 && uiState.gameStarted && (
               <div className="mb-3 flex flex-wrap gap-1.5">
@@ -8400,6 +8644,32 @@ export default function SnakeGame() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Round 37: Mode Engine HUD Overlay */}
+      {!replayMode && uiState.gameStarted && !uiState.gameOver && modeDisplayInfo.modeName !== 'Classic' && (
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 animate-in slide-in-from-top duration-300">
+          <div className="bg-slate-900/85 backdrop-blur-sm border border-cyan-600/40 rounded-lg px-3 py-1.5 flex items-center gap-3 shadow-lg mode-hud-badge">
+            <span className="text-cyan-300 font-bold text-xs flex items-center gap-1">
+              <span>{modeDisplayInfo.modeEmoji}</span>
+              <span>{modeDisplayInfo.modeName}</span>
+            </span>
+            {modeDisplayInfo.timeDisplay && (
+              <>
+                <div className="w-px h-4 bg-slate-700/50" />
+                <span className="text-white text-xs font-mono">{modeDisplayInfo.timeDisplay}</span>
+              </>
+            )}
+            {modeDisplayInfo.livesDisplay && (
+              <>
+                <div className="w-px h-4 bg-slate-700/50" />
+                <span className="text-rose-300 text-xs">{modeDisplayInfo.livesDisplay}</span>
+              </>
+            )}
+            <div className="w-px h-4 bg-slate-700/50" />
+            <span className="text-amber-300 text-[10px] font-bold">{modeDisplayInfo.multiplierDisplay || '×1.0'}</span>
           </div>
         </div>
       )}

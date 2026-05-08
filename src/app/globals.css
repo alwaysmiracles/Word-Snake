@@ -4914,3 +4914,97 @@
 /* 25. profile stat glow */
 @keyframes profile-stat-glow { 0%,100%{background-color:rgba(139,92,246,0.1);} 50%{background-color:rgba(139,92,246,0.2);} }
 .profile-stat-cell { animation: profile-stat-glow 3s ease-in-out infinite; }
+
+/* ========== Round 37 Animations (499 total keyframes) ========== */
+
+/* 1. mode-engine-panel-in — Slide-in for mode engine panel */
+@keyframes mode-engine-panel-in { 0%{opacity:0;transform:translateY(-8px) scale(0.97);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+.mode-engine-panel { animation: mode-engine-panel-in 0.35s cubic-bezier(0.4,0,0.2,1) forwards; }
+
+/* 2. engine-stat-cell-pulse — Engine stat cell subtle pulse */
+@keyframes engine-stat-cell-pulse { 0%,100%{background-color:rgba(6,182,212,0.08);box-shadow:0 0 0 rgba(6,182,212,0);} 50%{background-color:rgba(6,182,212,0.16);box-shadow:0 0 8px rgba(6,182,212,0.15);} }
+.engine-stat-cell { animation: engine-stat-cell-pulse 2.5s ease-in-out infinite; }
+.engine-stat-cell:nth-child(2) { animation-delay: 0.3s; }
+.engine-stat-cell:nth-child(3) { animation-delay: 0.6s; }
+
+/* 3. mode-hud-badge-glow — HUD badge glow pulse */
+@keyframes mode-hud-badge-glow { 0%,100%{box-shadow:0 0 8px rgba(6,182,212,0.2),0 2px 8px rgba(0,0,0,0.3);} 50%{box-shadow:0 0 16px rgba(6,182,212,0.35),0 2px 12px rgba(0,0,0,0.4);} }
+.mode-hud-badge { animation: mode-hud-badge-glow 2s ease-in-out infinite; }
+
+/* 4. mode-hud-slide — HUD slide in from top */
+@keyframes mode-hud-slide { 0%{opacity:0;transform:translate(-50%,-20px);} 100%{opacity:1;transform:translate(-50%,0);} }
+
+/* 5. xp-panel-in — Slide-in for XP panel */
+@keyframes xp-panel-in { 0%{opacity:0;transform:translateX(8px) scale(0.97);} 100%{opacity:1;transform:translateX(0) scale(1);} }
+.xp-panel { animation: xp-panel-in 0.35s cubic-bezier(0.4,0,0.2,1) forwards; }
+
+/* 6. xp-progress-fill — XP progress bar fill animation */
+@keyframes xp-progress-fill { 0%{width:0%;} 100%{width:var(--xp-fill-width,100%);} }
+.xp-progress-fill { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+/* 7. xp-shimmer — XP bar shimmer sweep */
+@keyframes xp-shimmer { 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
+.xp-shimmer { animation: xp-shimmer 1.8s ease-in-out infinite; }
+
+/* 8. xp-stat-cell-glow — XP stat cell warm glow */
+@keyframes xp-stat-cell-glow { 0%,100%{background-color:rgba(245,158,11,0.08);} 50%{background-color:rgba(245,158,11,0.18);} }
+.xp-stat-cell { animation: xp-stat-cell-glow 2.8s ease-in-out infinite; }
+.xp-stat-cell:nth-child(2) { animation-delay: 0.4s; }
+
+/* 9. xp-level-up-flash — Level up flash burst */
+@keyframes xp-level-up-flash { 0%{background-color:rgba(245,158,11,0.4);transform:scale(1);} 50%{background-color:rgba(251,191,36,0.6);transform:scale(1.05);} 100%{background-color:rgba(245,158,11,0.1);transform:scale(1);} }
+
+/* 10. notif-settings-panel-in — Slide-in for notification settings */
+@keyframes notif-settings-panel-in { 0%{opacity:0;transform:translateY(8px) scale(0.97);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+.notif-settings-panel { animation: notif-settings-panel-in 0.35s cubic-bezier(0.4,0,0.2,1) forwards; }
+
+/* 11. notif-toggle-hover — Notification toggle hover glow */
+@keyframes notif-toggle-hover { 0%,100%{box-shadow:0 0 0 rgba(236,72,153,0);} 50%{box-shadow:0 0 6px rgba(236,72,153,0.25);} }
+.notif-toggle-btn { transition: all 0.2s ease; }
+.notif-toggle-btn:hover { animation: notif-toggle-hover 1.5s ease-in-out infinite; }
+
+/* 12. live-notif-toast-in — Live notification toast entrance */
+@keyframes live-notif-toast-in { 0%{opacity:0;transform:translateY(-12px) scale(0.95);max-height:0;} 100%{opacity:1;transform:translateY(0) scale(1);max-height:80px;} }
+.live-notif-toast { animation: live-notif-toast-in 0.3s cubic-bezier(0.4,0,0.2,1) forwards; }
+
+/* 13. live-notif-toast-pulse — Toast border pulse */
+@keyframes live-notif-toast-pulse { 0%,100%{border-color:rgba(100,116,139,0.3);} 50%{border-color:rgba(100,116,139,0.5);} }
+
+/* 14. live-notif-dismiss — Toast dismiss slide out */
+@keyframes live-notif-dismiss { 0%{opacity:1;transform:translateX(0);} 100%{opacity:0;transform:translateX(40px);max-height:0;margin:0;padding:0;} }
+
+/* 15. r37-btn-entrance — Round 37 button staggered entrance */
+@keyframes r37-btn-entrance { 0%{opacity:0;transform:translateY(6px) scale(0.92);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+.mode-engine-btn { animation: r37-btn-entrance 0.3s ease-out forwards; animation-delay: 0ms; }
+.xp-panel-btn { animation: r37-btn-entrance 0.3s ease-out forwards; animation-delay: 80ms; opacity: 0; animation-fill-mode: forwards; }
+.notif-settings-btn { animation: r37-btn-entrance 0.3s ease-out forwards; animation-delay: 160ms; opacity: 0; animation-fill-mode: forwards; }
+
+/* 16. multiplier-badge-pop — Active multiplier badge pop */
+@keyframes multiplier-badge-pop { 0%{transform:scale(0.8);opacity:0;} 50%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
+
+/* 17. engine-value-update — Engine value flash on change */
+@keyframes engine-value-update { 0%{color:#06b6d4;text-shadow:0 0 8px rgba(6,182,212,0.5);} 100%{color:#22d3ee;text-shadow:none;} }
+
+/* 18. breakdown-linked-flash — Score breakdown linked flash */
+@keyframes breakdown-linked-flash { 0%{box-shadow:0 0 0 rgba(244,63,94,0);} 50%{box-shadow:0 0 12px rgba(244,63,94,0.3);} 100%{box-shadow:0 0 0 rgba(244,63,94,0);} }
+
+/* 19. wire-connected-pulse — Wire connected indicator pulse */
+@keyframes wire-connected-pulse { 0%,100%{background-color:rgba(34,197,94,0.15);} 50%{background-color:rgba(34,197,94,0.35);} }
+
+/* 20. panel-accordion-expand — Panel accordion expand */
+@keyframes panel-accordion-expand { 0%{max-height:0;opacity:0;overflow:hidden;} 100%{max-height:500px;opacity:1;overflow:visible;} }
+
+/* 21. stat-value-count-up — Stat value count animation feel */
+@keyframes stat-value-count-up { 0%{transform:translateY(4px);opacity:0.5;} 100%{transform:translateY(0);opacity:1;} }
+
+/* 22. notif-icon-spin — Notification icon spin on achievement */
+@keyframes notif-icon-spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+
+/* 23. mode-switch-ripple — Mode switch ripple effect */
+@keyframes mode-switch-ripple { 0%{transform:scale(0);opacity:0.5;} 100%{transform:scale(2.5);opacity:0;} }
+
+/* 24. live-score-ticker — Live score tick slide */
+@keyframes live-score-ticker { 0%{transform:translateX(-10px);opacity:0;} 20%{transform:translateX(0);opacity:1;} 80%{transform:translateX(0);opacity:1;} 100%{transform:translateX(10px);opacity:0;} }
+
+/* 25. engine-gauge-fill — Engine gauge fill from left */
+@keyframes engine-gauge-fill { 0%{width:0;} 100%{width:var(--gauge-fill,100%);} }
