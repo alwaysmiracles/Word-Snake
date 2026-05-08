@@ -1,4 +1,90 @@
 ---
+Task ID: 39
+Agent: Development Agent (Round 39)
+Task: Game Loop Timing Wire, Game Event Bus Wire, Power-Up Effect Wire, Social Share, CSS Animations
+
+Work Log:
+- **QA**: `next build` compiles successfully. ESLint zero errors/warnings. Dev server returns 200. agent-browser cannot connect (known env limitation).
+- **Feature: Game Loop Timing Wire** — Created `src/lib/game-loop-timing-wire.ts` (350 lines) and integrated:
+  - `createTimingController()` with accumulator-based fixed-timestep tick system
+  - `updateTiming(speedConfig, modeEngine)` computes targetIntervalMs = getFrameInterval × getFrameIntervalModifier, clamped [30ms, 500ms]
+  - `shouldTick(effectiveSpeed)` replaces direct `timestamp - lastRender < effectiveSpeed` check
+  - Anti-spiral guard: caps accumulator at 3× interval to prevent teleportation after tab-refocus
+  - FPS ring buffer (60 samples) with rolling average and accuracy flag
+  - `setTurboMode(enabled)` for 2× speed (halves interval, min 30ms)
+  - `pause()`/`resume()`/`reset()` state management
+  - Wired into game loop at the timing check point (replaces old direct timestamp comparison)
+- **Feature: Game Event Bus Wire** — Created `src/lib/game-event-bus-wire.ts` (626 lines) and integrated:
+  - 25 convenience event methods: onGameStart, onGameEnd, onGamePause, onGameResume, onWordEat, onScoreChange, onComboChange, onCollision, onPowerUpSpawn, onPowerUpCollect, onPowerUpExpire, onShieldBreak, onDirectionChange, onDifficultyChange, onSnakeGrow, onTimerTick, onAchievementUnlock, onLevelUp, onModeStart, onModeEnd, onDailyChallengeStart, onDailyChallengeEnd, onSpeedRunTick, onWeatherChange, onSkinChange
+  - Event throttling: direction_change max 1/50ms, timer_tick max 1/1000ms
+  - In-memory event log ring buffer (500 entries) + getRecentEvents(count)
+  - getEventSummary() analytics: totalEmitted, byType breakdown, lastEvents
+  - localStorage persistence for cumulative counts (ws_event_bus_wire)
+  - Wired: game start → onGameStart + onDailyChallengeStart; word eat → onWordEat + onScoreChange + onSnakeGrow; power-up collect → onPowerUpCollect; power-up expire → onPowerUpExpire; game end → onGameEnd + onDailyChallengeEnd
+- **Feature: Power-Up Effect Wire** — Created `src/lib/powerup-effect-wire.ts` (851 lines) and integrated:
+  - 10 power-up effects with full config: magnet(8s), shield(15s), slow_mo(6s), double_points(10s), speed_boost(5s), ghost(7s), word_bomb(20s), score_multiplier(5s), shrink(instant), freeze(8s)
+  - `applyEffects(gameState, deltaTime)` per-frame: computes cumulative movementSpeedMod, scoreMod, magnetRange, ghostMode, bomb state
+  - `onPowerUpCollected(type, gameState)` handles instant (shrink), one-use (shield), stackable effects
+  - Movement speed multiplicative stacking; score: highest multiplier wins
+  - `getActiveEffects()` sorted by remaining time, `getEffectSummary()` analytics
+  - Utility helpers: computeBombCells, tryConsumeShield, detonateBomb, isObstaclesFrozen
+  - localStorage persistence (ws_powerup_effects_wire)
+  - Wired: called on P1 power-up collection in game loop
+- **Feature: Social Share** — Created `src/lib/social-share.ts` (548 lines) and integrated:
+  - 6 ASCII art card types: game_result, achievement, battle_pass, collection, streak, speed_run
+  - Box-drawing characters + emoji decorations + clean layout with title, stats, footer
+  - `generateShareText()` for Twitter/X compatible plain text (<280 chars)
+  - `generateShareJSON()` for programmatic sharing with metadata + hashtags
+  - `copyToClipboard()` via navigator.clipboard API
+  - `shareToTwitter()` opens Twitter intent URL popup
+  - `shareToGeneric()` Web Share API with clipboard fallback
+  - Share history tracking (max 200 records) + stats
+  - formatCompactNumber(1.2K), formatDuration(2m 30s) utilities
+  - UI panel: preview card display, 3 action buttons (Copy/Tweet/Share), 3 card type generators (Streak/Album/Events)
+  - New sidebar button: 📤 Share
+- **CSS: 25 new animations** (549 total keyframes, +82 lines):
+  1. share-panel-in — Social share panel slide-in from right
+  2. share-card-display — Share card text fade-in with brightness
+  3. share-copy-btn — Copy button click flash
+  4. share-twitter-btn — Twitter button hover glow
+  5. share-generic-btn — Generic share button pulse
+  6. share-streak-btn — Streak card button warm glow
+  7. share-collection-btn — Album collection button shimmer
+  8. share-stats-btn — Stats button border pulse
+  9. share-btn — Main share sidebar button entrance
+  10. timing-metric-flash — Timing metric value update flash
+  11. event-bus-pulse — Event bus activity indicator pulse
+  12. event-emitted-flash — Event emitted flash indicator
+  13. powerup-wire-connected — Power-up wire connected indicator
+  14. effect-stack-pop — Stacked power-up effect pop-in
+  15. magnet-range-ring — Magnet effect range ring expansion
+  16. shield-break-flash — Shield break bright flash
+  17. ghost-mode-trail — Ghost mode transparent trail
+  18. score-multiplier-pop — Score multiplier pop animation
+  19. bomb-detonate-ring — Word bomb detonate expanding ring
+  20. speed-boost-lines — Speed boost motion lines
+  21. r39-btn-entrance — Staggered Round 39 button entrance
+  22. timing-accuracy-glow — Timing accuracy indicator glow
+  23. event-log-slide — Event log entry slide in
+  24. fps-counter-update — FPS counter digit flip
+  25. turbo-mode-glow — Turbo mode activation glow
+- **Build**: Compiles successfully. ESLint zero errors.
+
+Stage Summary:
+- 4 new lib files: game-loop-timing-wire.ts (350), game-event-bus-wire.ts (626), powerup-effect-wire.ts (851), social-share.ts (548) = 2375 lines
+- 4 major integrations into snake-game.tsx: Timing Controller, Event Bus Wire, Power-Up Effect Wire, Social Share
+- 1 new sidebar button: 📤 Share
+- 1 new sidebar panel: Social Share (with ASCII card preview, Copy/Tweet/Share buttons, Streak/Album/Events card generators)
+- Game loop timing now uses accumulator-based fixed timestep with speed config + mode modifier
+- Game events emitted at: start, end, word eat, score change, snake grow, power-up collect/expire
+- 25 new CSS animations (549 total keyframes)
+- Total project features: 131+, Total CSS animations: 549+
+- snake-game.tsx: 9078 lines (+121), globals.css: 5195 lines (+82)
+- 107 lib files total (+3, net — some replacements considered)
+- Build + lint pass cleanly
+- Pushed to GitHub as commit `73f7d5d`
+
+---
 Task ID: 38
 Agent: Development Agent (Round 38)
 Task: Daily Challenge Sync, Game Stats Dashboard, Word Collection Album, Battle Pass, CSS Animations
@@ -269,9 +355,9 @@ Stage Summary:
 
 **Status**: Feature-rich, highly polished, and stable
 
-The application is a comprehensive Word Snake game with 127+ major features.
+The application is a comprehensive Word Snake game with 131+ major features.
 
-### What Works (All Previous + Round 38 New)
+### What Works (All Previous + Round 39 New)
 - **Game**: Start, play, pause, resume, game over, restart
 - **8 Game Modes**: Classic, Timed, Practice, Zen, Challenge, PvP, Blitz, Marathon
 - **Game Mode Engine**: Mode-specific rules applied to game loop (score ×, speed, obstacles, timer)
@@ -279,13 +365,17 @@ The application is a comprehensive Word Snake game with 127+ major features.
 - **XP Scoring Wire**: 14 XP event types with multiplier system, level-up detection
 - **Score Breakdown + Score Live Wire**: Per-word analysis, live recording, time efficiency, D-SS rating
 - **Notification Event Wire**: Event-driven notifications with cooldowns, settings, live toasts
-- **Battle Pass**: 25-tier season pass with 5 seasons, free/premium tracks, reward claiming (NEW R38)
-- **Word Collection Album**: Category-based collection tracking, 8 achievements, rarest words, share (NEW R38)
-- **Game Stats Dashboard**: Period-filtered stats, trends, personal bests, comparison (NEW R38)
-- **Daily Challenge Sync**: Calendar + challenge systems synced with star ratings (NEW R38)
+- **Battle Pass**: 25-tier season pass with 5 seasons, free/premium tracks, reward claiming
+- **Word Collection Album**: Category-based collection tracking, 8 achievements, rarest words, share
+- **Game Stats Dashboard**: Period-filtered stats, trends, personal bests, comparison
+- **Daily Challenge Sync**: Calendar + challenge systems synced with star ratings
+- **Game Loop Timing Wire**: Accumulator-based fixed timestep, speed config + mode modifier integration (NEW R39)
+- **Game Event Bus Wire**: 25 structured event types emitted throughout lifecycle, throttling, analytics (NEW R39)
+- **Power-Up Effect Wire**: 10 power-up effects with cumulative modifiers, bomb cells, ghost mode (NEW R39)
+- **Social Share**: 6 ASCII art card types, Twitter/Web Share API, clipboard, share history (NEW R39)
 - **Notification Manager**: 8 priority types, auto-dismiss, history tracking
 - **Practice Mode**: Vocabulary learning without game over
-- **Game Speed Configuration**: 6 profiles, slider, FPS display
+- **Game Speed Configuration**: 6 profiles, slider, FPS display (NOW WIRED to game loop timing)
 - **Daily Challenge Calendar**: Visual calendar with stars, streaks, heatmap
 - **Word Context Sentences**: 128 example sentences
 - **Game Tips**: 52 contextual tips, tip of the day
@@ -300,16 +390,16 @@ The application is a comprehensive Word Snake game with 127+ major features.
 - **Coin & Shop**, **6 Power-ups + Obstacles + Walls + Portals**
 - **Canvas Weather + Mini-map + Speed Run + Daily Challenge + Streak**
 - **Music Generator + SFX Mixer + 37 SFX sounds**
-- **Game Event Hooks**: 38 events, event bus, history, analytics
+- **Game Event Hooks**: 38 events, event bus, history, analytics (NOW WIRED)
 - **Accessibility Manager**: Reduce motion, high contrast, TTS, color blind
-- **Visual Polish**: 524 CSS animations, particles, confetti, aurora
+- **Visual Polish**: 549 CSS animations, particles, confetti, aurora
 
-### All Library Files (104 total)
-Includes all 100 from Round 37 plus:
-- `src/lib/daily-challenge-sync.ts` — Daily challenge + calendar sync (Round 38) (NEW)
-- `src/lib/game-stats-dashboard.ts` — Stats dashboard (Round 38) (NEW)
-- `src/lib/word-collection-album.ts` — Word collection album (Round 38) (NEW)
-- `src/lib/battle-pass.ts` — Battle pass / season pass (Round 38) (NEW)
+### All Library Files (107 total)
+Includes all 104 from Round 38 plus:
+- `src/lib/game-loop-timing-wire.ts` — Game loop timing controller (Round 39) (NEW)
+- `src/lib/game-event-bus-wire.ts` — Event bus wire (Round 39) (NEW)
+- `src/lib/powerup-effect-wire.ts` — Power-up effect wire (Round 39) (NEW)
+- `src/lib/social-share.ts` — Social share system (Round 39) (NEW)
 
 ### Known Issues / Risks
 - Dev server unstable due to resource limitations (use `next build` for verification)
@@ -320,25 +410,28 @@ Includes all 100 from Round 37 plus:
 - AI word packs are deterministic (no LLM API call) — ready but not connected
 - SFX auto-triggering only wired for 3 events — remaining need manual wiring
 - Practice mode collision bypass via game-mode-engine created but not yet called in main game loop collision handler
-- Speed config slider visual only — not wired to actual game tick interval
 - Sound preset apply only updates music volume — SFX category volumes not wired yet
 - Word mastery encounters only tracked if recordEncounter() called in game logic
 - Game mode engine timer not yet called in the main game timer interval
 - Score live wire only wired for P1 — P2 eat not yet connected
-- Notification event wire not yet wired for power-ups, boss defeat, streak milestones (daily challenge now wired)
-- Frame interval modifier from game-mode-engine not applied to requestAnimationFrame timing
+- Notification event wire not yet wired for power-ups, boss defeat, streak milestones
+- Frame interval modifier from game-mode-engine now integrated via timing wire ✓
+- Speed config slider now wired via timing controller ✓
 - Battle Pass rewards are visual-only — no actual item granting
 - Collection Album achievements not connected to notification wire
 - Stats Dashboard data only updates on panel open, not real-time
+- Event bus wire only emits for game start, end, word eat, score change, snake grow, power-up collect/expire — remaining events (collision, direction change, timer tick, weather change, skin change, etc.) need wiring
+- Power-up effect wire computes modifiers but they are not yet applied to the actual movement speed calculation
+- Social share cards are ASCII text only — no canvas/image rendering
 
 ### Suggested Next Steps
-1. **Deep-wire Mode Engine Timer**: Call updateModeTimer() in the main timer interval
-2. **Apply Frame Interval Modifier**: Wire getFrameIntervalModifier() to requestAnimationFrame timing
-3. **Wire Practice Mode Collision**: Call handleCollisionForMode() in main game loop collision handler
-4. **Wire P2 Score Live Wire**: Connect recordWordEaten() for P2 eat events
-5. **Wire Remaining Notifications**: Connect onPowerUpCollected, onBossDefeated, onStreakMilestone
-6. **Wire Speed Config to Game Loop**: Apply getFrameInterval() to actual tick timing
+1. **Apply Power-Up Effect Modifiers to Game Loop**: Wire movementSpeedMod from effect wire to effectiveSpeed calculation
+2. **Apply Score Modifier from Effect Wire**: Wire scoreMod to word eat point calculation
+3. **Wire Remaining Event Bus Events**: collision, direction change, difficulty change, timer tick, mode start/end
+4. **Wire Practice Mode Collision**: Call handleCollisionForMode() in main game loop collision handler
+5. **Wire P2 Score Live Wire**: Connect recordWordEaten() for P2 eat events
+6. **Wire Remaining Notifications**: Connect onPowerUpCollected, onBossDefeated, onStreakMilestone
 7. **Wire Battle Pass Rewards**: Connect claimReward() to actual item granting (coins, skins, etc.)
 8. **Wire Album Achievements to Notification Wire**: Send notifications on album achievement unlock
-9. **Expand Word Sentences DB**: Add sentences for all 249+ game words
-10. **Online Leaderboard**: Server-side global rankings
+9. **Canvas Share Card Rendering**: Render ASCII cards to canvas for image export
+10. **Real-Time Dashboard Updates**: Push data to dashboard on game events instead of panel-open refresh
