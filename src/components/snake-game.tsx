@@ -82,6 +82,10 @@ import { generateShareCode, parseShareCode, copyShareCodeToClipboard, downloadRe
 import { createWordPack, addWordToPack, removeWordFromPack, saveWordPack, loadWordPacks, deleteWordPack, exportPackAsJSON, importPackFromJSON, validateWord, PACK_COLORS, PACK_EMOJIS, type CustomWordPack, type CustomWord, MAX_WORDS_PER_PACK, MAX_PACKS } from '@/lib/word-pack-creator'
 import { generateStatsCharts, downloadChartImage, drawLineChart, drawBarChart, drawPieChart, DEFAULT_CHART_CONFIG, CHART_COLORS, type ChartDataPoint } from '@/lib/stats-charts'
 import { formatPowerUpTime, getPowerUpUrgency, getPowerUpProgressBarWidth, calculateOverlayPosition, drawPowerUpOverlay, POWERUP_OVERLAY_THEMES, OVERLAY_HEIGHT, OVERLAY_MIN_WIDTH, type ActivePowerUpOverlay, type PowerUpOverlayLayout } from '@/lib/powerup-overlay'
+import { getFullAchievementProgress, getMotivationalMessage, ACHIEVEMENT_CATEGORY_CONFIG, type AchievementProgressSummary, type AchievementProgressItem } from '@/lib/achievement-progress'
+import { generateWordPackFromLLM, THEME_SUGGESTIONS, LANGUAGE_OPTIONS, getGeneratedPacks, saveGeneratedPack, validateWordPack, MAX_GENERATED_PACKS, type GeneratedWordPack, type GenerateRequest } from '@/lib/ai-word-generator'
+import { playGameEventSound, getEventCategory, getEventDescription, ALL_GAME_EVENT_TYPES, type GameEventType } from '@/lib/sfx-event-mapper'
+import { useResponsiveLayout, useBreakpoint, useOrientation, getFontScaleClasses, getSpacingClasses, getButtonSizeClasses, type ResponsiveLayoutState } from '@/lib/responsive-layout-hooks'
 import {
   Play,
   RotateCcw,
@@ -522,6 +526,21 @@ export default function SnakeGame() {
           setComparisonSummary(compareSessions(currentSession, sessions.slice(1)))
         }
       }
+      // Load achievement progress
+      const totalWords = parseInt(localStorage.getItem('word-snake-total') ?? '0', 10)
+      const gamesPlayed = parseInt(localStorage.getItem('word-snake-games') ?? '0', 10)
+      const poemsCreated = parseInt(localStorage.getItem('word-snake-poems-count') ?? '0', 10)
+      const multiStats = createMultilingualStats(getTotalMultilingualCollection())
+      setAchievementProgress(getFullAchievementProgress(
+        { totalWordsCollected: totalWords, totalWordsEaten: totalWords, poemsCreated, highScore: diffBest || parseInt(localStorage.getItem('word-snake-highscore') ?? '0', 10), categories: [], gamesPlayed },
+        { bossDefeats: 0, legendaryBossDefeats: 0, portalTeleports: 0, obstacleSurvivals: 0, spikeWordsEaten: 0, totalWordsCollected: totalWords, seasonalSeasonsPlayed: [], unlockedBotSkins: getUnlockedBotSkins().length, maxComboMultiplier: 0, quizCorrectAnswers: 0, quizFastestTime: 0, scramblesSolved: 0, pvpSteals: 0, pvpWins: 0, totalCoins: parseInt(localStorage.getItem('word-snake-coins') ?? '0', 10) },
+        multiStats,
+      ))
+      // Load AI generated packs
+      setAiGeneratedPacks(getGeneratedPacks())
+      // Load SFX events enabled preference
+      const sfxEventsPref = localStorage.getItem('wordsnake_sfx_events_enabled')
+      if (sfxEventsPref) setSfxEventsEnabled(sfxEventsPref === 'true')
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -638,6 +657,23 @@ export default function SnakeGame() {
   // Event feed persistence
   const gameIdRef = useRef<string>(`game-${Date.now()}`)
   const [persistentEventCount, setPersistentEventCount] = useState(0)
+  // Achievement progress tracker state
+  const [achievementProgress, setAchievementProgress] = useState<AchievementProgressSummary | null>(null)
+  const [showAchievementProgress, setShowAchievementProgress] = useState(false)
+  // AI word pack generator state
+  const [aiGeneratedPacks, setAiGeneratedPacks] = useState<GeneratedWordPack[]>([])
+  const [showAiGenerator, setShowAiGenerator] = useState(false)
+  const [aiGenerating, setAiGenerating] = useState(false)
+  const [selectedTheme, setSelectedTheme] = useState(THEME_SUGGESTIONS[0].name)
+  const [selectedLanguage, setSelectedLanguage] = useState('English')
+  const [aiWordCount, setAiWordCount] = useState(15)
+  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
+  // SFX event sounds state
+  const [sfxEventsEnabled, setSfxEventsEnabled] = useState(false)
+  // Responsive layout hook
+  const responsiveLayout = useResponsiveLayout()
+  const currentBreakpoint = useBreakpoint()
+  const orientation = useOrientation()
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -6184,6 +6220,22 @@ export default function SnakeGame() {
                       📖 Word Book
                     </Button>
                     <Button
+                      onClick={() => setShowAchievementProgress(!showAchievementProgress)}
+                      variant="outline"
+                      className="border-purple-700/50 text-purple-400 hover:bg-purple-900/20 active:scale-95 transition-transform achievement-progress-btn"
+                      title="Track achievement progress"
+                    >
+                      📈 Achievement Progress
+                    </Button>
+                    <Button
+                      onClick={() => setShowAiGenerator(!showAiGenerator)}
+                      variant="outline"
+                      className="border-cyan-700/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform ai-generator-btn"
+                      title="AI Word Pack Generator"
+                    >
+                      🤖 AI Word Packs
+                    </Button>
+                    <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
                       title="60-second timed challenge"
@@ -6883,6 +6935,187 @@ export default function SnakeGame() {
                   >
                     📥 Import Code
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* Achievement Progress Tracker */}
+            {showAchievementProgress && mounted && achievementProgress && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-purple-900/20 to-indigo-900/15 border border-purple-700/25 achievement-progress-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📈</span>
+                    <span className="text-[10px] text-purple-300 font-bold">Achievement Progress</span>
+                  </div>
+                  <span className="text-[9px] text-purple-400/70">{achievementProgress.unlockedCount}/{achievementProgress.totalAchievements} ({achievementProgress.overallPercent}%)</span>
+                </div>
+                {/* Overall progress bar */}
+                <div className="w-full h-2 rounded-full bg-slate-800 mb-2 overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-purple-600 via-violet-500 to-fuchsia-500 progress-bar-fill transition-all duration-500" style={{ width: `${achievementProgress.overallPercent}%` }} />
+                </div>
+                <p className="text-[9px] text-slate-400 mb-2 italic">{getMotivationalMessage(achievementProgress.overallPercent)}</p>
+                {/* Category groups */}
+                {achievementProgress.groups.slice(0, 4).map((group) => {
+                  const catCfg = ACHIEVEMENT_CATEGORY_CONFIG[group.category as keyof typeof ACHIEVEMENT_CATEGORY_CONFIG]
+                  return (
+                    <div key={group.category} className="mb-2">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[9px] text-slate-300">{catCfg?.emoji ?? ''} {catCfg?.label ?? group.category}</span>
+                        <span className="text-[8px] text-slate-500">{Math.round(group.totalPercent)}%</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-800/80 overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.min(group.totalPercent, 100)}%`, backgroundColor: catCfg?.color ?? '#8b5cf6' }} />
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {group.items.slice(0, 3).map((item) => (
+                          <span key={item.id} className={`text-[7px] px-1.5 py-0.5 rounded-full border ${item.unlocked ? 'border-green-700/40 bg-green-900/30 text-green-400' : 'border-slate-700/40 bg-slate-800/40 text-slate-500'}`}>
+                            {item.emoji} {item.title}
+                          </span>
+                        ))}
+                        {group.items.length > 3 && (
+                          <span className="text-[7px] text-slate-600">+{group.items.length - 3} more</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+                {/* Near completion */}
+                {achievementProgress.nearCompletion.length > 0 && (
+                  <div className="mt-2 pt-1.5 border-t border-purple-800/20">
+                    <span className="text-[8px] text-amber-400 font-medium">Almost there!</span>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {achievementProgress.nearCompletion.slice(0, 3).map((item) => (
+                        <span key={item.id} className="text-[7px] px-1.5 py-0.5 rounded-full border border-amber-700/30 bg-amber-900/20 text-amber-300">
+                          {item.emoji} {item.title} ({item.percent}%)
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* AI Word Pack Generator */}
+            {showAiGenerator && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-cyan-900/20 to-blue-900/15 border border-cyan-700/25 ai-generator-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🤖</span>
+                    <span className="text-[10px] text-cyan-300 font-bold">AI Word Pack Generator</span>
+                  </div>
+                  <span className="text-[9px] text-cyan-400/70">{aiGeneratedPacks.length}/{MAX_GENERATED_PACKS}</span>
+                </div>
+                {/* Theme selection */}
+                <div className="mb-2">
+                  <span className="text-[8px] text-slate-400 block mb-1">Theme</span>
+                  <div className="grid grid-cols-4 gap-1">
+                    {THEME_SUGGESTIONS.slice(0, 8).map((t) => (
+                      <button
+                        key={t.name}
+                        onClick={() => setSelectedTheme(t.name)}
+                        className={`text-[8px] px-1 py-0.5 rounded border transition-all active:scale-90 ${selectedTheme === t.name ? 'border-cyan-500/50 bg-cyan-900/40 text-cyan-300' : 'border-slate-700/30 bg-slate-800/30 text-slate-400 hover:border-cyan-700/30'}`}
+                      >
+                        {t.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Language and difficulty */}
+                <div className="flex gap-2 mb-2">
+                  <div className="flex-1">
+                    <span className="text-[8px] text-slate-400 block mb-0.5">Words</span>
+                    <select
+                      value={aiWordCount}
+                      onChange={(e) => setAiWordCount(parseInt(e.target.value))}
+                      className="w-full text-[9px] bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-slate-300"
+                    >
+                      {[5, 10, 15, 20, 25, 30].map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[8px] text-slate-400 block mb-0.5">Difficulty</span>
+                    <select
+                      value={aiDifficulty}
+                      onChange={(e) => setAiDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                      className="w-full text-[9px] bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-slate-300"
+                    >
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
+                    </select>
+                  </div>
+                </div>
+                {/* Generate button */}
+                <button
+                  onClick={() => {
+                    if (aiGenerating || aiGeneratedPacks.length >= MAX_GENERATED_PACKS) return
+                    setAiGenerating(true)
+                    setTimeout(() => {
+                      const pack = generateWordPackFromLLM({ theme: selectedTheme, language: selectedLanguage, count: aiWordCount, difficulty: aiDifficulty })
+                      saveGeneratedPack(pack)
+                      setAiGeneratedPacks(getGeneratedPacks())
+                      setAiGenerating(false)
+                      toast({ title: `Generated "${pack.name}"!`, description: `${pack.words.length} words about ${selectedTheme}` })
+                      if (canHaptic()) hapticFeedback('success')
+                    }, 800)
+                  }}
+                  disabled={aiGenerating || aiGeneratedPacks.length >= MAX_GENERATED_PACKS}
+                  className="w-full py-1.5 rounded-md text-[10px] font-medium bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 ai-generate-btn"
+                >
+                  {aiGenerating ? '⏳ Generating...' : '✨ Generate Word Pack'}
+                </button>
+                {/* Generated packs list */}
+                {aiGeneratedPacks.length > 0 && (
+                  <div className="mt-2 space-y-1 max-h-32 overflow-y-auto custom-scrollbar">
+                    {aiGeneratedPacks.slice(-5).reverse().map((pack) => (
+                      <div key={pack.createdAt} className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800/50 border border-slate-700/20 ai-pack-item">
+                        <span className="text-xs">{pack.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] text-slate-300 block truncate">{pack.name}</span>
+                          <span className="text-[7px] text-slate-500">{pack.words.length} words · {pack.difficulty}</span>
+                        </div>
+                        <span className="text-[8px] text-cyan-400/60">{pack.language}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SFX Event Sounds Toggle */}
+            {mounted && (
+              <div className="mb-3 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-orange-900/15 to-amber-900/10 border border-orange-700/20 sfx-events-panel">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🔊</span>
+                    <span className="text-[10px] text-orange-300 font-medium">Event Sounds</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const newVal = !sfxEventsEnabled
+                      setSfxEventsEnabled(newVal)
+                      try { localStorage.setItem('wordsnake_sfx_events_enabled', String(newVal)) } catch { /* ignore */ }
+                      if (newVal) playGameEventSound('ui_click')
+                      if (canHaptic()) hapticFeedback('light')
+                    }}
+                    className={`relative w-8 h-4 rounded-full transition-colors ${sfxEventsEnabled ? 'bg-orange-500' : 'bg-slate-700'}`}
+                  >
+                    <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${sfxEventsEnabled ? 'left-4.5 translate-x-0.5' : 'left-0.5'}`} />
+                  </button>
+                </div>
+                <p className="text-[7px] text-slate-500 mt-0.5">{sfxEventsEnabled ? 'Playing synthesized sounds for 37 game events' : 'Event sounds disabled'}</p>
+              </div>
+            )}
+
+            {/* Responsive Layout Info */}
+            {mounted && currentBreakpoint && (
+              <div className="mb-3 px-2.5 py-1.5 rounded-md bg-slate-800/30 border border-slate-700/15 responsive-info-panel">
+                <div className="flex items-center gap-2 text-[8px] text-slate-500">
+                  <span>{currentBreakpoint === 'mobile' ? '📱' : currentBreakpoint === 'tablet' ? '📱' : '🖥️'}</span>
+                  <span>{currentBreakpoint}</span>
+                  <span>·</span>
+                  <span>{orientation.isLandscape ? '↔️' : orientation.isPortrait ? '↕️' : '⬜'} {orientation.orientation}</span>
+                  {responsiveLayout.scaleFactor < 1 && <span>· {Math.round(responsiveLayout.scaleFactor * 100)}%</span>}
                 </div>
               </div>
             )}

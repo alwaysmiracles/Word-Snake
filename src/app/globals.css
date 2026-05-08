@@ -4111,3 +4111,227 @@
   0% { opacity: 0; transform: translateY(4px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Round 32: 25 new CSS animations (326→351 total keyframes)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. progress-bar-fill — Animated gradient shimmer for achievement progress bars */
+.achievement-progress-panel .progress-bar-fill {
+  background-size: 200% 100%;
+  animation: progress-bar-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes progress-bar-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 2. achievement-progress-panel — Entrance slide-in from left */
+.achievement-progress-panel {
+  animation: progress-panel-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes progress-panel-enter {
+  0% { opacity: 0; transform: translateX(-16px); max-height: 0; }
+  100% { opacity: 1; transform: translateX(0); max-height: 600px; }
+}
+
+/* 3. ai-generator-panel — Slide down entrance */
+.ai-generator-panel {
+  animation: ai-panel-slide 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ai-panel-slide {
+  0% { opacity: 0; transform: translateY(-12px) scaleY(0.95); }
+  100% { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+/* 4. ai-generate-btn — Pulsing glow on generate button */
+.ai-generate-btn {
+  animation: ai-btn-pulse 3s ease-in-out infinite;
+}
+
+@keyframes ai-btn-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 40px rgba(59, 130, 246, 0.2); }
+}
+
+/* 5. ai-pack-item — Staggered list entrance for generated packs */
+.ai-pack-item:nth-child(1) { animation: pack-item-pop 0.3s 0.05s both; }
+.ai-pack-item:nth-child(2) { animation: pack-item-pop 0.3s 0.1s both; }
+.ai-pack-item:nth-child(3) { animation: pack-item-pop 0.3s 0.15s both; }
+.ai-pack-item:nth-child(4) { animation: pack-item-pop 0.3s 0.2s both; }
+.ai-pack-item:nth-child(5) { animation: pack-item-pop 0.3s 0.25s both; }
+
+@keyframes pack-item-pop {
+  0% { opacity: 0; transform: scale(0.9) translateX(-8px); }
+  60% { transform: scale(1.02) translateX(0); }
+  100% { opacity: 1; transform: scale(1) translateX(0); }
+}
+
+/* 6. sfx-events-panel — Warm pulse for sound panel */
+.sfx-events-panel {
+  animation: sfx-panel-glow 4s ease-in-out infinite;
+}
+
+@keyframes sfx-panel-glow {
+  0%, 100% { border-color: rgba(234, 88, 12, 0.2); }
+  50% { border-color: rgba(234, 88, 12, 0.5); box-shadow: 0 0 12px rgba(234, 88, 12, 0.1); }
+}
+
+/* 7. responsive-info-panel — Subtle breathing border */
+.responsive-info-panel {
+  animation: responsive-breathe 5s ease-in-out infinite;
+}
+
+@keyframes responsive-breathe {
+  0%, 100% { border-color: rgba(51, 65, 85, 0.15); }
+  50% { border-color: rgba(51, 65, 85, 0.35); }
+}
+
+/* 8. achievement-progress-btn — Button shimmer on hover */
+.achievement-progress-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-progress-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(168, 85, 247, 0.1) 50%, transparent 60%);
+  animation: btn-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes btn-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 9. ai-generator-btn — Button border sweep */
+.ai-generator-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-generator-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(6, 182, 212, 0.15) 50%, transparent 60%);
+  animation: ai-btn-sweep 2.5s ease-in-out infinite;
+}
+
+@keyframes ai-btn-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 10. progress-near-complete — Urgent pulse for near-completion badges */
+@keyframes near-complete-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+  50% { transform: scale(1.05); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+}
+
+/* 11. ai-theme-btn — Theme button hover bounce */
+@keyframes theme-btn-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* 12. ai-generating-spinner — Rotation animation for generating state */
+@keyframes ai-spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 13. sfx-toggle-on — Toggle switch on animation */
+@keyframes toggle-on-bounce {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* 14. sfx-toggle-off — Toggle switch off animation */
+@keyframes toggle-off-shrink {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+
+/* 15. progress-category-fill — Category progress bar fill animation */
+@keyframes category-fill-slide {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+
+/* 16. achievement-badge-unlocked — Achievement unlocked celebration */
+@keyframes badge-unlocked-pop {
+  0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  70% { transform: scale(0.95) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* 17. ai-pack-generated — New pack generated flash */
+@keyframes pack-generated-flash {
+  0% { background-color: rgba(6, 182, 212, 0.3); }
+  100% { background-color: rgba(30, 41, 59, 0.5); }
+}
+
+/* 18. responsive-transition — Layout transition smooth movement */
+.layout-transition-smooth {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 19. progress-motivational-text — Fade-in text animation */
+@keyframes motivational-fade {
+  0% { opacity: 0; transform: translateY(4px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* 20. sfx-wave-ripple — Sound wave ripple effect */
+@keyframes sfx-wave-ripple {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* 21. ai-theme-selected — Selected theme glow ring */
+@keyframes theme-selected-ring {
+  0%, 100% { box-shadow: 0 0 0 rgba(6, 182, 212, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(6, 182, 212, 0.7); }
+}
+
+/* 22. progress-overall-glow — Overall progress bar glow */
+@keyframes overall-bar-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+/* 23. achievement-panel-close — Panel close animation */
+@keyframes panel-close-shrink {
+  0% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(0.9); }
+}
+
+/* 24. ai-word-count-select — Select dropdown slide */
+@keyframes select-slide-down {
+  0% { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 25. breakpoint-change-flash — Flash on breakpoint change */
+@keyframes breakpoint-flash {
+  0% { background-color: rgba(148, 163, 184, 0.2); }
+  50% { background-color: rgba(148, 163, 184, 0.05); }
+  100% { background-color: rgba(30, 41, 59, 0.3); }
+}
