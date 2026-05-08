@@ -360,11 +360,41 @@ export default function MakePoem() {
     const width = 600
     const padding = 40
     const lineHeight = 24
-    const lines = poem.poem.split('\n')
+    const maxWidth = width - padding * 2
+    const rawLines = poem.poem.split('\n')
     const titleHeight = 50
     const styleLabel = POEM_STYLES[poem.style]?.label ?? 'Poem'
+
+    // Word-wrap long lines
+    const wrappedLines: string[] = []
+    const measureCtx = document.createElement('canvas').getContext('2d')
+    if (measureCtx) {
+      measureCtx.font = 'italic 14px serif'
+      for (const line of rawLines) {
+        if (measureCtx.measureText(line).width <= maxWidth) {
+          wrappedLines.push(line)
+        } else {
+          // Wrap by words
+          const words = line.split(' ')
+          let currentLine = ''
+          for (const word of words) {
+            const testLine = currentLine ? currentLine + ' ' + word : word
+            if (measureCtx.measureText(testLine).width > maxWidth && currentLine) {
+              wrappedLines.push(currentLine)
+              currentLine = word
+            } else {
+              currentLine = testLine
+            }
+          }
+          if (currentLine) wrappedLines.push(currentLine)
+        }
+      }
+    } else {
+      wrappedLines.push(...rawLines)
+    }
+
     const wordsHeight = poem.usedWords.length > 0 ? 40 : 0
-    const height = padding * 2 + titleHeight + lines.length * lineHeight + wordsHeight + 20
+    const height = padding * 2 + titleHeight + wrappedLines.length * lineHeight + wordsHeight + 20
 
     canvas.width = width
     canvas.height = height
@@ -396,7 +426,7 @@ export default function MakePoem() {
     ctx.font = 'italic 14px serif'
     ctx.textAlign = 'left'
     let y = padding + titleHeight + 10
-    for (const line of lines) {
+    for (const line of wrappedLines) {
       ctx.fillText(line, padding, y)
       y += lineHeight
     }
@@ -405,7 +435,21 @@ export default function MakePoem() {
       y += 10
       ctx.fillStyle = '#64748b'
       ctx.font = '11px sans-serif'
-      ctx.fillText('Words: ' + poem.usedWords.join(', '), padding, y)
+      // Wrap used words display too
+      const wordsStr = 'Words: ' + poem.usedWords.join(', ')
+      if (ctx.measureText(wordsStr).width > maxWidth) {
+        const line1 = 'Words: ' + poem.usedWords.slice(0, 5).join(', ')
+        const rest = poem.usedWords.slice(5)
+        if (rest.length > 0) {
+          ctx.fillText(line1 + ',', padding, y)
+          y += 16
+          ctx.fillText(rest.join(', '), padding, y)
+        } else {
+          ctx.fillText(line1, padding, y)
+        }
+      } else {
+        ctx.fillText(wordsStr, padding, y)
+      }
     }
 
     const link = document.createElement('a')

@@ -31,6 +31,9 @@ import SettingsPanel from '@/components/settings-panel'
 import GameOverStats from '@/components/game-over-stats'
 import { isSpeechSupported, pronounceWord } from '@/lib/word-pronunciation'
 import { getSpeedRunDuration, getSpeedRunBest, saveSpeedRunResult, type SpeedRunResult } from '@/lib/speed-run'
+import { getNightModeConfig, saveNightModeConfig, shouldAutoEnableNightMode, getNightModeFilter, type NightModeConfig } from '@/lib/night-mode'
+import { getPlayerLevel, getDifficultyAdjustment, recordGamePerformance, type DifficultyAdjustment } from '@/lib/dynamic-difficulty'
+import { downloadShareCard, type ShareCardData } from '@/lib/share-card'
 import {
   Play,
   RotateCcw,
@@ -49,6 +52,8 @@ import {
   Settings,
   Gauge,
   Volume1,
+  Moon,
+  Share2,
 } from 'lucide-react'
 
 // Game constants
@@ -358,6 +363,14 @@ export default function SnakeGame() {
       // Load speed run best
       const srBest = getSpeedRunBest()
       setSpeedRunBest({ bestScore: srBest.bestScore, totalRuns: srBest.totalRuns })
+      // Load night mode config
+      const nmConfig = getNightModeConfig()
+      if (nmConfig.autoEnabled && typeof window !== 'undefined') {
+        nmConfig.enabled = isNightTime()
+      }
+      setNightMode(nmConfig)
+      // Load dynamic difficulty
+      setDynDiff(getDifficultyAdjustment())
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -467,6 +480,12 @@ export default function SnakeGame() {
 
   // Speed run state
   const [speedRunBest, setSpeedRunBest] = useState<{ bestScore: number; totalRuns: number }>({ bestScore: 0, totalRuns: 0 })
+
+  // Night mode state
+  const [nightMode, setNightMode] = useState<NightModeConfig>({ enabled: false, warmth: 40, dimLevel: 20, autoEnabled: false })
+
+  // Dynamic difficulty state
+  const [dynDiff, setDynDiff] = useState<DifficultyAdjustment>(getDifficultyAdjustment(5))
 
   // Track word additions for entrance animation - key increments trigger re-render with animation
   const [newWordKey, setNewWordKey] = useState(0)
@@ -1786,6 +1805,10 @@ export default function SnakeGame() {
             setSpeedRunBest({ bestScore: best.bestScore, totalRuns: best.totalRuns })
             playSound(playGameOverSound)
             trackGameEnd(gs.score, gs.wordsEaten, gs.difficulty, gs.elapsedTime, false)
+            // Record for dynamic difficulty adjustment
+            recordGamePerformance(gs.score, gs.wordsEaten, gs.elapsedTime, gs.difficulty)
+            // Update dynamic difficulty level display
+            setDynDiff(getDifficultyAdjustment())
           }
         }
         updateUI()
@@ -1892,6 +1915,9 @@ export default function SnakeGame() {
 
         // Track game end stats
         trackGameEnd(gs.score, gs.wordsEaten, gs.difficulty, gs.elapsedTime, gs.isDailyChallenge)
+        // Record for dynamic difficulty
+        recordGamePerformance(gs.score, gs.wordsEaten, gs.elapsedTime, gs.difficulty)
+        setDynDiff(getDifficultyAdjustment())
 
         // Check achievements
         try {
@@ -2437,7 +2463,9 @@ export default function SnakeGame() {
   })()
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 w-full max-w-[1100px] mx-auto">
+    <div className={`flex flex-col lg:flex-row gap-4 w-full max-w-[1100px] mx-auto transition-all duration-700 ${nightMode.enabled ? 'night-mode-active' : ''}`}
+      style={nightMode.enabled ? { filter: getNightModeFilter(nightMode) } : undefined}
+    >
       {/* Game Area */}
       <div className="flex-1 min-w-0">
         {/* Aurora background behind card */}
@@ -2534,10 +2562,40 @@ export default function SnakeGame() {
                   >
                     <span className="text-sm">🗺️</span>
                   </Button>
+                  {/* Night Mode toggle */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-7 w-7 p-0 header-btn-press ${nightMode.enabled ? 'text-amber-300' : 'text-slate-500'}`}
+                    onClick={() => {
+                      const updated = { ...nightMode, enabled: !nightMode.enabled }
+                      setNightMode(updated)
+                      saveNightModeConfig(updated)
+                    }}
+                    title={nightMode.enabled ? 'Disable Night Mode' : 'Enable Night Mode'}
+                  >
+                    <Moon className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4">
+              {/* Dynamic Difficulty indicator */}
+              {mounted && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-[10px] text-slate-500">AI Difficulty:</span>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${
+                    dynDiff.level >= 8 ? 'bg-red-900/40 text-red-400 border border-red-700/40' :
+                    dynDiff.level >= 6 ? 'bg-orange-900/40 text-orange-400 border border-orange-700/40' :
+                    dynDiff.level >= 4 ? 'bg-amber-900/30 text-amber-300 border border-amber-700/30' :
+                    dynDiff.level <= 2 ? 'bg-green-900/40 text-green-400 border border-green-700/40' :
+                    'bg-slate-800/40 text-slate-300 border border-slate-700/30'
+                  }`}>
+                    {dynDiff.emoji} {dynDiff.description}
+                  </span>
+                  <span className="text-[9px] text-slate-600">Lv.{dynDiff.level}</span>
+                </div>
+              )}
               {/* Difficulty selector with colored dots */}
               {(!uiState.gameStarted || uiState.gameOver) && (
                 <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -2864,6 +2922,32 @@ export default function SnakeGame() {
                       className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform"
                     >
                       ✏️ Words{getCustomWordCount() > 0 && <span className="ml-1 text-[10px] opacity-70">({getCustomWordCount()})</span>}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        const shareData: ShareCardData = {
+                          score: uiState.score,
+                          wordsEaten: uiState.wordsEaten,
+                          timeElapsed: uiState.elapsedTime,
+                          difficulty: uiState.difficulty,
+                          maxCombo: dynDiff.level >= 6 ? uiState.comboMultiplier : 1,
+                          longestSnake: uiState.isSpeedRun ? dynDiff.level : 0,
+                          powerUpsCollected: 0,
+                          weather: uiState.weather,
+                          isDailyChallenge: uiState.isDailyChallenge,
+                          dailyCompleted: false,
+                          isSpeedRun: uiState.isSpeedRun,
+                          speedRunTimeLeft: uiState.speedRunTimeLeft,
+                          wordsByCategory: uiState.wordsByCategory,
+                          date: new Date().toISOString(),
+                        }
+                        downloadShareCard(shareData)
+                      }}
+                      variant="outline"
+                      className="border-purple-600/50 text-purple-400 hover:bg-purple-900/20 active:scale-95 transition-transform"
+                      title="Download share card image"
+                    >
+                      <Share2 className="h-4 w-4 mr-1" /> Share Card
                     </Button>
                   </>
                 )}

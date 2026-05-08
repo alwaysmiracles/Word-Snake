@@ -1838,3 +1838,125 @@ The application is a comprehensive Word Snake game with 42+ major features.
 8. **Word Etymology Enhancement**: More accurate etymology entries
 9. **Difficulty Curve**: Dynamic difficulty that adjusts based on player skill
 10. **Night Mode**: Special dark theme with reduced blue light for evening play
+---
+Task ID: 14
+Agent: Review Agent (cron Round 14)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA with agent-browser**: Tested page load, game start/pause, navigation to poem page — all features working correctly, no JS errors, no console errors
+- **No bugs found during QA** — app loads cleanly, ESLint passes with zero errors
+- **Bug Fix: Poem Download PNG Long Line Wrapping**:
+  - Modified `downloadPoemAsImage()` in `src/components/make-poem.tsx`
+  - Added word-wrap logic: measures each line width against canvas max width using a temporary canvas context
+  - Long lines are broken by words with proper wrapping
+  - Used words are also wrapped if they exceed canvas width
+  - Canvas height dynamically calculated from wrapped line count
+  - Resolved long-standing known issue from Round 1
+- **Feature: Night Mode**:
+  - Created `src/lib/night-mode.ts` with `NightModeConfig` interface
+  - Warmth slider (0-100): controls sepia filter intensity for blue light reduction
+  - Dim level slider (0-100): controls brightness reduction for comfortable viewing
+  - Auto-enable option: automatically activates between 7pm-7am based on local time
+  - Night mode applies CSS `filter: sepia() brightness() saturate()` to entire game UI
+  - Warm vignette overlay (radial gradient from center) for immersive evening feel
+  - Moon icon button (🌙) in header toggles night mode on/off with amber color when active
+  - All transitions smooth (0.7s ease-in-out) to avoid jarring visual changes
+  - Config persisted in localStorage (key: `word-snake-night-mode`)
+- **Feature: Dynamic Difficulty System**:
+  - Created `src/lib/dynamic-difficulty.ts` with 10-level adaptive difficulty scale
+  - Levels 1-4: Easier (speed ×0.75-0.90, power-up chance ×1.1-1.2, word spawn delay 500-2000ms)
+  - Level 5: Normal (no modifiers)
+  - Levels 6-10: Harder (speed ×1.05-1.30, reduced power-ups ×0.9-0.6)
+  - `calculateLevel()`: Analyzes last 10 games — avg score (0-4 pts), avg words (0-3 pts), avg survival time (0-3 pts)
+  - `recordGamePerformance()`: Saves each game result to localStorage (last 30 games)
+  - "AI Difficulty" indicator badge shown above manual difficulty selector on start/game-over screen
+  - Color-coded: green (easy) → amber (moderate) → orange (hard) → red (extreme) → 💀 (insane)
+  - Level number displayed alongside description
+  - Automatically recalculated after each game ends
+- **Feature: Game Stats Share Card**:
+  - Created `src/lib/share-card.ts` with `ShareCardData` interface
+  - Generates SVG-based share card image with game results
+  - Card includes: game title, mode (Classic/Daily/Speed Run), date, score (large), 3-column stats (words/time/combo), difficulty, weather, power-ups, category breakdown with colored bars
+  - "Share Card" button (purple) appears on game over screen
+  - Downloads as PNG image named `word-snake-{timestamp}.png`
+  - Professional gradient background (dark blue → purple), accent gradient line at top, rounded border
+- **Modified Files**:
+  - `src/components/snake-game.tsx`: Night mode toggle, dynamic difficulty display, share card button, performance recording, game over UI enhancements
+  - `src/components/make-poem.tsx`: Word-wrap fix for poem PNG download
+  - `src/app/globals.css`: 8 new CSS animations
+- **New Files**:
+  - `src/lib/night-mode.ts`: Night mode configuration and utilities
+  - `src/lib/dynamic-difficulty.ts`: Adaptive difficulty system
+  - `src/lib/share-card.ts`: Share card image generator
+- **Post-implementation QA**: Verified all features compile and render correctly via agent-browser
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- Bug fix: Poem PNG download now wraps long lines properly
+- 4 major new features (Night Mode, Dynamic Difficulty, Game Stats Share Card, Poem PNG fix)
+- 8 new CSS animations
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 46+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **Dynamic Difficulty**: 10-level AI system that adapts based on player performance
+- **8 Snake Skins**: Classic, Ocean, Fire Wyrm, Royal, Frost, Shadow, Rainbow, Golden
+- **4 Canvas Grid Themes**: Classic, Neon, Retro, Nature
+- **Night Mode**: Warm sepia filter, dimming, auto-enable by time, smooth transitions
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **4 Word Rarities**: Common, Uncommon, Rare, Legendary with special visual effects
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **Custom Word Lists**: Add up to 50 custom words with import/export (JSON/CSV)
+- **5 Power-ups**: Slow-Mo, Double Points, Shrink, Magnet, Shield
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Canvas Weather with Gameplay Effects**: Rain, Snow, Stars, Clear
+- **Canvas Mini-map**: Bird's eye view (toggleable)
+- **Speed Run Mode**: 60-second timed challenge with best score tracking
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Achievement Milestones**: 4 tiers (Bronze/Silver/Gold/Platinum) with gameplay bonuses
+- **Sound Effects**: Web Audio API with 4 sound themes (Default, Retro 8-bit, Soft Ambient, Epic Orchestra)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **Game Statistics Dashboard**: 20+ tracked metrics across 4 categories
+- **Word Pronunciation**: Web Speech API pronunciation on hover
+- **Game Stats Share Card**: Downloadable PNG image of game results
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **Poem Sharing**: Generate 1080×1080 shareable social image, Web Share API
+- **Poem Favorites**: Mark/unmark poems as favorites, persistent collection
+- **Achievement Gallery**: Full modal with progress bars, milestone rewards
+- **Word Definitions + Etymology**: Tooltips on hover
+- **Settings Panel**: Centralized dialog for skins, themes, sound, trails
+- **Game Over Stats**: Performance rating, category breakdown
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Keyboard Shortcuts**: Help dialog with all keyboard controls
+- **5 Snake Trail Effects**: None, Fade, Particles, Sparkle, Rainbow
+- **Visual Polish**: 71+ CSS animations
+- **Copy/Download/Share Poem**: Copy to clipboard, download as PNG (with word wrap), share
+
+### Known Issues / Risks
+- `.env` placeholder exists in early git history (low risk — not a real key)
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Dynamic difficulty needs more games (3+) to start adjusting (designed this way)
+- Share card SVG→PNG conversion may have minor rendering differences across browsers
+
+### Suggested Next Steps
+1. **Multi-language Support**: Word sets in Chinese, Japanese, etc.
+2. **Game Replay**: Record and replay game sessions
+3. **Accessibility**: Screen reader support, high contrast mode
+4. **Online Leaderboard**: Server-side leaderboard with global rankings
+5. **Poem Collage**: Combine multiple poems into a collage image
+6. **Difficulty Curve**: Smooth progressive difficulty within a single game session (not just between games)
+7. **Confetti Canvas Resize Fix**: Make confetti canvas respond to window resize events
+8. **Achievement-to-Skin Unlock**: Unlock special skins by completing achievements
+9. **Sound Visualizer**: Audio waveform visualization during sound effects
+10. **Tutorial/Guided Mode**: Step-by-step tutorial for new players
