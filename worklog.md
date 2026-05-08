@@ -1,4 +1,95 @@
 ---
+Task ID: 42
+Agent: Development Agent (Round 42)
+Task: Ghost Collision Wire, Word Bomb Wire, Word Mastery Live Tracker, Real-Time Dashboard Wire, CSS Animations
+
+Work Log:
+- **QA**: `next build` compiles successfully. ESLint zero errors/warnings (fixed 1 empty-interface error in ghost-collision-wire.ts).
+- **Feature: Ghost Collision Wire** — Created `src/lib/ghost-collision-wire.ts` (442 lines) and integrated:
+  - `shouldBypassWallCollision(ghostMode)` — bypasses wall death when ghost active
+  - `shouldBypassSelfCollision(ghostMode)` — bypasses self-collision death when ghost active
+  - `wrapPosition(x, y, w, h)` — wraps snake to opposite side (uses positiveMod for negative coords)
+  - `onGhostActivated()` / `onGhostDeactivated()` — tracks activation state, deduplication guards
+  - `onWallPass()` / `onSelfPass()` / `onObstaclePass()` — count passes during activation
+  - `getGhostAlpha()` — 0.35 when active, 1.0 otherwise
+  - `getGhostDuration()` / `getGhostPassCount()` — per-activation runtime stats
+  - Lifetime stats persisted to `ws_ghost_collision_wire`
+  - **Wired**: Wall collision now checks ghost mode first → wraps position + floating text; Self collision checks ghost mode → passes through without death/shield consumption
+- **Feature: Word Bomb Wire** — Created `src/lib/word-bomb-wire.ts` (352 lines) and integrated:
+  - `armBomb()` / `disarmBomb()` / `isBombArmed()` — one-shot bomb state management
+  - `shouldDetonateOnEat()` — triggers when armed and word is eaten
+  - `detonateBomb(cx, cy, w, h)` — computes 3×3 blast area (radius=1), bounds-checked
+  - `classifyDetonation()` — post-processes blast against actual obstacles/words/powerups
+  - `resolveChainReaction()` — BFS chain resolver up to depth 3 (×1.5 per level)
+  - `calculateBombScore()` — +50 per obstacle + 100 bonus if 3+ cells affected
+  - Stats persisted to `ws_word_bomb_wire`
+  - **Wired**: Power-up collect (word_bomb) → armBomb + "💣 Armed!" text; Word eat → detonate + clear obstacles + score bonus + visual explosion
+- **Feature: Word Mastery Live Tracker** — Created `src/lib/word-mastery-live-tracker.ts` (664 lines) and integrated:
+  - `recordWordEncounter(word, category, difficulty)` — calls `recordEncounter()` from word-mastery.ts
+  - Detects mastery level-ups: compares level before/after encounter, returns notification
+  - Session tracking: unique words, encounter counts, first/last seen timestamps
+  - `getLiveMasteryStats()` — dashboard data: by-level counts, closest to level-up, category distribution
+  - `getEncounterFrequency(word)` — encounters per minute
+  - `getFastLearners()` — words that leveled up with fewest encounters
+  - Session data persisted to `ws_mastery_live_session`
+  - **Wired**: Every P1 word eat → recordWordEncounter + level-up notification (floating text with emoji/color)
+  - **Wired**: Game end → saveSessionData()
+- **Feature: Real-Time Dashboard Wire** — Created `src/lib/realtime-dashboard-wire.ts` (363 lines) and integrated:
+  - 7 event pushers: score, word eat, combo, game start, game end, power-up, achievement
+  - `getRealtimeQuickStats()` — merges persisted history + live game state (never stale)
+  - `getSessionStats()` — resettable accumulator for current app session
+  - `getLiveHudData()` — score, WPM, avg points, active power-ups, combo, efficiency
+  - `getScoreTrend()` — last 5 games avg vs all-time avg with 5% deadband
+  - `getHistory(limit?)` — max 50 game summaries, persisted to `ws_realtime_dashboard`
+  - **Wired**: Word eat → pushWordEatEvent; Combo milestone → pushComboEvent; Power-up collect → pushPowerUpEvent; Game end → pushGameEndEvent
+- **Deep Wiring Completed (this round)**:
+  - ✅ Ghost mode → wall collision bypass (wrap to opposite side)
+  - ✅ Ghost mode → self collision bypass (pass through body)
+  - ✅ Word bomb → arm on collect, detonate on eat, clear obstacles, score bonus
+  - ✅ Word mastery → encounter tracking on every word eat, level-up detection
+  - ✅ Real-time dashboard → word eat, combo, power-up, game end events
+- **CSS: 25 new animations** (624 total keyframes, +80 lines):
+  1. ghost-wall-pass — Ghost wall pass flash
+  2. ghost-self-pass — Ghost self-collision bypass shimmer
+  3. ghost-activate-flash — Ghost activation burst
+  4. ghost-deactivate-fade — Ghost deactivation fade
+  5. bomb-arm-pulse — Bomb armed indicator pulse
+  6. bomb-detonate-shake — Screen shake on detonation
+  7. bomb-chain-flash — Chain reaction secondary flash
+  8. bomb-score-fly — Bomb score bonus flying text
+  9. mastery-level-up-pop — Mastery level up pop
+  10. mastery-badge-shine — Mastery badge shine sweep
+  11. mastery-new-word-glow — New word discovery glow
+  12. mastery-progress-pulse — Mastery progress bar pulse
+  13. dashboard-live-dot — Dashboard live indicator dot
+  14. dashboard-stat-update — Dashboard stat update flash
+  15. dashboard-trend-arrow — Dashboard trend arrow bounce
+  16. dashboard-score-tick — Dashboard score tick
+  17. hud-words-per-min — HUD WPM counter flip
+  18. hud-efficiency-glow — HUD efficiency meter glow
+  19. mastery-word-card — Mastery word card entrance
+  20. mastery-category-bar — Mastery category bar fill
+  21. ghost-trail-dot — Ghost trail position dot
+  22. bomb-obstacle-clear — Bomb obstacle clear animation
+  23. r42-btn-entrance — Staggered R42 button entrance
+  24. ghost-border-glow — Ghost active border glow
+  25. dashboard-history-entry — Dashboard history entry slide
+- **Build**: Compiles successfully. ESLint zero errors.
+
+Stage Summary:
+- 4 new lib files: ghost-collision-wire.ts (442), word-bomb-wire.ts (352), word-mastery-live-tracker.ts (664), realtime-dashboard-wire.ts (363) = 1821 lines
+- 4 major integrations into snake-game.tsx: Ghost Collision, Word Bomb, Mastery Tracker, Real-Time Dashboard
+- Ghost mode now bypasses wall AND self collision (gameplay functional, not just visual)
+- Word bomb now arms on collect, detonates on eat, clears obstacles, awards score bonus
+- Word mastery now tracks every word eaten with level-up notifications
+- Real-time dashboard now receives live game events
+- 25 new CSS animations (624 total keyframes)
+- Total project features: 143+, Total CSS animations: 624+
+- snake-game.tsx: 9414 lines (+62), globals.css: 5441 lines (+80)
+- 120 lib files total (+4)
+- Build + lint pass cleanly
+
+---
 Task ID: 41
 Agent: Development Agent (Round 41)
 Task: Power-Up Canvas Effects, Mode Timer Wire, Canvas Share Connector, SFX Completion Wire, CSS Animations
@@ -554,28 +645,32 @@ Stage Summary:
 
 **Status**: Feature-rich, highly polished, and stable
 
-The application is a comprehensive Word Snake game with 139+ major features.
+The application is a comprehensive Word Snake game with 143+ major features.
 
-### What Works (All Previous + Round 41 New)
+### What Works (All Previous + Round 42 New)
 - **Game**: Start, play, pause, resume, game over, restart
 - **8 Game Modes**: Classic, Timed, Practice, Zen, Challenge, PvP, Blitz, Marathon
 - **Game Mode Engine**: Mode-specific rules applied to game loop (score ×, speed, obstacles, timer)
-- **Mode Timer Wire**: Live countdown for timed/blitz/marathon modes with HUD progress bar (NEW R41)
+- **Mode Timer Wire**: Live countdown for timed/blitz/marathon modes with HUD progress bar
+- **Ghost Collision Wire**: Ghost mode bypasses wall + self collision (wrap through walls) (NEW R42)
+- **Word Bomb Wire**: Arm on collect, detonate on eat, clear 3×3 obstacles, chain reactions (NEW R42)
 - **24 Avatars + 12 Titles + XP Level System**: Full player profile
+- **Word Mastery Live Tracker**: Live encounter tracking, level-up detection, session stats (NEW R42)
 - **XP Scoring Wire**: 14 XP event types with multiplier system, level-up detection
 - **Score Breakdown + Score Live Wire**: Per-word analysis, live recording, time efficiency, D-SS rating (P1 + P2 WIRED)
 - **Notification Event Wire**: Event-driven notifications with cooldowns, settings, live toasts
+- **Real-Time Dashboard Wire**: Live event-driven dashboard data (word eat, combo, power-up, game end) (NEW R42)
 - **Battle Pass**: 25-tier season pass with 5 seasons, free/premium tracks, reward claiming
 - **Word Collection Album**: Category-based collection tracking, 8 achievements, rarest words, share
 - **Game Stats Dashboard**: Period-filtered stats, trends, personal bests, comparison
 - **Daily Challenge Sync**: Calendar + challenge systems synced with star ratings
 - **Game Loop Timing Wire**: Accumulator-based fixed timestep, speed config + mode modifier integration
 - **Game Event Bus Wire**: 25 structured event types emitted throughout lifecycle, throttling, analytics
-- **Power-Up Effect Wire**: 10 power-up effects with cumulative modifiers (SPEED + SCORE + VISUALS NOW WIRED)
-- **Power-Up Canvas Effects**: 7 visual effects (ghost trail, magnet ring, bomb explosion, freeze, speed lines, shield bubble, score multiplier) (NEW R41)
+- **Power-Up Effect Wire**: 10 power-up effects with cumulative modifiers (SPEED + SCORE + VISUALS + GHOST + BOMB NOW WIRED)
+- **Power-Up Canvas Effects**: 7 visual effects (ghost trail, magnet ring, bomb explosion, freeze, speed lines, shield bubble, score multiplier)
 - **Social Share**: 6 ASCII art card types, Twitter/Web Share API, clipboard, share history
-- **Canvas Share Connector**: 4 PNG download buttons in share panel (Result/Streak/Album/BP) (NEW R41)
-- **SFX Completion Wire**: 19 game events wired to context-aware sounds with cooldown management (NEW R41)
+- **Canvas Share Connector**: 4 PNG download buttons in share panel (Result/Streak/Album/BP)
+- **SFX Completion Wire**: 19 game events wired to context-aware sounds with cooldown management
 - **Game Wiring Hub**: Central coordination for all remaining wiring
 - **Canvas Share Renderer**: 5 canvas-rendered share card types for high-quality image export
 - **Mini-Game Launcher**: 3 mini-game modes with scoring, leaderboards, daily rotation
@@ -586,7 +681,7 @@ The application is a comprehensive Word Snake game with 139+ major features.
 - **Daily Challenge Calendar**: Visual calendar with stars, streaks, heatmap
 - **Word Context Sentences**: 128 example sentences
 - **Game Tips**: 52 contextual tips, tip of the day
-- **Word Mastery Tracker**: 6-level mastery, encounter tracking
+- **Word Mastery Tracker**: 6-level mastery, encounter tracking (NOW LIVE-TRACKED IN GAME)
 - **Stats Export**: JSON/CSV/Markdown/Clipboard export
 - **Sound Theme Panel**: 8 audio presets
 - **AI Bot Opponent**, **Game Replay**, **PvP Multiplayer**
@@ -599,14 +694,14 @@ The application is a comprehensive Word Snake game with 139+ major features.
 - **Music Generator + SFX Mixer + 37 SFX sounds**
 - **Game Event Hooks**: 38 events, event bus, history, analytics (WIRED)
 - **Accessibility Manager**: Reduce motion, high contrast, TTS, color blind
-- **Visual Polish**: 599 CSS animations, particles, confetti, aurora
+- **Visual Polish**: 624 CSS animations, particles, confetti, aurora
 
-### All Library Files (116 total)
-Includes all 112 from Round 40 plus:
-- `src/lib/powerup-canvas-effects.ts` — Power-up canvas visual effects (Round 41) (NEW)
-- `src/lib/mode-timer-wire.ts` — Mode timer countdown wire (Round 41) (NEW)
-- `src/lib/canvas-share-connector.ts` — Canvas share download connector (Round 41) (NEW)
-- `src/lib/sfx-completion-wire.ts` — SFX completion wire (Round 41) (NEW)
+### All Library Files (120 total)
+Includes all 116 from Round 41 plus:
+- `src/lib/ghost-collision-wire.ts` — Ghost mode collision bypass (Round 42) (NEW)
+- `src/lib/word-bomb-wire.ts` — Word bomb gameplay (Round 42) (NEW)
+- `src/lib/word-mastery-live-tracker.ts` — Live mastery tracking (Round 42) (NEW)
+- `src/lib/realtime-dashboard-wire.ts` — Real-time dashboard data (Round 42) (NEW)
 
 ### Known Issues / Risks
 - Dev server unstable due to resource limitations (use `next build` for verification)
@@ -623,18 +718,16 @@ Includes all 112 from Round 40 plus:
 - Stats Dashboard data only updates on panel open, not real-time
 - Event bus wire only emits for game start, end, word eat, score change, snake grow, power-up collect/expire — remaining events need wiring via wireAllEvents()
 - Mini-game launcher provides data/config but actual mini-game gameplay loops not yet implemented in the main game
-- Ghost mode from effect wire (pass through walls) not yet applied to collision checks
-- Word bomb from effect wire (3×3 area clear) not yet connected to canvas drawing
 - SFX completion wire routes events through limited sound functions — variety constrained by available sound API
 
 ### Suggested Next Steps
 1. **Implement Mini-Game Gameplay Loops**: Integrate scramble_blitz/boss_rush/quiz_marathon into the main game loop with canvas overlays
-2. **Wire Ghost Mode Collision Bypass**: Apply ghostMode from effect wire to wall/self collision checks in game loop
-3. **Wire Word Bomb Canvas Effect**: Connect detonateBomb() to canvas area clearing on word eat
-4. **Wire Remaining Notifications**: Connect onBossDefeated, onStreakMilestone, onAlbumAchievement
-5. **Wire Battle Pass Rewards**: Connect claimReward() to actual item granting (coins, skins, etc.)
-6. **Wire Album Achievements to Notification Wire**: Send notifications on album achievement unlock
-7. **Real-Time Dashboard Updates**: Push data to dashboard on game events instead of panel-open refresh
-8. **SFX Volume Categories**: Wire SFX category volumes to the sound preset system
-9. **Mobile Touch Improvements**: Better swipe controls, haptic feedback for all interactions
-10. **Live Word Mastery Tracking**: Call recordEncounter() in game logic for mastery progression
+2. **Wire Remaining Notifications**: Connect onBossDefeated, onStreakMilestone, onAlbumAchievement
+3. **Wire Battle Pass Rewards**: Connect claimReward() to actual item granting (coins, skins, etc.)
+4. **Wire Album Achievements to Notification Wire**: Send notifications on album achievement unlock
+5. **SFX Volume Categories**: Wire SFX category volumes to the sound preset system
+6. **Mobile Touch Improvements**: Better swipe controls, haptic feedback for all interactions
+7. **Connect Real-Time Dashboard to UI**: Wire getRealtimeQuickStats() and getLiveHudData() to dashboard panel
+8. **Wire Freeze Effect to Obstacle Movement**: Stop moving obstacles when freeze active
+9. **Ghost Mode Obstacle Bypass**: Also bypass obstacle collision when ghost is active
+10. **Mastery Level-Up UI Panel**: Add mastery tracker panel in sidebar with level-up notifications

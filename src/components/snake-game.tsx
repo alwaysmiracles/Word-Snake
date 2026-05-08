@@ -127,6 +127,11 @@ import { createPowerUpVisualState, updatePowerUpVisuals, drawPowerUpEffects, dra
 import { createModeTimerWire, shouldTick as shouldModeTick, type ModeTimerWire, type TimerDisplayData } from '@/lib/mode-timer-wire'
 import { createCanvasShareConnector, buildGameResultData, buildStreakData, buildCollectionData, buildBattlePassData, type CanvasShareConnector } from '@/lib/canvas-share-connector'
 import { createSfxCompletionWire, type SfxCompletionWire } from '@/lib/sfx-completion-wire'
+// Round 42: Ghost collision wire, Word bomb wire, Word mastery live tracker, Real-time dashboard wire
+import { createGhostCollisionWire, type GhostCollisionWire } from '@/lib/ghost-collision-wire'
+import { createWordBombWire, classifyDetonation, type WordBombWire } from '@/lib/word-bomb-wire'
+import { createWordMasteryLiveTracker, type WordMasteryLiveTracker } from '@/lib/word-mastery-live-tracker'
+import { createRealtimeDashboardWire, type RealtimeDashboardWire } from '@/lib/realtime-dashboard-wire'
 import {
   Play,
   RotateCcw,
@@ -862,6 +867,11 @@ export default function SnakeGame() {
   const modeTimerWireRef = useRef<ModeTimerWire>(createModeTimerWire(modeEngineRef.current))
   const canvasShareConnectorRef = useRef<CanvasShareConnector>(createCanvasShareConnector())
   const sfxCompletionWireRef = useRef<SfxCompletionWire>(createSfxCompletionWire())
+  // Round 42: Ghost collision wire, Word bomb wire, Word mastery live tracker, Real-time dashboard wire
+  const ghostCollisionWireRef = useRef<GhostCollisionWire>(createGhostCollisionWire())
+  const wordBombWireRef = useRef<WordBombWire>(createWordBombWire())
+  const masteryTrackerRef = useRef<WordMasteryLiveTracker>(createWordMasteryLiveTracker())
+  const realtimeDashboardRef = useRef<RealtimeDashboardWire>(createRealtimeDashboardWire())
   const [showEventLog, setShowEventLog] = useState(false)
   const [showMinigames, setShowMinigames] = useState(false)
   const [eventLogEntries, setEventLogEntries] = useState<Array<{id:string;type:string;level:string;message:string;emoji:string;color:string;timestamp:number}>>([])
@@ -3740,6 +3750,28 @@ export default function SnakeGame() {
             playSound(playEatSound)
             // Round 41: SFX — word eat (context-aware by combo)
             sfxCompletionWireRef.current.onWordEat(gs.comboCount || 0)
+            // Round 42: Word mastery live tracking
+            const masteryNotif = masteryTrackerRef.current.recordWordEncounter(wordFood.word, wordFood.category || 'general', gs.difficulty || 'medium')
+            if (masteryNotif) {
+              spawnFloatingText(`${masteryNotif.emoji} ${wordFood.word} → ${masteryNotif.newLevel}!`, wx, wy - 40, masteryNotif.color)
+            }
+            // Round 42: Real-time dashboard — word eat event
+            realtimeDashboardRef.current.pushWordEatEvent(wordFood.word, wordFood.category || 'general', points)
+            // Round 42: Word bomb detonation on word eat
+            if (wordBombWireRef.current.shouldDetonateOnEat()) {
+              const bombResult = wordBombWireRef.current.detonateBomb(wordFood.position.x, wordFood.position.y, GRID_WIDTH, GRID_HEIGHT)
+              const classified = classifyDetonation(bombResult, gs.obstacles, [], [])
+              gs.score += classified.scoreBonus
+              // Clear obstacles in affected area
+              gs.obstacles = gs.obstacles.filter(obs => !bombResult.affectedCells.some(c => c.x === obs.x && c.y === obs.y))
+              wordBombWireRef.current.consumeBomb()
+              // Visual: trigger bomb explosion on canvas
+              triggerBombExplosion(powerUpVisualsRef.current, wordFood.position.x, wordFood.position.y, bombResult.affectedCells)
+              spawnFloatingText(`💣 +${classified.scoreBonus}`, wx, wy - 55, '#f97316')
+              if (classified.obstaclesCleared > 0) {
+                spawnFloatingText(`💥 ${classified.obstaclesCleared} obstacles cleared!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ef4444')
+              }
+            }
             // Round 37: Score Live Wire
             recordWordEaten(scoreLiveWireRef.current, {
               word: wordFood.word,
@@ -3774,6 +3806,8 @@ export default function SnakeGame() {
               recordComboEvent(scoreLiveWireRef.current, gs.comboCount)
               // Round 41: SFX — combo milestone
               sfxCompletionWireRef.current.onComboMilestone(gs.comboCount)
+              // Round 42: Real-time dashboard — combo event
+              realtimeDashboardRef.current.pushComboEvent(gs.comboCount)
             }
             // Round 39: Event bus — word eat + score change + snake grow
             eventBusWireRef.current.onWordEat(wordFood.word, points, gs.comboCount || 0, { mode: gs.isDailyChallenge ? 'daily' : 'classic' })
@@ -3876,6 +3910,18 @@ export default function SnakeGame() {
             powerUpEffectWireRef.current.onPowerUpCollected(pu.type, gs)
             // Round 41: SFX — power-up collect (context-aware by type)
             sfxCompletionWireRef.current.onPowerUpCollect(pu.type)
+            // Round 42: Word bomb — arm bomb on collect if word_bomb type
+            if (pu.type === 'word_bomb') {
+              wordBombWireRef.current.armBomb()
+              spawnFloatingText('💣 Armed!', px, py - 25, '#f97316')
+            }
+            // Round 42: Ghost mode — notify ghost collision wire
+            const puEffect = powerUpEffectWireRef.current.applyEffects({} as any, 0.016)
+            if (puEffect.ghostMode) {
+              ghostCollisionWireRef.current.onGhostActivated()
+            }
+            // Round 42: Real-time dashboard — power-up event
+            realtimeDashboardRef.current.pushPowerUpEvent(pu.type)
             // Round 40: Event log — power-up collected
             eventLogPanelRef.current.addEntries(createPowerUpEntries(pu.type, config.emoji))
             gs.powerUp = null
@@ -4039,6 +4085,9 @@ export default function SnakeGame() {
         spawnParticles(hx, hy, '#ef4444', 20)
         emitPresetParticles(hx, hy, 'death')
         emitEvent('death', `Game Over! Score: ${gs.score}, Words: ${gs.wordsEaten}`, '💀', '#ef4444')
+        // Round 42: Real-time dashboard — game end + mastery session save
+        realtimeDashboardRef.current.pushGameEndEvent(gs.score, gs.elapsedTime, gs.wordsEaten)
+        masteryTrackerRef.current.saveSessionData()
         playSound(playGameOverSound)
 
         // Save daily challenge result if applicable
@@ -4230,7 +4279,15 @@ export default function SnakeGame() {
 
       if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT) {
         const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
-        if (hasShield) {
+        // Round 42: Ghost mode — bypass wall collision and wrap
+        const effectResult = powerUpEffectWireRef.current.applyEffects({} as any, 0.016)
+        if (ghostCollisionWireRef.current.shouldBypassWallCollision(effectResult.ghostMode)) {
+          const wrapped = ghostCollisionWireRef.current.wrapPosition(head.x, head.y, GRID_WIDTH, GRID_HEIGHT)
+          head.x = wrapped.x
+          head.y = wrapped.y
+          ghostCollisionWireRef.current.onWallPass()
+          spawnFloatingText('👻', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#22d3ee')
+        } else if (hasShield) {
           gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
           // Wrap to opposite side
           if (head.x < 0) head.x = GRID_WIDTH - 1
@@ -4253,7 +4310,12 @@ export default function SnakeGame() {
 
       if (snake.some((s) => s.x === head.x && s.y === head.y)) {
         const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
-        if (hasShield) {
+        // Round 42: Ghost mode — bypass self collision
+        const ghostEffect = powerUpEffectWireRef.current.applyEffects({} as any, 0.016)
+        if (ghostCollisionWireRef.current.shouldBypassSelfCollision(ghostEffect.ghostMode)) {
+          ghostCollisionWireRef.current.onSelfPass()
+          // Pass through body — no death, no shield consumed
+        } else if (hasShield) {
           gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
           spawnFloatingText('🛡️', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
           // Let it pass through — the head overlaps one body segment for one frame

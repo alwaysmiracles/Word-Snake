@@ -5359,3 +5359,83 @@
 /* 25. mode-timer-hud-in — Mode timer HUD slide-in from top */
 @keyframes mode-timer-hud-in { 0%{opacity:0;transform:translateY(-12px);} 100%{opacity:1;transform:translateY(0);} }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Round 42: 25 New CSS Animations (624 total)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. ghost-wall-pass — Ghost mode wall pass flash */
+@keyframes ghost-wall-pass { 0%{opacity:0;transform:scale(0.5);} 30%{opacity:1;transform:scale(1.3);} 100%{opacity:0;transform:scale(0.8) translateY(-8px);} }
+
+/* 2. ghost-self-pass — Ghost mode self-collision bypass shimmer */
+@keyframes ghost-self-pass { 0%{filter:brightness(1);} 50%{filter:brightness(1.8) hue-rotate(180deg);} 100%{filter:brightness(1);} }
+
+/* 3. ghost-activate-flash — Ghost mode activation burst */
+@keyframes ghost-activate-flash { 0%{box-shadow:0 0 0 0 rgba(34,211,238,0.6);} 100%{box-shadow:0 0 20px 10px rgba(34,211,238,0);} }
+
+/* 4. ghost-deactivate-fade — Ghost mode deactivation fade */
+@keyframes ghost-deactivate-fade { 0%{opacity:1;} 100%{opacity:0.3;} }
+
+/* 5. bomb-arm-pulse — Word bomb armed indicator pulse */
+@keyframes bomb-arm-pulse { 0%,100%{background-color:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.3);} 50%{background-color:rgba(249,115,22,0.35);border-color:rgba(249,115,22,0.6);} }
+
+/* 6. bomb-detonate-shake — Screen shake on bomb detonation */
+@keyframes bomb-detonate-shake { 0%,100%{transform:translate(0,0);} 10%{transform:translate(-4px,2px);} 20%{transform:translate(3px,-3px);} 30%{transform:translate(-2px,4px);} 40%{transform:translate(4px,-1px);} 50%{transform:translate(-3px,3px);} 60%{transform:translate(2px,-4px);} 70%{transform:translate(-1px,2px);} 80%{transform:translate(3px,1px);} 90%{transform:translate(-2px,-2px);} }
+
+/* 7. bomb-chain-flash — Bomb chain reaction secondary flash */
+@keyframes bomb-chain-flash { 0%{opacity:0;transform:scale(0.3);} 30%{opacity:1;transform:scale(1.2);} 100%{opacity:0;transform:scale(1.5);} }
+
+/* 8. bomb-score-fly — Bomb score bonus flying text */
+@keyframes bomb-score-fly { 0%{transform:translateY(0);opacity:1;} 100%{transform:translateY(-40px);opacity:0;} }
+
+/* 9. mastery-level-up-pop — Mastery level up celebration pop */
+@keyframes mastery-level-up-pop { 0%{transform:scale(0.6);opacity:0;} 50%{transform:scale(1.2);opacity:1;} 100%{transform:scale(1);opacity:1;} }
+
+/* 10. mastery-badge-shine — Mastery level badge shine sweep */
+@keyframes mastery-badge-shine { 0%{background-position:-100% 0;} 100%{background-position:200% 0;} }
+
+/* 11. mastery-new-word-glow — New word discovery glow */
+@keyframes mastery-new-word-glow { 0%,100%{text-shadow:0 0 4px rgba(168,85,247,0.4);} 50%{text-shadow:0 0 12px rgba(168,85,247,0.8);} }
+
+/* 12. mastery-progress-pulse — Mastery progress bar pulse */
+@keyframes mastery-progress-pulse { 0%{box-shadow:0 0 0 0 rgba(251,191,36,0.4);} 70%{box-shadow:0 0 0 6px rgba(251,191,36,0);} 100%{box-shadow:0 0 0 0 rgba(251,191,36,0);} }
+
+/* 13. dashboard-live-dot — Real-time dashboard live indicator dot */
+@keyframes dashboard-live-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.7);} }
+
+/* 14. dashboard-stat-update — Dashboard stat value update flash */
+@keyframes dashboard-stat-update { 0%{color:#fbbf24;transform:scale(1.1);} 100%{color:inherit;transform:scale(1);} }
+
+/* 15. dashboard-trend-arrow — Dashboard trend arrow bounce */
+@keyframes dashboard-trend-arrow { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
+
+/* 16. dashboard-score-tick — Dashboard score tick increment */
+@keyframes dashboard-score-tick { 0%{transform:scale(1);} 50%{transform:scale(1.15);background-color:rgba(34,211,238,0.2);} 100%{transform:scale(1);} }
+
+/* 17. hud-words-per-min — HUD words-per-minute counter flip */
+@keyframes hud-words-per-min { 0%{transform:translateY(100%);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+
+/* 18. hud-efficiency-glow — HUD efficiency meter glow */
+@keyframes hud-efficiency-glow { 0%,100%{box-shadow:0 0 4px rgba(74,222,128,0.2);} 50%{box-shadow:0 0 10px rgba(74,222,128,0.5);} }
+
+/* 19. mastery-word-card — Mastery word card entrance */
+@keyframes mastery-word-card { 0%{opacity:0;transform:translateX(-10px) scale(0.9);} 100%{opacity:1;transform:translateX(0) scale(1);} }
+
+/* 20. mastery-category-bar — Mastery category progress bar fill */
+@keyframes mastery-category-bar { 0%{width:0;background:#818cf8;} 100%{width:var(--bar-width,80%);background:#a78bfa;} }
+
+/* 21. ghost-trail-dot — Ghost mode trail position dot */
+@keyframes ghost-trail-dot { 0%{opacity:0.5;transform:scale(0.8);} 50%{opacity:0.2;transform:scale(0.5);} 100%{opacity:0;transform:scale(0.2);} }
+
+/* 22. bomb-obstacle-clear — Obstacle cleared by bomb animation */
+@keyframes bomb-obstacle-clear { 0%{transform:scale(1);opacity:1;} 50%{transform:scale(1.3);opacity:0.5;} 100%{transform:scale(0);opacity:0;} }
+
+/* 23. r42-btn-entrance — Staggered Round 42 button entrance */
+@keyframes r42-btn-entrance { 0%{opacity:0;transform:translateX(10px) scale(0.95);} 100%{opacity:1;transform:translateX(0) scale(1);} }
+
+/* 24. ghost-border-glow — Ghost mode active border glow */
+@keyframes ghost-border-glow { 0%,100%{border-color:rgba(34,211,238,0.2);} 50%{border-color:rgba(34,211,238,0.6);} }
+
+/* 25. dashboard-history-entry — Dashboard history entry slide in */
+@keyframes dashboard-history-entry { 0%{opacity:0;transform:translateY(5px);} 100%{opacity:1;transform:translateY(0);} }
+
+
