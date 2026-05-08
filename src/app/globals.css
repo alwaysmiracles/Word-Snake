@@ -4335,3 +4335,223 @@
   50% { background-color: rgba(148, 163, 184, 0.05); }
   100% { background-color: rgba(30, 41, 59, 0.3); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Round 33: 25 new CSS animations (351→376 total keyframes)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. save-panel — Slide-in entrance for save/load panel */
+.save-panel {
+  animation: save-panel-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes save-panel-enter {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 2. save-btn — Pulse glow on save button */
+.save-btn {
+  animation: save-btn-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes save-btn-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.5), 0 0 32px rgba(20, 184, 166, 0.15); }
+}
+
+/* 3. save-slot-item — Staggered entrance for save slots */
+.save-slot-item:nth-child(1) { animation: slot-item-in 0.25s 0.02s both; }
+.save-slot-item:nth-child(2) { animation: slot-item-in 0.25s 0.06s both; }
+.save-slot-item:nth-child(3) { animation: slot-item-in 0.25s 0.1s both; }
+.save-slot-item:nth-child(4) { animation: slot-item-in 0.25s 0.14s both; }
+.save-slot-item:nth-child(5) { animation: slot-item-in 0.25s 0.18s both; }
+.save-slot-item:nth-child(6) { animation: slot-item-in 0.25s 0.22s both; }
+.save-slot-item:nth-child(7) { animation: slot-item-in 0.25s 0.26s both; }
+.save-slot-item:nth-child(8) { animation: slot-item-in 0.25s 0.3s both; }
+
+@keyframes slot-item-in {
+  0% { opacity: 0; transform: translateX(-10px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* 4. save-panel-btn — Button shimmer */
+.save-panel-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.save-panel-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(16, 185, 129, 0.12) 50%, transparent 60%);
+  animation: save-btn-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes save-btn-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 5. a11y-panel — Accessible entrance animation */
+.a11y-panel {
+  animation: a11y-panel-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes a11y-panel-in {
+  0% { opacity: 0; transform: translateX(12px); max-height: 0; }
+  100% { opacity: 1; transform: translateX(0); max-height: 500px; }
+}
+
+/* 6. a11y-panel-btn — Blue sweep shimmer */
+.a11y-panel-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.a11y-panel-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(59, 130, 246, 0.12) 50%, transparent 60%);
+  animation: a11y-btn-sweep 3s ease-in-out infinite;
+}
+
+@keyframes a11y-btn-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 7. event-stats-panel — Subtle data pulse */
+.event-stats-panel {
+  animation: event-stats-pulse 6s ease-in-out infinite;
+}
+
+@keyframes event-stats-pulse {
+  0%, 100% { border-color: rgba(51, 65, 85, 0.15); }
+  50% { border-color: rgba(51, 65, 85, 0.3); }
+}
+
+/* 8. sfx-trigger-flash — Flash when SFX triggers */
+@keyframes sfx-trigger-flash {
+  0% { background-color: rgba(234, 88, 12, 0.2); }
+  100% { background-color: transparent; }
+}
+
+/* 9. save-success-flash — Green flash on save success */
+@keyframes save-success-flash {
+  0% { background-color: rgba(16, 185, 129, 0.3); box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+  100% { background-color: rgba(30, 41, 59, 0.5); box-shadow: none; }
+}
+
+/* 10. a11y-toggle-focus — Focus ring animation for accessibility toggles */
+@keyframes a11y-focus-ring {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* 11. event-counter-pop — Number pop animation for event counts */
+@keyframes counter-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* 12. save-slot-delete — Delete shake animation */
+@keyframes slot-delete-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* 13. a11y-colorblind-shift — Smooth color transition for color blind mode */
+@keyframes colorblind-transition {
+  0% { filter: none; }
+  100% { filter: url(#protanopia-filter); }
+}
+
+/* 14. game-event-ripple — Ripple effect when game events fire */
+@keyframes event-ripple {
+  0% { transform: scale(0.5); opacity: 0.6; border-width: 2px; }
+  100% { transform: scale(2); opacity: 0; border-width: 0; }
+}
+
+/* 15. save-thumbnail-generate — Thumbnail generation fade */
+@keyframes thumbnail-gen {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* 16. a11y-speech-indicator — Pulse for active text-to-speech */
+@keyframes speech-indicator {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* 17. save-import-progress — Import progress bar animation */
+@keyframes import-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* 18. event-history-scroll — Smooth scroll for event history */
+@keyframes history-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+/* 19. a11y-announce-flash — Screen reader announcement visual */
+@keyframes announce-flash {
+  0% { opacity: 0; transform: translateY(-4px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* 20. sfx-batch-trigger — Staggered SFX batch animation */
+@keyframes batch-trigger-wave {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* 21. save-slot-hover — Hover lift effect for save slots */
+@keyframes slot-hover-lift {
+  0% { transform: translateY(0); box-shadow: none; }
+  100% { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+}
+
+/* 22. a11y-high-contrast-border — Pulsing border for high contrast */
+@keyframes hc-border-pulse {
+  0%, 100% { border-color: rgba(234, 179, 8, 0.6); }
+  50% { border-color: rgba(234, 179, 8, 1); }
+}
+
+/* 23. game-state-load-flash — Flash when loading a save */
+@keyframes load-flash {
+  0% { background-color: rgba(99, 102, 241, 0.3); }
+  50% { background-color: rgba(99, 102, 241, 0.1); }
+  100% { background-color: transparent; }
+}
+
+/* 24. event-bus-fire — Visual indicator for event bus activity */
+@keyframes bus-fire {
+  0% { background-color: rgba(168, 85, 247, 0.4); transform: scaleX(1); }
+  100% { background-color: transparent; transform: scaleX(0); }
+}
+
+/* 25. a11y-reduced-motion-fade — Fade transition for reduced motion mode */
+@keyframes reduced-motion-fade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}

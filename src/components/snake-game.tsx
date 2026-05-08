@@ -86,6 +86,10 @@ import { getFullAchievementProgress, getMotivationalMessage, ACHIEVEMENT_CATEGOR
 import { generateWordPackFromLLM, THEME_SUGGESTIONS, LANGUAGE_OPTIONS, getGeneratedPacks, saveGeneratedPack, validateWordPack, MAX_GENERATED_PACKS, type GeneratedWordPack, type GenerateRequest } from '@/lib/ai-word-generator'
 import { playGameEventSound, getEventCategory, getEventDescription, ALL_GAME_EVENT_TYPES, type GameEventType } from '@/lib/sfx-event-mapper'
 import { useResponsiveLayout, useBreakpoint, useOrientation, getFontScaleClasses, getSpacingClasses, getButtonSizeClasses, type ResponsiveLayoutState } from '@/lib/responsive-layout-hooks'
+import { triggerGameEvent, createEventTriggerer, batchTriggerEvents, GAME_EVENT_TRIGGERS, getEventStats, type SfxIntegrationConfig } from '@/lib/sfx-event-integrator'
+import { getSaveSlots, saveToSlot, loadFromSlot, deleteSaveSlot, getAutoSave, setAutoSave, clearAutoSave, getSlotSummary, exportSaveData, importSaveData, formatSaveAge, SAVE_VERSION, DEFAULT_SLOT_CONFIG, SAVE_STORAGE_KEY, AUTOSAVE_KEY, type SaveSlot, type SerializableGameState, type SaveSlotConfig } from '@/lib/game-state-manager'
+import { loadAccessibilityConfig, saveAccessibilityConfig, updateConfig, announceToScreenReader, applyAccessibilityStyles, shouldReduceMotion, getHighContrastTheme, speakText, stopSpeaking, isSpeaking, COLOR_BLIND_FILTERS, DEFAULT_ACCESSIBILITY_CONFIG, type AccessibilityConfig } from '@/lib/accessibility-manager'
+import { gameEvents, emitGameEvent, getEventHistory as getHookEventHistory, onGameStart, onGameEnd, onWordEat, onScoreChange, onComboChange, onPowerUp, onAchievement, onAnyEvent, createEventCounter, createEventTimer, type GameHookEvent, type GameEventPayload, type SubscriptionHandle } from '@/lib/game-event-hooks'
 import {
   Play,
   RotateCcw,
@@ -541,6 +545,17 @@ export default function SnakeGame() {
       // Load SFX events enabled preference
       const sfxEventsPref = localStorage.getItem('wordsnake_sfx_events_enabled')
       if (sfxEventsPref) setSfxEventsEnabled(sfxEventsPref === 'true')
+      // Load save slots
+      setSaveSlots(getSaveSlots())
+      // Load accessibility config
+      setA11yConfig(loadAccessibilityConfig())
+      // Initialize SFX event triggerer
+      saveTriggerRef.current = createEventTriggerer({ enabled: sfxEventsEnabled === 'true', masterVolume: 0.7, sfxConfig: loadSfxConfig() })
+      // Initialize game event hooks — wire SFX sounds to events
+      eventCounterRef.current = createEventCounter(['word:eat', 'game:start', 'achievement:unlock', 'combo:increase', 'powerup:collect'])
+      onGameStart(() => { if (sfxEventsPref === 'true') triggerGameEvent('game.start', { enabled: true, masterVolume: 0.7, sfxConfig: loadSfxConfig() }) })
+      onWordEat(() => { if (sfxEventsPref === 'true') triggerGameEvent('word.eat', { enabled: true, masterVolume: 0.7, sfxConfig: loadSfxConfig() }) })
+      onAchievement(() => { if (sfxEventsPref === 'true') triggerGameEvent('achievement.unlock', { enabled: true, masterVolume: 0.7, sfxConfig: loadSfxConfig() }) })
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -674,6 +689,16 @@ export default function SnakeGame() {
   const responsiveLayout = useResponsiveLayout()
   const currentBreakpoint = useBreakpoint()
   const orientation = useOrientation()
+  // Game save/load state
+  const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([])
+  const [showSavePanel, setShowSavePanel] = useState(false)
+  const saveTriggerRef = useRef<((action: string) => void) | null>(null)
+  const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Accessibility state
+  const [a11yConfig, setA11yConfig] = useState<AccessibilityConfig>(DEFAULT_ACCESSIBILITY_CONFIG)
+  const [showA11yPanel, setShowA11yPanel] = useState(false)
+  // Game event hook system
+  const eventCounterRef = useRef<(() => Record<string, number>) | null>(null)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -6236,6 +6261,22 @@ export default function SnakeGame() {
                       🤖 AI Word Packs
                     </Button>
                     <Button
+                      onClick={() => setShowSavePanel(!showSavePanel)}
+                      variant="outline"
+                      className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform save-panel-btn"
+                      title="Save & Load Game State"
+                    >
+                      💾 Save/Load
+                    </Button>
+                    <Button
+                      onClick={() => setShowA11yPanel(!showA11yPanel)}
+                      variant="outline"
+                      className="border-blue-700/50 text-blue-400 hover:bg-blue-900/20 active:scale-95 transition-transform a11y-panel-btn"
+                      title="Accessibility Settings"
+                    >
+                      ♿ Accessibility
+                    </Button>
+                    <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
                       title="60-second timed challenge"
@@ -7116,6 +7157,125 @@ export default function SnakeGame() {
                   <span>·</span>
                   <span>{orientation.isLandscape ? '↔️' : orientation.isPortrait ? '↕️' : '⬜'} {orientation.orientation}</span>
                   {responsiveLayout.scaleFactor < 1 && <span>· {Math.round(responsiveLayout.scaleFactor * 100)}%</span>}
+                </div>
+              </div>
+            )}
+
+            {/* Game Save/Load Panel */}
+            {showSavePanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-emerald-900/20 to-teal-900/15 border border-emerald-700/25 save-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">💾</span>
+                    <span className="text-[10px] text-emerald-300 font-bold">Save & Load</span>
+                  </div>
+                  <span className="text-[9px] text-emerald-400/70">{saveSlots.length}/8 slots</span>
+                </div>
+                {/* Quick save button */}
+                <button
+                  onClick={() => {
+                    const gs = gameStateRef.current
+                    const state = serializeGameState({ score: gs.score, wordsEaten: gs.wordsEaten, difficulty: gs.difficulty, elapsedTime: gs.elapsedTime, snake: gs.snake, direction: gs.direction, comboCount: gs.comboCount, comboMultiplier: gs.comboMultiplier, coinBalance: gs.coinBalance, weather: gs.weather, isDailyChallenge: gs.isDailyChallenge, dailyWordsCollected: gs.dailyWordsCollected, isSpeedRun: gs.isSpeedRun, speedRunTimeLeft: gs.speedRunTimeLeft, wordsByCategory: gs.wordsByCategory, activeCategories: [...gs.activeCategories], gridTheme: gs.gridTheme, activeSkin: gs.activeSkin, soundEnabled: gs.soundEnabled, activePowerUps: gs.activePowerUps.map(p => ({ type: p.type, expiresAt: p.expiresAt })) })
+                    const nextSlot = saveSlots.length > 0 ? Math.max(...saveSlots.map(s => s.id)) + 1 : 1
+                    if (nextSlot > 8) { toast({ title: 'All slots full', description: 'Delete a save first', variant: 'destructive' }); return }
+                    const slot = saveToSlot(nextSlot, state, `Save ${nextSlot}`, canvasRef.current)
+                    setSaveSlots(getSaveSlots())
+                    toast({ title: `Saved to Slot ${nextSlot}!`, description: `Score: ${gs.score} · Words: ${gs.wordsEaten}` })
+                    if (canHaptic()) hapticFeedback('success')
+                  }}
+                  disabled={!uiState.gameStarted || uiState.gameOver}
+                  className="w-full py-1.5 rounded-md text-[10px] font-medium bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 save-btn"
+                >
+                  💾 Quick Save
+                </button>
+                {/* Save slots list */}
+                {saveSlots.length > 0 && (
+                  <div className="mt-2 space-y-1 max-h-28 overflow-y-auto custom-scrollbar">
+                    {saveSlots.map((slot) => (
+                      <div key={slot.id} className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800/50 border border-slate-700/20 save-slot-item">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] text-slate-300 block">{slot.name}</span>
+                          <span className="text-[7px] text-slate-500">{slot.score}pts · {slot.wordsEaten}words · {formatSaveAge(slot.savedAt)}</span>
+                        </div>
+                        <button onClick={() => { deleteSaveSlot(slot.id); setSaveSlots(getSaveSlots()); if (canHaptic()) hapticFeedback('light') }} className="text-[9px] text-red-400 hover:text-red-300 px-1">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Export/Import */}
+                <div className="flex gap-1.5 mt-2">
+                  <button onClick={() => { const data = exportSaveData(); navigator.clipboard.writeText(data); toast({ title: 'Saves exported!', description: 'Copied to clipboard' }) }} className="flex-1 py-1 rounded text-[8px] border border-emerald-700/30 bg-emerald-900/30 text-emerald-300 hover:bg-emerald-800/40 transition-all active:scale-90">📤 Export</button>
+                  <button onClick={() => { const json = prompt('Paste save data:'); if (!json) return; const result = importSaveData(json); setSaveSlots(getSaveSlots()); toast({ title: `Imported ${result.slotsImported} saves`, description: result.errors.length ? `${result.errors.length} errors` : 'Success' }) }} className="flex-1 py-1 rounded text-[8px] border border-emerald-700/30 bg-emerald-900/30 text-emerald-300 hover:bg-emerald-800/40 transition-all active:scale-90">📥 Import</button>
+                </div>
+              </div>
+            )}
+
+            {/* Accessibility Panel */}
+            {showA11yPanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-blue-900/20 to-indigo-900/15 border border-blue-700/25 a11y-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">♿</span>
+                    <span className="text-[10px] text-blue-300 font-bold">Accessibility</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  {[
+                    { key: 'reducedMotion' as const, label: 'Reduce Motion', desc: 'Disable animations' },
+                    { key: 'highContrast' as const, label: 'High Contrast', desc: 'Enhanced visibility' },
+                    { key: 'largeText' as const, label: 'Large Text', desc: 'Increase font size' },
+                    { key: 'focusIndicators' as const, label: 'Focus Indicators', desc: 'Show focus rings' },
+                    { key: 'textToSpeech' as const, label: 'Text to Speech', desc: 'Read text aloud' },
+                    { key: 'screenReader' as const, label: 'Screen Reader', desc: 'ARIA announcements' },
+                  ].map(({ key, label, desc }) => (
+                    <div key={key} className="flex items-center justify-between py-0.5">
+                      <div>
+                        <span className="text-[9px] text-slate-300 block">{label}</span>
+                        <span className="text-[7px] text-slate-500">{desc}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newConfig = updateConfig({ [key]: !a11yConfig[key] })
+                          setA11yConfig(newConfig)
+                          if (key === 'reducedMotion' && newConfig.reducedMotion) announceToScreenReader('Reduced motion enabled')
+                          if (key === 'textToSpeech' && !newConfig.textToSpeech) stopSpeaking()
+                          if (canHaptic()) hapticFeedback('light')
+                        }}
+                        className={`relative w-7 h-3.5 rounded-full transition-colors ${a11yConfig[key] ? 'bg-blue-500' : 'bg-slate-700'}`}
+                      >
+                        <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white shadow transition-transform ${a11yConfig[key] ? 'left-4' : 'left-0.5'}`} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {/* Color blind mode */}
+                <div className="mt-2">
+                  <span className="text-[8px] text-slate-400 block mb-0.5">Color Blind Mode</span>
+                  <div className="flex gap-1">
+                    {(['none', 'protanopia', 'deuteranopia', 'tritanopia'] as const).map((mode) => (
+                      <button key={mode} onClick={() => { const c = updateConfig({ colorBlindMode: mode }); setA11yConfig(c) }}
+                        className={`text-[7px] px-1.5 py-0.5 rounded border transition-all ${a11yConfig.colorBlindMode === mode ? 'border-blue-500/50 bg-blue-900/40 text-blue-300' : 'border-slate-700/30 bg-slate-800/30 text-slate-400'}`}>
+                        {mode === 'none' ? 'Off' : mode.slice(0, 4)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Game Event Stats */}
+            {mounted && eventCounterRef.current && (
+              <div className="mb-3 px-2.5 py-1.5 rounded-md bg-slate-800/30 border border-slate-700/15 event-stats-panel">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-[9px] text-slate-400">📊</span>
+                  <span className="text-[9px] text-slate-500 font-medium">Session Events</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(eventCounterRef.current()).map(([event, count]) => (
+                    <span key={event} className="text-[7px] px-1.5 py-0.5 rounded-full bg-slate-800/60 text-slate-400 border border-slate-700/20">
+                      {event.split(':')[1]}: {count}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}
