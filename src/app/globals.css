@@ -6836,3 +6836,106 @@
 /* R55 extra: Factory gear spin */
 @keyframes r55-gear-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .factory-panel .r55-gear-spin { animation: r55-gear-spin 3s linear infinite; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ROUND 56: Word Typing Race, Treasure Hunt, Achievement Museum, Mini Arcade
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* R56-1: Typing stat cell entrance pop */
+@keyframes r56-type-stat { 0% { opacity: 0; transform: scale(0.5) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.typingrace-panel .r56-type-stat { animation: r56-type-stat 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* R56-2: Race active panel glow pulse */
+@keyframes r56-race-active { 0%, 100% { box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.2); } 50% { box-shadow: 0 0 20px 2px rgba(56, 189, 248, 0.15); } }
+.typingrace-panel .r56-race-active { animation: r56-race-active 2s ease-in-out infinite; }
+
+/* R56-3: Word display pop-in */
+@keyframes r56-word-display { 0% { opacity: 0; transform: scale(0.8) rotateX(30deg); } 100% { opacity: 1; transform: scale(1) rotateX(0deg); } }
+.typingrace-panel .r56-word-display { animation: r56-word-display 0.3s ease-out both; }
+
+/* R56-4: Progress bar animated fill */
+@keyframes r56-progress-fill { 0% { width: 0%; } 100% { width: var(--target-width, 50%); } }
+.typingrace-panel .r56-progress-fill { animation: r56-progress-fill 0.8s ease-out both; }
+
+/* R56-5: History item slide in */
+@keyframes r56-history-item { 0% { opacity: 0; transform: translateX(-12px); } 100% { opacity: 1; transform: translateX(0); } }
+.typingrace-panel .r56-history-item { animation: r56-history-item 0.3s ease-out both; }
+
+/* R56-6: Race type button entrance */
+@keyframes r56-race-type-btn { 0% { opacity: 0; transform: translateY(8px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.typingrace-panel .r56-race-type-btn { animation: r56-race-type-btn 0.35s ease-out both; }
+
+/* R56-7: Daily card glow */
+@keyframes r56-daily-card { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+.typingrace-panel .r56-daily-card { animation: r56-daily-card 0.4s ease-out both; }
+
+/* R56-8: Action button press effect */
+@keyframes r56-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
+.r56-action-btn:active { animation: r56-action-btn 0.15s ease-out; }
+
+/* R56-9: Treasure Hunt stat cell entrance */
+@keyframes r56-th-stat { 0% { opacity: 0; transform: scale(0.5) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.treasure-panel .r56-th-stat { animation: r56-th-stat 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* R56-10: Region item slide in */
+@keyframes r56-region-item { 0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); } }
+.treasure-panel .r56-region-item { animation: r56-region-item 0.35s ease-out both; }
+
+/* R56-11: Region fill animated bar */
+@keyframes r56-region-fill { 0% { width: 0%; } 100% { width: var(--target-width, 0%); } }
+.treasure-panel .r56-region-fill { animation: r56-region-fill 0.8s ease-out both; }
+
+/* R56-12: Compass card pulse glow */
+@keyframes r56-compass-card { 0%, 100% { box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.2); } 50% { box-shadow: 0 0 15px 2px rgba(251, 146, 60, 0.15); } }
+.treasure-panel .r56-compass-card { animation: r56-compass-card 2.5s ease-in-out infinite; }
+
+/* R56-13: Achievement badge pop entrance */
+@keyframes r56-achievement-badge { 0% { opacity: 0; transform: scale(0); } 60% { transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+.treasure-panel .r56-achievement-badge { animation: r56-achievement-badge 0.4s ease-out both; }
+
+/* R56-14: Museum stat cell entrance */
+@keyframes r56-museum-stat { 0% { opacity: 0; transform: scale(0.5) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.museum-panel .r56-museum-stat { animation: r56-museum-stat 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* R56-15: Featured exhibit card shimmer */
+@keyframes r56-featured-card { 0% { opacity: 0; transform: scale(0.95) translateY(6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.museum-panel .r56-featured-card { animation: r56-featured-card 0.4s ease-out both; }
+
+/* R56-16: Hall item slide in */
+@keyframes r56-hall-item { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+.museum-panel .r56-hall-item { animation: r56-hall-item 0.35s ease-out both; }
+
+/* R56-17: Hall fill animated bar */
+@keyframes r56-hall-fill { 0% { width: 0%; } 100% { width: var(--target-width, 0%); } }
+.museum-panel .r56-hall-fill { animation: r56-hall-fill 0.8s ease-out both; }
+
+/* R56-18: Exhibit badge entrance */
+@keyframes r56-exhibit-badge { 0% { opacity: 0; transform: scale(0); } 60% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+.museum-panel .r56-exhibit-badge { animation: r56-exhibit-badge 0.35s ease-out both; }
+
+/* R56-19: Arcade stat cell entrance */
+@keyframes r56-arcade-stat { 0% { opacity: 0; transform: scale(0.5) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.arcade-panel .r56-arcade-stat { animation: r56-arcade-stat 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* R56-20: Game item slide in */
+@keyframes r56-game-item { 0% { opacity: 0; transform: translateY(8px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.arcade-panel .r56-game-item { animation: r56-game-item 0.35s ease-out both; }
+
+/* R56-21: Token card glow */
+@keyframes r56-token-glow { 0%, 100% { text-shadow: 0 0 4px rgba(251, 191, 36, 0.3); } 50% { text-shadow: 0 0 12px rgba(251, 191, 36, 0.6); } }
+.arcade-panel .r56-token-glow { animation: r56-token-glow 2s ease-in-out infinite; }
+
+/* R56-22: Daily card slide in */
+@keyframes r56-daily-card { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+.arcade-panel .r56-daily-card { animation: r56-daily-card 0.35s ease-out both; }
+
+/* R56-23: Typing cursor blink */
+@keyframes r56-cursor-blink { 0%, 50% { border-color: rgba(56, 189, 248, 0.8); } 51%, 100% { border-color: transparent; } }
+.typingrace-panel input:focus { animation: r56-cursor-blink 1s step-end infinite; }
+
+/* R56-24: Treasure shimmer infinite */
+@keyframes r56-treasure-shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+.treasure-panel .r56-treasure-shimmer { background: linear-gradient(90deg, transparent 30%, rgba(251, 191, 36, 0.1) 50%, transparent 70%); background-size: 200% 100%; animation: r56-treasure-shimmer 3s ease-in-out infinite; }
+
+/* R56-25: Arcade neon pulse */
+@keyframes r56-arcade-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+.arcade-panel .r56-arcade-pulse { animation: r56-arcade-pulse 1.5s ease-in-out infinite; }

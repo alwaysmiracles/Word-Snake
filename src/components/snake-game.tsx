@@ -189,6 +189,10 @@ import { doInitBingoSystem as initBingoSystem, doGenerateCard as generateCard, d
 import { getMapData, getViewportBounds, getZoomLevels, setZoom, zoomIn, zoomOut, pan, centerOn, centerOnSnake, fitToContent, addMarker, removeMarker, updateMarker, getMarkerCount, addWaypoint, removeWaypoint, getNextWaypoint, getWaypointRoute, clearWaypoints, updateSnakePosition, getSnakeTrail, getSnakeHeatmap, revealCell, getRevealedPercentage, setRevealRadius, addBookmark, removeBookmark, getVisitedHeatmap, getOptimalPath, getMiniMapOverview, getMapGrid, getStatsGrid as mmGetStatsGrid, getZoneOverlay, getMinimapSettings } from '@/lib/mini-map-wire'
 import { gatherMaterial, spendMaterial, getMaterialById, getMaterialsByRarity, unlockRecipe, getAvailableRecipes, canCraft as pfCanCraft, queueCraft, removeFromQueue, reorderQueue, processQueue, getQueueStatus, getEstimatedCompletion, combinePowerUp, usePowerUp as pfActivatePowerUp, equipPowerUp, unequipPowerUp, getEquippedEffects, getActiveBuffs, generateDailyDeals, purchaseDeal, getDealTimer, activateBlueprint, getBlueprintProgress, getFactoryOverview, getMaterialGrid, getRecipeGrid, getProductionQueueUI, getEquippedSlots, getCombinePreview, getBlueprintGallery, getRarityDistribution as pfGetRarityDistribution, getFactoryLevelCard, getXPToNextLevel } from '@/lib/powerup-factory-wire'
 import { initDailyFortune, crackCookie, getFortuneEffect, generateLuckyNumbers, generateLuckyWords, getLuckyBonus, selectZodiacSign, getTodayReading, getHoroscopeCompatibility, getWisdomInsight, shareWisdom, drawDailyTarot, castRunes, checkFortuneStreak, getAllZodiacSigns, getAllTarotCards, getAllRunes, getFortuneHistory, getFortuneOverview, getFortuneCookieCard, getLuckyDisplay, getHoroscopeCard, getWisdomCard, getTarotSpread, getRuneCasting, getFortuneScoreCard, getStreakCard as dfGetStreakCard, getAchievementGrid as dfGetAchievementGrid, getHistoryTimeline, getCollectionProgress as dfGetCollectionProgress, getMoodIndicator, getShareCode, resetFortuneData } from '@/lib/daily-fortune-wire'
+import { trInit, trStartRace, trEndRace, trResumeRace, trSubmitWord, trGetCurrentWord, trGetWPM, trGetAccuracy, trGetCurrentStreak, trGetBestStreak, trGetRecentRaces, trGetLeaderboard, trGetDailyChallenge, trIsDailyCompleted, trGetDailyStreak, trGetAchievements, trCheckAchievements, trGetTypingOverview, trGetStatsGrid, trGetKeyboardHeatmap, trGetAllRaceTypeCards, trGetDailyCard, trGetRaceStatus, trGetRaceConfig, trGetLives, trGetComboMultiplier, trGetScore, trGetRemainingTime, trGetElapsedTime, trGetRaceProgress } from '@/lib/word-typing-race-wire'
+import { thInit, thStartHunt, thAbandonHunt, thGetClue, thUseHint, thCheckAnswer, thGetRegions, thGetMapOverview, thGetStatsGrid, thGetCollectionGrid, thGetAchievementGrid, thGetDailyCard, thGetCompassHint, thGetHuntOverview, thGetStreak, thIsDailyCompleted, thGetDailyStreak, thGetAchievements, thCheckAchievements } from '@/lib/treasure-hunt-wire'
+import { msInit, msGetMuseumOverview, msGetHalls, msGetHallExhibits, msGetHallCompletion, msGetMuseumScore, msGetRecentExhibits, msCollectExhibit, msGetTours, msStartTour, msGetTourProgress, msCompleteTour, msRecordVisit, msGetVisitStats, msGetSouvenirs, msBuySouvenir, msGetMuseumCoins, msGetPhotoSpots, msCapturePhoto, msGetPhotoGallery, msGetFeaturedExhibit, msGetAudioGuide, msGetAchievements, msCheckAchievements, msGetMuseumLevel, msGetOverviewCard, msGetHallCard, msGetExhibitCard, msGetExhibitGrid, msGetTourCard, msGetStatsGrid, msGetShopCard, msGetPhotoSpotCard, msGetLevelCard } from '@/lib/achievement-museum-wire'
+import { arInit, arStartGame, arEndGame, arPauseGame, arResumeGame, arGetActiveGame, arIsGameActive, arFlipCard, arDestroyWord, arSortWord, arSubmitChainWord, arCatchLetter, arFindWord, arSolveAnagram, arSolveMath, arGetScore, arGetHighScores, arGetGameGrade, arGetAllHighScores, arGetTokens, arEarnTokens, arSpendTokens, arGetDailyChallenge, arStartDaily, arGetDailyProgress, arIsDailyCompleted, arGetAchievements, arCheckAchievements, arGetArcadeStats, arGetArcadeOverview, arGetGameCard, arGetGameGrid, arGetStatsGrid, arGetAchievementGrid, arGetLeaderboardCard, arGetDailyCard, arGetTokenCard, arGetGamesPlayed, arGetTotalTime, arGetWinRate } from '@/lib/mini-arcade-wire'
 import {
   Play,
   RotateCcw,
@@ -984,6 +988,11 @@ export default function SnakeGame() {
   const [showColorStudioPanel, setShowColorStudioPanel] = useState(false)
   const [showAvatarCustomPanel, setShowAvatarCustomPanel] = useState(false)
   const [showTeamPanel, setShowTeamPanel] = useState(false)
+  // Round 56: Typing Race, Treasure Hunt, Achievement Museum, Mini Arcade panel states
+  const [showTypingRacePanel, setShowTypingRacePanel] = useState(false)
+  const [showTreasureHuntPanel, setShowTreasureHuntPanel] = useState(false)
+  const [showMuseumPanel, setShowMuseumPanel] = useState(false)
+  const [showArcadePanel, setShowArcadePanel] = useState(false)
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -8081,6 +8090,42 @@ export default function SnakeGame() {
                     >
                       🔮 Fortune
                     </Button>
+                    {/* Round 56: Word Typing Race Button */}
+                    <Button
+                      onClick={() => { trInit(); setShowTypingRacePanel(!showTypingRacePanel) }}
+                      variant="outline"
+                      className="border-sky-500/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform typingrace-btn"
+                      title="Word Typing Race"
+                    >
+                      ⌨️ Typing
+                    </Button>
+                    {/* Round 56: Treasure Hunt Button */}
+                    <Button
+                      onClick={() => { thInit(); setShowTreasureHuntPanel(!showTreasureHuntPanel) }}
+                      variant="outline"
+                      className="border-orange-500/50 text-orange-400 hover:bg-orange-900/20 active:scale-95 transition-transform treasure-btn"
+                      title="Treasure Hunt"
+                    >
+                      🗿 Treasure
+                    </Button>
+                    {/* Round 56: Achievement Museum Button */}
+                    <Button
+                      onClick={() => { msInit(); msRecordVisit(); setShowMuseumPanel(!showMuseumPanel) }}
+                      variant="outline"
+                      className="border-violet-500/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform museum-btn"
+                      title="Achievement Museum"
+                    >
+                      🏛️ Museum
+                    </Button>
+                    {/* Round 56: Mini Arcade Button */}
+                    <Button
+                      onClick={() => { arInit(); setShowArcadePanel(!showArcadePanel) }}
+                      variant="outline"
+                      className="border-red-500/50 text-red-400 hover:bg-red-900/20 active:scale-95 transition-transform arcade-btn"
+                      title="Mini Arcade"
+                    >
+                      🎮 Arcade
+                    </Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -13896,6 +13941,343 @@ export default function SnakeGame() {
                   </div>
                 )
               })()}
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 56: Word Typing Race Panel */}
+      {showTypingRacePanel && mounted && (() => {
+        const overview = trGetTypingOverview()
+        const stats = trGetStatsGrid()
+        const raceTypes = trGetAllRaceTypeCards()
+        const daily = trGetDailyCard()
+        const isRacing = trGetRaceStatus() === 'active'
+        const currentWord = isRacing ? trGetCurrentWord() : null
+        const wpm = isRacing ? trGetWPM() : 0
+        const accuracy = isRacing ? trGetAccuracy() : 100
+        const combo = isRacing ? trGetComboMultiplier() : 1
+        const score = isRacing ? trGetScore() : 0
+        const progress = isRacing ? trGetRaceProgress() : 0
+        const lives = isRacing ? trGetLives() : 0
+        const history = trGetRecentRaces()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTypingRacePanel(false)}>
+            <div className="bg-slate-900 border border-sky-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-sky-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sky-400 font-bold text-sm flex items-center gap-2">⌨️ Word Typing Race</h2>
+                <button onClick={() => setShowTypingRacePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.slice(0, 4).map((s: { label: string; value: string; color: string }, i: number) => (
+                  <div key={i} className="bg-slate-800/80 rounded-lg p-1.5 text-center r56-type-stat" style={{ animationDelay: `${i * 50}ms` }}>
+                    <div className="text-[7px] text-slate-400 uppercase tracking-wider">{s.label}</div>
+                    <div className="text-[10px] font-bold" style={{ color: s.color || '#7dd3fc' }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              {isRacing && (
+                <div className="mb-3 p-3 bg-gradient-to-br from-sky-900/30 to-cyan-900/30 rounded-xl border border-sky-500/20 r56-race-active">
+                  <div className="grid grid-cols-4 gap-2 mb-2 text-center">
+                    <div><div className="text-[7px] text-slate-400">WPM</div><div className="text-sm font-bold text-sky-400">{wpm}</div></div>
+                    <div><div className="text-[7px] text-slate-400">Accuracy</div><div className="text-sm font-bold text-green-400">{accuracy}%</div></div>
+                    <div><div className="text-[7px] text-slate-400">Combo</div><div className="text-sm font-bold text-amber-400">{combo.toFixed(1)}x</div></div>
+                    <div><div className="text-[7px] text-slate-400">Score</div><div className="text-sm font-bold text-violet-400">{score}</div></div>
+                  </div>
+                  {lives > 0 && <div className="text-[8px] text-slate-400 mb-1">Lives: {'❤️'.repeat(lives)}{'🖤'.repeat(3 - lives)}</div>}
+                  <div className="w-full h-1.5 bg-slate-700 rounded-full mb-2"><div className="h-full bg-sky-500 rounded-full transition-all r56-progress-fill" style={{ width: `${progress}%` }} /></div>
+                  {currentWord && (
+                    <div className="text-center">
+                      <div className="text-[8px] text-slate-400 mb-1">Type this word:</div>
+                      <div className="text-xl font-bold text-white tracking-widest r56-word-display">{currentWord}</div>
+                      <input className="mt-2 w-full bg-slate-800 border border-sky-500/30 rounded-lg px-3 py-1.5 text-sm text-white text-center focus:outline-none focus:border-sky-400" placeholder="Type here..." autoFocus onKeyDown={e => {
+                        if (e.key === 'Enter' && (e.target as HTMLInputElement).value) {
+                          trSubmitWord((e.target as HTMLInputElement).value); (e.target as HTMLInputElement).value = ''
+                        }
+                      }} />
+                    </div>
+                  )}
+                  <div className="flex gap-1.5 mt-2">
+                    <button onClick={() => { trEndRace(); toast({ title: 'Race ended!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">⏹ End</button>
+                    <button onClick={() => { toast({ title: 'Skipped!' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">⏭ Skip</button>
+                  </div>
+                </div>
+              )}
+              {!isRacing && (
+                <div className="mb-3">
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Race Types</div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {raceTypes.map((rt: { id: string; name: string; emoji: string; desc: string; color: string }, i: number) => (
+                      <button key={rt.id} onClick={() => { trStartRace(rt.id); toast({ title: `${rt.emoji} ${rt.name} started!` }) }} className="p-2 bg-slate-800/80 hover:bg-slate-700/80 rounded-lg text-left transition-all active:scale-95 r56-race-type-btn" style={{ animationDelay: `${i * 60}ms`, borderColor: rt.color + '40', borderWidth: 1 }}>
+                        <div className="text-sm mb-0.5">{rt.emoji}</div>
+                        <div className="text-[9px] font-semibold" style={{ color: rt.color }}>{rt.name}</div>
+                        <div className="text-[7px] text-slate-400">{rt.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Daily Challenge</div>
+                <div className="p-2 bg-gradient-to-r from-sky-900/30 to-indigo-900/30 rounded-lg border border-sky-500/20 r56-daily-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[9px] font-bold text-sky-400">Daily Typing Challenge</div>
+                      <div className="text-[8px] text-slate-400">Streak: {daily.streak || 0} days</div>
+                    </div>
+                    <button onClick={() => { trStartRace({difficulty:'medium',raceType:'sprint',duration:60}); toast({ title: 'Daily challenge started!' }) }} className="px-2 py-1 bg-sky-800/60 hover:bg-sky-700/60 text-sky-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">Start</button>
+                  </div>
+                </div>
+              </div>
+              {history.length > 0 && (
+                <div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Recent Races</div>
+                  <div className="space-y-1">
+                    {history.slice(0, 5).map((h: { wpm: number; accuracy: number; score: number; type: string; duration: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between p-1.5 bg-slate-800/60 rounded-lg text-[8px] r56-history-item" style={{ animationDelay: `${i * 40}ms` }}>
+                        <span className="text-sky-300 font-semibold">{h.type}</span>
+                        <span className="text-slate-400">{h.wpm} WPM</span>
+                        <span className="text-green-400">{h.accuracy}%</span>
+                        <span className="text-amber-400">{h.score} pts</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 56: Treasure Hunt Panel */}
+      {showTreasureHuntPanel && mounted && (() => {
+        const overview = thGetHuntOverview()
+        const stats = thGetStatsGrid()
+        const regions = thGetRegions()
+        const streak = thGetStreak()
+        const daily = thGetDailyCard()
+        const achievements = thGetAchievements().filter((a: { unlocked: boolean }) => a.unlocked)
+        const compass = thGetCompassHint(5)
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTreasureHuntPanel(false)}>
+            <div className="bg-slate-900 border border-orange-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-orange-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-orange-400 font-bold text-sm flex items-center gap-2">🗿 Treasure Hunt</h2>
+                <button onClick={() => setShowTreasureHuntPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.slice(0, 4).map((s: { label: string; value: string; color: string }, i: number) => (
+                  <div key={i} className="bg-slate-800/80 rounded-lg p-1.5 text-center r56-th-stat" style={{ animationDelay: `${i * 50}ms` }}>
+                    <div className="text-[7px] text-slate-400 uppercase tracking-wider">{s.label}</div>
+                    <div className="text-[10px] font-bold" style={{ color: s.color || '#fb923c' }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Explore Regions</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {regions.map((r: { id: string; name: string; emoji: string; theme: string; completion: number; color: string }, i: number) => (
+                    <div key={r.id} className="p-2 bg-slate-800/80 rounded-lg r56-region-item" style={{ animationDelay: `${i * 60}ms` }}>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-sm">{r.emoji}</span>
+                        <div className="text-[9px] font-semibold" style={{ color: r.color || '#fb923c' }}>{r.name}</div>
+                      </div>
+                      <div className="w-full h-1 bg-slate-700 rounded-full"><div className="h-full rounded-full transition-all r56-region-fill" style={{ width: `${r.completion}%`, backgroundColor: r.color || '#fb923c' }} /></div>
+                      <div className="text-[7px] text-slate-400 mt-0.5">{r.completion}% explored</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Compass</div>
+                <div className="p-2 bg-gradient-to-r from-orange-900/30 to-amber-900/30 rounded-lg border border-orange-500/20 r56-compass-card">
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🧭</div>
+                    <div className="text-[10px] font-semibold text-orange-400">{typeof compass === 'string' ? compass : 'Start a hunt!'}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Actions</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button onClick={() => { thStartHunt('Enchanted Forest'); toast({ title: 'Hunt started!' }) }} className="px-2 py-2 bg-orange-900/40 hover:bg-orange-800/50 text-orange-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">🗡️ Hunt</button>
+                  <button onClick={() => { thUseHint(); toast({ title: 'Hint used!' }) }} className="px-2 py-2 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">💡 Hint</button>
+                  <button onClick={() => { thAbandonHunt(); toast({ title: 'Hunt abandoned' }) }} className="px-2 py-2 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">🚪 Quit</button>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Daily Expedition</div>
+                <div className="p-2 bg-gradient-to-r from-orange-900/30 to-yellow-900/30 rounded-lg border border-orange-500/20 r56-daily-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[9px] font-bold text-orange-400">Daily Expedition</div>
+                      <div className="text-[8px] text-slate-400">Streak: {(daily && daily.streak) || streak.current} days</div>
+                    </div>
+                    <button onClick={() => { thInit(); toast({ title: 'Expedition started!' }) }} className="px-2 py-1 bg-orange-800/60 hover:bg-orange-700/60 text-orange-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">Go!</button>
+                  </div>
+                </div>
+              </div>
+              {achievements.length > 0 && (
+                <div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Unlocked ({achievements.length})</div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {achievements.slice(0, 8).map((a: { emoji: string; name: string }, i: number) => (
+                      <span key={i} className="px-2 py-1 bg-amber-900/30 text-amber-300 text-[8px] font-medium rounded-full r56-achievement-badge" title={a.name}>{a.emoji}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 56: Achievement Museum Panel */}
+      {showMuseumPanel && mounted && (() => {
+        const overview = msGetOverviewCard()
+        const halls = msGetHalls()
+        const level = msGetLevelCard()
+        const featured = msGetFeaturedExhibit()
+        const recentExhibits = msGetRecentExhibits()
+        const visitStats = msGetVisitStats()
+        const coins = msGetMuseumCoins()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMuseumPanel(false)}>
+            <div className="bg-slate-900 border border-violet-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-violet-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-violet-400 font-bold text-sm flex items-center gap-2">🏛️ Achievement Museum</h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] text-amber-400 font-bold">🪙 {coins}</span>
+                  <button onClick={() => setShowMuseumPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 mb-3">
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r56-museum-stat" style={{ animationDelay: '0ms' }}>
+                  <div className="text-[7px] text-slate-400 uppercase tracking-wider">Level</div>
+                  <div className="text-sm font-bold text-violet-400">{level.level || 1}</div>
+                  <div className="text-[7px] text-slate-400">{level.title || 'Novice'}</div>
+                </div>
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r56-museum-stat" style={{ animationDelay: '50ms' }}>
+                  <div className="text-[7px] text-slate-400 uppercase tracking-wider">Score</div>
+                  <div className="text-sm font-bold text-amber-400">{msGetMuseumScore()}</div>
+                  <div className="text-[7px] text-slate-400">/ 100</div>
+                </div>
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r56-museum-stat" style={{ animationDelay: '100ms' }}>
+                  <div className="text-[7px] text-slate-400 uppercase tracking-wider">Visits</div>
+                  <div className="text-sm font-bold text-sky-400">{visitStats.total || 0}</div>
+                  <div className="text-[7px] text-slate-400">total</div>
+                </div>
+              </div>
+              {featured && (
+                <div className="mb-3 p-3 bg-gradient-to-r from-violet-900/30 to-purple-900/30 rounded-xl border border-violet-500/20 r56-featured-card">
+                  <div className="text-[9px] text-violet-300 font-semibold mb-1">Featured Exhibit</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{featured.emoji || '🏆'}</span>
+                    <div>
+                      <div className="text-[10px] font-bold text-white">{featured.name || 'Unknown'}</div>
+                      <div className="text-[8px] text-slate-400">{featured.description || ''}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Exhibition Halls</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {halls.map((hall: { id: string; name: string; emoji: string; color: string; completion: number }, i: number) => (
+                    <div key={hall.id} className="p-2 bg-slate-800/80 rounded-lg r56-hall-item" style={{ animationDelay: `${i * 60}ms` }}>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-sm">{hall.emoji}</span>
+                        <div className="text-[9px] font-semibold" style={{ color: hall.color || '#a78bfa' }}>{hall.name}</div>
+                      </div>
+                      <div className="w-full h-1 bg-slate-700 rounded-full"><div className="h-full rounded-full transition-all r56-hall-fill" style={{ width: `${hall.completion}%`, backgroundColor: hall.color || '#a78bfa' }} /></div>
+                      <div className="text-[7px] text-slate-400 mt-0.5">{hall.completion}% complete</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Tours</div>
+                <div className="flex gap-1.5">
+                  <button onClick={() => { msStartTour(0); toast({ title: 'Tour started!' }) }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">🎯 Guided Tour</button>
+                  <button onClick={() => { msCapturePhoto(); toast({ title: 'Photo captured!' }) }} className="flex-1 px-2 py-1.5 bg-pink-900/40 hover:bg-pink-800/50 text-pink-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">📸 Photo</button>
+                </div>
+              </div>
+              {recentExhibits.length > 0 && (
+                <div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Recent Exhibits</div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {recentExhibits.slice(0, 10).map((e: { emoji: string; name: string; rarity: string; color: string }, i: number) => (
+                      <span key={i} className="px-2 py-1 bg-slate-800/80 rounded-lg text-[8px] font-medium r56-exhibit-badge" style={{ color: e.color || '#a78bfa', animationDelay: `${i * 30}ms` }} title={`${e.name} (${e.rarity})`}>{e.emoji}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 56: Mini Arcade Panel */}
+      {showArcadePanel && mounted && (() => {
+        const overview = arGetArcadeOverview()
+        const stats = arGetStatsGrid()
+        const games = overview.games || []
+        const tokens = arGetTokens()
+        const daily = arGetDailyCard()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowArcadePanel(false)}>
+            <div className="bg-slate-900 border border-red-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-red-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-red-400 font-bold text-sm flex items-center gap-2">🎮 Mini Arcade</h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] text-amber-400 font-bold">🪙 {tokens}</span>
+                  <button onClick={() => setShowArcadePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.slice(0, 4).map((s: { label: string; value: string; color: string }, i: number) => (
+                  <div key={i} className="bg-slate-800/80 rounded-lg p-1.5 text-center r56-arcade-stat" style={{ animationDelay: `${i * 50}ms` }}>
+                    <div className="text-[7px] text-slate-400 uppercase tracking-wider">{s.label}</div>
+                    <div className="text-[10px] font-bold" style={{ color: s.color || '#f87171' }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Mini Games</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {games.map((g: { id: string; name: string; emoji: string; desc: string; color: string; highScore: number; grade: string; unlocked: boolean; playCount: number }, i: number) => (
+                    <button key={g.id} onClick={() => { if (g.unlocked) { arStartGame(g.id); toast({ title: `${g.emoji} ${g.name}!` }) } else { toast({ title: 'Locked!', description: `Play ${g.playCount || 0} more games to unlock` }) }}} className={`p-2 rounded-lg text-left transition-all active:scale-95 r56-game-item ${g.unlocked ? 'bg-slate-800/80 hover:bg-slate-700/80 cursor-pointer' : 'bg-slate-800/40 opacity-50 cursor-not-allowed'}`} style={{ animationDelay: `${i * 60}ms` }}>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-sm">{g.emoji}</span>
+                        <div>
+                          <div className="text-[9px] font-semibold" style={{ color: g.color || '#f87171' }}>{g.name}</div>
+                          {!g.unlocked && <div className="text-[7px] text-slate-500">🔒 Locked</div>}
+                        </div>
+                        {g.grade && g.unlocked && <span className="ml-auto text-[9px] font-bold text-amber-400">{g.grade}</span>}
+                      </div>
+                      <div className="text-[7px] text-slate-400 mb-0.5">{g.desc}</div>
+                      {g.highScore > 0 && <div className="text-[7px] text-sky-400">Best: {g.highScore}</div>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Daily Arcade Challenge</div>
+                <div className="p-2 bg-gradient-to-r from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 r56-daily-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[9px] font-bold text-red-400">Play All 8 Games</div>
+                      <div className="text-[8px] text-slate-400">Bonus: +100 tokens</div>
+                    </div>
+                    <button onClick={() => { arStartDaily(); toast({ title: 'Daily challenge started!' }) }} className="px-2 py-1 bg-red-800/60 hover:bg-red-700/60 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">Start</button>
+                  </div>
+                </div>
+              </div>
+              {arIsGameActive() && (
+                <div className="mb-3 p-2 bg-slate-800/60 rounded-lg">
+                  <div className="text-[9px] text-green-400 font-semibold mb-1">Game Active</div>
+                  <div className="flex gap-1.5">
+                    <button onClick={() => { arEndGame(); toast({ title: 'Game ended!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">End Game</button>
+                    <button onClick={() => { arPauseGame(); toast({ title: 'Paused' }) }} className="flex-1 px-2 py-1.5 bg-slate-700/60 hover:bg-slate-600/60 text-slate-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r56-action-btn">Pause</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )
