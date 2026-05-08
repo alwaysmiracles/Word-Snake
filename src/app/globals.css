@@ -6002,3 +6002,127 @@
 .art-gallery-panel .r47-art-item { animation: r47-art-item 0.3s ease-out both; }
 .art-gallery-panel .r47-theme-badge { animation: r47-theme-badge 0.3s ease-out both; }
 .art-gallery-panel .r47-frame-badge { animation: r47-frame-badge 0.3s ease-out both; }
+
+/* ===== Round 48 CSS Animations (25 new keyframes) ===== */
+
+/* 1. r48-now-playing — Now playing card pulse glow */
+@keyframes r48-now-playing { 0%,100%{box-shadow:0 0 8px rgba(139,92,246,0.2);} 50%{box-shadow:0 0 20px rgba(139,92,246,0.4);} }
+
+/* 2. r48-play-btn — Play/pause button press */
+@keyframes r48-play-btn { 0%{transform:scale(1);} 50%{transform:scale(0.9);} 100%{transform:scale(1);} }
+
+/* 3. r48-sound-stat — Soundtrack stat cell pop */
+@keyframes r48-sound-stat { 0%{opacity:0;transform:scale(0.8);} 60%{transform:scale(1.05);} 100%{opacity:1;transform:scale(1);} }
+
+/* 4. r48-track-item — Music track hover slide */
+@keyframes r48-track-item { 0%{transform:translateX(-4px);opacity:0;} 100%{transform:translateX(0);opacity:1;} }
+
+/* 5. r48-ambient-btn — Ambient sound toggle glow */
+@keyframes r48-ambient-btn { 0%{box-shadow:0 0 0 rgba(6,182,212,0);} 100%{box-shadow:0 0 10px rgba(6,182,212,0.3);} }
+
+/* 6. r48-genre-badge — Genre badge entrance */
+@keyframes r48-genre-badge { 0%{opacity:0;transform:scale(0.85);} 100%{opacity:1;transform:scale(1);} }
+
+/* 7. r48-status-bar — Social status bar slide in */
+@keyframes r48-status-bar { 0%{opacity:0;transform:translateY(-6px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 8. r48-feed-stat — Feed stat cell entrance */
+@keyframes r48-feed-stat { 0%{opacity:0;transform:scale(0.8);} 100%{opacity:1;transform:scale(1);} }
+
+/* 9. r48-highlight — Highlight card shimmer */
+@keyframes r48-highlight { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+/* 10. r48-feed-item — Activity feed item slide in */
+@keyframes r48-feed-item { 0%{opacity:0;transform:translateX(-8px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 11. r48-react-btn — React button pop */
+@keyframes r48-react-btn { 0%{transform:scale(1);} 40%{transform:scale(1.3);} 100%{transform:scale(1);} }
+
+/* 12. r48-empty-feed — Empty feed fade in */
+@keyframes r48-empty-feed { 0%{opacity:0;} 100%{opacity:0.6;} }
+
+/* 13. r48-currency — Currency balance count up */
+@keyframes r48-currency { 0%{transform:scale(0.8);opacity:0;} 60%{transform:scale(1.08);} 100%{transform:scale(1);opacity:1;} }
+
+/* 14. r48-equipped — Equipped item glow pulse */
+@keyframes r48-equipped { 0%,100%{box-shadow:0 0 4px rgba(251,191,36,0.2);} 50%{box-shadow:0 0 12px rgba(251,191,36,0.4);} }
+
+/* 15. r48-consumable — Consumable item hover */
+@keyframes r48-consumable { 0%{background-color:rgba(30,41,59,0.6);} 100%{background-color:rgba(30,41,59,0.9);} }
+
+/* 16. r48-material — Material badge entrance */
+@keyframes r48-material { 0%{opacity:0;transform:scale(0.9);} 100%{opacity:1;transform:scale(1);} }
+
+/* 17. r48-deal — Daily deal shimmer */
+@keyframes r48-deal { 0%,100%{border-left:2px solid transparent;} 50%{border-left:2px solid #f59e0b;} }
+
+/* 18. r48-wishlist — Wishlist item fade */
+@keyframes r48-wishlist { 0%{opacity:0;transform:translateY(3px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 19. r48-world-summary — World summary card fade in */
+@keyframes r48-world-summary { 0%{opacity:0;transform:translateY(-4px) scale(0.99);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 20. r48-map-stat — Map stat cell entrance */
+@keyframes r48-map-stat { 0%{opacity:0;transform:scale(0.85);} 100%{opacity:1;transform:scale(1);} }
+
+/* 21. r48-progress-fill — Progress bar animated fill */
+@keyframes r48-progress-fill { 0%{background-size:200% 100%;} 100%{background-size:200% 100%;} }
+
+/* 22. r48-region-card — Region card hover lift */
+@keyframes r48-region-card { 0%{transform:translateY(0);box-shadow:none;} 100%{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3);} }
+
+/* 23. r48-explore-btn — Explore button glow */
+@keyframes r48-explore-btn { 0%,100%{box-shadow:0 0 0 rgba(16,185,129,0);} 50%{box-shadow:0 0 10px rgba(16,185,129,0.4);} }
+
+/* 24. r48-event — World event card pulse border */
+@keyframes r48-event { 0%,100%{border-color:rgba(245,158,11,0.2);} 50%{border-color:rgba(245,158,11,0.5);} }
+
+/* 25. r48-recommended — Recommended level badge slide */
+@keyframes r48-recommended { 0%{opacity:0;transform:translateX(-4px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* Round 48: Apply animations to panel elements */
+.soundtrack-panel { animation: r48-sound-stat 0.3s ease-out; }
+.soundtrack-panel .r48-sound-stat { animation: r48-sound-stat 0.4s ease-out both; }
+.soundtrack-panel .r48-sound-stat:nth-child(1) { animation-delay: 0.05s; }
+.soundtrack-panel .r48-sound-stat:nth-child(2) { animation-delay: 0.1s; }
+.soundtrack-panel .r48-sound-stat:nth-child(3) { animation-delay: 0.15s; }
+.soundtrack-panel .r48-now-playing { animation: r48-now-playing 2s ease-in-out infinite; }
+.soundtrack-panel .r48-play-btn:active { animation: r48-play-btn 0.15s ease-out; }
+.soundtrack-panel .r48-track-item { animation: r48-track-item 0.3s ease-out both; }
+.soundtrack-panel .r48-ambient-btn { animation: r48-ambient-btn 0.3s ease-out; }
+.soundtrack-panel .r48-genre-badge { animation: r48-genre-badge 0.3s ease-out both; }
+
+.social-feed-panel { animation: r48-status-bar 0.3s ease-out; }
+.social-feed-panel .r48-status-bar { animation: r48-status-bar 0.4s ease-out both; }
+.social-feed-panel .r48-feed-stat { animation: r48-feed-stat 0.4s ease-out both; }
+.social-feed-panel .r48-feed-stat:nth-child(1) { animation-delay: 0.05s; }
+.social-feed-panel .r48-feed-stat:nth-child(2) { animation-delay: 0.1s; }
+.social-feed-panel .r48-feed-stat:nth-child(3) { animation-delay: 0.15s; }
+.social-feed-panel .r48-feed-stat:nth-child(4) { animation-delay: 0.2s; }
+.social-feed-panel .r48-highlight { animation: r48-highlight 3s linear infinite; background-size: 200% 100%; background-image: linear-gradient(90deg, transparent 0%, rgba(245,158,11,0.08) 50%, transparent 100%); }
+.social-feed-panel .r48-feed-item { animation: r48-feed-item 0.3s ease-out both; }
+.social-feed-panel .r48-react-btn:active { animation: r48-react-btn 0.3s ease-out; }
+
+.inventory-panel { animation: r48-currency 0.3s ease-out; }
+.inventory-panel .r48-currency { animation: r48-currency 0.4s ease-out both; }
+.inventory-panel .r48-currency:nth-child(1) { animation-delay: 0.05s; }
+.inventory-panel .r48-currency:nth-child(2) { animation-delay: 0.1s; }
+.inventory-panel .r48-currency:nth-child(3) { animation-delay: 0.15s; }
+.inventory-panel .r48-currency:nth-child(4) { animation-delay: 0.2s; }
+.inventory-panel .r48-equipped { animation: r48-equipped 2s ease-in-out infinite; }
+.inventory-panel .r48-consumable:hover { animation: r48-consumable 0.2s ease-out; }
+.inventory-panel .r48-material { animation: r48-material 0.3s ease-out both; }
+.inventory-panel .r48-deal { animation: r48-deal 2s ease-in-out infinite; }
+.inventory-panel .r48-wishlist { animation: r48-wishlist 0.3s ease-out both; }
+
+.world-map-panel { animation: r48-world-summary 0.3s ease-out; }
+.world-map-panel .r48-world-summary { animation: r48-world-summary 0.4s ease-out both; }
+.world-map-panel .r48-map-stat { animation: r48-map-stat 0.4s ease-out both; }
+.world-map-panel .r48-map-stat:nth-child(1) { animation-delay: 0.05s; }
+.world-map-panel .r48-map-stat:nth-child(2) { animation-delay: 0.1s; }
+.world-map-panel .r48-map-stat:nth-child(3) { animation-delay: 0.15s; }
+.world-map-panel .r48-map-stat:nth-child(4) { animation-delay: 0.2s; }
+.world-map-panel .r48-region-card:hover { animation: r48-region-card 0.2s ease-out; }
+.world-map-panel .r48-explore-btn { animation: r48-explore-btn 2s ease-in-out infinite; }
+.world-map-panel .r48-event { animation: r48-event 2s ease-in-out infinite; }
+.world-map-panel .r48-recommended { animation: r48-recommended 0.3s ease-out both; }

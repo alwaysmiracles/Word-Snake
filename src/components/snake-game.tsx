@@ -153,6 +153,11 @@ import { getMatchHistory as pvpGetHistory, getWinStats, getPlayerProfileSummary,
 import { getSeasonCalendar, getActiveSeason, browseAllSeasons, activateSeason, getInstalledPacks, getSeasonProgress, getSeasonRewards, getSeasonCountdown as scGetSeasonCountdown } from '@/lib/seasonal-content-wire'
 import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, validateWordList, exportAsWordPack as cwExportPack, getWordQueue, getModificationHistory, getRecommendations } from '@/lib/custom-words-manager-wire'
 import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme as atGetGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
+// Round 48: Soundtrack Manager Wire, Social Activity Feed Wire, Inventory System Wire, World Map Explorer Wire
+import { getMusicLibrary, getTrack, getPlaylists, createPlaylist, getCurrentTrack, getPlaybackState as stGetPlaybackState, play as stPlay, pause as stPause, resume as stResume, next as stNext, previous as stPrev, getMasterVolume, setMasterVolume, getMusicVolume, setMusicVolume, getAmbientSounds, toggleAmbient, getActiveAmbients, getAmbientMix, applyAmbientMix, getVolumePreset, applyVolumePreset, getAudioMixerState, getMostPlayed, getListeningTime, getGenreBreakdown, getDetectedMood, enableAutoPlay, isAutoPlayEnabled, getSoundtrackOverview, getNowPlayingCard, getQuickControls, getGenreDistribution, recordPlay, shuffle as stShuffle, repeat as stRepeat, seek as stSeek } from '@/lib/soundtrack-manager-wire'
+import { postActivity, getActivityFeed, formatActivity, getActivityIcon, getActivityColor, addReaction, getReactions, getHighlights, getActivityStats, getActivityFrequency, postStatus, getCurrentStatus, setMood, getMood, generateWeeklyDigest, getFeedOverview, getFeedTimeline, getActivitySummary, getTrendingActivity, muteActivityType, unmuteActivityType, getMutedTypes, deleteActivity, clearFeed } from '@/lib/social-activity-feed-wire'
+import { getInventory, getInventorySummary, addItem as invAddItem, removeItem as invRemoveItem, useItem, hasItem as invHasItem, getItemCount, getCosmetics, equipCosmetic, unequipCosmetic, getEquippedCosmetics, getConsumables, useConsumable as invUseConsumable, getBoostStatus, getMaterials, canCraft, craft, getBalances, addCurrency, spendCurrency, canAfford, getTransactionHistory, getShopItems as invGetShopItems, purchaseItem as invPurchaseItem, getDailyShopDeals, getWishlist, addToWishlist, removeFromWishlist, getRarityColor, getRarityLabel, getItemsByRarity, getRarityDistribution as invGetRarityDistribution, getInventoryOverview, getInventoryGrid, getNewItemNotification, getInventoryWorth, getQuickAccess } from '@/lib/inventory-system-wire'
+import { getWorldMap, getRegions, getRegion, isRegionUnlocked, unlockRegion, getChapters, getChapter, getChapterProgress, getLevel, getLevelReward, getLevelStatus, recordLevelAttempt, getOverallProgress, getRegionProgress, getCurrentRegion, setCurrentRegion, getMapNodes, getConnections, getMapBounds, getZoomLevel, setZoomLevel, getExplorationBonus, hasExploredFully, getHiddenPaths, discoverHiddenPath, getActiveEvents, getRegionLore, getChapterLore, getUnlockedLore, getLoreCompletion, getWorldSummary, getRecommendedPath, getStuckHelper, getWorldMapOverview, getRegionCard, getProgressSummary, getWorldMapStats } from '@/lib/world-map-explorer-wire'
 // Round 47: Game Settings Wire, Player Stats Compare Wire, Challenge Mode Wire, Word Art Gallery Wire
 import { getSettings as gsGetSettings, updateSetting as gsUpdateSetting, getPresets, applyPreset as gsApplyPreset, getSettingsOverview, getActivePresetName, getSettingsCompletion, getGameplaySettings, getAudioSettings, getVisualSettings, getControlSettings, updateSettingsGroup, validateSettings, getSettingConstraints, exportSettings as gsExportSettings, importSettings as gsImportSettings, getMostChangedSettings, getOptimalSettings, getPerformanceBasedRecommendation, getBeginnerFriendlySettings, createCustomPreset, deleteCustomPreset, resetAllSettings } from '@/lib/game-settings-wire'
 import { getPeriodStats, comparePeriods, getTrend, getTrendSummary, getCurrentStreak as pscGetCurrentStreak, getLongestStreak as pscGetLongestStreak, getConsistencyScore, getSkillRating, getSkillTier, getSkillProgress, getWeakMetrics, getImprovementAreas, getStrengths, getDailyScores, getScoreDistribution, getCategoryPerformance, getComparisonOverview, getInsights, getWeeklyReport, getPeakHours, getPersonalBests as pscGetPersonalBests } from '@/lib/player-stats-compare-wire'
@@ -928,6 +933,11 @@ export default function SnakeGame() {
   const [showStatsComparePanel, setShowStatsComparePanel] = useState(false)
   const [showChallengePanel, setShowChallengePanel] = useState(false)
   const [showArtGalleryPanel, setShowArtGalleryPanel] = useState(false)
+  // Round 48: Soundtrack Manager, Social Activity Feed, Inventory, World Map Explorer panel states
+  const [showSoundtrackPanel, setShowSoundtrackPanel] = useState(false)
+  const [showSocialFeedPanel, setShowSocialFeedPanel] = useState(false)
+  const [showInventoryPanel, setShowInventoryPanel] = useState(false)
+  const [showWorldMapPanel, setShowWorldMapPanel] = useState(false)
   // Round 45: XP Progression, Replay Analyzer, Battle Pass, Achievement Showcase panel states
   const [showXPDetailPanel, setShowXPDetailPanel] = useState(false)
   const [showReplayPanel, setShowReplayPanel] = useState(false)
@@ -7844,6 +7854,42 @@ export default function SnakeGame() {
                     >
                       🖼️ Art Gallery
                     </Button>
+                    {/* Round 48: Soundtrack Manager Button */}
+                    <Button
+                      onClick={() => setShowSoundtrackPanel(!showSoundtrackPanel)}
+                      variant="outline"
+                      className="border-violet-500/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform soundtrack-btn"
+                      title="Soundtrack Manager"
+                    >
+                      🎵 Soundtrack
+                    </Button>
+                    {/* Round 48: Social Feed Button */}
+                    <Button
+                      onClick={() => setShowSocialFeedPanel(!showSocialFeedPanel)}
+                      variant="outline"
+                      className="border-sky-500/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform social-feed-btn"
+                      title="Social Activity Feed"
+                    >
+                      👥 Social Feed
+                    </Button>
+                    {/* Round 48: Inventory Button */}
+                    <Button
+                      onClick={() => setShowInventoryPanel(!showInventoryPanel)}
+                      variant="outline"
+                      className="border-amber-500/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform inventory-btn"
+                      title="Inventory"
+                    >
+                      🎒 Inventory
+                    </Button>
+                    {/* Round 48: World Map Button */}
+                    <Button
+                      onClick={() => setShowWorldMapPanel(!showWorldMapPanel)}
+                      variant="outline"
+                      className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform world-map-btn"
+                      title="World Map Explorer"
+                    >
+                      🗺️ World Map
+                    </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
@@ -10870,6 +10916,412 @@ export default function SnakeGame() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 48: Soundtrack Manager Panel */}
+      {showSoundtrackPanel && mounted && (() => {
+        const overview = getSoundtrackOverview()
+        const library = getMusicLibrary()
+        const nowPlaying = getCurrentTrack()
+        const playback = stGetPlaybackState()
+        const ambients = getAmbientSounds()
+        const activeAmbients = getActiveAmbients()
+        const mostPlayed = getMostPlayed()
+        const genres = getGenreDistribution()
+        const listeningTime = getListeningTime()
+        const playlists = getPlaylists()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSoundtrackPanel(false)}>
+            <div className="bg-slate-900 border border-violet-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 soundtrack-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-violet-300 text-lg font-bold">🎵 Soundtrack Manager</span>
+                <button onClick={() => setShowSoundtrackPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Now Playing */}
+              {nowPlaying && (
+                <div className="bg-gradient-to-r from-violet-900/30 to-indigo-900/30 rounded-xl p-3 mb-4 border border-violet-700/30 r48-now-playing">
+                  <div className="text-violet-400 text-[10px] uppercase tracking-wider font-bold">♪ Now Playing</div>
+                  <div className="text-white font-bold text-sm mt-1">{nowPlaying.name}</div>
+                  <div className="text-slate-400 text-[11px]">{nowPlaying.genre} • {nowPlaying.mood} • {nowPlaying.bpm} BPM</div>
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => stPause()} className="px-3 py-1 bg-violet-700 hover:bg-violet-600 text-white text-[10px] rounded-lg transition-all active:scale-95 r48-play-btn">⏸ Pause</button>
+                    <button onClick={() => stNext()} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white text-[10px] rounded-lg transition-all active:scale-95 r48-play-btn">⏭ Next</button>
+                    <button onClick={() => stPrev()} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white text-[10px] rounded-lg transition-all active:scale-95 r48-play-btn">⏮ Prev</button>
+                  </div>
+                </div>
+              )}
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-sound-stat">
+                  <div className="text-violet-400 text-lg font-bold">{library.length}</div>
+                  <div className="text-slate-500 text-[9px]">Tracks</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-sound-stat">
+                  <div className="text-amber-400 text-lg font-bold">{Math.round(listeningTime)}m</div>
+                  <div className="text-slate-500 text-[9px]">Listened</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-sound-stat">
+                  <div className="text-cyan-400 text-lg font-bold">{playlists.length}</div>
+                  <div className="text-slate-500 text-[9px]">Playlists</div>
+                </div>
+              </div>
+              {/* Music Library */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎶 Music Library</span>
+                <div className="space-y-1 mt-1.5 max-h-[150px] overflow-y-auto">
+                  {library.slice(0, 8).map(t => (
+                    <div key={t.id} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r48-track-item">
+                      <div className="flex-1">
+                        <span className="text-slate-200 text-[11px] font-medium">{t.name}</span>
+                        <span className="text-slate-500 text-[9px] ml-1.5">{t.genre}</span>
+                      </div>
+                      <button onClick={() => { stPlay(t.id); toast({ title: `Playing: ${t.name}` }) }}
+                        className="text-[10px] px-2 py-0.5 bg-violet-700 hover:bg-violet-600 text-white rounded transition-all active:scale-95 r48-play-btn">
+                        ▶
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Ambient Sounds */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🌊 Ambient Sounds</span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {ambients.slice(0, 7).map(s => (
+                    <button key={s.id} onClick={() => toggleAmbient(s.id)}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all active:scale-95 r48-ambient-btn ${activeAmbients.some((a: { id: string }) => a.id === s.id) ? 'bg-cyan-700 text-cyan-100 ring-1 ring-cyan-500' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                      {s.icon} {s.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Genre Distribution */}
+              <div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📊 Genre Distribution</span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {Object.entries(genres).slice(0, 7).map(([g, c]) => (
+                    <span key={g} className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded-full r48-genre-badge">{g} <span className="text-violet-400">{c as number}</span></span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 48: Social Activity Feed Panel */}
+      {showSocialFeedPanel && mounted && (() => {
+        const feed = getActivityFeed(20)
+        const stats = getActivityStats()
+        const highlights = getHighlights('week')
+        const trending = getTrendingActivity()
+        const currentStatus = getCurrentStatus()
+        const mood = getMood()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSocialFeedPanel(false)}>
+            <div className="bg-slate-900 border border-sky-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 social-feed-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sky-300 text-lg font-bold">👥 Social Activity Feed</span>
+                <button onClick={() => setShowSocialFeedPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Status + Mood */}
+              <div className="bg-slate-800/50 rounded-lg p-2.5 mb-4 r48-status-bar">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-slate-400 text-[10px] uppercase">Status</div>
+                    <div className="text-slate-200 text-[11px]">{currentStatus || 'No status set'}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-slate-400 text-[10px]">Mood</div>
+                    <div className="text-lg">{mood || '😊'}</div>
+                  </div>
+                </div>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-feed-stat">
+                  <div className="text-sky-400 text-lg font-bold">{stats.totalPosts}</div>
+                  <div className="text-slate-500 text-[9px]">Posts</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-feed-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{Object.keys(stats.byType || {}).length}</div>
+                  <div className="text-slate-500 text-[9px]">Types</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-feed-stat">
+                  <div className="text-amber-400 text-lg font-bold">{stats.averagePerDay}</div>
+                  <div className="text-slate-500 text-[9px]">Avg/Day</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-feed-stat">
+                  <div className="text-violet-400 text-lg font-bold">{stats.streakDays || 0}</div>
+                  <div className="text-slate-500 text-[9px]">Streak</div>
+                </div>
+              </div>
+              {/* Highlights */}
+              {highlights.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-amber-400 text-xs font-semibold uppercase tracking-wider">🌟 This Week Highlights</span>
+                  <div className="space-y-1 mt-1.5">
+                    {highlights.slice(0, 3).map((h: { id: string; type: string; data: Record<string, unknown> }, i: number) => (
+                      <div key={h.id || i} className="bg-amber-900/10 border border-amber-800/20 rounded-lg px-2.5 py-1.5 r48-highlight">
+                        <span className="text-amber-400 text-sm">{getActivityIcon(h.type)}</span>
+                        <span className="text-slate-300 text-[11px] ml-1">{formatActivity(h)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Activity Feed */}
+              <div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📋 Recent Activity</span>
+                <div className="space-y-1.5 mt-1.5 max-h-[200px] overflow-y-auto">
+                  {feed.slice(0, 10).map((a: { id: string; type: string; timestamp: number }, i: number) => (
+                    <div key={a.id || i} className="flex items-start gap-2 bg-slate-800/60 rounded-lg px-2.5 py-1.5 r48-feed-item">
+                      <span className="text-sm mt-0.5">{getActivityIcon(a.type)}</span>
+                      <div className="flex-1">
+                        <div className="text-slate-300 text-[11px]">{formatActivity(a)}</div>
+                        <div className="text-slate-500 text-[9px] mt-0.5">{new Date(a.timestamp).toLocaleDateString()}</div>
+                      </div>
+                      <button onClick={() => { addReaction(a.id, '👍'); toast({ title: 'Reacted!', description: '👍' }) }}
+                        className="text-[10px] px-1.5 py-0.5 bg-slate-700 hover:bg-sky-700/30 text-slate-300 rounded transition-all r48-react-btn">
+                        👍
+                      </button>
+                    </div>
+                  ))}
+                  {feed.length === 0 && (
+                    <div className="text-center py-4 text-slate-500 text-sm r48-empty-feed">No activity yet. Play some games!</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 48: Inventory System Panel */}
+      {showInventoryPanel && mounted && (() => {
+        const summary = getInventorySummary()
+        const balances = getBalances()
+        const cosmetics = getCosmetics()
+        const consumables = getConsumables()
+        const equipped = getEquippedCosmetics()
+        const materials = getMaterials()
+        const deals = getDailyShopDeals()
+        const wishlist = getWishlist()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowInventoryPanel(false)}>
+            <div className="bg-slate-900 border border-amber-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 inventory-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-amber-300 text-lg font-bold">🎒 Inventory</span>
+                <button onClick={() => setShowInventoryPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Currency Balances */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-currency">
+                  <div className="text-amber-400 text-lg font-bold">{balances.coins}</div>
+                  <div className="text-slate-500 text-[9px]">🪙 Coins</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-currency">
+                  <div className="text-violet-400 text-lg font-bold">{balances.gems}</div>
+                  <div className="text-slate-500 text-[9px]">💎 Gems</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-currency">
+                  <div className="text-sky-400 text-lg font-bold">{balances.stars}</div>
+                  <div className="text-slate-500 text-[9px]">⭐ Stars</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-currency">
+                  <div className="text-emerald-400 text-lg font-bold">{summary.totalItems}</div>
+                  <div className="text-slate-500 text-[9px]">Items</div>
+                </div>
+              </div>
+              {/* Equipped Cosmetics */}
+              {Object.keys(equipped).length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">✨ Equipped</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {Object.entries(equipped).map(([slot, item]: [string, { name: string; rarity: string }]) => (
+                      <span key={slot} className="bg-slate-800 text-[10px] px-2 py-1 rounded-lg r48-equipped" style={{ borderColor: getRarityColor(item.rarity), borderWidth: 1 }}>
+                        {item.name} <span className="text-slate-500">({slot})</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Consumables */}
+              {consumables.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🧪 Consumables</span>
+                  <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                    {consumables.slice(0, 4).map((c: { id: string; name: string; quantity: number }, i: number) => (
+                      <div key={c.id || i} className="bg-slate-800/60 rounded-lg px-2.5 py-1.5 flex justify-between items-center r48-consumable">
+                        <span className="text-slate-200 text-[11px]">{c.name}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-amber-400 text-[10px]">×{c.quantity}</span>
+                          <button onClick={() => { invUseConsumable(c.id); toast({ title: `Used ${c.name}` }) }}
+                            className="text-[9px] px-1.5 py-0.5 bg-emerald-700 text-white rounded transition-all active:scale-95">Use</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Materials */}
+              {materials.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⚙️ Materials</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {materials.slice(0, 6).map((m: { id: string; name: string; quantity: number }, i: number) => (
+                      <span key={m.id || i} className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded-lg r48-material">{m.name} ×{m.quantity}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Daily Deals */}
+              {deals.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🏪 Daily Deals</span>
+                  <div className="space-y-1 mt-1.5">
+                    {deals.slice(0, 3).map((d: { id: string; name: string; cost: number; discount: number }, i: number) => (
+                      <div key={d.id || i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r48-deal">
+                        <span className="text-slate-200 text-[11px]">{d.name}</span>
+                        <button onClick={() => { invPurchaseItem(d.id, 'coins', d.cost); toast({ title: `Bought ${d.name}` }) }}
+                          className="text-[10px] px-2 py-0.5 bg-amber-700 hover:bg-amber-600 text-white rounded transition-all active:scale-95">
+                          {d.discount ? `🛒 ${Math.round(d.cost * (1 - d.discount))} (-${Math.round(d.discount * 100)}%)` : `🛒 ${d.cost}`}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Wishlist */}
+              {wishlist.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💜 Wishlist ({wishlist.length})</span>
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {wishlist.slice(0, 5).map((w: string, i: number) => (
+                      <span key={i} className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded-full r48-wishlist">{w}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 48: World Map Explorer Panel */}
+      {showWorldMapPanel && mounted && (() => {
+        const overview = getWorldMapOverview()
+        const regions = getRegions()
+        const progress = getOverallProgress()
+        const currentReg = getCurrentRegion()
+        const events = getActiveEvents()
+        const loreCompletion = getLoreCompletion()
+        const recommended = getRecommendedPath()
+        const worldSummary = getWorldSummary()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWorldMapPanel(false)}>
+            <div className="bg-slate-900 border border-emerald-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 world-map-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-emerald-300 text-lg font-bold">🗺️ World Map Explorer</span>
+                <button onClick={() => setShowWorldMapPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* World Summary */}
+              {worldSummary && (
+                <div className="bg-gradient-to-r from-emerald-900/20 to-cyan-900/20 rounded-xl p-2.5 mb-4 border border-emerald-700/20 r48-world-summary">
+                  <div className="text-emerald-400 text-[10px] uppercase tracking-wider font-bold">📜 World Lore</div>
+                  <div className="text-slate-300 text-[11px] mt-1">{worldSummary.substring(0, 150)}{worldSummary.length > 150 ? '...' : ''}</div>
+                </div>
+              )}
+              {/* Progress */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-map-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{progress.completedLevels}/{progress.totalLevels}</div>
+                  <div className="text-slate-500 text-[9px]">Levels</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-map-stat">
+                  <div className="text-amber-400 text-lg font-bold">{progress.totalStars}</div>
+                  <div className="text-slate-500 text-[9px]">Stars</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-map-stat">
+                  <div className="text-cyan-400 text-lg font-bold">{progress.regionsExplored}</div>
+                  <div className="text-slate-500 text-[9px]">Regions</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r48-map-stat">
+                  <div className="text-violet-400 text-lg font-bold">{loreCompletion}%</div>
+                  <div className="text-slate-500 text-[9px]">Lore</div>
+                </div>
+              </div>
+              {/* Progress Bar */}
+              <div className="mb-4">
+                <div className="flex justify-between text-[10px] mb-1">
+                  <span className="text-slate-400">Overall Progress</span>
+                  <span className="text-emerald-400 font-bold">{progress.completionPercent}%</span>
+                </div>
+                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transition-all r48-progress-fill" style={{ width: `${Math.min(100, progress.completionPercent)}%` }} />
+                </div>
+              </div>
+              {/* Regions */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🌍 Regions</span>
+                <div className="space-y-1.5 mt-1.5">
+                  {regions.slice(0, 8).map(r => {
+                    const regProgress = getRegionProgress(r.id)
+                    return (
+                      <div key={r.id} className={`rounded-lg px-3 py-2 flex items-center justify-between r48-region-card ${currentReg === r.id ? 'bg-emerald-900/20 border border-emerald-700/30' : 'bg-slate-800/60'} ${!isRegionUnlocked(r.id) ? 'opacity-50' : ''}`}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm">{r.icon}</span>
+                            <span className="text-slate-200 text-[12px] font-semibold">{r.name}</span>
+                            {!isRegionUnlocked(r.id) && <span className="text-slate-500 text-[9px]">🔒</span>}
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-slate-500 text-[10px]">{regProgress.completedLevels}/{regProgress.totalLevels}</span>
+                            <div className="flex-1 max-w-[80px] h-1 bg-slate-700 rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, regProgress.completionPercent)}%` }} />
+                            </div>
+                            <span className="text-amber-400 text-[9px]">⭐ {regProgress.totalStars || 0}</span>
+                          </div>
+                        </div>
+                        {isRegionUnlocked(r.id) && (
+                          <button onClick={() => { setCurrentRegion(r.id); toast({ title: `Exploring: ${r.name}` }) }}
+                            className="ml-2 px-2 py-1 rounded text-[10px] font-bold transition-all active:scale-95 bg-emerald-700 hover:bg-emerald-600 text-white r48-explore-btn">
+                            Explore
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {/* Active Events */}
+              {events.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-amber-400 text-xs font-semibold uppercase tracking-wider">⚡ Active Events</span>
+                  <div className="space-y-1 mt-1.5">
+                    {events.slice(0, 3).map((e: { id: string; name: string; type: string, bonus: string }, i: number) => (
+                      <div key={e.id || i} className="bg-amber-900/10 border border-amber-800/20 rounded-lg px-2.5 py-1.5 r48-event">
+                        <span className="text-amber-300 text-[11px] font-semibold">{e.name}</span>
+                        <span className="text-slate-400 text-[10px] ml-2">{e.bonus}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Recommended Path */}
+              {recommended.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎯 Recommended Next</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {recommended.slice(0, 4).map((r: { name: string; difficulty: string }, i: number) => (
+                      <span key={i} className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded-lg r48-recommended">{r.name} <span className="text-slate-500">({r.difficulty})</span></span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )
