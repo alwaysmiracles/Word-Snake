@@ -54,6 +54,9 @@ import { shouldSpawnBoss, generateBoss, checkBossHit, getBossDrawInfo, getBossTi
 import { getBotSkin, getDefaultBotSkin, isBotSkinUnlocked, getUnlockedBotSkins, getSavedBotSkin, saveBotSkin, AI_BOT_SKINS, type AiBotSkin } from '@/lib/ai-bot-skins'
 import { getActiveSeasonalPacks, SEASONAL_CATEGORY_INFO, type SeasonalPack } from '@/lib/seasonal-packs'
 import { canStealPowerUp, executeSteal, createPvpPowerUpState, getStealDrawInfo, STEAL_INDICATOR_DURATION, type PvpPowerUpState, type StolenPowerUpEvent } from '@/lib/pvp-powerups'
+import { createEventFeed, addEvent, getRecentEvents, clearEvents, type GameEventFeed, type GameEvent, EVENT_STYLES } from '@/lib/game-event-feed'
+import { spawnEffect, updateParticles, drawParticles as drawPresetParticles, type ParticleEffect as PresetParticle, PRESET_EFFECTS } from '@/lib/particle-effects'
+import { spawnMovingObstacles, updateMovingObstacles, checkMovingObstacleCollision, drawMovingObstacles, serializeMovingObstacles, deserializeMovingObstacles, resetMovingObstacleIds, type MovingObstacle } from '@/lib/moving-obstacles'
 import { shouldSpawnScramble, generateScramble, checkScrambleAnswer, getScrambleResult, isScrambleExpired, SCRAMBLE_TIME_LIMIT, type WordScramble } from '@/lib/word-scramble'
 import { getCoinBalance, addCoins, getShopItems, purchaseItem, hasItem, consumeItem, formatCoins, SHOP_ITEMS, COIN_REWARD, type CoinBalance, type ShopItem } from '@/lib/coin-shop'
 import { checkExtraAchievements, getExtraAchievementProgress, getExtraAchievementsUnlocked, EXTRA_ACHIEVEMENTS, type ExtraAchievement } from '@/lib/achievements-extra'
@@ -512,6 +515,11 @@ export default function SnakeGame() {
   const [aiBotActive, setAiBotActive] = useState(false)
   const floatingTextsRef = useRef<FloatingText[]>([])
   const particlesRef = useRef<Particle[]>([])
+  const presetParticlesRef = useRef<PresetParticle[]>([])
+  const eventFeedRef = useRef<GameEventFeed>(createEventFeed(50))
+  const [eventFeedUpdate, setEventFeedUpdate] = useState(0) // trigger re-renders for event feed
+  const movingObstaclesRef = useRef<MovingObstacle[]>([])
+  const [showEventFeed, setShowEventFeed] = useState(true)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -706,6 +714,8 @@ export default function SnakeGame() {
     const wasEmpty = achievementQueue.isEmpty() && !gameStateRef.current.lastAchievement
     for (const a of newlyUnlocked) {
       achievementQueue.enqueue(a)
+      emitEvent('achievement', `${a.emoji} ${a.title}`, '🏆', '#eab308')
+      emitPresetParticles(CANVAS_WIDTH / 2, 50, 'achievement_unlock')
     }
     if (wasEmpty) {
       showNextAchievement()
@@ -717,6 +727,19 @@ export default function SnakeGame() {
     if (gameStateRef.current.soundEnabled) {
       soundFn()
     }
+  }, [])
+
+  // Emit event to the game event feed
+  const emitEvent = useCallback((type: string, message: string, emoji?: string, color?: string) => {
+    const event = addEvent(eventFeedRef.current, { type, message, emoji, color })
+    setEventFeedUpdate(n => n + 1)
+    return event
+  }, [])
+
+  // Spawn preset-based particle effects
+  const emitPresetParticles = useCallback((x: number, y: number, presetName: string) => {
+    const newParticles = spawnEffect(x, y, presetName)
+    presetParticlesRef.current.push(...newParticles)
   }, [])
 
   const spawnFloatingText = useCallback((text: string, x: number, y: number, color: string) => {
@@ -853,6 +876,10 @@ export default function SnakeGame() {
     p2DirectionQueueRef.current = []
     floatingTextsRef.current = []
     particlesRef.current = []
+    presetParticlesRef.current = []
+    clearEvents(eventFeedRef.current)
+    resetMovingObstacleIds()
+    movingObstaclesRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     setActiveEasterEggs([])
@@ -920,6 +947,10 @@ export default function SnakeGame() {
     p2DirectionQueueRef.current = []
     floatingTextsRef.current = []
     particlesRef.current = []
+    presetParticlesRef.current = []
+    clearEvents(eventFeedRef.current)
+    resetMovingObstacleIds()
+    movingObstaclesRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     setActiveEasterEggs([])
@@ -2054,6 +2085,18 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
+    // Draw preset-based particle effects (from particle-effects.ts)
+    if (presetParticlesRef.current.length > 0) {
+      const dt = 1 / 60
+      presetParticlesRef.current = updateParticles(presetParticlesRef.current, dt)
+      drawPresetParticles(ctx, presetParticlesRef.current)
+    }
+
+    // Draw moving obstacles
+    if (movingObstaclesRef.current.length > 0) {
+      drawMovingObstacles(ctx, movingObstaclesRef.current, CELL_SIZE, Date.now() / 1000)
+    }
+
     // Draw easter egg confetti particles
     const eeParticles = easterEggParticlesRef.current
     for (let i = eeParticles.length - 1; i >= 0; i--) {
@@ -2778,6 +2821,10 @@ export default function SnakeGame() {
     p2DirectionQueueRef.current = []
     floatingTextsRef.current = []
     particlesRef.current = []
+    presetParticlesRef.current = []
+    clearEvents(eventFeedRef.current)
+    resetMovingObstacleIds()
+    movingObstaclesRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     resetVisualizer()
@@ -3144,12 +3191,15 @@ export default function SnakeGame() {
             const hx = gs.snake[0].x * CELL_SIZE + CELL_SIZE / 2
             const hy = gs.snake[0].y * CELL_SIZE + CELL_SIZE / 2
             spawnParticles(hx, hy, '#ef4444', 20)
+            emitPresetParticles(hx, hy, 'death')
           }
           if (p2Died) {
             const hx = pvp.player2Snake[0].x * CELL_SIZE + CELL_SIZE / 2
             const hy = pvp.player2Snake[0].y * CELL_SIZE + CELL_SIZE / 2
             spawnParticles(hx, hy, '#06b6d4', 20)
+            emitPresetParticles(hx, hy, 'death')
           }
+          emitEvent('pvp', `PvP ${pvp.winner === 'tie' ? 'Tie!' : `${pvp.winner === 'player1' ? 'P1' : 'P2'} wins!`}`, '⚔️', '#fb923c')
           playSound(playGameOverSound)
           updateUI()
           draw()
@@ -3426,6 +3476,8 @@ export default function SnakeGame() {
         const hx = snake[0].x * CELL_SIZE + CELL_SIZE / 2
         const hy = snake[0].y * CELL_SIZE + CELL_SIZE / 2
         spawnParticles(hx, hy, '#ef4444', 20)
+        emitPresetParticles(hx, hy, 'death')
+        emitEvent('death', `Game Over! Score: ${gs.score}, Words: ${gs.wordsEaten}`, '💀', '#ef4444')
         playSound(playGameOverSound)
 
         // Save daily challenge result if applicable
@@ -3626,6 +3678,24 @@ export default function SnakeGame() {
         }
       }
 
+      // Check moving obstacle collision
+      if (movingObstaclesRef.current.length > 0) {
+        const movCollision = checkMovingObstacleCollision(head, movingObstaclesRef.current)
+        if (movCollision.collided) {
+          const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+          if (hasShield) {
+            const shieldIdx = gs.activePowerUps.findIndex(p => p.type === 'shield')
+            if (shieldIdx >= 0) gs.activePowerUps.splice(shieldIdx, 1)
+            spawnFloatingText('Shield blocked!', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
+          } else {
+            handleDeath()
+            draw()
+            animFrameRef.current = requestAnimationFrame(gameLoop)
+            return
+          }
+        }
+      }
+
       // Check portal teleport
       if (!gs.isDailyChallenge && gs.portalPairs.length > 0) {
         const teleportResult = checkPortalTeleport(head, gs.portalPairs, Date.now())
@@ -3634,6 +3704,8 @@ export default function SnakeGame() {
           head.y = teleportResult.destination.y
           spawnFloatingText('\u{1F300} Teleport!', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#a855f7')
           spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#a855f7', 15)
+          emitPresetParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, 'portal_enter')
+          emitEvent('portal_teleport', 'Teleported through portal!', '🌀', '#06b6d4')
         }
       }
 
@@ -3658,6 +3730,8 @@ export default function SnakeGame() {
             try { localStorage.setItem('word-snake-boss-defeats', String(bossDefeatsRef.current)) } catch {}
             spawnFloatingText('\u{1F480} BOSS DEFEATED! +' + reward, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40, '#f59e0b')
             spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#f59e0b', 30)
+            emitPresetParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 'boss_defeat')
+            emitEvent('boss_hit', `Boss "${gs.boss.word}" defeated! +${reward} pts, +${bossCoinReward} coins`, '💥', '#ef4444')
             // Remove boss after animation
             setTimeout(() => { gs.boss = null; bossRef.current = null; updateUI() }, 1500)
           } else {
@@ -3775,6 +3849,10 @@ export default function SnakeGame() {
           }
           spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 12)
           spawnParticles(wx, wy + CELL_SIZE / 2, '#4ade80', 8)
+          // Emit preset particle effect for word eating
+          emitPresetParticles(wx, wy + CELL_SIZE / 2, 'word_eat')
+          // Emit event to feed
+          emitEvent('word_eaten', `Ate "${wordFood.word}" +${comboPoints}`, '📝', catColor)
           // Spawn combo VFX particles on combo increase
           const comboVfxConfig = getComboVfx(gs.comboMultiplier)
           if (comboVfxConfig.particleCount > 0) {
@@ -3786,6 +3864,8 @@ export default function SnakeGame() {
             const ct = getComboTextConfig(gs.comboMultiplier)
             spawnFloatingText(`${ct.emoji} ${ct.text}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80, ct.color)
             spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, ct.color, comboVfxConfig.particleCount)
+            emitPresetParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 'combo_fire')
+            emitEvent('combo', `${ct.emoji} ${ct.text}! (×${gs.comboMultiplier.toFixed(1)})`, '🔥', '#f97316')
           }
           playSound(playEatSound)
 
@@ -3798,6 +3878,8 @@ export default function SnakeGame() {
 
               // Show floating text on canvas
               spawnFloatingText(`🥚 ${egg.message}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20, '#fbbf24')
+              emitPresetParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 'easter_egg')
+              emitEvent('easter_egg', `${egg.emoji} ${egg.name}: ${egg.description}`, '🥚', '#c084fc')
 
               // Show toast notification
               toast({
@@ -3876,6 +3958,8 @@ export default function SnakeGame() {
             spawnFloatingText(`${newDifficulty.label}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40, newDifficulty.glowColor)
             spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, newDifficulty.color, 20)
             spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, newDifficulty.glowColor, 15)
+            emitPresetParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 'level_up')
+            emitEvent('level_up', `Level ${newDifficulty.level}: ${newDifficulty.label}`, '📈', '#8b5cf6')
           } else if (prevLevel === 0) {
             prevInGameDiffLevelRef.current = newDifficulty.level
           }
@@ -4018,6 +4102,18 @@ export default function SnakeGame() {
               gs.obstacles.push(...newObs)
             }
           }
+          // Spawn moving obstacles (after eating 8 words, max 3 moving obstacles)
+          if (gs.wordsEaten >= 8 && movingObstaclesRef.current.length < 3 && Math.random() < 0.003) {
+            const newMovingObs = spawnMovingObstacles(1, GRID_WIDTH, GRID_HEIGHT, gs.snake, gs.obstacles)
+            movingObstaclesRef.current.push(...newMovingObs)
+            if (newMovingObs.length > 0) {
+              emitEvent('obstacle_hit', `Moving obstacle appeared! (${movingObstaclesRef.current.length} active)`, '🧱', '#94a3b8')
+            }
+          }
+          // Update moving obstacles
+          if (movingObstaclesRef.current.length > 0) {
+            movingObstaclesRef.current = updateMovingObstacles(movingObstaclesRef.current, 1/60, Date.now() / 1000)
+          }
           // Spawn portal pairs
           if (shouldSpawnPortal(gs.wordsEaten)) {
             const maxPairs = getMaxPortalPairs(gs.wordsEaten)
@@ -4091,6 +4187,8 @@ export default function SnakeGame() {
           spawnFloatingText(config.emoji, px, py - 10, config.color)
           spawnFloatingText(config.label, px, py - 30, config.color)
           spawnParticles(px, py, config.color, 15)
+          emitPresetParticles(px, py, 'powerup_collect')
+          emitEvent('powerup', `${config.emoji} ${config.label} activated!`, '⚡', config.color)
           playSound(playPowerUpSound)
           gs.powerUp = null
           trackPowerUpCollected()
@@ -4356,6 +4454,10 @@ export default function SnakeGame() {
     directionQueueRef.current = []
     floatingTextsRef.current = []
     particlesRef.current = []
+    presetParticlesRef.current = []
+    clearEvents(eventFeedRef.current)
+    resetMovingObstacleIds()
+    movingObstaclesRef.current = []
     collectedWordsRef.current = new Set()
     setLeaderboardRank(0)
     gs.isDailyChallenge = false
@@ -5202,6 +5304,8 @@ export default function SnakeGame() {
                                 gs.coinBalance = getCoinBalance().coins
                                 spawnFloatingText(formatQuizBonus(result.bonusPoints), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#a855f7')
                                 spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#a855f7', 20)
+                                emitPresetParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 'quiz_correct')
+                                emitEvent('quiz_correct', `Quiz correct! +${result.bonusPoints} bonus (streak: ${quizStreakRef.current})`, '🎯', '#a855f7')
                               } else {
                                 quizStreakRef.current = 0
                                 gs.quizStreak = 0
@@ -5606,6 +5710,40 @@ export default function SnakeGame() {
       {/* Word Collection Sidebar - collapsible on mobile */}
       <div className={`w-full lg:w-72 shrink-0 ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
         <Card className="border-slate-700 bg-slate-900 h-full ring-1 ring-slate-700/50">
+          {/* Game Event Feed */}
+          <div className="border-b border-slate-700/50">
+            <div className="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-slate-800/40 transition-colors" onClick={() => setShowEventFeed(!showEventFeed)}>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">📋</span>
+                <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Live Feed</span>
+                <span className="pulse-dot w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="secondary" className="bg-slate-800/60 text-slate-400 border-slate-600/30 text-[10px] px-1.5">
+                  {eventFeedRef.current.events.length}
+                </Badge>
+                <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${showEventFeed ? 'rotate-180' : ''}`} />
+              </div>
+            </div>
+            {showEventFeed && (
+              <div className="px-3 pb-2 max-h-48 overflow-y-auto scrollbar-thin space-y-0.5">
+                {getRecentEvents(eventFeedRef.current, 15).reverse().map((ev, i) => (
+                  <div
+                    key={ev.id}
+                    className={`flex items-start gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-300 ${i === 0 ? 'event-feed-slide bg-slate-800/60' : 'opacity-70'} ${ev.priority === 'critical' ? 'event-feed-critical feed-priority-critical' : ev.priority === 'high' ? 'event-feed-high feed-priority-high' : ''}`}
+                  >
+                    <span className="text-sm shrink-0 mt-0.5">{ev.emoji}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-slate-300 leading-tight truncate" style={{ color: ev.color }}>{ev.message}</p>
+                    </div>
+                  </div>
+                ))}
+                {eventFeedRef.current.events.length === 0 && (
+                  <p className="text-xs text-slate-600 text-center py-2">No events yet...</p>
+                )}
+              </div>
+            )}
+          </div>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-amber-400 text-base flex items-center gap-2">

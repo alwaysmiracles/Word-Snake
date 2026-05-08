@@ -1,5 +1,6 @@
 // Story / Adventure Mode – Level definitions, progress tracking, and objective checking
 import type { WordCategory } from '@/lib/word-pool'
+import { getWordEntry } from '@/lib/word-pool'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -667,7 +668,7 @@ export function checkLevelObjective(
 
       // ch4-l3 "Full Spectrum" — empty words list means "2 per category"
       if (specificWords.length === 0) {
-        const { getWordEntry } = require('@/lib/word-pool')
+        // getWordEntry already imported at top of file
         const categoryCounts: Partial<Record<WordCategory, number>> = {}
         let categoriesCovered = 0
 

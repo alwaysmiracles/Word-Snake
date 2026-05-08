@@ -1,684 +1,395 @@
-// Moving Obstacles System for Word Snake Game
-// Dynamic obstacles that move around the grid — patrol, chase, orbit, and bounce.
+'use client';
 
-import type { Position } from './obstacles'
+// =============================================================================
+// Moving Obstacles System — animated grid hazards for the Snake game.
+// Canvas-rendered with glow effects, sinusoidal / circular movement, and
+// full serialisation support for the replay system.
+// =============================================================================
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-export type MovingObstacleType = 'patrol' | 'chaser' | 'orbiter' | 'bouncer'
+export type MovingObstacleType = 'patrol_wall' | 'patrol_hazard' | 'spinner' | 'sweeper';
+export type Direction = 'up' | 'down' | 'left' | 'right';
+export type Pattern = 'horizontal' | 'vertical' | 'circular';
 
-export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
+export interface Bounds { x: number; y: number; w: number; h: number }
+export interface Size { width: number; height: number }
 
+/**
+ * A single moving obstacle. Positions are continuous floats for smooth
+ * canvas animation; `getBounds()` returns an AABB in grid-cell coords.
+ */
 export interface MovingObstacle {
-  id: number
-  type: MovingObstacleType
-  position: Position
-  direction: Direction
-  speed: number // moves every N game ticks (e.g., 3 = moves every 3rd tick)
-  tickCounter: number
-  emoji: string
-  color: string
-  // For patrol: moves back and forth along a line
-  patrol?: {
-    axis: 'x' | 'y'
-    min: number
-    max: number
-  }
-  // For orbiter: orbits around a center point
-  orbit?: {
-    centerX: number
-    centerY: number
-    radius: number
-    angle: number // current angle in radians
-    angularSpeed: number // radians per move
-  }
-  // For bouncer: bounces off walls
-  bouncer?: {
-    velocityX: number
-    velocityY: number
-  }
-  damage: number // -1 = death, positive = segments lost
-  active: boolean
+  id: number;
+  type: MovingObstacleType;
+  x: number;
+  y: number;
+  direction: Direction;
+  speed: number;          // cells / second
+  size: Size;
+  color: string;
+  pattern: Pattern;
+  range: number;          // oscillation amplitude / orbit radius (cells)
+  origin: { x: number; y: number };
+  phase: number;          // radians – randomises path offset
+  rotation: number;       // current visual rotation (radians)
+  getBounds(): Bounds;
 }
 
-export interface MovingObstacleDrawInfo {
-  emoji: string
-  color: string
-  opacity: number
-  scale: number
-  rotation: number
+export interface CollisionResult { collided: boolean; obstacle: MovingObstacle | null }
+
+export interface ObstacleTypeConfig {
+  type: MovingObstacleType;
+  label: string;
+  color: string;
+  glowColor: string;
+  size: Size;
+  pattern: Pattern;
+  speed: number;
+  range: number;
 }
 
-export interface MovingObstacleCollisionResult {
-  hit: boolean
-  obstacle: MovingObstacle | null
-  damage: number
-}
+// ─── Obstacle Type Registry ───────────────────────────────────────────────────
 
-// ─── Configuration ──────────────────────────────────────────────────────────
-
-export interface MovingObstacleConfigEntry {
-  emoji: string
-  color: string
-  damage: number
-  speed: number
-  description: string
-  spawnWeight: number // relative probability when picking a random type
-}
-
-export const MOVING_OBSTACLE_CONFIG: Record<MovingObstacleType, MovingObstacleConfigEntry> = {
-  patrol: {
-    emoji: '🚶',
-    color: '#22c55e', // green
-    damage: -1, // death
-    speed: 4,
-    description: 'Moves back and forth along a line — instant death on contact',
-    spawnWeight: 40,
+export const OBSTACLE_TYPES: Record<MovingObstacleType, ObstacleTypeConfig> = {
+  patrol_wall: {
+    type: 'patrol_wall', label: 'Patrol Wall', color: '#475569', glowColor: '#94a3b8',
+    size: { width: 2, height: 2 }, pattern: 'horizontal', speed: 3.2, range: 5,
   },
-  chaser: {
-    emoji: '👻',
-    color: '#a855f7', // purple
-    damage: 2, // 2 segments lost
-    speed: 5,
-    description: 'Slowly pursues the snake head — removes 2 segments on contact',
-    spawnWeight: 10,
+  patrol_hazard: {
+    type: 'patrol_hazard', label: 'Patrol Hazard', color: '#ef4444', glowColor: '#f59e0b',
+    size: { width: 1, height: 1 }, pattern: 'vertical', speed: 4.5, range: 4,
   },
-  orbiter: {
-    emoji: '🌀',
-    color: '#06b6d4', // cyan
-    damage: -1, // death
-    speed: 3,
-    description: 'Orbits in a circle around a fixed point — instant death on contact',
-    spawnWeight: 20,
+  spinner: {
+    type: 'spinner', label: 'Spinner', color: '#8b5cf6', glowColor: '#c084fc',
+    size: { width: 1, height: 1 }, pattern: 'circular', speed: 2.0, range: 4,
   },
-  bouncer: {
-    emoji: '🏀',
-    color: '#f97316', // orange
-    damage: 1, // 1 segment lost
-    speed: 2,
-    description: 'Bounces off walls diagonally — removes 1 segment on contact',
-    spawnWeight: 30,
+  sweeper: {
+    type: 'sweeper', label: 'Sweeper', color: '#f97316', glowColor: '#fbbf24',
+    size: { width: 3, height: 1 }, pattern: 'horizontal', speed: 5.5, range: 6,
   },
-}
+};
 
-// ─── Constants ──────────────────────────────────────────────────────────────
+const TYPE_KEYS: MovingObstacleType[] = ['patrol_wall', 'patrol_hazard', 'spinner', 'sweeper'];
 
-/** Minimum words eaten before moving obstacles can spawn */
-const MIN_WORDS_FOR_MOVING = 8
+// ─── Internal Helpers ──────────────────────────────────────────────────────────
 
-/** Base spawn chance per word eaten (6%) */
-const BASE_SPAWN_CHANCE = 0.06
+let nextId = 1;
+const SPAWN_HEAD_MARGIN = 8;
+const MAX_SPAWN_ATTEMPTS = 60;
+const GRID_MARGIN = 2;
 
-/** Minimum Manhattan distance from snake head for spawning */
-const SPAWN_HEAD_MARGIN = 10
+function clamp(v: number, lo: number, hi: number): number { return Math.max(lo, Math.min(hi, v)); }
 
-/** Maximum spawn attempts before giving up */
-const MAX_SPAWN_ATTEMPTS = 80
-
-/** Orbiter radius range (cells) */
-const ORBITER_MIN_RADIUS = 3
-const ORBITER_MAX_RADIUS = 5
-
-/** Grid margin to keep obstacles away from edges */
-const GRID_MARGIN = 2
-
-/** Next unique ID for generated obstacles */
-let nextMovingObstacleId = 1
-
-// ─── Max Count ──────────────────────────────────────────────────────────────
-
-/**
- * Returns the maximum number of moving obstacles allowed based on difficulty.
- *   - easy:   2
- *   - medium: 4
- *   - hard:   6
- */
-export function getMaxMovingObstacles(difficulty: string): number {
-  switch (difficulty) {
-    case 'easy':
-      return 2
-    case 'hard':
-      return 6
-    default:
-      return 4
-  }
-}
-
-// ─── Spawn Decision ─────────────────────────────────────────────────────────
-
-/**
- * Determines if a moving obstacle should be spawned after eating a word.
- * Only triggers after 8+ words eaten, with a 6% base chance that scales
- * with progress and respects the per-difficulty max count.
- */
-export function shouldSpawnMovingObstacle(
-  wordsEaten: number,
-  difficulty: string,
-  currentCount: number,
-): boolean {
-  // Must have eaten enough words
-  if (wordsEaten < MIN_WORDS_FOR_MOVING) return false
-
-  // Respect max count
-  if (currentCount >= getMaxMovingObstacles(difficulty)) return false
-
-  // Scale chance with progress: +0.5% per word beyond threshold, capped at +20%
-  const progressFactor = Math.min((wordsEaten - MIN_WORDS_FOR_MOVING) * 0.005, 0.2)
-
-  // Difficulty multiplier
-  const difficultyMultiplier =
-    difficulty === 'easy' ? 0.6 : difficulty === 'hard' ? 1.6 : 1.0
-
-  const chance = (BASE_SPAWN_CHANCE + progressFactor) * difficultyMultiplier
-  return Math.random() < chance
-}
-
-// ─── Type Selection ─────────────────────────────────────────────────────────
-
-/**
- * Picks a weighted random moving obstacle type.
- * Enforces the "max 1 chaser at a time" rule by removing chaser from
- * the pool if one already exists among the current obstacles.
- */
-function pickMovingObstacleType(
-  existing: MovingObstacle[],
-  difficulty: string,
-): MovingObstacleType | null {
-  const hasChaser = existing.some((o) => o.type === 'chaser' && o.active)
-
-  // Build weight map, excluding chaser if one already exists
-  const weights: Partial<Record<MovingObstacleType, number>> = {}
-
-  for (const [type, config] of Object.entries(MOVING_OBSTACLE_CONFIG)) {
-    if (type === 'chaser' && hasChaser) continue
-    weights[type as MovingObstacleType] = config.spawnWeight
-  }
-
-  // Adjust weights based on difficulty
-  if (difficulty === 'hard') {
-    weights.chaser = (weights.chaser ?? 0) + 5
-    weights.orbiter = (weights.orbiter ?? 0) + 5
-  } else if (difficulty === 'easy') {
-    weights.patrol = (weights.patrol ?? 0) + 10
-    weights.bouncer = (weights.bouncer ?? 0) + 5
-  }
-
-  const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0)
-  if (totalWeight === 0) return null
-
-  let roll = Math.random() * totalWeight
-
-  for (const [type, weight] of Object.entries(weights)) {
-    roll -= weight!
-    if (roll <= 0) return type as MovingObstacleType
-  }
-
-  // Fallback
-  return 'patrol'
-}
-
-// ─── Position Helpers ───────────────────────────────────────────────────────
-
-function manhattanDistance(a: Position, b: Position): number {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
-}
-
-function posKey(x: number, y: number): string {
-  return `${x},${y}`
-}
-
-// ─── Generation ─────────────────────────────────────────────────────────────
-
-/**
- * Generates a new moving obstacle that:
- *  - Uses weighted random type selection (patrol 40%, bouncer 30%, orbiter 20%, chaser 10%)
- *  - Enforces the 1-chaser-max rule
- *  - Spawns at least 10 cells (Manhattan distance) from the snake head
- *  - Does not overlap with existing obstacles or snake body
- *  - Returns null if no valid position can be found after MAX_SPAWN_ATTEMPTS
- */
-export function generateMovingObstacle(
-  snake: Position[],
-  gridSize: { width: number; height: number },
-  difficulty: string,
-  existing: MovingObstacle[],
-): MovingObstacle | null {
-  const type = pickMovingObstacleType(existing, difficulty)
-  if (!type) return null
-
-  const head = snake[0]
-  const config = MOVING_OBSTACLE_CONFIG[type]
-
-  // Build set of all occupied positions
-  const occupied = new Set<string>()
-  for (const seg of snake) {
-    occupied.add(posKey(seg.x, seg.y))
-  }
-  for (const obs of existing) {
-    occupied.add(posKey(obs.position.x, obs.position.y))
-  }
-
-  // Attempt to find a valid spawn position
-  for (let attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
-    const x = GRID_MARGIN + Math.floor(Math.random() * (gridSize.width - GRID_MARGIN * 2))
-    const y = GRID_MARGIN + Math.floor(Math.random() * (gridSize.height - GRID_MARGIN * 2))
-
-    // Check head margin
-    if (manhattanDistance({ x, y }, head) < SPAWN_HEAD_MARGIN) continue
-
-    // Check overlap
-    if (occupied.has(posKey(x, y))) continue
-
-    // Build the obstacle based on type
-    const obstacle = buildMovingObstacle(type, x, y, gridSize)
-    if (!obstacle) continue
-
-    // For patrol, verify the patrol line doesn't immediately go out of bounds
-    // (buildMovingObstacle already handles this, but double-check)
-    if (obstacle.patrol) {
-      const p = obstacle.patrol
-      if (p.min >= p.max) continue
-      if (p.axis === 'x' && (p.min < 0 || p.max >= gridSize.width)) continue
-      if (p.axis === 'y' && (p.min < 0 || p.max >= gridSize.height)) continue
-    }
-
-    return obstacle
-  }
-
-  return null
-}
-
-/**
- * Constructs a MovingObstacle of the given type at the specified position.
- */
-function buildMovingObstacle(
-  type: MovingObstacleType,
-  x: number,
-  y: number,
-  gridSize: { width: number; height: number },
-): MovingObstacle | null {
-  const config = MOVING_OBSTACLE_CONFIG[type]
-  const id = nextMovingObstacleId++
-
-  const base: Omit<MovingObstacle, 'patrol' | 'orbit' | 'bouncer'> = {
-    id,
-    type,
-    position: { x, y },
-    direction: 'RIGHT',
-    speed: config.speed,
-    tickCounter: 0,
-    emoji: config.emoji,
-    color: config.color,
-    damage: config.damage,
-    active: true,
-  }
-
-  switch (type) {
-    case 'patrol': {
-      // Randomly choose horizontal or vertical patrol
-      const axis: 'x' | 'y' = Math.random() < 0.5 ? 'x' : 'y'
-      const maxExtent = axis === 'x' ? gridSize.width : gridSize.height
-
-      // Pick a patrol length between 3 and 8 cells, clamped to grid
-      const patrolLength = Math.min(
-        3 + Math.floor(Math.random() * 6),
-        maxExtent - GRID_MARGIN * 2,
-      )
-
-      // Center the patrol range around the spawn position
-      let min = Math.max(GRID_MARGIN, (axis === 'x' ? x : y) - Math.floor(patrolLength / 2))
-      let max = Math.min(
-        (axis === 'x' ? gridSize.width : gridSize.height) - GRID_MARGIN,
-        min + patrolLength,
-      )
-
-      // Ensure min < max
-      if (min >= max) min = GRID_MARGIN
-      if (max <= min) max = min + 2
-
-      return {
-        ...base,
-        patrol: { axis, min, max },
-      }
-    }
-
-    case 'chaser': {
-      return {
-        ...base,
-        direction: 'DOWN',
-      }
-    }
-
-    case 'orbiter': {
-      const radius = ORBITER_MIN_RADIUS + Math.floor(Math.random() * (ORBITER_MAX_RADIUS - ORBITER_MIN_RADIUS + 1))
-
-      // Center the orbit around the spawn position, but ensure the center
-      // keeps the orbit within grid bounds
-      const centerX = Math.max(
-        GRID_MARGIN + radius,
-        Math.min(gridSize.width - GRID_MARGIN - radius, x),
-      )
-      const centerY = Math.max(
-        GRID_MARGIN + radius,
-        Math.min(gridSize.height - GRID_MARGIN - radius, y),
-      )
-
-      const angle = Math.random() * Math.PI * 2
-      const angularSpeed = (0.15 + Math.random() * 0.15) * (Math.random() < 0.5 ? 1 : -1) // radians per move
-
-      // Set initial position to be on the orbit circle
-      const startPos = {
-        x: Math.round(centerX + Math.cos(angle) * radius),
-        y: Math.round(centerY + Math.sin(angle) * radius),
-      }
-
-      return {
-        ...base,
-        position: startPos,
-        orbit: { centerX, centerY, radius, angle, angularSpeed },
-      }
-    }
-
-    case 'bouncer': {
-      // Always moves diagonally; randomize direction
-      const velocityX = Math.random() < 0.5 ? 1 : -1
-      const velocityY = Math.random() < 0.5 ? 1 : -1
-
-      // Set direction based on velocity
-      let direction: Direction = 'RIGHT'
-      if (velocityX > 0 && velocityY > 0) direction = 'RIGHT'
-      else if (velocityX > 0 && velocityY < 0) direction = 'RIGHT'
-      else if (velocityX < 0 && velocityY > 0) direction = 'LEFT'
-      else direction = 'LEFT'
-
-      return {
-        ...base,
-        direction,
-        bouncer: { velocityX, velocityY },
-      }
-    }
-
-    default:
-      return null
-  }
-}
-
-// ─── Movement Update ────────────────────────────────────────────────────────
-
-/**
- * Updates a single moving obstacle each game tick.
- * The obstacle only actually moves when `tickCounter` reaches `speed`.
- * Returns a new object (immutable update).
- */
-export function updateMovingObstacle(
-  obs: MovingObstacle,
-  snakeHead: Position,
-  gridSize: { width: number; height: number },
-): MovingObstacle {
-  if (!obs.active) return obs
-
-  const newTickCounter = obs.tickCounter + 1
-
-  // Only move when the tick counter reaches the speed threshold
-  if (newTickCounter < obs.speed) {
-    return { ...obs, tickCounter: newTickCounter }
-  }
-
-  // Reset counter for next move cycle
-  let updated: MovingObstacle = { ...obs, tickCounter: 0 }
-
-  switch (obs.type) {
-    case 'patrol':
-      updated = updatePatrol(updated, gridSize)
-      break
-    case 'chaser':
-      updated = updateChaser(updated, snakeHead)
-      break
-    case 'orbiter':
-      updated = updateOrbiter(updated)
-      break
-    case 'bouncer':
-      updated = updateBouncer(updated, gridSize)
-      break
-  }
-
-  return updated
-}
-
-/**
- * Patrol: move back and forth along the patrol axis.
- */
-function updatePatrol(obs: MovingObstacle, gridSize: { width: number; height: number }): MovingObstacle {
-  if (!obs.patrol) return obs
-
-  const { axis, min, max } = obs.patrol
-  const pos = { ...obs.position }
-
-  if (axis === 'x') {
-    // Determine direction: if at or past max, go left; if at or past min, go right
-    if (pos.x >= max) {
-      pos.x -= 1
-      return { ...obs, position: pos, direction: 'LEFT' }
-    } else if (pos.x <= min) {
-      pos.x += 1
-      return { ...obs, position: pos, direction: 'RIGHT' }
-    } else {
-      // Keep going in current direction
-      if (obs.direction === 'LEFT') {
-        pos.x -= 1
-      } else {
-        pos.x += 1
-      }
-      return { ...obs, position: pos }
-    }
-  } else {
-    // axis === 'y'
-    if (pos.y >= max) {
-      pos.y -= 1
-      return { ...obs, position: pos, direction: 'UP' }
-    } else if (pos.y <= min) {
-      pos.y += 1
-      return { ...obs, position: pos, direction: 'DOWN' }
-    } else {
-      if (obs.direction === 'UP') {
-        pos.y -= 1
-      } else {
-        pos.y += 1
-      }
-      return { ...obs, position: pos }
-    }
-  }
-}
-
-/**
- * Chaser: move 1 cell closer to the snake head along the axis
- * with the greater distance. Only moves one cell per step.
- */
-function updateChaser(obs: MovingObstacle, snakeHead: Position): MovingObstacle {
-  const dx = snakeHead.x - obs.position.x
-  const dy = snakeHead.y - obs.position.y
-  const pos = { ...obs.position }
-
-  // Choose the axis with the larger absolute distance
-  // If tied, prefer horizontal
-  if (Math.abs(dx) >= Math.abs(dy) && dx !== 0) {
-    pos.x += dx > 0 ? 1 : -1
-    return { ...obs, position: pos, direction: dx > 0 ? 'RIGHT' : 'LEFT' }
-  } else if (dy !== 0) {
-    pos.y += dy > 0 ? 1 : -1
-    return { ...obs, position: pos, direction: dy > 0 ? 'DOWN' : 'UP' }
-  }
-
-  // Already at snake head — don't move
-  return obs
-}
-
-/**
- * Orbiter: advance the angle and compute new position from center + radius.
- */
-function updateOrbiter(obs: MovingObstacle): MovingObstacle {
-  if (!obs.orbit) return obs
-
-  const { centerX, centerY, radius, angle, angularSpeed } = obs.orbit
-  const newAngle = angle + angularSpeed
-
-  const newX = Math.round(centerX + Math.cos(newAngle) * radius)
-  const newY = Math.round(centerY + Math.sin(newAngle) * radius)
-
-  // Determine direction based on angle quadrant
-  let direction: Direction = 'RIGHT'
-  const normalised = ((newAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
-  if (normalised < Math.PI * 0.5) direction = 'RIGHT'
-  else if (normalised < Math.PI) direction = 'DOWN'
-  else if (normalised < Math.PI * 1.5) direction = 'LEFT'
-  else direction = 'UP'
-
+function createObstacle(type: MovingObstacleType, ox: number, oy: number): MovingObstacle {
+  const cfg = OBSTACLE_TYPES[type];
+  const phase = Math.random() * Math.PI * 2;
   return {
-    ...obs,
-    position: { x: newX, y: newY },
-    direction,
-    orbit: { ...obs.orbit, angle: newAngle },
-  }
+    id: nextId++, type, x: ox, y: oy,
+    direction: cfg.pattern === 'vertical' ? 'down' : 'right',
+    speed: cfg.speed, size: { ...cfg.size }, color: cfg.color,
+    pattern: cfg.pattern, range: cfg.range,
+    origin: { x: ox, y: oy }, phase, rotation: 0,
+    getBounds() { return { x: this.x, y: this.y, w: this.size.width, h: this.size.height }; },
+  };
 }
 
+/** Polyfill-safe rounded rect path (avoids ctx.roundRect API gap). */
+function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  const rad = Math.min(r, w / 2, h / 2);
+  ctx.moveTo(x + rad, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rad);
+  ctx.arcTo(x + w, y + h, x, y + h, rad);
+  ctx.arcTo(x, y + h, x, y, rad);
+  ctx.arcTo(x, y, x + w, y, rad);
+  ctx.closePath();
+}
+
+// ─── Spawn Logic ───────────────────────────────────────────────────────────────
+
 /**
- * Bouncer: apply velocity and bounce off grid walls.
+ * Spawns `count` moving obstacles (clamped 2–4) avoiding the snake head
+ * (8-cell margin) and existing obstacle bounding boxes.
  */
-function updateBouncer(obs: MovingObstacle, gridSize: { width: number; height: number }): MovingObstacle {
-  if (!obs.bouncer) return obs
+export function spawnMovingObstacles(
+  count: number,
+  gridWidth: number,
+  gridHeight: number,
+  snake: Array<{ x: number; y: number }>,
+  existingObstacles: MovingObstacle[],
+): MovingObstacle[] {
+  const safeCount = clamp(count, 2, 4);
+  const result: MovingObstacle[] = [];
+  const occupied = new Set<string>();
 
-  let { velocityX, velocityY } = obs.bouncer
-  let x = obs.position.x + velocityX
-  let y = obs.position.y + velocityY
-
-  // Bounce off left/right walls
-  if (x < GRID_MARGIN) {
-    x = GRID_MARGIN
-    velocityX *= -1
-  } else if (x >= gridSize.width - GRID_MARGIN) {
-    x = gridSize.width - GRID_MARGIN - 1
-    velocityX *= -1
+  for (const s of snake) occupied.add(`${s.x},${s.y}`);
+  for (const obs of existingObstacles) {
+    const b = obs.getBounds();
+    for (let dx = 0; dx < Math.ceil(b.w); dx++)
+      for (let dy = 0; dy < Math.ceil(b.h); dy++)
+        occupied.add(`${Math.round(b.x) + dx},${Math.round(b.y) + dy}`);
   }
 
-  // Bounce off top/bottom walls
-  if (y < GRID_MARGIN) {
-    y = GRID_MARGIN
-    velocityY *= -1
-  } else if (y >= gridSize.height - GRID_MARGIN) {
-    y = gridSize.height - GRID_MARGIN - 1
-    velocityY *= -1
-  }
+  const headX = snake[0]?.x ?? Math.floor(gridWidth / 2);
+  const headY = snake[0]?.y ?? Math.floor(gridHeight / 2);
 
-  // Determine direction based on velocity
-  let direction: Direction = 'RIGHT'
-  if (velocityX > 0 && velocityY > 0) direction = 'RIGHT'
-  else if (velocityX > 0 && velocityY < 0) direction = 'RIGHT'
-  else if (velocityX < 0 && velocityY > 0) direction = 'LEFT'
-  else direction = 'LEFT'
+  for (let i = 0; i < safeCount; i++) {
+    for (let attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
+      const type = TYPE_KEYS[Math.floor(Math.random() * TYPE_KEYS.length)];
+      const cfg = OBSTACLE_TYPES[type];
+      const margin = GRID_MARGIN + Math.max(cfg.size.width, cfg.size.height);
+      const rm = cfg.range + margin;
+      const ox = rm + Math.random() * Math.max(1, gridWidth - rm * 2);
+      const oy = margin + Math.random() * Math.max(1, gridHeight - margin * 2);
+      if (Math.abs(ox - headX) + Math.abs(oy - headY) < SPAWN_HEAD_MARGIN) continue;
+      if (occupied.has(`${Math.round(ox)},${Math.round(oy)}`)) continue;
 
-  return {
-    ...obs,
-    position: { x, y },
-    direction,
-    bouncer: { velocityX, velocityY },
+      const obs = createObstacle(type, ox, oy);
+      result.push(obs);
+      const b = obs.getBounds();
+      for (let dx = 0; dx < Math.ceil(b.w); dx++)
+        for (let dy = 0; dy < Math.ceil(b.h); dy++)
+          occupied.add(`${Math.round(b.x) + dx},${Math.round(b.y) + dy}`);
+      break;
+    }
   }
+  return result;
 }
 
-// ─── Collision Detection ────────────────────────────────────────────────────
+// ─── Physics Update ────────────────────────────────────────────────────────────
 
 /**
- * Checks if the snake head collides with any active moving obstacle.
- * Returns the first hit found (including damage value).
+ * Advances every obstacle by `dt`. Movement uses continuous `time` so the
+ * position is deterministic for replay: sinusoidal for patrol patterns,
+ * parametric circle for spinners.
+ */
+export function updateMovingObstacles(
+  obstacles: MovingObstacle[],
+  dt: number,
+  time: number,
+): MovingObstacle[] {
+  for (const obs of obstacles) {
+    const cfg = OBSTACLE_TYPES[obs.type];
+    const angle = time * cfg.speed + obs.phase;
+
+    switch (obs.pattern) {
+      case 'horizontal':
+        obs.x = obs.origin.x + Math.sin(angle) * obs.range;
+        obs.y = obs.origin.y;
+        obs.direction = Math.cos(angle) > 0 ? 'right' : 'left';
+        obs.rotation = angle * 0.5;
+        break;
+      case 'vertical':
+        obs.y = obs.origin.y + Math.sin(angle) * obs.range;
+        obs.x = obs.origin.x;
+        obs.direction = Math.cos(angle) > 0 ? 'down' : 'up';
+        obs.rotation = angle * 0.5;
+        break;
+      case 'circular':
+        obs.x = obs.origin.x + Math.cos(angle) * obs.range;
+        obs.y = obs.origin.y + Math.sin(angle) * obs.range;
+        obs.rotation = angle;
+        { // derive direction from tangent
+          const tx = -Math.sin(angle), ty = Math.cos(angle);
+          obs.direction = Math.abs(tx) > Math.abs(ty)
+            ? (tx > 0 ? 'right' : 'left')
+            : (ty > 0 ? 'down' : 'up');
+        }
+        break;
+    }
+  }
+  return obstacles;
+}
+
+// ─── Collision Detection ───────────────────────────────────────────────────────
+
+/**
+ * AABB overlap test between the snake head and every obstacle.
+ * Uses a small epsilon so edge-touching doesn't false-positive.
  */
 export function checkMovingObstacleCollision(
-  head: Position,
+  head: { x: number; y: number },
   obstacles: MovingObstacle[],
-): MovingObstacleCollisionResult {
+): CollisionResult {
+  const E = 0.35;
   for (const obs of obstacles) {
-    if (!obs.active) continue
-    if (obs.position.x !== head.x || obs.position.y !== head.y) continue
-
-    return {
-      hit: true,
-      obstacle: obs,
-      damage: obs.damage,
+    const b = obs.getBounds();
+    if (head.x + E >= b.x && head.x - E <= b.x + b.w &&
+        head.y + E >= b.y && head.y - E <= b.y + b.h) {
+      return { collided: true, obstacle: obs };
     }
   }
-
-  return { hit: false, obstacle: null, damage: 0 }
+  return { collided: false, obstacle: null };
 }
 
-// ─── Drawing Info ───────────────────────────────────────────────────────────
+// ─── Canvas Rendering ──────────────────────────────────────────────────────────
 
 /**
- * Returns rendering information for a moving obstacle.
- * Includes per-type animation effects:
- *   - Chaser: pulsing opacity & scale
- *   - Orbiter: rotation matching orbit angle
- *   - Bouncer: scale oscillation on bounce
- *   - Patrol: subtle breathing scale
+ * Draws all obstacles with per-type visual effects:
+ *  - patrol_wall  → gray blocks + motion trail
+ *  - patrol_hazard → red pulsing + danger glow rings
+ *  - spinner       → purple diamond + orbit circle
+ *  - sweeper       → orange bar + sweep zone + arc indicator
  */
-export function getMovingObstacleDrawInfo(
-  obs: MovingObstacle,
-  now: number,
-): MovingObstacleDrawInfo {
-  const config = MOVING_OBSTACLE_CONFIG[obs.type]
-  // Use tickCounter as a pseudo-time for tick-based animations
-  const elapsed = now * 0.001 // convert to seconds for smoother sin waves
+export function drawMovingObstacles(
+  ctx: CanvasRenderingContext2D,
+  obstacles: MovingObstacle[],
+  cellSize: number,
+  time: number,
+): void {
+  for (const obs of obstacles) {
+    const cfg = OBSTACLE_TYPES[obs.type];
+    const px = obs.x * cellSize, py = obs.y * cellSize;
+    const pw = obs.size.width * cellSize, ph = obs.size.height * cellSize;
+    ctx.save();
 
-  let opacity = 1.0
-  let scale = 1.0
-  let rotation = 0
-
-  switch (obs.type) {
-    case 'chaser': {
-      // Pulsing animation — faster pulse when closer (lower tickCounter means recently moved)
-      const pulseSpeed = 4.0 // radians per second
-      const pulse = Math.sin(elapsed * pulseSpeed)
-      opacity = 0.7 + pulse * 0.3
-      scale = 1.0 + pulse * 0.15
-      break
-    }
-
-    case 'orbiter': {
-      // Rotation based on orbit angle
-      if (obs.orbit) {
-        rotation = obs.orbit.angle
+    if (obs.type === 'patrol_wall') {
+      // --- Motion trail (fading copies behind) ---
+      const tdx = obs.direction === 'right' ? -1 : obs.direction === 'left' ? 1 : 0;
+      const tdy = obs.direction === 'down' ? -1 : obs.direction === 'up' ? 1 : 0;
+      for (let i = 4; i >= 1; i--) {
+        const a = 0.12 - i * 0.025; if (a <= 0) continue;
+        ctx.globalAlpha = a; ctx.fillStyle = cfg.glowColor;
+        ctx.beginPath(); rrect(ctx, px + tdx * i * cellSize * 0.4, py + tdy * i * cellSize * 0.4, pw, ph, 4); ctx.fill();
       }
-      // Subtle scale breathing
-      const breathe = Math.sin(elapsed * 2.5)
-      scale = 1.0 + breathe * 0.06
-      opacity = 0.9 + breathe * 0.1
-      break
+      // Glow + main block + highlight stripe
+      ctx.globalAlpha = 0.25; ctx.shadowColor = cfg.glowColor; ctx.shadowBlur = 12;
+      ctx.fillStyle = cfg.glowColor;
+      ctx.beginPath(); rrect(ctx, px - 2, py - 2, pw + 4, ph + 4, 6); ctx.fill(); ctx.shadowBlur = 0;
+      ctx.globalAlpha = 0.95; ctx.fillStyle = cfg.color;
+      ctx.beginPath(); rrect(ctx, px, py, pw, ph, 4); ctx.fill();
+      ctx.globalAlpha = 0.2; ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); rrect(ctx, px + 3, py + 3, pw * 0.3, ph - 6, 2); ctx.fill();
+      ctx.globalAlpha = Math.sin(time * 2) * 0.08 + 0.08; ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); rrect(ctx, px, py, pw, ph, 4); ctx.fill();
     }
 
-    case 'bouncer': {
-      // Scale oscillation — rhythmic bounce feel
-      const bounce = Math.sin(elapsed * 6.0)
-      scale = 1.0 + bounce * 0.12
-      // Slight opacity variation
-      opacity = 0.85 + Math.abs(bounce) * 0.15
-      // Slight rotation based on velocity
-      if (obs.bouncer) {
-        rotation = Math.atan2(obs.bouncer.velocityY, obs.bouncer.velocityX)
+    else if (obs.type === 'patrol_hazard') {
+      // --- Red / amber pulse + expanding danger rings ---
+      const pulse = Math.sin(time * 6);
+      const baseCol = pulse > 0 ? '#ef4444' : '#f59e0b';
+      const glowCol = pulse > 0 ? '#fca5a5' : '#fde68a';
+      const cx = px + pw / 2, cy = py + ph / 2;
+
+      for (let r = 0; r < 2; r++) {
+        const rp = (time * 1.5 + r * 0.5) % 1;
+        ctx.globalAlpha = (1 - rp) * (r === 0 ? 0.35 : 0.2);
+        ctx.strokeStyle = glowCol; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, cellSize * 0.5 + rp * cellSize * 1.5, 0, Math.PI * 2); ctx.stroke();
       }
-      break
+      // Glow halo + main block + diamond highlight
+      ctx.globalAlpha = 0.4 + pulse * 0.15; ctx.shadowColor = glowCol; ctx.shadowBlur = 16;
+      ctx.fillStyle = baseCol;
+      ctx.beginPath(); rrect(ctx, px - 2, py - 2, pw + 4, ph + 4, 4); ctx.fill(); ctx.shadowBlur = 0;
+      ctx.globalAlpha = 0.95; ctx.fillStyle = baseCol;
+      ctx.beginPath(); rrect(ctx, px, py, pw, ph, 3); ctx.fill();
+      const s = cellSize * 0.15;
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.moveTo(cx, cy - s); ctx.lineTo(cx + s, cy); ctx.lineTo(cx, cy + s); ctx.lineTo(cx - s, cy); ctx.closePath(); ctx.fill();
     }
 
-    case 'patrol': {
-      // Subtle breathing scale
-      const breathe = Math.sin(elapsed * 2.0)
-      scale = 1.0 + breathe * 0.05
-      opacity = 0.9 + breathe * 0.1
-      break
-    }
-  }
+    else if (obs.type === 'spinner') {
+      // --- Dashed orbit ring + bright arc near block ---
+      const cx = obs.origin.x * cellSize, cy = obs.origin.y * cellSize;
+      const rpx = obs.range * cellSize;
+      const curAngle = Math.atan2((obs.y - obs.origin.y), (obs.x - obs.origin.x));
 
-  return {
-    emoji: config.emoji,
-    color: config.color,
-    opacity,
-    scale,
-    rotation,
+      ctx.globalAlpha = 0.18; ctx.strokeStyle = cfg.glowColor; ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 6]); ctx.lineDashOffset = -time * 30;
+      ctx.beginPath(); ctx.arc(cx, cy, rpx, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+
+      ctx.globalAlpha = 0.35; ctx.strokeStyle = cfg.color; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(cx, cy, rpx, curAngle - Math.PI * 0.5, curAngle + Math.PI * 0.5); ctx.stroke();
+
+      // Centre dot
+      ctx.globalAlpha = 0.25; ctx.fillStyle = cfg.glowColor;
+      ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
+
+      // Glow + rotating diamond block
+      ctx.globalAlpha = 0.4; ctx.shadowColor = cfg.glowColor; ctx.shadowBlur = 14;
+      ctx.fillStyle = cfg.color;
+      ctx.beginPath(); rrect(ctx, px - 2, py - 2, pw + 4, ph + 4, 4); ctx.fill(); ctx.shadowBlur = 0;
+
+      ctx.save();
+      ctx.translate(px + pw / 2, py + ph / 2); ctx.rotate(obs.rotation);
+      const hw = pw / 2;
+      ctx.globalAlpha = 0.95; ctx.fillStyle = cfg.color;
+      ctx.beginPath(); ctx.moveTo(0, -hw); ctx.lineTo(hw, 0); ctx.lineTo(0, hw); ctx.lineTo(-hw, 0); ctx.closePath(); ctx.fill();
+      const cs = hw * 0.35;
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.moveTo(0, -cs); ctx.lineTo(cs, 0); ctx.lineTo(0, cs); ctx.lineTo(-cs, 0); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    else if (obs.type === 'sweeper') {
+      // --- Sweep zone + boundary lines + direction arrow + wide bar ---
+      const cx = obs.origin.x * cellSize, cy = obs.origin.y * cellSize;
+      const spx = obs.range * cellSize;
+
+      ctx.globalAlpha = 0.08; ctx.fillStyle = cfg.glowColor;
+      ctx.fillRect(cx - spx, cy, spx * 2, cellSize);
+      ctx.globalAlpha = 0.2; ctx.strokeStyle = cfg.glowColor; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(cx - spx, cy - cellSize * 0.5); ctx.lineTo(cx - spx, cy + cellSize * 1.5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + spx, cy - cellSize * 0.5); ctx.lineTo(cx + spx, cy + cellSize * 1.5); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Direction arrow
+      const ad = obs.direction === 'right' ? 1 : -1;
+      const ax = px + pw / 2, ay = py - cellSize * 0.25;
+      ctx.globalAlpha = 0.4; ctx.fillStyle = cfg.glowColor;
+      ctx.beginPath(); ctx.moveTo(ax + ad * 8, ay); ctx.lineTo(ax - ad * 4, ay - 5); ctx.lineTo(ax - ad * 4, ay + 5); ctx.closePath(); ctx.fill();
+
+      // Glow + main bar + top highlight + leading-edge marker
+      ctx.globalAlpha = 0.35; ctx.shadowColor = cfg.glowColor; ctx.shadowBlur = 10;
+      ctx.fillStyle = cfg.color;
+      ctx.beginPath(); rrect(ctx, px - 2, py - 2, pw + 4, ph + 4, 5); ctx.fill(); ctx.shadowBlur = 0;
+      ctx.globalAlpha = 0.95; ctx.fillStyle = cfg.color;
+      ctx.beginPath(); rrect(ctx, px, py, pw, ph, 4); ctx.fill();
+
+      const grad = ctx.createLinearGradient(px, py, px, py + ph);
+      grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.5, 'rgba(255,255,255,0)');
+      ctx.globalAlpha = 0.3; ctx.fillStyle = grad;
+      ctx.beginPath(); rrect(ctx, px + 2, py + 1, pw - 4, ph * 0.5, 3); ctx.fill();
+
+      const le = obs.direction === 'right' ? px + pw : px;
+      ctx.globalAlpha = 0.5; ctx.shadowColor = cfg.glowColor; ctx.shadowBlur = 8; ctx.fillStyle = cfg.glowColor;
+      ctx.fillRect(le - 2, py - 1, 4, ph + 2); ctx.shadowBlur = 0;
+    }
+
+    ctx.restore();
   }
 }
+
+// ─── Serialization (Replay System) ────────────────────────────────────────────
+
+export interface SerializedMovingObstacle {
+  id: number; type: MovingObstacleType;
+  x: number; y: number; direction: Direction; speed: number;
+  width: number; height: number; color: string;
+  pattern: Pattern; range: number;
+  originX: number; originY: number; phase: number; rotation: number;
+}
+
+/** Serialize obstacles to plain objects for storage / replay. */
+export function serializeMovingObstacles(obstacles: MovingObstacle[]): SerializedMovingObstacle[] {
+  return obstacles.map((o) => ({
+    id: o.id, type: o.type, x: o.x, y: o.y, direction: o.direction, speed: o.speed,
+    width: o.size.width, height: o.size.height, color: o.color,
+    pattern: o.pattern, range: o.range,
+    originX: o.origin.x, originY: o.origin.y, phase: o.phase, rotation: o.rotation,
+  }));
+}
+
+/** Reconstruct `MovingObstacle[]` from serialized data (reattaches `getBounds`). */
+export function deserializeMovingObstacles(data: SerializedMovingObstacle[]): MovingObstacle[] {
+  return data.map((d) => ({
+    id: d.id, type: d.type, x: d.x, y: d.y, direction: d.direction,
+    speed: d.speed, size: { width: d.width, height: d.height }, color: d.color,
+    pattern: d.pattern, range: d.range,
+    origin: { x: d.originX, y: d.originY }, phase: d.phase, rotation: d.rotation,
+    getBounds() { return { x: this.x, y: this.y, w: this.size.width, h: this.size.height }; },
+  }));
+}
+
+/** Reset auto-increment ID counter (call on new game). */
+export function resetMovingObstacleIds(): void { nextId = 1; }

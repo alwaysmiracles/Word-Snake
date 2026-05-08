@@ -2900,3 +2900,146 @@
 .pulse-dot {
   animation: pulse-dot 1.5s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Round 26 — 20 New CSS Animations (186 → 206)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. moving-obstacle-patrol — Back-and-forth patrol glow pulse */
+@keyframes moving-obstacle-patrol {
+  0%, 100% { box-shadow: 0 0 6px rgba(71, 85, 105, 0.5); }
+  50% { box-shadow: 0 0 14px rgba(71, 85, 105, 0.8), 0 0 24px rgba(71, 85, 105, 0.3); }
+}
+
+/* 2. moving-obstacle-hazard — Red danger pulsing ring */
+@keyframes moving-obstacle-hazard {
+  0%, 100% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.8), 0 0 20px rgba(249, 115, 22, 0.4); }
+}
+
+/* 3. moving-obstacle-spinner — Rotating purple orbit glow */
+@keyframes moving-obstacle-spinner {
+  0% { transform: rotate(0deg); box-shadow: 0 0 6px rgba(139, 92, 246, 0.5); }
+  50% { box-shadow: 0 0 16px rgba(139, 92, 246, 0.9); }
+  100% { transform: rotate(360deg); box-shadow: 0 0 6px rgba(139, 92, 246, 0.5); }
+}
+
+/* 4. moving-obstacle-sweeper — Orange sweep arc */
+@keyframes moving-obstacle-sweeper {
+  0%, 100% { background-position: 0% 50%; box-shadow: 0 0 6px rgba(249, 115, 22, 0.4); }
+  50% { background-position: 100% 50%; box-shadow: 0 0 14px rgba(249, 115, 22, 0.7); }
+}
+
+/* 5. event-feed-enter — Slide in from right with fade */
+@keyframes event-feed-enter {
+  0% { transform: translateX(30px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+/* 6. event-feed-exit — Slide out to left with fade */
+@keyframes event-feed-exit {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-20px); opacity: 0; }
+}
+
+/* 7. preset-particle-burst — Scale pop for particle spawn indicator */
+@keyframes preset-particle-burst {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* 8. shield-block-flash — Blue flash when shield blocks damage */
+@keyframes shield-block-flash {
+  0% { background: rgba(96, 165, 250, 0.4); }
+  50% { background: rgba(96, 165, 250, 0); }
+  100% { background: transparent; }
+}
+
+/* 9. danger-border-pulse — Red border pulse for low health warnings */
+@keyframes danger-border-pulse {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.2); }
+  50% { border-color: rgba(239, 68, 68, 0.7); }
+}
+
+/* 10. coin-bounce-earn — Bouncy coin animation on earn */
+@keyframes coin-bounce-earn {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(1.15); }
+  50% { transform: translateY(0) scale(0.95); }
+  70% { transform: translateY(-4px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* 11. feed-priority-critical — Red pulsing border for critical events */
+@keyframes feed-priority-critical {
+  0%, 100% { border-left-color: rgba(239, 68, 68, 0.6); background: rgba(239, 68, 68, 0.05); }
+  50% { border-left-color: rgba(239, 68, 68, 1); background: rgba(239, 68, 68, 0.12); }
+}
+
+/* 12. feed-priority-high — Amber pulsing border for high-priority events */
+@keyframes feed-priority-high {
+  0%, 100% { border-left-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.03); }
+  50% { border-left-color: rgba(245, 158, 11, 0.9); background: rgba(245, 158, 11, 0.08); }
+}
+
+/* 13. obstacle-warning-bar — Animated warning stripe */
+@keyframes obstacle-warning-bar {
+  0% { background-position: 0 0; }
+  100% { background-position: 30px 0; }
+}
+
+/* 14. portal-swirl-glow — Swirling cyan-purple glow for portal */
+@keyframes portal-swirl-glow {
+  0% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.6), 0 0 16px rgba(139, 92, 246, 0.3); transform: rotate(0deg); }
+  50% { box-shadow: 0 0 16px rgba(139, 92, 246, 0.6), 0 0 24px rgba(6, 182, 212, 0.3); transform: rotate(180deg); }
+  100% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.6), 0 0 16px rgba(139, 92, 246, 0.3); transform: rotate(360deg); }
+}
+
+/* 15. achievement-golden-ring — Golden expanding ring on achievement */
+@keyframes achievement-golden-ring {
+  0% { transform: scale(0.5); opacity: 0.9; box-shadow: 0 0 8px rgba(234, 179, 8, 0.8); }
+  100% { transform: scale(2.5); opacity: 0; box-shadow: 0 0 24px rgba(234, 179, 8, 0); }
+}
+
+/* 16. combo-fire-aura — Fiery aura pulsing behind combo text */
+@keyframes combo-fire-aura {
+  0%, 100% { text-shadow: 0 0 4px rgba(249, 115, 22, 0.4), 0 -2px 8px rgba(239, 68, 68, 0.3); }
+  33% { text-shadow: 0 0 12px rgba(234, 179, 8, 0.8), 0 -4px 16px rgba(249, 115, 22, 0.5); }
+  66% { text-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 -2px 12px rgba(234, 179, 8, 0.4); }
+}
+
+/* 17. boss-entrance-shake — Screen shake on boss appearance */
+@keyframes boss-entrance-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2px, 1px); }
+  20% { transform: translate(2px, -1px); }
+  30% { transform: translate(-1px, 2px); }
+  40% { transform: translate(1px, -2px); }
+  50% { transform: translate(-2px, 0px); }
+  60% { transform: translate(2px, 1px); }
+  70% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 2px); }
+  90% { transform: translate(0px, -2px); }
+}
+
+/* 18. quiz-correct-flash — Green flash for correct quiz answer */
+@keyframes quiz-correct-flash {
+  0% { background: rgba(34, 197, 94, 0.3); }
+  50% { background: rgba(34, 197, 94, 0.05); }
+  100% { background: transparent; }
+}
+
+/* 19. level-up-badge-pop — Badge pop for level up notification */
+@keyframes level-up-badge-pop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* 20. death-red-vignette — Red vignette flash on death */
+@keyframes death-red-vignette {
+  0% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0); }
+  30% { box-shadow: inset 0 0 80px 30px rgba(239, 68, 68, 0.35); }
+  100% { box-shadow: inset 0 0 0 0 rgba(239, 68, 68, 0); }
+}
