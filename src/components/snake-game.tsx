@@ -153,6 +153,11 @@ import { getMatchHistory as pvpGetHistory, getWinStats, getPlayerProfileSummary,
 import { getSeasonCalendar, getActiveSeason, browseAllSeasons, activateSeason, getInstalledPacks, getSeasonProgress, getSeasonRewards, getSeasonCountdown as scGetSeasonCountdown } from '@/lib/seasonal-content-wire'
 import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, validateWordList, exportAsWordPack as cwExportPack, getWordQueue, getModificationHistory, getRecommendations } from '@/lib/custom-words-manager-wire'
 import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme as atGetGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
+// Round 51: Friend System Wire, Pet Companion Wire, Weather Effects Wire, Trade Market Wire
+import { getFriends, addFriend, removeFriend, acceptFriend, rejectFriend, blockUser, unblockUser, getBlockedUsers, isFriend, getFriendRequests, getSentRequests, searchUsers, getOnlineFriends, getFriendActivity, sendMessage, getConversation, getUnreadCount, markAsRead, getRecentChats, compareWithFriend, getMutualFriends, getFriendLeaderboard, inviteToGame, getInviteStatus, getFriendSummary, getTopFriend, generateMockUsers, getFriendSuggestion, getFriendsOverview, getFriendCard, getChatPreview, getActivityFeed as frGetActivityFeed, getFriendStats } from '@/lib/friend-system-wire'
+import { getPet, getAvailablePets, adoptPet, switchPet, releasePet, getOwnedPets, feedPet, playWithPet, restPet, getPetLevel, getPetXP, addPetXP, getPetStats, getPetMood, getPetHunger, getPetEnergy, getPetAppearance, setPetAppearance, getPetAccessories, equipAccessory, getPetAbilities, usePetAbility, getPetEvolution, canEvolve, evolvePet, getPetBonds, addBond, getPetPersonality, getPetQuote, getPetMoodIcon, getPetDashboard, getPetCard, getAbilityCard, getAccessoryGrid, getEvolutionPreview } from '@/lib/pet-companion-wire'
+import { getWeatherState, setWeather, getAvailableWeathers, getWeatherForecast, advanceWeather, getWeatherDuration, getWeatherModifiers, getWeatherVisualConfig, isWeatherActive, getWeatherHistory, getWeatherStats, getWeatherAchievements, checkWeatherAchievements, getWeatherEvents, getActiveEvent, startEvent, getWeatherSeason, getSeasonalWeather, getSeasonBonus, getDayNightCycle, getTimeOfDay, getAmbientSounds as wxGetAmbientSounds, getWeatherParticles, getWeatherOverlay, getWeatherMultiplier, getWeatherStreak, getWeatherRecords, recordWeatherGame, getWeatherLeaderboard, getWeatherDashboard, getWeatherCard, getForecastTimeline, getSeasonCard, getWeatherComparison, getRareWeatherChance } from '@/lib/weather-effects-wire'
+import { getMarketListings, createListing, cancelListing, buyListing, placeBid, getMyListings, getTransactionHistory as mkGetTransactionHistory, getMarketCategories, filterListings, searchMarket, getPriceHistory, getItemValue, getMarketStats, getTrendingItems, getDailyDeals, getLimitedOffers, redeemCode, getRedeemedCodes, getGifts, sendGift, mkGetWishlist, addToWishlist as mkAddToWishlist, removeFromWishlist as mkRemoveFromWishlist, getPriceAlerts, setPriceAlert, checkPriceAlerts, getAuctionHouse, getBidHistory, getMyBids, getMarketOverview, getListingCard, getTransactionCard, getMarketGraph, getBundleDeals, getVendorSpecials } from '@/lib/trade-market-wire'
 // Round 49: Tournament Bracket Wire, Word Puzzle Wire, Progress Dashboard Wire, Controller Config Wire
 import { createTournament, getTournament, getActiveTournaments, generateBracket, getBracket, getMatch, reportMatchResult, advanceBracket, getTournamentStandings, joinTournament, getParticipants, getMyMatchups, getTournamentLeaderboard, getPlayerRanking, getWinRate, getBestStreak as tbbGetBestStreak, claimTournamentReward, getTournamentOverview, getBracketCard, getMatchCard, getMyStats as tbGetMyStats, getRecentResults, startQuickMatch, getQuickMatchStatus } from '@/lib/tournament-bracket-wire'
 import { generateCrossword, getCrosswordClues, checkCrosswordAnswer, getCrosswordProgress, generateAnagram, checkAnagram, generateWordSearch, getWordSearchWords, getWordSearchProgress, generateScramble as pzGenerateScramble, checkScrambleAnswer as pzCheckScrambleAnswer, getScrambleStats, startWordChain, isValidChainWord, getChainLength, getPuzzleStats, getPuzzleStreak, getBestScores, getDailyPuzzle as pzGetDailyPuzzle, getDailyPuzzleStreak, getPuzzleOverview, getAvailablePuzzles, getPuzzleCard, getQuickPuzzle, getDailyChallenge as pzGetDailyChallenge, getDifficultyDistribution, claimPuzzleReward, completeDailyPuzzle } from '@/lib/word-puzzle-wire'
@@ -943,6 +948,11 @@ export default function SnakeGame() {
   const [showSocialFeedPanel, setShowSocialFeedPanel] = useState(false)
   const [showInventoryPanel, setShowInventoryPanel] = useState(false)
   const [showWorldMapPanel, setShowWorldMapPanel] = useState(false)
+  // Round 51: Friend System, Pet Companion, Weather Effects, Trade Market panel states
+  const [showFriendsPanel, setShowFriendsPanel] = useState(false)
+  const [showPetPanel, setShowPetPanel] = useState(false)
+  const [showWeatherPanel, setShowWeatherPanel] = useState(false)
+  const [showMarketPanel, setShowMarketPanel] = useState(false)
   // Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config panel states
   const [showTournamentPanel, setShowTournamentPanel] = useState(false)
   const [showPuzzlePanel, setShowPuzzlePanel] = useState(false)
@@ -7927,6 +7937,42 @@ export default function SnakeGame() {
                     >
                       📊 Progress
                     </Button>
+                    {/* Round 51: Friend System Button */}
+                    <Button
+                      onClick={() => setShowFriendsPanel(!showFriendsPanel)}
+                      variant="outline"
+                      className="border-sky-500/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform friends-btn"
+                      title="Friends"
+                    >
+                      👥 Friends
+                    </Button>
+                    {/* Round 51: Pet Companion Button */}
+                    <Button
+                      onClick={() => setShowPetPanel(!showPetPanel)}
+                      variant="outline"
+                      className="border-rose-500/50 text-rose-400 hover:bg-rose-900/20 active:scale-95 transition-transform pet-btn"
+                      title="Pet Companion"
+                    >
+                      🐾 Pet
+                    </Button>
+                    {/* Round 51: Weather Effects Button */}
+                    <Button
+                      onClick={() => setShowWeatherPanel(!showWeatherPanel)}
+                      variant="outline"
+                      className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform weather-btn"
+                      title="Weather Effects"
+                    >
+                      🌦️ Weather
+                    </Button>
+                    {/* Round 51: Trade Market Button */}
+                    <Button
+                      onClick={() => setShowMarketPanel(!showMarketPanel)}
+                      variant="outline"
+                      className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-900/20 active:scale-95 transition-transform market-btn"
+                      title="Trade Market"
+                    >
+                      🏪 Market
+                    </Button>
                     {/* Round 49: Controller Config Button */}
                     <Button
                       onClick={() => setShowControllerPanel(!showControllerPanel)}
@@ -11831,6 +11877,419 @@ export default function SnakeGame() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 51: Friend System Panel */}
+      {showFriendsPanel && mounted && (() => {
+        const summary = getFriendSummary()
+        const friends = getFriends()
+        const online = getOnlineFriends()
+        const requests = getFriendRequests()
+        const recentChats = getRecentChats()
+        const leaderboard = getFriendLeaderboard()
+        const suggestion = getFriendSuggestion()
+        const unread = getUnreadCount()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFriendsPanel(false)}>
+            <div className="bg-slate-900 border border-sky-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 friends-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sky-300 text-lg font-bold">👥 Friends</span>
+                <button onClick={() => setShowFriendsPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-friend-stat">
+                  <div className="text-sky-400 text-lg font-bold">{summary.totalFriends}</div>
+                  <div className="text-slate-500 text-[9px]">Friends</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-friend-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{online.length}</div>
+                  <div className="text-slate-500 text-[9px]">Online</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-friend-stat">
+                  <div className="text-amber-400 text-lg font-bold">{requests.length}</div>
+                  <div className="text-slate-500 text-[9px]">Requests</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-friend-stat">
+                  <div className="text-rose-400 text-lg font-bold">{unread}</div>
+                  <div className="text-slate-500 text-[9px]">Unread</div>
+                </div>
+              </div>
+              {/* Friend Requests */}
+              {requests.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📨 Pending Requests</span>
+                  <div className="space-y-1.5 mt-1.5">
+                    {requests.slice(0, 3).map((r: { username: string; level: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-sky-900/10 border border-sky-800/20 rounded-lg px-3 py-2 r51-request-item">
+                        <div>
+                          <span className="text-sky-300 text-[11px] font-semibold">{r.username}</span>
+                          <span className="text-slate-500 text-[10px] ml-1.5">Lv.{r.level}</span>
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={() => { acceptFriend(r.username); toast({ title: `Accepted: ${r.username}` }) }}
+                            className="px-2 py-0.5 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] rounded transition-all active:scale-95">✓</button>
+                          <button onClick={() => { rejectFriend(r.username); toast({ title: `Rejected: ${r.username}` }) }}
+                            className="px-2 py-0.5 bg-rose-700 hover:bg-rose-600 text-white text-[10px] rounded transition-all active:scale-95">✕</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Online Friends */}
+              {online.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🟢 Online</span>
+                  <div className="space-y-1 mt-1.5">
+                    {online.slice(0, 4).map((f: { username: string; status: string; level: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-3 py-1.5 r51-online-friend">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                          <span className="text-slate-200 text-[11px]">{f.username}</span>
+                          <span className="text-slate-500 text-[10px]">Lv.{f.level}</span>
+                        </div>
+                        <button onClick={() => { inviteToGame(f.username); toast({ title: `Invited ${f.username}!` }) }}
+                          className="text-[10px] px-2 py-0.5 bg-sky-700 hover:bg-sky-600 text-white rounded transition-all active:scale-95 r51-action-btn">
+                          Invite
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Recent Chats */}
+              {recentChats.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💬 Recent Chats</span>
+                  <div className="space-y-1 mt-1.5">
+                    {recentChats.slice(0, 4).map((c: { username: string; lastMessage: string; unread: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-3 py-1.5 r51-chat-item">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-200 text-[11px] font-medium">{c.username}</span>
+                            {c.unread > 0 && <span className="bg-rose-600 text-white text-[9px] px-1.5 rounded-full">{c.unread}</span>}
+                          </div>
+                          <div className="text-slate-500 text-[10px] truncate">{c.lastMessage}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Leaderboard */}
+              {leaderboard.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🏅 Friends Leaderboard</span>
+                  <div className="space-y-1 mt-1.5">
+                    {leaderboard.slice(0, 5).map((p: { username: string; score: number; wins: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/40 rounded-lg px-2.5 py-1.5 r51-leaderboard-item">
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-400 text-[11px] font-bold">#{i + 1}</span>
+                          <span className="text-slate-200 text-[11px]">{p.username}</span>
+                        </div>
+                        <span className="text-sky-400 text-[10px] font-semibold">{p.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 51: Pet Companion Panel */}
+      {showPetPanel && mounted && (() => {
+        const pet = getPet()
+        const ownedPets = getOwnedPets()
+        const available = getAvailablePets()
+        const abilities = getPetAbilities()
+        const accessories = getPetAccessories()
+        const dashboard = getPetDashboard()
+        const moodIcon = getPetMoodIcon()
+        const personality = getPetPersonality()
+        const quote = getPetQuote()
+        const evolution = getPetEvolution()
+        const canEvo = canEvolve()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPetPanel(false)}>
+            <div className="bg-slate-900 border border-rose-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 pet-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-rose-300 text-lg font-bold">🐾 Pet Companion</span>
+                <button onClick={() => setShowPetPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Active Pet */}
+              {pet && (
+                <div className="bg-gradient-to-r from-rose-900/20 to-pink-900/20 border border-rose-700/20 rounded-xl p-3 mb-4 r51-pet-card">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">{moodIcon}</div>
+                      <div>
+                        <div className="text-white font-bold text-sm">{pet.name || 'No Pet'}</div>
+                        <div className="text-slate-400 text-[11px]">{pet.type} • Lv.{getPetLevel()} • {evolution}</div>
+                        <div className="text-slate-500 text-[10px] italic mt-0.5">"{quote}"</div>
+                      </div>
+                    </div>
+                    {canEvo && (
+                      <button onClick={() => { evolvePet(); toast({ title: 'Pet evolved!' }) }}
+                        className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-action-btn">
+                        ⬆️ Evolve
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-2 bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-rose-500 to-pink-400" style={{ width: `${(getPetXP() % 100)}%` }}></div>
+                  </div>
+                </div>
+              )}
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-pet-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{Math.round(getPetMood())}%</div>
+                  <div className="text-slate-500 text-[9px]">Mood</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-pet-stat">
+                  <div className="text-amber-400 text-lg font-bold">{Math.round(getPetHunger())}%</div>
+                  <div className="text-slate-500 text-[9px]">Hunger</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-pet-stat">
+                  <div className="text-sky-400 text-lg font-bold">{Math.round(getPetEnergy())}%</div>
+                  <div className="text-slate-500 text-[9px]">Energy</div>
+                </div>
+              </div>
+              {/* Care Actions */}
+              <div className="flex gap-2 mb-4">
+                <button onClick={() => { feedPet(); toast({ title: 'Pet fed! 🍖' }) }}
+                  className="flex-1 px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-care-btn">
+                  🍖 Feed
+                </button>
+                <button onClick={() => { playWithPet(); toast({ title: 'Playing with pet! 🎾' }) }}
+                  className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-care-btn">
+                  🎾 Play
+                </button>
+                <button onClick={() => { restPet(); toast({ title: 'Pet is resting... 💤' }) }}
+                  className="flex-1 px-3 py-2 bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-care-btn">
+                  💤 Rest
+                </button>
+              </div>
+              {/* Abilities */}
+              {abilities.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⚡ Abilities</span>
+                  <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                    {abilities.slice(0, 6).map((a: { id: string; name: string; icon: string, cooldown: number, unlocked: boolean }, i: number) => (
+                      <button key={a.id || i} onClick={() => { if (a.unlocked) { usePetAbility(a.id); toast({ title: `${a.icon} ${a.name}!` }) } }}
+                        className={`flex items-center gap-2 bg-slate-800/60 rounded-lg px-2.5 py-2 text-left transition-all active:scale-95 r51-ability-btn ${a.unlocked ? 'hover:bg-slate-700/60' : 'opacity-50'}`}>
+                        <span className="text-base">{a.icon}</span>
+                        <div>
+                          <div className="text-white text-[10px] font-medium">{a.name}</div>
+                          <div className="text-slate-500 text-[9px]">{a.unlocked ? 'Ready' : `Lv.${a.cooldown}`}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Owned Pets */}
+              <div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🐾 My Pets ({ownedPets.length})</span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {ownedPets.slice(0, 6).map((p: { name: string; type: string, active: boolean }, i: number) => (
+                    <button key={i} onClick={() => { switchPet(p.name); toast({ title: `Switched to ${p.name}` }) }}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all active:scale-95 r51-pet-badge ${p.active ? 'bg-rose-700 text-rose-100 ring-1 ring-rose-500' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 51: Weather Effects Panel */}
+      {showWeatherPanel && mounted && (() => {
+        const state = getWeatherState()
+        const forecast = getWeatherForecast()
+        const season = getWeatherSeason()
+        const stats = getWeatherStats()
+        const modifiers = getWeatherModifiers()
+        const leaderboard = getWeatherLeaderboard()
+        const dayNight = getDayNightCycle()
+        const multiplier = getWeatherMultiplier()
+        const comparison = getWeatherComparison()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWeatherPanel(false)}>
+            <div className="bg-slate-900 border border-cyan-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 weather-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-cyan-300 text-lg font-bold">🌦️ Weather System</span>
+                <button onClick={() => setShowWeatherPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Current Weather */}
+              <div className="bg-gradient-to-r from-cyan-900/20 to-blue-900/20 border border-cyan-700/20 rounded-xl p-3 mb-4 r51-weather-card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-cyan-400 text-[10px] uppercase tracking-wider font-bold">Current Weather</div>
+                    <div className="text-white font-bold text-lg mt-1">{state.type}</div>
+                    <div className="text-slate-400 text-[11px]">{season} • {dayNight.timeOfDay} • ×{multiplier.toFixed(1)} score</div>
+                  </div>
+                  <div className="text-3xl">{state.type === 'Rainy' ? '🌧️' : state.type === 'Snowy' ? '❄️' : state.type === 'Sunny' ? '☀️' : state.type === 'Stormy' ? '⛈️' : state.type === 'Foggy' ? '🌫️' : state.type === 'Aurora' ? '🌌' : state.type === 'Rainbow' ? '🌈' : '⛅'}</div>
+                </div>
+                <div className="flex gap-3 mt-2">
+                  <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">Speed: {modifiers.speed > 0 ? '+' : ''}{Math.round(modifiers.speed * 100)}%</span>
+                  <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">Visibility: {modifiers.visibility > 0 ? '+' : ''}{Math.round(modifiers.visibility * 100)}%</span>
+                  <span className="text-[10px] px-2 py-0.5 bg-cyan-800 rounded-full text-cyan-200">Score ×{multiplier.toFixed(1)}</span>
+                </div>
+              </div>
+              {/* Forecast */}
+              {forecast.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📅 Forecast</span>
+                  <div className="flex gap-2 mt-1.5 overflow-x-auto">
+                    {forecast.slice(0, 5).map((w: { type: string; duration: number }, i: number) => (
+                      <div key={i} className="flex-shrink-0 bg-slate-800/60 rounded-lg px-3 py-2 text-center r51-forecast-item min-w-[80px]">
+                        <div className="text-slate-400 text-[9px]">+{w.duration}m</div>
+                        <div className="text-white text-[11px] font-medium mt-0.5">{w.type}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={() => { advanceWeather(); toast({ title: 'Weather changed!' }) }}
+                    className="mt-2 w-full px-3 py-1.5 bg-cyan-800 hover:bg-cyan-700 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-action-btn">
+                    ⏩ Advance Weather
+                  </button>
+                </div>
+              )}
+              {/* Weather Stats */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-weather-stat">
+                  <div className="text-cyan-400 text-lg font-bold">{stats.gamesPlayed}</div>
+                  <div className="text-slate-500 text-[9px]">Games in Weather</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-weather-stat">
+                  <div className="text-amber-400 text-lg font-bold">{Object.keys(stats.timePerWeather || {}).length}</div>
+                  <div className="text-slate-500 text-[9px]">Weather Types</div>
+                </div>
+              </div>
+              {/* Weather Leaderboard */}
+              {leaderboard.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🏅 Weather Records</span>
+                  <div className="space-y-1 mt-1.5">
+                    {leaderboard.slice(0, 4).map((r: { weather: string; score: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r51-record-item">
+                        <span className="text-slate-200 text-[11px]">{r.weather}</span>
+                        <span className="text-cyan-400 text-[11px] font-bold">{r.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 51: Trade Market Panel */}
+      {showMarketPanel && mounted && (() => {
+        const listings = getMarketListings()
+        const overview = getMarketOverview()
+        const trending = getTrendingItems()
+        const deals = getDailyDeals()
+        const auctionItems = getAuctionHouse()
+        const categories = getMarketCategories()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMarketPanel(false)}>
+            <div className="bg-slate-900 border border-yellow-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 market-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-yellow-300 text-lg font-bold">🏪 Trade Market</span>
+                <button onClick={() => setShowMarketPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-market-stat">
+                  <div className="text-yellow-400 text-lg font-bold">{listings.length}</div>
+                  <div className="text-slate-500 text-[9px]">Listings</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-market-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{overview.totalVolume || 0}</div>
+                  <div className="text-slate-500 text-[9px]">Volume</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-market-stat">
+                  <div className="text-amber-400 text-lg font-bold">{trending.length}</div>
+                  <div className="text-slate-500 text-[9px]">Trending</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r51-market-stat">
+                  <div className="text-rose-400 text-lg font-bold">{auctionItems.length}</div>
+                  <div className="text-slate-500 text-[9px]">Auctions</div>
+                </div>
+              </div>
+              {/* Daily Deals */}
+              {deals.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔥 Daily Deals</span>
+                  <div className="grid grid-cols-3 gap-2 mt-1.5">
+                    {deals.slice(0, 3).map((d: { name: string; originalPrice: number, salePrice: number, rarity: string }, i: number) => (
+                      <div key={i} className="bg-amber-900/10 border border-amber-800/20 rounded-lg p-2.5 r51-deal-card">
+                        <div className="text-white text-[11px] font-semibold truncate">{d.name}</div>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-slate-500 text-[10px] line-through">{d.originalPrice}</span>
+                          <span className="text-amber-400 text-[11px] font-bold">{d.salePrice}</span>
+                        </div>
+                        <div className="text-[9px] mt-0.5 text-amber-500/70">{d.rarity}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Market Listings */}
+              {listings.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📋 Listings</span>
+                  <div className="space-y-1 mt-1.5 max-h-[150px] overflow-y-auto">
+                    {listings.slice(0, 5).map((l: { id: string; itemName: string, price: number, seller: string, rarity: string, type: string }, i: number) => (
+                      <div key={l.id || i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r51-listing-item">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-slate-200 text-[11px] font-medium truncate">{l.itemName}</div>
+                          <div className="text-slate-500 text-[9px]">{l.seller} • {l.type} • {l.rarity}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-yellow-400 text-[11px] font-bold">{l.price} 🪙</span>
+                          <button onClick={() => { buyListing(l.id); toast({ title: `Bought ${l.itemName}!` }) }}
+                            className="px-2 py-0.5 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] rounded transition-all active:scale-95 r51-action-btn">Buy</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Trending Items */}
+              {trending.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📈 Trending</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {trending.slice(0, 6).map((t: { name: string; change: number }, i: number) => (
+                      <span key={i} className={`bg-slate-800 text-[10px] px-2.5 py-1 rounded-lg r51-trend-badge ${t.change > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {t.name} {t.change > 0 ? '↑' : '↓'}{Math.abs(t.change)}%
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { createListing('item', 100, 'sell'); toast({ title: 'Listing created!' }) }}
+                  className="flex-1 px-3 py-2 bg-yellow-700 hover:bg-yellow-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-action-btn">
+                  📤 Sell Item
+                </button>
+                <button onClick={() => { const code = 'WSNK-' + Math.random().toString(36).slice(2, 8).toUpperCase(); redeemCode(code); toast({ title: `Code: ${code}` }) }}
+                  className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-action-btn">
+                  🎁 Redeem Code
+                </button>
+              </div>
             </div>
           </div>
         )

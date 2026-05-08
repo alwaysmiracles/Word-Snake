@@ -6316,3 +6316,83 @@
 .controller-panel .r49-setting-row { animation: r49-setting-row 0.25s ease-out both; }
 .controller-panel .r49-setting-row:nth-child(2) { animation-delay: 0.04s; }
 .controller-panel .r49-setting-row:nth-child(3) { animation-delay: 0.08s; }
+
+/* ===== Round 51: Friend System, Pet Companion, Weather Effects, Trade Market Animations ===== */
+@keyframes r51-friend-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.06) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes r51-request-item { 0% { opacity: 0; transform: translateX(-12px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes r51-online-friend { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes r51-chat-item { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes r51-leaderboard-item { 0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes r51-pet-card { 0% { opacity: 0; transform: scale(0.92); } 50% { transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes r51-pet-stat { 0% { opacity: 0; transform: scale(0.75) translateY(10px); } 65% { transform: scale(1.08) translateY(-1px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes r51-care-btn { 0% { transform: scale(1); } 50% { transform: scale(0.93); } 100% { transform: scale(1); } }
+@keyframes r51-ability-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes r51-pet-badge { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes r51-weather-card { 0% { opacity: 0; background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { opacity: 1; background-position: 50% 50%; } }
+@keyframes r51-forecast-item { 0% { opacity: 0; transform: translateY(8px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes r51-weather-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes r51-record-item { 0% { opacity: 0; transform: translateX(-6px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes r51-market-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.06); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes r51-deal-card { 0% { opacity: 0; transform: scale(0.9); } 50% { transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes r51-listing-item { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes r51-trend-badge { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes r51-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+@keyframes r51-online-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); } 50% { box-shadow: 0 0 0 4px rgba(52, 211, 153, 0); } }
+@keyframes r51-unread-badge { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+@keyframes r51-evolve-glow { 0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0); } 50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); } 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0); } }
+@keyframes r51-mood-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes r51-weather-shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+@keyframes r51-price-flash { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+@keyframes r51-market-pulse { 0%, 100% { border-color: rgba(234, 179, 8, 0.2); } 50% { border-color: rgba(234, 179, 8, 0.5); } }
+
+/* Round 51 animation assignments - Friends */
+.friends-panel .r51-friend-stat { animation: r51-friend-stat 0.4s ease-out both; }
+.friends-panel .r51-friend-stat:nth-child(2) { animation-delay: 0.05s; }
+.friends-panel .r51-friend-stat:nth-child(3) { animation-delay: 0.1s; }
+.friends-panel .r51-friend-stat:nth-child(4) { animation-delay: 0.15s; }
+.friends-panel .r51-request-item { animation: r51-request-item 0.3s ease-out both; }
+.friends-panel .r51-online-friend { animation: r51-online-friend 0.25s ease-out both; }
+.friends-panel .r51-online-friend:nth-child(2) { animation-delay: 0.05s; }
+.friends-panel .r51-chat-item { animation: r51-chat-item 0.25s ease-out both; }
+.friends-panel .r51-chat-item:nth-child(2) { animation-delay: 0.04s; }
+.friends-panel .r51-leaderboard-item { animation: r51-leaderboard-item 0.3s ease-out both; }
+.friends-panel .r51-action-btn { animation: r51-action-btn 0.2s ease-out; }
+.friends-panel .r51-action-btn:active { transform: scale(0.9); }
+
+/* Round 51 animation assignments - Pet */
+.pet-panel .r51-pet-card { animation: r51-pet-card 0.5s ease-out both; }
+.pet-panel .r51-pet-stat { animation: r51-pet-stat 0.4s ease-out both; }
+.pet-panel .r51-pet-stat:nth-child(2) { animation-delay: 0.06s; }
+.pet-panel .r51-care-btn { animation: r51-care-btn 0.2s ease-out; }
+.pet-panel .r51-care-btn:active { transform: scale(0.9); }
+.pet-panel .r51-ability-btn { animation: r51-ability-btn 0.3s ease-out both; }
+.pet-panel .r51-ability-btn:nth-child(2) { animation-delay: 0.04s; }
+.pet-panel .r51-ability-btn:nth-child(3) { animation-delay: 0.08s; }
+.pet-panel .r51-ability-btn:nth-child(4) { animation-delay: 0.12s; }
+.pet-panel .r51-pet-badge { animation: r51-pet-badge 0.3s ease-out both; }
+
+/* Round 51 animation assignments - Weather */
+.weather-panel .r51-weather-card { animation: r51-weather-card 0.6s ease-out both; }
+.weather-panel .r51-forecast-item { animation: r51-forecast-item 0.3s ease-out both; }
+.weather-panel .r51-forecast-item:nth-child(2) { animation-delay: 0.06s; }
+.weather-panel .r51-forecast-item:nth-child(3) { animation-delay: 0.12s; }
+.weather-panel .r51-weather-stat { animation: r51-weather-stat 0.4s ease-out both; }
+.weather-panel .r51-weather-stat:nth-child(2) { animation-delay: 0.06s; }
+.weather-panel .r51-record-item { animation: r51-record-item 0.25s ease-out both; }
+.weather-panel .r51-action-btn { animation: r51-action-btn 0.2s ease-out; }
+.weather-panel .r51-action-btn:active { transform: scale(0.9); }
+
+/* Round 51 animation assignments - Market */
+.market-panel .r51-market-stat { animation: r51-market-stat 0.4s ease-out both; }
+.market-panel .r51-market-stat:nth-child(2) { animation-delay: 0.05s; }
+.market-panel .r51-market-stat:nth-child(3) { animation-delay: 0.1s; }
+.market-panel .r51-market-stat:nth-child(4) { animation-delay: 0.15s; }
+.market-panel .r51-deal-card { animation: r51-deal-card 0.4s ease-out both; }
+.market-panel .r51-deal-card:nth-child(2) { animation-delay: 0.06s; }
+.market-panel .r51-listing-item { animation: r51-listing-item 0.25s ease-out both; }
+.market-panel .r51-listing-item:nth-child(2) { animation-delay: 0.04s; }
+.market-panel .r51-trend-badge { animation: r51-trend-badge 0.25s ease-out both; }
+.market-panel .r51-trend-badge:nth-child(2) { animation-delay: 0.03s; }
+.market-panel .r51-trend-badge:nth-child(3) { animation-delay: 0.06s; }
+.market-panel .r51-action-btn { animation: r51-action-btn 0.2s ease-out; }
+.market-panel .r51-action-btn:active { transform: scale(0.9); }
