@@ -5781,3 +5781,100 @@
 
 /* 25. r45-improvement-glow — Improvement/deterioration glow bar */
 @keyframes r45-improvement-glow { 0%,100%{box-shadow:0 0 4px rgba(16,185,129,0.3);} 50%{box-shadow:0 0 12px rgba(16,185,129,0.6);} }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Round 46: 25 New CSS Animations (749 total keyframes)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. r46-dict-wotd-glow — Word of the day gradient glow border */
+@keyframes r46-dict-wotd-glow { 0%,100%{border-color:rgba(99,102,241,0.3);} 50%{border-color:rgba(99,102,241,0.6);} }
+
+/* 2. r46-dict-stat-pop — Dictionary stat cell entrance pop */
+@keyframes r46-dict-stat-pop { 0%{transform:scale(0.7);opacity:0;} 70%{transform:scale(1.08);} 100%{transform:scale(1);opacity:1;} }
+.dict-stat-cell { animation: r46-dict-stat-pop 0.35s ease-out both; }
+.dict-stat-cell:nth-child(1){animation-delay:0s;} .dict-stat-cell:nth-child(2){animation-delay:0.06s;} .dict-stat-cell:nth-child(3){animation-delay:0.12s;}
+
+/* 3. r46-dict-recent-slide — Recent lookup item slide */
+@keyframes r46-dict-recent-slide { 0%{transform:translateX(-8px);opacity:0;} 100%{transform:translateX(0);opacity:1;} }
+.dict-recent-item { animation: r46-dict-recent-slide 0.3s ease-out both; }
+
+/* 4. r46-dict-speak-pulse — Speak button pulse ring */
+@keyframes r46-dict-speak-pulse { 0%{box-shadow:0 0 0 0 rgba(99,102,241,0.4);} 100%{box-shadow:0 0 0 8px rgba(99,102,241,0);} }
+
+/* 5. r46-dict-fav-bounce — Favorite button heart bounce */
+@keyframes r46-dict-fav-bounce { 0%,100%{transform:scale(1);} 50%{transform:scale(1.25);} }
+
+/* 6. r46-export-format-btn — Export format button hover shimmer */
+@keyframes r46-export-format-btn { 0%{background-position:-100% 0;} 100%{background-position:200% 0;} }
+.export-format-btn { position:relative; overflow:hidden; }
+.export-format-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent); background-size:200% 100%; animation:r46-export-format-btn 2s linear infinite; pointer-events:none; }
+
+/* 7. r46-export-stat-cell — Export stat cell entrance */
+@keyframes r46-export-stat-cell { 0%{transform:translateY(6px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+.export-stat-cell { animation: r46-export-stat-cell 0.3s ease-out both; }
+
+/* 8. r46-export-success-flash — Export success green flash */
+@keyframes r46-export-success-flash { 0%{background-color:rgba(34,197,94,0.2);} 100%{background-color:transparent;} }
+
+/* 9. r46-share-stat-cell — Share stat cell stagger */
+@keyframes r46-share-stat-cell { 0%{transform:scale(0.8);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+.share-stat-cell { animation: r46-share-stat-cell 0.35s ease-out both; }
+.share-stat-cell:nth-child(1){animation-delay:0s;} .share-stat-cell:nth-child(2){animation-delay:0.06s;} .share-stat-cell:nth-child(3){animation-delay:0.12s;}
+
+/* 10. r46-share-leaderboard-item — Leaderboard item slide */
+@keyframes r46-share-leaderboard-item { 0%{transform:translateX(-10px);opacity:0;} 100%{transform:translateX(0);opacity:1;} }
+.share-leaderboard-item { animation: r46-share-leaderboard-item 0.3s ease-out both; }
+
+/* 11. r46-share-replay-item — Replay item hover lift */
+@keyframes r46-share-replay-item { 0%{transform:translateY(4px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+.share-replay-item { animation: r46-share-replay-item 0.25s ease-out both; }
+
+/* 12. r46-share-code-generate — Share code generation spinner */
+@keyframes r46-share-code-generate { 0%{opacity:0.3;} 50%{opacity:1;} 100%{opacity:0.3;} }
+
+/* 13. r46-poem-stat-cell — Poem stat cell entrance */
+@keyframes r46-poem-stat-cell { 0%{transform:scale(0.7);opacity:0;} 70%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
+.poem-stat-cell { animation: r46-poem-stat-cell 0.35s ease-out both; }
+.poem-stat-cell:nth-child(1){animation-delay:0s;} .poem-stat-cell:nth-child(2){animation-delay:0.06s;} .poem-stat-cell:nth-child(3){animation-delay:0.12s;}
+
+/* 14. r46-poem-cloud-word — Word cloud word float in */
+@keyframes r46-poem-cloud-word { 0%{transform:scale(0) rotate(-10deg);opacity:0;} 70%{transform:scale(1.05) rotate(2deg);} 100%{transform:scale(1) rotate(0);opacity:1;} }
+.poem-cloud-word { animation: r46-poem-cloud-word 0.3s ease-out both; }
+
+/* 15. r46-poem-style-item — Poem style item slide */
+@keyframes r46-poem-style-item { 0%{transform:translateX(-6px);opacity:0;} 100%{transform:translateX(0);opacity:1;} }
+.poem-style-item { animation: r46-poem-style-item 0.25s ease-out both; }
+
+/* 16. r46-poem-daily-badge — Daily challenge badge pulse */
+@keyframes r46-poem-daily-badge { 0%,100%{box-shadow:0 0 4px rgba(236,72,153,0.3);} 50%{box-shadow:0 0 12px rgba(236,72,153,0.6);} }
+
+/* 17. r46-panel-slide-in — Round 46 panel slide-in */
+@keyframes r46-panel-slide-in { 0%{transform:translateX(100%) scale(0.95);opacity:0;} 100%{transform:translateX(0) scale(1);opacity:1;} }
+.dictionary-panel,.stats-export-panel,.replay-share-panel,.poem-studio-panel { animation: r46-panel-slide-in 0.3s ease-out; }
+
+/* 18. r46-btn-entrance — Round 46 button stagger entrance */
+@keyframes r46-btn-entrance { 0%{transform:translateY(6px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+.dictionary-btn,.poem-studio-btn,.stats-export-btn,.replay-share-btn { animation: r46-btn-entrance 0.3s ease-out both; }
+.dictionary-btn{animation-delay:0s;} .poem-studio-btn{animation-delay:0.04s;} .stats-export-btn{animation-delay:0.08s;} .replay-share-btn{animation-delay:0.12s;}
+
+/* 19. r46-dict-search-highlight — Search result highlight flash */
+@keyframes r46-dict-search-highlight { 0%{background-color:rgba(99,102,241,0.4);} 100%{background-color:transparent;} }
+
+/* 20. r46-export-download-progress — Download progress bar */
+@keyframes r46-export-download-progress { 0%{width:0;} 100%{width:100%;} }
+
+/* 21. r46-replay-share-success — Share success checkmark pop */
+@keyframes r46-replay-share-success { 0%{transform:scale(0) rotate(-180deg);} 60%{transform:scale(1.2) rotate(10deg);} 100%{transform:scale(1) rotate(0);} }
+
+/* 22. r46-poem-create-sparkle — Poem creation sparkle */
+@keyframes r46-poem-create-sparkle { 0%{text-shadow:0 0 4px rgba(236,72,153,0.4);} 50%{text-shadow:0 0 12px rgba(236,72,153,0.8);} 100%{text-shadow:0 0 4px rgba(236,72,153,0.4);} }
+
+/* 23. r46-clipboard-copy-flash — Clipboard copy flash */
+@keyframes r46-clipboard-copy-flash { 0%{background:rgba(34,197,94,0.3);} 100%{background:transparent;} }
+
+/* 24. r46-share-code-display — Share code text reveal */
+@keyframes r46-share-code-display { 0%{opacity:0;letter-spacing:0.3em;} 100%{opacity:1;letter-spacing:normal;} }
+
+/* 25. r46-dict-phonetic-wave — Phonetic pronunciation wave indicator */
+@keyframes r46-dict-phonetic-wave { 0%,100%{height:4px;} 50%{height:12px;} }

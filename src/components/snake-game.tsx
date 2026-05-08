@@ -145,6 +145,10 @@ import { getXPBarData, getXPBreakdown as getXPBarBreakdown, getXPSessionVelocity
 import { generateHeatmap, analyzeDeath, calculateEfficiency, getSessionTrends, findBestMoments, generateWeaknessReport, assignPerformanceGrade, getQuickSummary } from '@/lib/replay-analyzer-wire'
 import { getSeasonOverview, getTierDisplayData, claimReward as bpClaimReward, addSeasonXP, checkTierUpgrades, getSeasonCountdown, getPremiumStatus, getSeasonHistory, getXPSources, checkDailyLoginBonus } from '@/lib/battle-pass-wire'
 import { getAchievementGallery, getRecentUnlocks, getUnlockedStats, getNextClosest, getCategorySummary, getRarityDistribution, getSessionUnlocks, getShowcaseData, getUnlockStreak, getCompletionForecast } from '@/lib/achievement-showcase-wire'
+import { lookupWord, getWordOfTheDay, discoverRandomWord, searchDictionary, getDictionaryStats, speakWord as dictSpeakWord, getRecentLookups, getFavorites as getDictFavorites, toggleFavorite as dictToggleFavorite, generateDefinitionQuiz } from '@/lib/word-dictionary-wire'
+import { quickExport as wireQuickExport, getExportHistory as wireGetExportHistory, previewExport, generateShareableText as wireGenShareText, generateSessionReport, generateAchievementReport, getExportSummary } from '@/lib/stats-export-wire'
+import { getShareableReplays, getReplayLeaderboard, generateShareText, getShareHistory, validateShareCode } from '@/lib/replay-sharing-wire'
+import { createPoem, getPoemHistory, getFavorites as getPoemFavorites, getPoemStats, getWordCloud, getStyleTemplates, getDailyPoemChallenge, isFavorite as isPoemFavorite } from '@/lib/poem-studio-wire'
 import {
   Play,
   RotateCcw,
@@ -897,6 +901,11 @@ export default function SnakeGame() {
   const minigamePlayWireRef = useRef<MinigamePlayWire>(createMinigamePlayWire(minigameLauncherRef.current))
   const masteryPanelWireRef = useRef<MasteryPanelWire>(createMasteryPanelWire(masteryPanelRef.current, masteryTrackerRef.current))
   // Round 45: XP Progression is standalone functions (no ref needed)
+  // Round 46: Dictionary, Stats Export, Replay Sharing, Poem Studio panel states
+  const [showDictionaryPanel, setShowDictionaryPanel] = useState(false)
+  const [showStatsExportPanel, setShowStatsExportPanel] = useState(false)
+  const [showReplaySharePanel, setShowReplaySharePanel] = useState(false)
+  const [showPoemStudioPanel, setShowPoemStudioPanel] = useState(false)
   // Round 45: XP Progression, Replay Analyzer, Battle Pass, Achievement Showcase panel states
   const [showXPDetailPanel, setShowXPDetailPanel] = useState(false)
   const [showReplayPanel, setShowReplayPanel] = useState(false)
@@ -5901,6 +5910,207 @@ export default function SnakeGame() {
   }
 
   // Round 43b: Story Level Select inline content
+  // ── Round 46: Word Dictionary Panel ──
+  const DictionaryPanelContent = () => {
+    try {
+      const wotd = getWordOfTheDay()
+      const stats = getDictionaryStats()
+      const recent = getRecentLookups(5)
+      return (
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center dict-stat-cell">
+              <div className="text-sm font-bold text-indigo-400">{stats.totalWords}</div>
+              <div className="text-[9px] text-slate-500">Words</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center dict-stat-cell">
+              <div className="text-sm font-bold text-emerald-400">{stats.totalCategories}</div>
+              <div className="text-[9px] text-slate-500">Categories</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center dict-stat-cell">
+              <div className="text-sm font-bold text-pink-400">{stats.totalFavorites}</div>
+              <div className="text-[9px] text-slate-500">Favorites</div>
+            </div>
+          </div>
+          {wotd && (
+            <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 rounded-lg p-3 border border-indigo-700/30">
+              <div className="text-[9px] text-indigo-400 mb-1">Word of the Day</div>
+              <div className="text-lg font-bold text-white">{wotd.word}</div>
+              {wotd.definition && <div className="text-[10px] text-slate-400 mt-1">{wotd.definition}</div>}
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => dictSpeakWord(wotd.word)} className="text-[9px] px-2 py-0.5 rounded bg-indigo-800/50 text-indigo-300 hover:bg-indigo-700/50">🔊 Speak</button>
+                <button onClick={() => dictToggleFavorite(wotd.word)} className="text-[9px] px-2 py-0.5 rounded bg-pink-800/50 text-pink-300 hover:bg-pink-700/50">{wotd.isFavorite ? '💛 Favorited' : '🤍 Favorite'}</button>
+              </div>
+            </div>
+          )}
+          {recent.length > 0 && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5">
+              <div className="text-[9px] text-slate-500 mb-2">Recent Lookups</div>
+              <div className="space-y-1">
+                {recent.map((r: { word: string; timestamp: number }, i: number) => (
+                  <div key={i} className="flex items-center gap-2 text-[10px] text-slate-400 dict-recent-item">
+                    <span className="text-indigo-400">{r.word}</span>
+                    <span className="text-[8px] text-slate-600 ml-auto">{new Date(r.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load dictionary</div> }
+  }
+
+  // ── Round 46: Stats Export Panel ──
+  const StatsExportPanelContent = () => {
+    try {
+      const summary = getExportSummary()
+      const shareResult = wireGenShareText()
+      const sessionReport = generateSessionReport()
+      return (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center export-stat-cell">
+              <div className="text-sm font-bold text-emerald-400">{summary.data?.totalExports ?? 0}</div>
+              <div className="text-[9px] text-slate-500">Exports</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center export-stat-cell">
+              <div className="text-sm font-bold text-cyan-400">{summary.data?.mostCommonFormat ?? 'N/A'}</div>
+              <div className="text-[9px] text-slate-500">Top Format</div>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <div className="text-[9px] text-slate-500 mb-1">Quick Export</div>
+            {(['json','csv','markdown','clipboard'] as const).map(fmt => (
+              <button key={fmt} onClick={() => wireQuickExport(fmt)} className="w-full text-left px-3 py-2 rounded-lg bg-slate-800/40 hover:bg-slate-700/50 text-[10px] text-slate-300 transition-colors export-format-btn">
+                {fmt === 'json' && '📊 JSON'}{fmt === 'csv' && '📋 CSV'}{fmt === 'markdown' && '📝 Markdown'}{fmt === 'clipboard' && '📋 Copy to Clipboard'}
+              </button>
+            ))}
+          </div>
+          {shareResult.success && shareResult.data && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5 border border-emerald-700/20">
+              <div className="text-[9px] text-slate-500 mb-1">Shareable Summary</div>
+              <div className="text-[10px] text-slate-300 whitespace-pre-line">{shareResult.data.substring(0, 200)}...</div>
+            </div>
+          )}
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load export data</div> }
+  }
+
+  // ── Round 46: Replay Sharing Panel ──
+  const ReplaySharePanelContent = () => {
+    try {
+      const replays = getShareableReplays().slice(0, 5)
+      const leaderboard = getReplayLeaderboard()
+      const history = getShareHistory()
+      return (
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center share-stat-cell">
+              <div className="text-sm font-bold text-violet-400">{replays.length}</div>
+              <div className="text-[9px] text-slate-500">Replays</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center share-stat-cell">
+              <div className="text-sm font-bold text-amber-400">{leaderboard.length > 0 ? leaderboard[0].score : 0}</div>
+              <div className="text-[9px] text-slate-500">Best</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center share-stat-cell">
+              <div className="text-sm font-bold text-cyan-400">{history.length}</div>
+              <div className="text-[9px] text-slate-500">Shared</div>
+            </div>
+          </div>
+          {leaderboard.length > 0 && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5">
+              <div className="text-[9px] text-slate-500 mb-2">Replay Leaderboard</div>
+              <div className="space-y-1">
+                {leaderboard.slice(0, 3).map((r: { score: number; wordsEaten: number; difficulty: string; date: string }, i: number) => (
+                  <div key={i} className="flex items-center gap-2 text-[10px] share-leaderboard-item">
+                    <span className={`font-bold w-4 ${i === 0 ? 'text-amber-400' : i === 1 ? 'text-slate-300' : 'text-orange-400'}`}>#{i+1}</span>
+                    <span className="text-slate-300 flex-1">{r.score} pts</span>
+                    <span className="text-slate-500">{r.wordsEaten} words</span>
+                    <span className="text-[8px] text-slate-600">{r.difficulty}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {replays.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-[9px] text-slate-500 mb-1">Share Replays</div>
+              {replays.slice(0, 3).map((r: { id: string; finalScore: number; duration: number }, i: number) => (
+                <div key={r.id} className="flex items-center gap-2 bg-slate-800/30 rounded p-2 share-replay-item">
+                  <span className="text-[10px] text-slate-300 flex-1">{r.finalScore} pts • {Math.round(r.duration/1000)}s</span>
+                  <button onClick={() => generateShareText(r.id)} className="text-[9px] px-2 py-0.5 rounded bg-violet-800/50 text-violet-300 hover:bg-violet-700/50">Share</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load replay data</div> }
+  }
+
+  // ── Round 46: Poem Studio Panel ──
+  const PoemStudioPanelContent = () => {
+    try {
+      const poemStats = getPoemStats()
+      const wordCloud = getWordCloud(8)
+      const templates = getStyleTemplates()
+      const dailyChallenge = getDailyPoemChallenge()
+      return (
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center poem-stat-cell">
+              <div className="text-sm font-bold text-pink-400">{poemStats.totalPoems}</div>
+              <div className="text-[9px] text-slate-500">Poems</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center poem-stat-cell">
+              <div className="text-sm font-bold text-amber-400">{poemStats.totalFavorites}</div>
+              <div className="text-[9px] text-slate-500">Favorites</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center poem-stat-cell">
+              <div className="text-sm font-bold text-cyan-400">{poemStats.mostUsedStyle}</div>
+              <div className="text-[9px] text-slate-500">Top Style</div>
+            </div>
+          </div>
+          {dailyChallenge && (
+            <div className="bg-gradient-to-r from-pink-900/20 to-violet-900/20 rounded-lg p-2.5 border border-pink-700/30">
+              <div className="text-[9px] text-pink-400 mb-1">Daily Challenge: {dailyChallenge.theme}</div>
+              <div className="text-[10px] text-slate-300">{dailyChallenge.hint}</div>
+              <div className="flex gap-1 mt-1.5 flex-wrap">
+                {dailyChallenge.words.map((w: string, i: number) => (
+                  <span key={i} className="text-[8px] px-1.5 py-0.5 rounded bg-pink-900/30 text-pink-300">{w}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {wordCloud.length > 0 && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5">
+              <div className="text-[9px] text-slate-500 mb-2">Word Cloud</div>
+              <div className="flex flex-wrap gap-1">
+                {wordCloud.map((w: { word: string; count: number; tier: string }, i: number) => (
+                  <span key={i} className={`text-[9px] px-1.5 py-0.5 rounded poem-cloud-word ${w.tier === 'rare' ? 'bg-pink-900/40 text-pink-300' : w.tier === 'uncommon' ? 'bg-violet-900/40 text-violet-300' : 'bg-slate-700/40 text-slate-400'}`} style={{fontSize: `${Math.min(14, 8 + w.count)}px`}}>{w.word}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="bg-slate-800/40 rounded-lg p-2.5">
+            <div className="text-[9px] text-slate-500 mb-2">Poem Styles</div>
+            <div className="space-y-1">
+              {templates.slice(0, 4).map((t: { id: string; name: string; description: string; emoji: string }, i: number) => (
+                <div key={t.id} className="flex items-center gap-2 text-[10px] text-slate-400 poem-style-item">
+                  <span>{t.emoji}</span>
+                  <span className="flex-1">{t.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load poem data</div> }
+  }
+
   // ── Round 45: XP Progression Panel ──
   const XPProgressionPanelContent = () => {
     try {
@@ -7391,6 +7601,42 @@ export default function SnakeGame() {
                       title="Achievement Showcase"
                     >
                       🏅 Showcase
+                    </Button>
+                    {/* Round 46: Dictionary panel button */}
+                    <Button
+                      onClick={() => setShowDictionaryPanel(!showDictionaryPanel)}
+                      variant="outline"
+                      className="border-indigo-700/50 text-indigo-400 hover:bg-indigo-900/20 active:scale-95 transition-transform dictionary-btn"
+                      title="Word Dictionary"
+                    >
+                      📖 Dictionary
+                    </Button>
+                    {/* Round 46: Poem Studio panel button */}
+                    <Button
+                      onClick={() => setShowPoemStudioPanel(!showPoemStudioPanel)}
+                      variant="outline"
+                      className="border-pink-700/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform poem-studio-btn"
+                      title="Poem Studio"
+                    >
+                      ✨ Poems
+                    </Button>
+                    {/* Round 46: Stats Export panel button */}
+                    <Button
+                      onClick={() => setShowStatsExportPanel(!showStatsExportPanel)}
+                      variant="outline"
+                      className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform stats-export-btn"
+                      title="Export Stats"
+                    >
+                      📤 Export
+                    </Button>
+                    {/* Round 46: Replay Share panel button */}
+                    <Button
+                      onClick={() => setShowReplaySharePanel(!showReplaySharePanel)}
+                      variant="outline"
+                      className="border-violet-700/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform replay-share-btn"
+                      title="Share Replay"
+                    >
+                      🔗 Share Replay
                     </Button>
                     <Button
                       onClick={() => {
@@ -10011,6 +10257,58 @@ export default function SnakeGame() {
               <button onClick={() => setShowStoryLevelSelect(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
             </div>
             <StoryLevelSelectContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 46: Word Dictionary Panel */}
+      {showDictionaryPanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDictionaryPanel(false)}>
+          <div className="bg-slate-900/95 border border-indigo-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl dictionary-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-indigo-400">📖 Word Dictionary</h3>
+              <button onClick={() => setShowDictionaryPanel(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <DictionaryPanelContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 46: Stats Export Panel */}
+      {showStatsExportPanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStatsExportPanel(false)}>
+          <div className="bg-slate-900/95 border border-emerald-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl stats-export-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-emerald-400">📤 Export Stats</h3>
+              <button onClick={() => setShowStatsExportPanel(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <StatsExportPanelContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 46: Replay Sharing Panel */}
+      {showReplaySharePanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowReplaySharePanel(false)}>
+          <div className="bg-slate-900/95 border border-violet-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl replay-share-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-violet-400">🔗 Share Replay</h3>
+              <button onClick={() => setShowReplaySharePanel(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <ReplaySharePanelContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 46: Poem Studio Panel */}
+      {showPoemStudioPanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPoemStudioPanel(false)}>
+          <div className="bg-slate-900/95 border border-pink-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl poem-studio-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-pink-400">✨ Poem Studio</h3>
+              <button onClick={() => setShowPoemStudioPanel(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <PoemStudioPanelContent />
           </div>
         </div>
       )}
