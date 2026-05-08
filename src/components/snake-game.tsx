@@ -155,7 +155,7 @@ import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, va
 import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme as atGetGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
 // Round 51: Friend System Wire, Pet Companion Wire, Weather Effects Wire, Trade Market Wire
 import { getFriends, addFriend, removeFriend, acceptFriend, rejectFriend, blockUser, unblockUser, getBlockedUsers, isFriend, getFriendRequests, getSentRequests, searchUsers, getOnlineFriends, getFriendActivity, sendMessage, getConversation, getUnreadCount, markAsRead, getRecentChats, compareWithFriend, getMutualFriends, getFriendLeaderboard, inviteToGame, getInviteStatus, getFriendSummary, getTopFriend, generateMockUsers, getFriendSuggestion, getFriendsOverview, getFriendCard, getChatPreview, getActivityFeed as frGetActivityFeed, getFriendStats } from '@/lib/friend-system-wire'
-import { getPet, getAvailablePets, adoptPet, switchPet, releasePet, getOwnedPets, feedPet, playWithPet, restPet, getPetLevel, getPetXP, addPetXP, getPetStats, getPetMood, getPetHunger, getPetEnergy, getPetAppearance, setPetAppearance, getPetAccessories, equipAccessory, getPetAbilities, usePetAbility, getPetEvolution, canEvolve, evolvePet, getPetBonds, addBond, getPetPersonality, getPetQuote, getPetMoodIcon, getPetDashboard, getPetCard, getAbilityCard, getAccessoryGrid, getEvolutionPreview } from '@/lib/pet-companion-wire'
+import { getPet, getAvailablePets, adoptPet, switchPet, releasePet, getOwnedPets, feedPet, playWithPet, restPet, getPetLevel, getPetXP, addPetXP, getPetStats, getPetMood, getPetHunger, getPetEnergy, getPetAppearance, setPetAppearance, getPetAccessories, equipAccessory, getPetAbilities, usePetAbility as petUseAbility, getPetEvolution, canEvolve, evolvePet, getPetBonds, addBond, getPetPersonality, getPetQuote, getPetMoodIcon, getPetDashboard, getPetCard, getAbilityCard, getAccessoryGrid, getEvolutionPreview } from '@/lib/pet-companion-wire'
 import { getWeatherState, setWeather, getAvailableWeathers, getWeatherForecast, advanceWeather, getWeatherDuration, getWeatherModifiers, getWeatherVisualConfig, isWeatherActive, getWeatherHistory, getWeatherStats, getWeatherAchievements, checkWeatherAchievements, getWeatherEvents, getActiveEvent, startEvent, getWeatherSeason, getSeasonalWeather, getSeasonBonus, getDayNightCycle, getTimeOfDay, getAmbientSounds as wxGetAmbientSounds, getWeatherParticles, getWeatherOverlay, getWeatherMultiplier, getWeatherStreak, getWeatherRecords, recordWeatherGame, getWeatherLeaderboard, getWeatherDashboard, getWeatherCard, getForecastTimeline, getSeasonCard, getWeatherComparison, getRareWeatherChance } from '@/lib/weather-effects-wire'
 import { getMarketListings, createListing, cancelListing, buyListing, placeBid, getMyListings, getTransactionHistory as mkGetTransactionHistory, getMarketCategories, filterListings, searchMarket, getPriceHistory, getItemValue, getMarketStats, getTrendingItems, getDailyDeals, getLimitedOffers, redeemCode, getRedeemedCodes, getGifts, sendGift, mkGetWishlist, addToWishlist as mkAddToWishlist, removeFromWishlist as mkRemoveFromWishlist, getPriceAlerts, setPriceAlert, checkPriceAlerts, getAuctionHouse, getBidHistory, getMyBids, getMarketOverview, getListingCard, getTransactionCard, getMarketGraph, getBundleDeals, getVendorSpecials } from '@/lib/trade-market-wire'
 // Round 49: Tournament Bracket Wire, Word Puzzle Wire, Progress Dashboard Wire, Controller Config Wire
@@ -173,6 +173,10 @@ import { getSettings as gsGetSettings, updateSetting as gsUpdateSetting, getPres
 import { getPeriodStats, comparePeriods, getTrend, getTrendSummary, getCurrentStreak as pscGetCurrentStreak, getLongestStreak as pscGetLongestStreak, getConsistencyScore, getSkillRating, getSkillTier, getSkillProgress, getWeakMetrics, getImprovementAreas, getStrengths, getDailyScores, getScoreDistribution, getCategoryPerformance, getComparisonOverview, getInsights, getWeeklyReport, getPeakHours, getPersonalBests as pscGetPersonalBests } from '@/lib/player-stats-compare-wire'
 import { getChallengeTemplates, startChallenge, getActiveChallenge, cancelChallenge, completeChallenge, getProgress as getChallengeProgress, isChallengeActive, getChallengeModifier, getChallengeHistory, getChallengeStats, getDailyChallenge as cmGetDailyChallenge, getDailyChallengeProgress, getDailyChallengeStreak, getDailyRewardBonus, getChallengeOverview, getAvailableChallenges, getRecommendedChallenges, getChallengeCard, calculateReward, createCustomChallenge, getChallengeLeaderboard } from '@/lib/challenge-mode-wire'
 import { generateWordArt, getGallery, getRecentArt, getGalleryStats, toggleFavorite as artToggleFavorite, getFavorites as artGetFavorites, getTopRated, getArtByStyle, generateWordCloud, generateTypoArt, getGalleryOverview, getArtCard, getArtThemes, getFrameStyles, createAlbum as artCreateAlbum, getAlbums, deleteGalleryItem, rateArt, getGalleryCount, checkMilestones as artCheckMilestones, getAutoArtSuggestion, getShareableArt } from '@/lib/word-art-gallery-wire'
+import { initDailyRewards, checkDailyLogin, getLoginStreak, getLongestStreak, getStreakRewards, claimStreakReward, getDailyQuests, updateQuestProgress, completeQuest, claimQuestReward, getWeeklyCalendar, claimWeeklyChest, getWeeklyProgress as drGetWeeklyProgress, getMonthlyMilestone, addMonthlyProgress, claimMonthlyReward, getUnclaimedRewards, claimAllRewards, getRewardHistory, getRewardStats, getNotification as drGetNotification, dismissNotification, getStreakBonus, isStreakActive, getQuestCompletionRate, getBestQuestDay, getRewardCalendar, getDailyRewardSummary, getWeeklySummary as drGetWeeklySummary, generateDailyQuests, getRewardOverview, getStreakCard, getQuestList, getWeeklyChestGrid, getMonthlyTierBar } from '@/lib/daily-reward-wire'
+import { initWordConnect, generateGrid, findPossibleWords, isValidPath, submitWord, getGameStats, startNewGame, getCurrentGame, getHint as wcGetHint, getHintsRemaining, useHint, shuffleGrid, getDailyPuzzle as wcGetDailyPuzzle, getDailyStreak as wcGetDailyStreak, isDailyCompleted, getFoundWords, getUnfoundWords, getWordScore, getComboMultiplier, getTimeBonus, getHighScores as wcGetHighScores, getTotalGamesPlayed, getTotalWordsFound, getLongestWordFound, getAverageWordsPerGame, getBestScore as wcGetBestScore, getDifficultyStats, saveGameResult, getRecentGames, getWordFrequency, getConnectOverview, getGameCard, getFoundWordsList, getUnfoundWordsPreview, getDailyConnectCard, getStatsGrid as wcGetStatsGrid, getDifficultyButtons, getHighScoreList } from '@/lib/word-connect-wire'
+import { initProfileCard, getAvatarOptions, getCurrentAvatar, selectAvatar, unlockAvatar, getTitles, getCurrentTitle, selectTitle, earnTitle, getFrames, getCurrentFrame, selectFrame, unlockFrame, getBio as pcGetBio, setBio as pcSetBio, getMood as pcGetMood, setMood as pcSetMood, getStatus as pcGetStatus, setStatus as pcSetStatus, getFeaturedAchievements, setFeaturedAchievement, getProfileCompletion, getProfileCard as pcGetProfileCard, generateShareCode as pcGenShareCode, parseShareCode as pcParseShareCode, getProfileStats, getCollectionProgress as pcGetCollectionProgress, getRecentActivity, getLevelBadge, getJoinDate, getPlayTime, getRankBadge, getProfileOverview, getAvatarGrid, getTitleList, getFrameGallery, getProfileShareCard } from '@/lib/profile-card-wire'
+import { initSkillTree, getSkillTree, getBranches, getBranchSkills, getSkill, getSkillStatus, canUnlock, unlockSkill, upgradeSkill, getSkillPoints, addSkillPoints, spendSkillPoints, getTotalSpent, getActiveSkills, toggleActiveSkill, getActiveSlots, getActiveSlotsUsed, refundAll, refundBranch, getRespecCost, canRespec, getBuildPresets, saveBuildPreset, loadBuildPreset, deleteBuildPreset, getSkillEffects, getBonusScoreMultiplier, getBonusSpeed, getBonusLives, getSkillTreeStats, getSkillTreeOverview, getBranchCard, getSkillNode, getActiveBuildSummary, getRecommendations as stGetRecommendations, getMasteryProgress as stGetMasteryProgress } from '@/lib/skill-tree-wire'
 import {
   Play,
   RotateCcw,
@@ -953,6 +957,11 @@ export default function SnakeGame() {
   const [showPetPanel, setShowPetPanel] = useState(false)
   const [showWeatherPanel, setShowWeatherPanel] = useState(false)
   const [showMarketPanel, setShowMarketPanel] = useState(false)
+  // Round 52: Daily Rewards, Word Connect, Profile Card, Skill Tree panel states
+  const [showDailyRewardPanel, setShowDailyRewardPanel] = useState(false)
+  const [showWordConnectPanel, setShowWordConnectPanel] = useState(false)
+  const [showProfileCardPanel, setShowProfileCardPanel] = useState(false)
+  const [showSkillTreePanel, setShowSkillTreePanel] = useState(false)
   // Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config panel states
   const [showTournamentPanel, setShowTournamentPanel] = useState(false)
   const [showPuzzlePanel, setShowPuzzlePanel] = useState(false)
@@ -7973,6 +7982,42 @@ export default function SnakeGame() {
                     >
                       🏪 Market
                     </Button>
+                    {/* Round 52: Daily Rewards Button */}
+                    <Button
+                      onClick={() => setShowDailyRewardPanel(!showDailyRewardPanel)}
+                      variant="outline"
+                      className="border-orange-500/50 text-orange-400 hover:bg-orange-900/20 active:scale-95 transition-transform reward-btn"
+                      title="Daily Rewards"
+                    >
+                      🎁 Rewards
+                    </Button>
+                    {/* Round 52: Word Connect Button */}
+                    <Button
+                      onClick={() => setShowWordConnectPanel(!showWordConnectPanel)}
+                      variant="outline"
+                      className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-900/20 active:scale-95 transition-transform connect-btn"
+                      title="Word Connect"
+                    >
+                      🔗 Connect
+                    </Button>
+                    {/* Round 52: Profile Card Button */}
+                    <Button
+                      onClick={() => setShowProfileCardPanel(!showProfileCardPanel)}
+                      variant="outline"
+                      className="border-violet-500/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform profile-btn"
+                      title="Profile Card"
+                    >
+                      👤 Profile
+                    </Button>
+                    {/* Round 52: Skill Tree Button */}
+                    <Button
+                      onClick={() => setShowSkillTreePanel(!showSkillTreePanel)}
+                      variant="outline"
+                      className="border-amber-500/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform skilltree-btn"
+                      title="Skill Tree"
+                    >
+                      🌳 Skills
+                    </Button>
                     {/* Round 49: Controller Config Button */}
                     <Button
                       onClick={() => setShowControllerPanel(!showControllerPanel)}
@@ -12082,7 +12127,7 @@ export default function SnakeGame() {
                   <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⚡ Abilities</span>
                   <div className="grid grid-cols-2 gap-1.5 mt-1.5">
                     {abilities.slice(0, 6).map((a: { id: string; name: string; icon: string, cooldown: number, unlocked: boolean }, i: number) => (
-                      <button key={a.id || i} onClick={() => { if (a.unlocked) { usePetAbility(a.id); toast({ title: `${a.icon} ${a.name}!` }) } }}
+                      <button key={a.id || i} onClick={() => { if (a.unlocked) { petUseAbility(a.id); toast({ title: `${a.icon} ${a.name}!` }) } }}
                         className={`flex items-center gap-2 bg-slate-800/60 rounded-lg px-2.5 py-2 text-left transition-all active:scale-95 r51-ability-btn ${a.unlocked ? 'hover:bg-slate-700/60' : 'opacity-50'}`}>
                         <span className="text-base">{a.icon}</span>
                         <div>
@@ -12288,6 +12333,430 @@ export default function SnakeGame() {
                 <button onClick={() => { const code = 'WSNK-' + Math.random().toString(36).slice(2, 8).toUpperCase(); redeemCode(code); toast({ title: `Code: ${code}` }) }}
                   className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r51-action-btn">
                   🎁 Redeem Code
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 52: Daily Rewards Panel */}
+      {showDailyRewardPanel && mounted && (() => {
+        const overview = getRewardOverview()
+        const streak = getStreakCard()
+        const quests = getQuestList()
+        const chests = getWeeklyChestGrid()
+        const monthly = getMonthlyTierBar()
+        const notification = drGetNotification()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDailyRewardPanel(false)}>
+            <div className="bg-slate-900 border border-orange-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 reward-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-orange-300 text-lg font-bold">🎁 Daily Rewards</span>
+                <button onClick={() => setShowDailyRewardPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {notification.show && (
+                <div className="mb-3 px-3 py-2 bg-orange-900/40 border border-orange-500/30 rounded-lg text-orange-300 text-[10px] font-semibold animate-pulse">
+                  {notification.message || `${notification.count} rewards available!`}
+                </div>
+              )}
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Streak', value: `${getLoginStreak()}🔥`, color: 'text-orange-400' },
+                  { label: 'Quests', value: `${getQuestCompletionRate()}%`, color: 'text-emerald-400' },
+                  { label: 'Weekly', value: `${getWeeklyProgress()}/7`, color: 'text-blue-400' },
+                  { label: 'Unclaimed', value: `${getUnclaimedRewards().length}`, color: 'text-yellow-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r52-reward-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Streak Card */}
+              <div className="mb-4 p-3 bg-gradient-to-r from-orange-900/30 to-amber-900/30 border border-orange-700/30 rounded-lg r52-streak-card">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-orange-300 text-xs font-semibold">{streak.fire} Login Streak: {streak.count} days</span>
+                  <span className="text-[9px] text-orange-400/60">×{getStreakBonus()} bonus</span>
+                </div>
+                <div className="flex gap-1">
+                  {getStreakRewards().slice(0, 7).map((r: { day: number; reward: number; type: string; claimed: boolean }, i: number) => (
+                    <div key={i} className={`flex-1 text-center py-1.5 rounded text-[8px] ${r.claimed ? 'bg-orange-700/50 text-orange-300' : r.day <= getLoginStreak() ? 'bg-emerald-800/50 text-emerald-300 cursor-pointer hover:bg-emerald-700/60' : 'bg-slate-800 text-slate-600'}`}
+                      onClick={() => { if (r.day <= getLoginStreak() && !r.claimed) { claimStreakReward(r.day); toast({ title: `Day ${r.day} reward claimed!` }) } }}>
+                      Day {r.day}<br />{r.reward} {r.type}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Daily Quests */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📋 Daily Quests</span>
+                <div className="mt-1.5 space-y-1.5">
+                  {quests.slice(0, 5).map((q: { id: string; title: string; current: number; target: number; reward: number; completed: boolean; claimed: boolean }, i: number) => (
+                    <div key={i} className="bg-slate-800 rounded-lg p-2.5 r52-quest-item" style={{ animationDelay: `${i * 100}ms` }}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] text-slate-300">{q.title}</span>
+                        <span className={`text-[9px] font-semibold ${q.claimed ? 'text-slate-600' : q.completed ? 'text-emerald-400' : 'text-orange-400'}`}>
+                          {q.claimed ? '✓ Claimed' : q.completed ? 'Claim!' : `${q.current}/${q.target}`}
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-1.5">
+                        <div className="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full transition-all r52-quest-fill" style={{ width: `${Math.min(100, (q.current / q.target) * 100)}%` }}></div>
+                      </div>
+                      <div className="text-right text-[8px] text-slate-500 mt-0.5">+{q.reward} coins</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Weekly Chests */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📦 Weekly Chests</span>
+                <div className="grid grid-cols-7 gap-1.5 mt-1.5">
+                  {chests.map((c: { day: number; rarity: string; reward: number; claimed: boolean }, i: number) => {
+                    const rarityColors: Record<string, string> = { Common: 'border-slate-600 bg-slate-800', Uncommon: 'border-green-600 bg-green-900/20', Rare: 'border-blue-500 bg-blue-900/20', Epic: 'border-purple-500 bg-purple-900/20', Legendary: 'border-yellow-500 bg-yellow-900/20' }
+                    const rarityText: Record<string, string> = { Common: 'text-slate-400', Uncommon: 'text-green-400', Rare: 'text-blue-400', Epic: 'text-purple-400', Legendary: 'text-yellow-400' }
+                    return (
+                      <div key={i} className={`rounded-lg border p-1.5 text-center r52-chest-item ${c.claimed ? rarityColors[c.rarity] : 'border-slate-700 bg-slate-900'}`}
+                        style={{ animationDelay: `${i * 60}ms` }}>
+                        <div className={`text-sm ${c.claimed ? '' : 'opacity-30'}`}>{c.claimed ? '📦' : '🔒'}</div>
+                        <div className={`text-[7px] mt-0.5 ${rarityText[c.rarity] || 'text-slate-500'}`}>{c.rarity}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {/* Monthly Progress */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🏅 Monthly Milestone</span>
+                <div className="mt-1.5 bg-slate-800 rounded-lg p-2.5">
+                  <div className="flex justify-between text-[9px] mb-1">
+                    <span className="text-slate-400">{monthly.current}/{monthly.target}</span>
+                    <span className="text-amber-400">{monthly.percent}%</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-amber-600 to-yellow-400 h-2 rounded-full r52-monthly-fill" style={{ width: `${monthly.percent}%` }}></div>
+                  </div>
+                  <div className="flex gap-1 mt-2">
+                    {monthly.tiers.map((t: { tier: string; target: number; claimed: boolean }, i: number) => (
+                      <div key={i} className={`text-[7px] px-1.5 py-0.5 rounded ${t.claimed ? 'bg-amber-700/50 text-amber-300' : 'bg-slate-700 text-slate-500'}`}>{t.tier}: {t.target}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { checkDailyLogin(); toast({ title: 'Login checked!' }) }}
+                  className="flex-1 px-3 py-2 bg-orange-700 hover:bg-orange-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  🔥 Check In
+                </button>
+                <button onClick={() => { const n = getUnclaimedRewards().length; if (n > 0) { claimAllRewards(); toast({ title: `${n} rewards claimed!` }) } else { toast({ title: 'Nothing to claim' }) } }}
+                  className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  💰 Claim All
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 52: Word Connect Panel */}
+      {showWordConnectPanel && mounted && (() => {
+        const overview = getConnectOverview()
+        const stats = wcGetStatsGrid()
+        const daily = wcGetDailyPuzzle()
+        const game = getCurrentGame()
+        const buttons = getDifficultyButtons()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWordConnectPanel(false)}>
+            <div className="bg-slate-900 border border-indigo-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 connect-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-indigo-300 text-lg font-bold">🔗 Word Connect</span>
+                <button onClick={() => setShowWordConnectPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Games', value: getTotalGamesPlayed(), color: 'text-indigo-400' },
+                  { label: 'Words', value: getTotalWordsFound(), color: 'text-emerald-400' },
+                  { label: 'Best', value: wcGetBestScore(), color: 'text-yellow-400' },
+                  { label: 'Streak', value: `${wcGetDailyStreak()}🔥`, color: 'text-orange-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r52-connect-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Daily Puzzle Card */}
+              <div className="mb-4 p-3 bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-700/30 rounded-lg r52-daily-card">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-indigo-300 text-xs font-semibold">📅 Daily Puzzle</span>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full ${isDailyCompleted() ? 'bg-emerald-800/50 text-emerald-400' : 'bg-indigo-800/50 text-indigo-400'}`}>
+                    {isDailyCompleted() ? '✓ Complete' : 'Play Now'}
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  {daily ? `${daily.difficulty} · ${daily.totalWords || '?'} words · Score: ${daily.score || 0}` : 'Start a new daily puzzle!'}
+                </div>
+                {!isDailyCompleted() && (
+                  <button onClick={() => { startNewGame('medium'); toast({ title: 'New game started!' }) }}
+                    className="mt-2 w-full px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-play-btn">
+                    ▶ Play Daily
+                  </button>
+                )}
+              </div>
+              {/* Current Game */}
+              {game && (
+                <div className="mb-4 p-3 bg-slate-800 rounded-lg r52-game-grid">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-indigo-300 text-xs font-semibold">🎮 Active Game</span>
+                    <span className="text-[10px] text-yellow-400">{game.score} pts</span>
+                  </div>
+                  {game.grid && (
+                    <div className="grid gap-0.5 mb-2" style={{ gridTemplateColumns: `repeat(${game.size || 4}, 1fr)` }}>
+                      {game.grid.flat().map((letter: string, i: number) => (
+                        <div key={i} className="w-full aspect-square flex items-center justify-center bg-slate-700 hover:bg-indigo-800/50 text-white text-sm font-bold rounded r52-grid-cell cursor-pointer select-none transition-colors">
+                          {letter}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="text-[9px] text-slate-400">
+                    Found: {game.foundWords?.length || 0} · Hints: {getHintsRemaining()} · Combo: ×{getComboMultiplier()}
+                  </div>
+                </div>
+              )}
+              {/* Found Words */}
+              {game && game.foundWords && game.foundWords.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">✅ Found Words</span>
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {game.foundWords.slice(0, 12).map((w: { word: string; score: number }, i: number) => (
+                      <span key={i} className="bg-indigo-900/30 text-indigo-300 text-[9px] px-2 py-0.5 rounded r52-found-word" style={{ animationDelay: `${i * 50}ms` }}>
+                        {w.word} +{w.score}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Difficulty Buttons */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎯 Difficulty</span>
+                <div className="flex gap-2 mt-1.5">
+                  {buttons.map((b: { difficulty: string; label: string; color: string }, i: number) => (
+                    <button key={i} onClick={() => { startNewGame(b.difficulty); toast({ title: `${b.label} game started!` }) }}
+                      className={`flex-1 px-3 py-2 ${b.color} text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-diff-btn`}>
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { if (getHintsRemaining() > 0) { wcGetHint(); toast({ title: 'Hint used!' }) } else { toast({ title: 'No hints left' }) } }}
+                  className="flex-1 px-3 py-2 bg-purple-700 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  💡 Hint ({getHintsRemaining()})
+                </button>
+                <button onClick={() => { shuffleGrid(); toast({ title: 'Grid shuffled!' }) }}
+                  className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  🔀 Shuffle
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 52: Profile Card Panel */}
+      {showProfileCardPanel && mounted && (() => {
+        const overview = getProfileOverview()
+        const avatar = getCurrentAvatar()
+        const title = getCurrentTitle()
+        const frame = getCurrentFrame()
+        const completion = getProfileCompletion()
+        const badge = getRankBadge()
+        const level = getLevelBadge()
+        const avatars = getAvatarGrid()
+        const titles = getTitleList()
+        const frames = getFrameGallery()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowProfileCardPanel(false)}>
+            <div className="bg-slate-900 border border-violet-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 profile-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-violet-300 text-lg font-bold">👤 Profile Card</span>
+                <button onClick={() => setShowProfileCardPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Profile Card Display */}
+              <div className="mb-4 p-4 bg-gradient-to-br from-violet-900/30 to-indigo-900/30 border-2 rounded-xl r52-profile-card" style={{ borderColor: frame?.color || '#7c3aed' }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-3xl border-2 r52-avatar-display" style={{ borderColor: frame?.color || '#7c3aed' }}>
+                    {avatar?.emoji || '🐍'}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white text-sm font-bold">{title?.name || 'New Player'}</div>
+                    <div className="text-[10px] text-violet-400">{badge?.name || 'Bronze'} · Level {level?.level || 1}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{pcGetBio() || 'No bio set'}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl">{pcGetMood() || '😊'}</div>
+                    <div className={`text-[8px] px-1.5 py-0.5 rounded-full ${pcGetStatus() === 'online' ? 'bg-emerald-800/50 text-emerald-400' : pcGetStatus() === 'away' ? 'bg-yellow-800/50 text-yellow-400' : pcGetStatus() === 'dnd' ? 'bg-rose-800/50 text-rose-400' : 'bg-slate-700 text-slate-400'}`}>
+                      {pcGetStatus() || 'online'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-1.5">
+                  <span className="text-[8px] bg-violet-800/50 text-violet-300 px-2 py-0.5 rounded-full">🎮 Joined {getJoinDate()}</span>
+                  <span className="text-[8px] bg-indigo-800/50 text-indigo-300 px-2 py-0.5 rounded-full">⏱ {getPlayTime()}h played</span>
+                  <span className="text-[8px] bg-purple-800/50 text-purple-300 px-2 py-0.5 rounded-full">✨ {completion}% complete</span>
+                </div>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Avatars', value: `${avatars.filter((a: { unlocked: boolean }) => a.unlocked).length}/${avatars.length}`, color: 'text-violet-400' },
+                  { label: 'Titles', value: `${titles.filter((t: { earned: boolean }) => t.earned).length}/${titles.length}`, color: 'text-blue-400' },
+                  { label: 'Frames', value: `${frames.filter((f: { unlocked: boolean }) => f.unlocked).length}/${frames.length}`, color: 'text-amber-400' },
+                  { label: 'Rank', value: badge?.icon || '🥉', color: 'text-yellow-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r52-profile-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Avatar Grid */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎭 Avatars</span>
+                <div className="grid grid-cols-8 gap-1.5 mt-1.5">
+                  {avatars.slice(0, 24).map((a: { id: string; emoji: string; unlocked: boolean; selected: boolean }, i: number) => (
+                    <div key={i} onClick={() => { if (a.unlocked && !a.selected) { selectAvatar(a.id); toast({ title: `Avatar equipped!` }) } }}
+                      className={`w-full aspect-square rounded-lg flex items-center justify-center text-lg cursor-pointer transition-all r52-avatar-item ${a.selected ? 'bg-violet-700/50 ring-2 ring-violet-400' : a.unlocked ? 'bg-slate-800 hover:bg-violet-900/30' : 'bg-slate-900 opacity-30'}`}
+                      style={{ animationDelay: `${i * 40}ms` }}>
+                      {a.unlocked ? a.emoji : '🔒'}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Titles */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🏷️ Titles</span>
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {titles.slice(0, 16).map((t: { id: string; name: string; earned: boolean; isNew: boolean }, i: number) => (
+                    <span key={i} onClick={() => { if (t.earned) { selectTitle(t.id); toast({ title: `Title: ${t.name}` }) } }}
+                      className={`text-[9px] px-2 py-0.5 rounded-full cursor-pointer transition-all r52-title-item ${t.isNew ? 'bg-emerald-800/50 text-emerald-300' : t.earned ? 'bg-violet-900/30 text-violet-300 hover:bg-violet-800/40' : 'bg-slate-800 text-slate-600'}`}
+                      style={{ animationDelay: `${i * 50}ms` }}>
+                      {t.earned ? t.name : '🔒'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* Frames */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🖼️ Frames</span>
+                <div className="grid grid-cols-6 gap-1.5 mt-1.5">
+                  {frames.slice(0, 12).map((f: { id: string; name: string; color: string; unlocked: boolean; selected: boolean }, i: number) => (
+                    <div key={i} onClick={() => { if (f.unlocked && !f.selected) { selectFrame(f.id); toast({ title: `Frame: ${f.name}` }) } }}
+                      className={`aspect-[2/1] rounded-lg border-2 flex items-center justify-center text-[8px] cursor-pointer transition-all r52-frame-item ${f.selected ? 'ring-2 ring-white' : f.unlocked ? 'hover:brightness-125' : 'opacity-30'}`}
+                      style={{ borderColor: f.color, background: f.unlocked ? f.color : '#1e293b', animationDelay: `${i * 60}ms` }}>
+                      {f.unlocked ? f.name : '🔒'}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { const code = pcGenShareCode(); navigator.clipboard?.writeText(code); toast({ title: 'Profile code copied!' }) }}
+                  className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  📤 Share Profile
+                </button>
+                <button onClick={() => { unlockAvatar('random'); unlockFrame('random'); earnTitle('word_master'); toast({ title: 'Unlocked rewards!' }) }}
+                  className="flex-1 px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  🎲 Random Unlock
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 52: Skill Tree Panel */}
+      {showSkillTreePanel && mounted && (() => {
+        const tree = getSkillTreeOverview()
+        const branches = getBranches()
+        const stats = getSkillTreeStats()
+        const effects = getActiveBuildSummary()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSkillTreePanel(false)}>
+            <div className="bg-slate-900 border border-amber-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 skilltree-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-amber-300 text-lg font-bold">🌳 Skill Tree</span>
+                <button onClick={() => setShowSkillTreePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Points', value: getSkillPoints(), color: 'text-amber-400' },
+                  { label: 'Spent', value: getTotalSpent(), color: 'text-rose-400' },
+                  { label: 'Active', value: `${getActiveSlotsUsed()}/${getActiveSlots()}`, color: 'text-emerald-400' },
+                  { label: 'Mastery', value: `${stats.mastery}%`, color: 'text-violet-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r52-skill-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Active Build Summary */}
+              <div className="mb-4 p-3 bg-gradient-to-r from-amber-900/30 to-yellow-900/30 border border-amber-700/30 rounded-lg r52-build-card">
+                <span className="text-amber-300 text-xs font-semibold">⚡ Active Build Effects</span>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div className="text-center">
+                    <div className="text-emerald-400 text-sm font-bold">×{getBonusScoreMultiplier()}</div>
+                    <div className="text-[8px] text-slate-500">Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-blue-400 text-sm font-bold">{getBonusSpeed() > 0 ? '+' : ''}{getBonusSpeed()}</div>
+                    <div className="text-[8px] text-slate-500">Speed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-rose-400 text-sm font-bold">+{getBonusLives()}</div>
+                    <div className="text-[8px] text-slate-500">Lives</div>
+                  </div>
+                </div>
+              </div>
+              {/* Skill Branches */}
+              {branches.map((branch: { id: string; name: string; icon: string; color: string; description: string; progress: number; skills: Array<{ id: string; name: string; icon: string; unlocked: boolean; level: number; maxLevel: number; active: boolean }> }, bi: number) => (
+                <div key={bi} className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold" style={{ color: branch.color }}>{branch.icon} {branch.name}</span>
+                    <span className="text-[9px] text-slate-500">{branch.progress}%</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-1 mb-2">
+                    <div className="h-1 rounded-full transition-all r52-branch-fill" style={{ width: `${branch.progress}%`, backgroundColor: branch.color }}></div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {branch.skills.map((skill: { id: string; name: string; icon: string; unlocked: boolean; level: number; maxLevel: number; active: boolean }, si: number) => (
+                      <div key={si} onClick={() => {
+                        if (skill.unlocked && !skill.active && getActiveSlotsUsed() < getActiveSlots()) { toggleActiveSkill(skill.id); toast({ title: `${skill.name} activated!` }) }
+                        else if (skill.active) { toggleActiveSkill(skill.id); toast({ title: `${skill.name} deactivated` }) }
+                        else if (canUnlock(skill.id) && getSkillPoints() > 0) { unlockSkill(skill.id); toast({ title: `${skill.name} unlocked!` }) }
+                      }}
+                        className={`p-2 rounded-lg text-center cursor-pointer transition-all r52-skill-node ${skill.active ? 'ring-2 ring-amber-400 bg-amber-900/30' : skill.unlocked ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-900 opacity-50'}`}
+                        style={{ animationDelay: `${si * 50}ms` }}>
+                        <div className="text-lg">{skill.unlocked ? skill.icon : '🔒'}</div>
+                        <div className={`text-[7px] mt-0.5 ${skill.unlocked ? 'text-slate-300' : 'text-slate-600'}`}>{skill.name}</div>
+                        <div className="text-[7px] text-slate-500">Lv {skill.level}/{skill.maxLevel}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { addSkillPoints(1); toast({ title: '+1 Skill Point!' }) }}
+                  className="flex-1 px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  + Add Point (debug)
+                </button>
+                <button onClick={() => { if (canRespec()) { refundAll(); toast({ title: 'All points refunded!' }) } else { toast({ title: 'Cannot afford respec' }) } }}
+                  className="flex-1 px-3 py-2 bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
+                  🔄 Respec All
                 </button>
               </div>
             </div>

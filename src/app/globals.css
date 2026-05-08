@@ -6396,3 +6396,188 @@
 .market-panel .r51-trend-badge:nth-child(3) { animation-delay: 0.06s; }
 .market-panel .r51-action-btn { animation: r51-action-btn 0.2s ease-out; }
 .market-panel .r51-action-btn:active { transform: scale(0.9); }
+
+/* ===== Round 52: Daily Rewards, Word Connect, Profile Card, Skill Tree Animations ===== */
+
+@keyframes r52-reward-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r52-streak-card {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r52-quest-item {
+  0% { opacity: 0; transform: translateX(-15px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r52-quest-fill {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes r52-chest-item {
+  0% { opacity: 0; transform: scale(0.6) rotate(-10deg); }
+  60% { transform: scale(1.1) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes r52-monthly-fill {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes r52-connect-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r52-daily-card {
+  0% { opacity: 0; transform: translateY(-15px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes r52-game-grid {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r52-grid-cell {
+  0% { opacity: 0; transform: scale(0) rotate(180deg); }
+  70% { transform: scale(1.1) rotate(-5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes r52-found-word {
+  0% { opacity: 0; transform: translateY(8px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes r52-diff-btn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r52-play-btn {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
+  100% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+}
+@keyframes r52-profile-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r52-profile-card {
+  0% { opacity: 0; transform: scale(0.92) translateY(-10px); }
+  60% { transform: scale(1.02) translateY(1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r52-avatar-display {
+  0% { transform: scale(0) rotate(-180deg); }
+  70% { transform: scale(1.15) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes r52-avatar-item {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r52-title-item {
+  0% { opacity: 0; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r52-frame-item {
+  0% { opacity: 0; transform: scale(0.8) translateY(5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r52-skill-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r52-build-card {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r52-branch-fill {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes r52-skill-node {
+  0% { opacity: 0; transform: scale(0.6); }
+  60% { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r52-action-btn {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.93); }
+  100% { transform: scale(1); }
+}
+@keyframes r52-streak-fire {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.15); }
+}
+@keyframes r52-reward-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(251, 146, 60, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(251, 146, 60, 0.6), 0 0 40px rgba(251, 146, 60, 0.2); }
+}
+
+/* Round 52 animation bindings - Daily Rewards */
+.reward-panel .r52-reward-stat { animation: r52-reward-stat 0.35s ease-out both; }
+.reward-panel .r52-reward-stat:nth-child(2) { animation-delay: 0.05s; }
+.reward-panel .r52-reward-stat:nth-child(3) { animation-delay: 0.1s; }
+.reward-panel .r52-reward-stat:nth-child(4) { animation-delay: 0.15s; }
+.reward-panel .r52-streak-card { animation: r52-streak-card 0.4s ease-out both; animation-delay: 0.1s; }
+.reward-panel .r52-quest-item { animation: r52-quest-item 0.3s ease-out both; }
+.reward-panel .r52-quest-fill { animation: r52-quest-fill 0.8s ease-out both; animation-delay: 0.3s; }
+.reward-panel .r52-chest-item { animation: r52-chest-item 0.3s ease-out both; }
+.reward-panel .r52-monthly-fill { animation: r52-monthly-fill 0.6s ease-out both; animation-delay: 0.2s; }
+.reward-panel .r52-action-btn { animation: r52-action-btn 0.2s ease-out; }
+.reward-panel .r52-action-btn:active { transform: scale(0.9); }
+.reward-panel:has(.r52-streak-card) .r52-streak-fire { animation: r52-streak-fire 1.5s ease-in-out infinite; }
+.reward-panel .r52-reward-glow { animation: r52-reward-glow 2s ease-in-out infinite; }
+
+/* Round 52 animation bindings - Word Connect */
+.connect-panel .r52-connect-stat { animation: r52-connect-stat 0.35s ease-out both; }
+.connect-panel .r52-connect-stat:nth-child(2) { animation-delay: 0.05s; }
+.connect-panel .r52-connect-stat:nth-child(3) { animation-delay: 0.1s; }
+.connect-panel .r52-connect-stat:nth-child(4) { animation-delay: 0.15s; }
+.connect-panel .r52-daily-card { animation: r52-daily-card 0.4s ease-out both; animation-delay: 0.1s; }
+.connect-panel .r52-game-grid { animation: r52-game-grid 0.35s ease-out both; animation-delay: 0.15s; }
+.connect-panel .r52-grid-cell { animation: r52-grid-cell 0.25s ease-out both; }
+.connect-panel .r52-grid-cell:nth-child(2) { animation-delay: 0.02s; }
+.connect-panel .r52-grid-cell:nth-child(3) { animation-delay: 0.04s; }
+.connect-panel .r52-grid-cell:nth-child(4) { animation-delay: 0.06s; }
+.connect-panel .r52-grid-cell:nth-child(5) { animation-delay: 0.08s; }
+.connect-panel .r52-grid-cell:nth-child(6) { animation-delay: 0.10s; }
+.connect-panel .r52-grid-cell:nth-child(7) { animation-delay: 0.12s; }
+.connect-panel .r52-grid-cell:nth-child(8) { animation-delay: 0.14s; }
+.connect-panel .r52-found-word { animation: r52-found-word 0.25s ease-out both; }
+.connect-panel .r52-diff-btn { animation: r52-diff-btn 0.3s ease-out both; }
+.connect-panel .r52-diff-btn:nth-child(2) { animation-delay: 0.05s; }
+.connect-panel .r52-diff-btn:nth-child(3) { animation-delay: 0.1s; }
+.connect-panel .r52-play-btn { animation: r52-play-btn 0.4s ease-out; }
+.connect-panel .r52-play-btn:active { transform: scale(0.9); }
+.connect-panel .r52-action-btn { animation: r52-action-btn 0.2s ease-out; }
+.connect-panel .r52-action-btn:active { transform: scale(0.9); }
+
+/* Round 52 animation bindings - Profile Card */
+.profile-panel .r52-profile-stat { animation: r52-profile-stat 0.35s ease-out both; }
+.profile-panel .r52-profile-stat:nth-child(2) { animation-delay: 0.05s; }
+.profile-panel .r52-profile-stat:nth-child(3) { animation-delay: 0.1s; }
+.profile-panel .r52-profile-stat:nth-child(4) { animation-delay: 0.15s; }
+.profile-panel .r52-profile-card { animation: r52-profile-card 0.5s ease-out both; }
+.profile-panel .r52-avatar-display { animation: r52-avatar-display 0.6s ease-out both; animation-delay: 0.2s; }
+.profile-panel .r52-avatar-item { animation: r52-avatar-item 0.2s ease-out both; }
+.profile-panel .r52-title-item { animation: r52-title-item 0.25s ease-out both; }
+.profile-panel .r52-frame-item { animation: r52-frame-item 0.3s ease-out both; }
+.profile-panel .r52-action-btn { animation: r52-action-btn 0.2s ease-out; }
+.profile-panel .r52-action-btn:active { transform: scale(0.9); }
+
+/* Round 52 animation bindings - Skill Tree */
+.skilltree-panel .r52-skill-stat { animation: r52-skill-stat 0.35s ease-out both; }
+.skilltree-panel .r52-skill-stat:nth-child(2) { animation-delay: 0.05s; }
+.skilltree-panel .r52-skill-stat:nth-child(3) { animation-delay: 0.1s; }
+.skilltree-panel .r52-skill-stat:nth-child(4) { animation-delay: 0.15s; }
+.skilltree-panel .r52-build-card { animation: r52-build-card 0.4s ease-out both; animation-delay: 0.1s; }
+.skilltree-panel .r52-branch-fill { animation: r52-branch-fill 0.6s ease-out both; animation-delay: 0.2s; }
+.skilltree-panel .r52-skill-node { animation: r52-skill-node 0.25s ease-out both; }
+.skilltree-panel .r52-skill-node:nth-child(2) { animation-delay: 0.03s; }
+.skilltree-panel .r52-skill-node:nth-child(3) { animation-delay: 0.06s; }
+.skilltree-panel .r52-skill-node:nth-child(4) { animation-delay: 0.09s; }
+.skilltree-panel .r52-action-btn { animation: r52-action-btn 0.2s ease-out; }
+.skilltree-panel .r52-action-btn:active { transform: scale(0.9); }
+
