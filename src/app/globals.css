@@ -2317,3 +2317,213 @@
 .morph-bg {
   animation: morph-bg-kf 12s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Round 21 — Boss Mode, Bot Skins, Seasonal Packs & PvP Stealing
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. boss-appear — Boss spawn entrance with dramatic scale */
+@keyframes boss-appear-kf {
+  0% { opacity: 0; transform: scale(0) rotate(-90deg); }
+  50% { opacity: 1; transform: scale(1.4) rotate(5deg); }
+  70% { transform: scale(0.9) rotate(-3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.boss-appear {
+  animation: boss-appear-kf 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 2. boss-defeat-explosion — Boss defeat burst */
+@keyframes boss-defeat-kf {
+  0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+  30% { transform: scale(2); opacity: 0.9; filter: brightness(2); }
+  100% { transform: scale(4); opacity: 0; filter: brightness(3); }
+}
+
+.boss-defeat-explosion {
+  animation: boss-defeat-kf 1.2s ease-out forwards;
+}
+
+/* 3. boss-pulse-danger — Pulsing danger indicator for active boss */
+@keyframes boss-danger-kf {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4), inset 0 0 4px rgba(239, 68, 68, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.7), inset 0 0 8px rgba(239, 68, 68, 0.2); }
+}
+
+.boss-pulse-danger {
+  animation: boss-danger-kf 1.5s ease-in-out infinite;
+}
+
+/* 4. boss-hit-shake — Screen shake on boss hit */
+@keyframes boss-hit-shake-kf {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-3px, 2px); }
+  30% { transform: translate(3px, -2px); }
+  45% { transform: translate(-2px, -1px); }
+  60% { transform: translate(2px, 1px); }
+  75% { transform: translate(-1px, 2px); }
+}
+
+.boss-hit-shake {
+  animation: boss-hit-shake-kf 0.4s ease-out;
+}
+
+/* 5. bot-skin-card — Bot skin selector card hover */
+@keyframes bot-skin-card-kf {
+  0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.bot-skin-card {
+  animation: bot-skin-card-kf 0.3s ease-out both;
+}
+.bot-skin-card:nth-child(1) { animation-delay: 0.02s; }
+.bot-skin-card:nth-child(2) { animation-delay: 0.04s; }
+.bot-skin-card:nth-child(3) { animation-delay: 0.06s; }
+.bot-skin-card:nth-child(4) { animation-delay: 0.08s; }
+.bot-skin-card:nth-child(5) { animation-delay: 0.10s; }
+.bot-skin-card:nth-child(6) { animation-delay: 0.12s; }
+.bot-skin-card:nth-child(7) { animation-delay: 0.14s; }
+.bot-skin-card:nth-child(8) { animation-delay: 0.16s; }
+
+/* 6. steal-flash — Flash effect when power-up is stolen */
+@keyframes steal-flash-kf {
+  0% { opacity: 1; transform: scale(1); }
+  30% { opacity: 0.8; transform: scale(1.3); }
+  100% { opacity: 0; transform: translateY(-30px) scale(0.7); }
+}
+
+.steal-flash {
+  animation: steal-flash-kf 1s ease-out forwards;
+  pointer-events: none;
+}
+
+/* 7. seasonal-badge — Seasonal pack badge shimmer */
+@keyframes seasonal-badge-kf {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.seasonal-badge {
+  background: linear-gradient(90deg, transparent 20%, rgba(251, 191, 36, 0.3) 50%, transparent 80%);
+  background-size: 200% 100%;
+  animation: seasonal-badge-kf 3s ease-in-out infinite;
+}
+
+/* 8. boss-progress-fill — Animated boss HP bar fill */
+@keyframes boss-progress-kf {
+  0% { width: 100%; }
+  100% { width: var(--boss-hp); }
+}
+
+.boss-progress-fill {
+  animation: boss-progress-kf 0.5s ease-out forwards;
+}
+
+/* 9. legendary-glow — Legendary tier golden glow */
+@keyframes legendary-glow-kf {
+  0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.4), 0 0 16px rgba(168, 85, 247, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.7), 0 0 32px rgba(168, 85, 247, 0.4); }
+}
+
+.legendary-glow {
+  animation: legendary-glow-kf 2s ease-in-out infinite;
+}
+
+/* 10. skin-swatch — Color swatch ring on hover */
+@keyframes skin-swatch-kf {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 4px currentColor; }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+}
+
+.skin-swatch {
+  transition: all 0.2s ease;
+}
+.skin-swatch:hover {
+  animation: skin-swatch-kf 0.4s ease-in-out;
+}
+
+/* 11. pvp-steal-indicator — Floating steal indicator */
+@keyframes pvp-steal-indicator-kf {
+  0%, 100% { opacity: 0.6; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-4px); }
+}
+
+.pvp-steal-indicator {
+  animation: pvp-steal-indicator-kf 1s ease-in-out infinite;
+}
+
+/* 12. boss-reward — Reward popup on boss defeat */
+@keyframes boss-reward-kf {
+  0% { opacity: 0; transform: translateY(20px) scale(0.8); }
+  20% { opacity: 1; transform: translateY(-5px) scale(1.1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.boss-reward {
+  animation: boss-reward-kf 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 13. skin-unlock-badge — Locked skin overlay pulse */
+@keyframes skin-lock-kf {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.4; }
+}
+
+.skin-lock-overlay {
+  animation: skin-lock-kf 2s ease-in-out infinite;
+}
+
+/* 14. seasonal-entrance — Seasonal card entrance with season-themed gradient */
+@keyframes seasonal-entrance-kf {
+  0% { opacity: 0; transform: scale(0.9) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.seasonal-entrance {
+  animation: seasonal-entrance-kf 0.5s ease-out;
+}
+
+/* 15. boss-tier-label — Tier label glow */
+@keyframes boss-tier-kf {
+  0%, 100% { text-shadow: 0 0 4px currentColor; }
+  50% { text-shadow: 0 0 12px currentColor, 0 0 20px currentColor; }
+}
+
+.boss-tier-label {
+  animation: boss-tier-kf 1.5s ease-in-out infinite;
+}
+
+/* 16. countdown-pulse — Boss despawn countdown pulse */
+@keyframes countdown-pulse-kf {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.countdown-pulse {
+  animation: countdown-pulse-kf 0.5s ease-in-out infinite;
+}
+
+/* 17. steal-cooldown — Cooldown indicator ring */
+@keyframes steal-cooldown-kf {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.steal-cooldown-ring {
+  animation: steal-cooldown-kf 5s linear forwards;
+}
+
+/* 18. boss-warning-banner — Warning banner slide-in */
+@keyframes boss-warning-kf {
+  0% { opacity: 0; transform: translateX(-100%); }
+  20% { opacity: 1; transform: translateX(0); }
+  80% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+
+.boss-warning-banner {
+  animation: boss-warning-kf 3s ease-in-out forwards;
+}

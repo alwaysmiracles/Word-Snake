@@ -50,6 +50,10 @@ import { startRecording, recordFrame, stopRecording, isRecording, getReplays, de
 import { shouldSpawnObstacle, getMaxObstacles, generateObstacles, checkObstacleCollision, getObstacleDrawInfo, OBSTACLE_CONFIG, MIN_WORDS_FOR_OBSTACLES, type Obstacle, type ObstacleType } from '@/lib/obstacles'
 import { shouldSpawnPortal, getMaxPortalPairs, generatePortalPair, checkPortalTeleport, getPortalDrawInfo, type PortalPair } from '@/lib/portals'
 import { shouldSpawnQuiz, generateQuiz, checkAnswer, saveQuizResult, formatQuizBonus, QUIZ_DURATION, type WordQuiz, type QuizResult } from '@/lib/word-quiz'
+import { shouldSpawnBoss, generateBoss, checkBossHit, getBossDrawInfo, getBossTierInfo, isBossExpired, BOSS_DESPAWN_TIME, BOSS_POOL, type BossWord } from '@/lib/boss-mode'
+import { getBotSkin, getDefaultBotSkin, isBotSkinUnlocked, getUnlockedBotSkins, getSavedBotSkin, saveBotSkin, AI_BOT_SKINS, type AiBotSkin } from '@/lib/ai-bot-skins'
+import { getActiveSeasonalPacks, SEASONAL_CATEGORY_INFO, type SeasonalPack } from '@/lib/seasonal-packs'
+import { canStealPowerUp, executeSteal, createPvpPowerUpState, getStealDrawInfo, STEAL_INDICATOR_DURATION, type PvpPowerUpState, type StolenPowerUpEvent } from '@/lib/pvp-powerups'
 import {
   Play,
   RotateCcw,
@@ -178,6 +182,10 @@ interface GameState {
   activeQuiz: WordQuiz | null
   quizStreak: number
   iceSlideQueued: boolean
+  boss: BossWord | null
+  bossDefeats: number
+  activeBotSkin: AiBotSkin
+  pvpPowerUpState: PvpPowerUpState | null
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -510,6 +518,12 @@ export default function SnakeGame() {
   const quizStreakRef = useRef(0)
   const iceSlideQueuedRef = useRef(false)
 
+  // Boss mode refs
+  const bossRef = useRef<BossWord | null>(null)
+  const bossDefeatsRef = useRef(0)
+  const activeBotSkinRef = useRef<AiBotSkin>(getDefaultBotSkin())
+  const pvpPowerUpStateRef = useRef<PvpPowerUpState | null>(null)
+
   // Tutorial state
   const [tutorialCompleted, setTutorialCompleted] = useState(false)
   const [tutorialActive, setTutorialActive] = useState(false)
@@ -560,6 +574,9 @@ export default function SnakeGame() {
     quizStreak: 0,
     obstacleCount: 0,
     portalCount: 0,
+    bossActive: false,
+    bossTier: null as string | null,
+    bossProgress: 0,
   })
 
   // Skin state
@@ -570,6 +587,9 @@ export default function SnakeGame() {
 
   // Settings dialog
   const [showSettings, setShowSettings] = useState(false)
+
+  // Bot skin selector
+  const [showBotSkinSelector, setShowBotSkinSelector] = useState(false)
 
   // Speed run state
   const [speedRunBest, setSpeedRunBest] = useState<{ bestScore: number; totalRuns: number }>({ bestScore: 0, totalRuns: 0 })
@@ -635,6 +655,9 @@ export default function SnakeGame() {
       quizStreak: gs.quizStreak,
       obstacleCount: gs.obstacles.length,
       portalCount: gs.portalPairs.length,
+      bossActive: !!gs.boss && gs.boss.phase !== 'defeated',
+      bossTier: gs.boss ? (BOSS_POOL.find(b => b.word === gs.boss.word)?.tier ?? null) : null,
+      bossProgress: gs.boss ? gs.boss.currentPasses / gs.boss.requiredPasses : 0,
     })
   }, [])
 
@@ -1363,7 +1386,15 @@ export default function SnakeGame() {
     // ===== AI Bot: Draw Bot Snake =====
     const aiBotDraw = aiBotRef.current
     if (aiBotDraw && aiBotDraw.snake.length > 0) {
-      const botColors = getAiBotDrawInfo()
+      const skin = activeBotSkinRef.current
+      const botColors = {
+        headColor: skin.headColor,
+        bodyStartColor: skin.bodyColor,
+        bodyEndColor: skin.bodyColorEnd,
+        glowColor: skin.glowColor,
+        eyeWhiteColor: '#ffffff',
+        eyePupilColor: '#1c1917',
+      }
       // Bot body trail glow
       ctx.globalAlpha = 0.04
       ctx.fillStyle = botColors.glowColor
@@ -1404,11 +1435,11 @@ export default function SnakeGame() {
 
           // Bot label near head
           ctx.globalAlpha = 0.5
-          ctx.fillStyle = '#f97316'
+          ctx.fillStyle = skin.glowColor
           ctx.font = 'bold 8px sans-serif'
           ctx.textAlign = 'center'
           ctx.textBaseline = 'bottom'
-          ctx.fillText('🤖', cx, segment.y * CELL_SIZE - 2)
+          ctx.fillText(skin.headEmoji, cx, segment.y * CELL_SIZE - 2)
           ctx.textAlign = 'start'
           ctx.textBaseline = 'alphabetic'
           ctx.globalAlpha = 1
@@ -1428,6 +1459,60 @@ export default function SnakeGame() {
       })
     }
     // ===== END AI Bot Drawing =====
+
+    // PvP Power-up steal indicators
+    if (pvpDraw && gs.pvpPowerUpState && snake.length > 0 && pvpDraw.player2Snake.length > 0) {
+      const p1Head = snake[0]
+      const p2Head = pvpDraw.player2Snake[0]
+      const nowPvp = Date.now()
+      // Check if player 1 can steal from player 2
+      const p1Steal = canStealPowerUp(1, 2, p1Head, p2Head,
+        gs.pvpPowerUpState.player2ActivePowerUps, gs.pvpPowerUpState, nowPvp)
+      if (p1Steal.canSteal && p1Steal.targetType) {
+        const ix = p1Head.x * CELL_SIZE + CELL_SIZE / 2
+        const iy = p1Head.y * CELL_SIZE - 12
+        const pulse = 0.7 + Math.sin(nowPvp / 200) * 0.3
+        ctx.globalAlpha = pulse
+        ctx.font = '12px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('\u{1FAE3}', ix, iy)
+        ctx.globalAlpha = 1
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+      }
+      // Check if player 2 can steal from player 1
+      const p2Steal = canStealPowerUp(2, 1, p2Head, p1Head,
+        gs.pvpPowerUpState.player1ActivePowerUps, gs.pvpPowerUpState, nowPvp)
+      if (p2Steal.canSteal && p2Steal.targetType) {
+        const ix = p2Head.x * CELL_SIZE + CELL_SIZE / 2
+        const iy = p2Head.y * CELL_SIZE - 12
+        const pulse = 0.7 + Math.sin(nowPvp / 200) * 0.3
+        ctx.globalAlpha = pulse
+        ctx.font = '12px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('\u{1FAE3}', ix, iy)
+        ctx.globalAlpha = 1
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+      }
+      // Draw steal event notifications
+      for (const event of gs.pvpPowerUpState.recentSteals) {
+        const sdi = getStealDrawInfo(event, nowPvp)
+        if (sdi.opacity > 0) {
+          ctx.globalAlpha = sdi.opacity
+          ctx.fillStyle = sdi.color
+          ctx.font = 'bold 11px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText(sdi.text, CANVAS_WIDTH / 2 + sdi.x, 50 + sdi.y)
+          ctx.globalAlpha = 1
+          ctx.textAlign = 'start'
+          ctx.textBaseline = 'alphabetic'
+        }
+      }
+    }
 
     // Platinum milestone: golden sparkle particle trail behind snake head
     if (gameStarted && !gameOver && !paused && snake.length > 0) {
@@ -1663,6 +1748,50 @@ export default function SnakeGame() {
           ctx.stroke()
         }
       }
+    }
+
+    // Draw boss
+    if (gs.boss && gs.boss.phase !== 'defeated' || (gs.boss && gs.boss.phase === 'defeated' && Date.now() - gs.boss.defeatedEffect < 1500)) {
+      const bdi = getBossDrawInfo(gs.boss, now)
+      const bx = gs.boss.position.x * CELL_SIZE + CELL_SIZE / 2
+      const by = gs.boss.position.y * CELL_SIZE + CELL_SIZE / 2
+
+      if (gs.boss.phase === 'defeated') {
+        // Defeated explosion
+        ctx.globalAlpha = bdi.opacity
+        ctx.beginPath()
+        ctx.arc(bx + bdi.shakeX, by, CELL_SIZE * bdi.size, 0, Math.PI * 2)
+        ctx.fillStyle = bdi.glow
+        ctx.fill()
+      } else {
+        // Progress ring
+        ctx.beginPath()
+        ctx.arc(bx, by, CELL_SIZE * 1.1, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * bdi.progress))
+        ctx.strokeStyle = bdi.glow
+        ctx.lineWidth = 2
+        ctx.stroke()
+
+        // Glow
+        ctx.globalAlpha = 0.3
+        ctx.beginPath()
+        ctx.arc(bx, by, CELL_SIZE * bdi.size * 1.2, 0, Math.PI * 2)
+        ctx.fillStyle = bdi.glow
+        ctx.fill()
+        ctx.globalAlpha = 1
+
+        // Boss word
+        ctx.font = `bold ${CELL_SIZE * bdi.size * 0.7}px monospace`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = '#ffffff'
+        ctx.fillText(bdi.emoji + ' ' + gs.boss.word, bx + bdi.shakeX, by)
+
+        // Progress text
+        ctx.font = `bold ${CELL_SIZE * 0.5}px monospace`
+        ctx.fillStyle = bdi.glow
+        ctx.fillText(`${gs.boss.currentPasses}/${gs.boss.requiredPasses}`, bx, by + CELL_SIZE * 1.3)
+      }
+      ctx.globalAlpha = 1
     }
 
     // Combo indicator
@@ -2670,6 +2799,19 @@ export default function SnakeGame() {
     quizStreakRef.current = 0
     iceSlideQueuedRef.current = false
 
+    // Reset boss
+    gs.boss = null
+    bossRef.current = null
+    // Load boss defeats count
+    try { bossDefeatsRef.current = parseInt(localStorage.getItem('word-snake-boss-defeats') || '0') } catch { bossDefeatsRef.current = 0 }
+    gs.bossDefeats = bossDefeatsRef.current
+    // Load bot skin
+    activeBotSkinRef.current = getBotSkin(getSavedBotSkin()) || getDefaultBotSkin()
+    gs.activeBotSkin = activeBotSkinRef.current
+    // Reset PvP power-up state
+    pvpPowerUpStateRef.current = null
+    gs.pvpPowerUpState = null
+
     // Clear achievement queue and toast
     achievementQueue.clear()
     // Start replay recording (not for PvP or replay mode)
@@ -3418,6 +3560,38 @@ export default function SnakeGame() {
         }
       }
 
+      // Check boss hit
+      if (!gs.isDailyChallenge && gs.boss && gs.boss.phase !== 'defeated') {
+        const bossHit = checkBossHit(head, gs.boss)
+        if (bossHit.hit) {
+          gs.boss.hitEffect = Date.now()
+          if (bossHit.defeated) {
+            gs.boss.phase = 'defeated'
+            gs.boss.defeatedEffect = Date.now()
+            const bossConfig = BOSS_POOL.find(b => b.word === gs.boss!.word)
+            const reward = bossConfig ? Math.round(gs.boss.word.length * bossConfig.rewardMultiplier * 10) : 50
+            gs.score += reward
+            bossDefeatsRef.current++
+            gs.bossDefeats = bossDefeatsRef.current
+            try { localStorage.setItem('word-snake-boss-defeats', String(bossDefeatsRef.current)) } catch {}
+            spawnFloatingText('\u{1F480} BOSS DEFEATED! +' + reward, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40, '#f59e0b')
+            spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#f59e0b', 30)
+            // Remove boss after animation
+            setTimeout(() => { gs.boss = null; bossRef.current = null; updateUI() }, 1500)
+          } else {
+            const progress = `${gs.boss.currentPasses}/${gs.boss.requiredPasses}`
+            spawnFloatingText('\u{1F4A4} Hit! ' + progress, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 15, '#fb923c')
+            spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#fb923c', 8)
+          }
+        }
+        // Check boss expiry
+        if (gs.boss && isBossExpired(gs.boss, Date.now())) {
+          gs.boss = null
+          bossRef.current = null
+          spawnFloatingText('\u{1F480} Boss escaped!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ef4444')
+        }
+      }
+
       const newSnake = [head, ...snake]
 
       if (wordFood) {
@@ -3732,6 +3906,16 @@ export default function SnakeGame() {
             if (quiz) {
               gs.activeQuiz = quiz
               updateUI()
+            }
+          }
+          // Spawn boss
+          if (!gs.isDailyChallenge && !gs.boss && shouldSpawnBoss(gs.wordsEaten)) {
+            const boss = generateBoss(gs.snake, gs.wordFood?.position || null, gs.obstacles, { width: GRID_WIDTH, height: GRID_HEIGHT })
+            if (boss) {
+              gs.boss = boss
+              bossRef.current = boss
+              const tierInfo = getBossTierInfo(BOSS_POOL.find(b => b.word === boss.word)?.tier || 'minor')
+              spawnFloatingText(tierInfo.emoji + ' BOSS: ' + boss.word + '!', CANVAS_WIDTH / 2, 60, tierInfo.color)
             }
           }
         } else {
@@ -4580,6 +4764,38 @@ export default function SnakeGame() {
                         </button>
                       )
                     })}
+                    {/* Seasonal packs */}
+                    {getActiveSeasonalPacks().map((spack) => {
+                      const isActive = activeWordPack === spack.id
+                      return (
+                        <button
+                          key={spack.id}
+                          onClick={() => {
+                            setActivePack(spack.id)
+                            setActiveWordPack(spack.id)
+                            playSound(playClickSound)
+                          }}
+                          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border active:scale-95 ${
+                            isActive
+                              ? 'text-white shadow-sm word-pack-glow'
+                              : 'text-slate-300 border-slate-700/30 hover:border-slate-600/50 hover:text-slate-100'
+                          }`}
+                          style={isActive ? {
+                            backgroundColor: `${spack.color}30`,
+                            borderColor: `${spack.color}60`,
+                            '--pack-glow': `${spack.color}40`,
+                            boxShadow: `0 0 12px ${spack.color}20`,
+                          } : {
+                            backgroundColor: `${spack.color}10`,
+                          }}
+                          title={`${spack.name}: ${spack.description} (${spack.words.length} words)`}
+                        >
+                          <span>{spack.emoji}</span>
+                          <span>{spack.name}</span>
+                          <span className="text-[9px] opacity-60">{spack.words.length}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                   {activeWordPack !== 'default' && (() => {
                     const activePack = WORD_PACKS.find(p => p.id === activeWordPack)
@@ -4938,6 +5154,14 @@ export default function SnakeGame() {
                       title="Challenge an AI-controlled bot opponent"
                     >
                       <Bot className="h-4 w-4 mr-1" /> vs AI Bot 🤖
+                    </Button>
+                    <Button
+                      onClick={() => { setShowBotSkinSelector(true); playSound(playClickSound) }}
+                      variant="outline"
+                      className="border-pink-700/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform"
+                      title="Choose your AI Bot opponent's appearance"
+                    >
+                      🎨 Bot Skin
                     </Button>
                     {!tutorialCompleted && (
                       <Button
@@ -5550,6 +5774,66 @@ export default function SnakeGame() {
         currentTrail={activeTrail}
         onTrailChange={(trail) => { setActiveTrail(trail); saveTrail(trail) }}
       />
+
+      {/* Bot Skin Selector Modal */}
+      {showBotSkinSelector && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowBotSkinSelector(false)}>
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-100">🎨 Bot Skins</h3>
+              <button onClick={() => setShowBotSkinSelector(false)} className="text-slate-400 hover:text-slate-200 text-xl leading-none">&times;</button>
+            </div>
+            <p className="text-xs text-slate-400 mb-4">Choose the appearance of your AI Bot opponent. Some skins unlock via score milestones, achievements, or boss defeats.</p>
+            <div className="grid gap-2">
+              {AI_BOT_SKINS.map((skin) => {
+                const unlocked = isBotSkinUnlocked(skin.id)
+                const isActive = activeBotSkinRef.current.id === skin.id
+                return (
+                  <button
+                    key={skin.id}
+                    onClick={() => {
+                      if (!unlocked) return
+                      activeBotSkinRef.current = skin
+                      saveBotSkin(skin.id)
+                      setShowBotSkinSelector(false)
+                    }}
+                    disabled={!unlocked}
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 text-left ${
+                      isActive
+                        ? 'border-pink-500/60 bg-pink-500/10 shadow-sm'
+                        : unlocked
+                          ? 'border-slate-700/40 bg-slate-800/40 hover:border-slate-600/60 hover:bg-slate-800/60'
+                          : 'border-slate-800/40 bg-slate-900/40 opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0" style={{ backgroundColor: skin.headColor + '20' }}>
+                      {skin.headEmoji}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${isActive ? 'text-pink-300' : unlocked ? 'text-slate-200' : 'text-slate-500'}`}>{skin.name}</span>
+                        {isActive && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">Active</span>}
+                        {!unlocked && <Lock className="h-3 w-3 text-slate-600" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-0.5">{skin.description}</p>
+                      {!unlocked && skin.unlockRequirement && (
+                        <p className="text-[9px] text-slate-600 mt-0.5">
+                          Unlock: {skin.unlockType === 'score' ? `Best score ≥ ${skin.unlockRequirement}` : skin.unlockType === 'achievement' ? `Achievement: ${skin.unlockRequirement}` : skin.unlockType === 'boss' ? `Defeat ${skin.unlockRequirement} bosses` : 'Free'}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-0.5 shrink-0">
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: skin.headColor }} title="Head" />
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: skin.bodyColor }} title="Body" />
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: skin.bodyColorEnd }} title="Body End" />
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Speed Run best score display */}
       {mounted && speedRunBest.totalRuns > 0 && !uiState.gameStarted && (
