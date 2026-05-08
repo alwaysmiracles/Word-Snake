@@ -6126,3 +6126,193 @@
 .world-map-panel .r48-explore-btn { animation: r48-explore-btn 2s ease-in-out infinite; }
 .world-map-panel .r48-event { animation: r48-event 2s ease-in-out infinite; }
 .world-map-panel .r48-recommended { animation: r48-recommended 0.3s ease-out both; }
+
+/* ===== Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config Animations ===== */
+@keyframes r49-tournament-stat {
+  0% { opacity: 0; transform: scale(0.8) translateY(8px); }
+  60% { transform: scale(1.05) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r49-active-tournament {
+  0% { opacity: 0; transform: translateX(-12px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r49-upcoming-match {
+  0% { opacity: 0; transform: scale(0.9); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+  50% { transform: scale(1.01); box-shadow: 0 0 20px 2px rgba(251, 146, 60, 0.15); }
+  100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px 0 rgba(251, 146, 60, 0.1); }
+}
+@keyframes r49-result-item {
+  0% { opacity: 0; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r49-leaderboard-item {
+  0% { opacity: 0; transform: translateX(-10px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r49-action-btn {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@keyframes r49-puzzle-stat {
+  0% { opacity: 0; transform: scale(0.7) translateY(10px); }
+  70% { transform: scale(1.08) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r49-daily-puzzle {
+  0% { opacity: 0; background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { opacity: 1; background-position: 50% 50%; }
+}
+@keyframes r49-daily-challenge {
+  0% { opacity: 0; border-color: rgba(245, 158, 11, 0); }
+  50% { border-color: rgba(245, 158, 11, 0.4); }
+  100% { opacity: 1; border-color: rgba(245, 158, 11, 0.2); }
+}
+@keyframes r49-puzzle-type-btn {
+  0% { opacity: 0; transform: scale(0.9) translateY(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r49-score-item {
+  0% { opacity: 0; transform: translateX(-6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r49-diff-badge {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r49-overall-score {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r49-grade-ring {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes r49-progress-fill {
+  0% { width: 0%; }
+  100% { width: var(--target-width, 100%); }
+}
+@keyframes r49-category-progress {
+  0% { opacity: 0; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r49-category-bar-fill {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes r49-strength-item {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r49-weakness-item {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes r49-weekly-card {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r49-suggestion-item {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r49-controller-stat {
+  0% { opacity: 0; transform: scale(0.8) translateY(8px); }
+  60% { transform: scale(1.06) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r49-sensitivity-panel {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r49-keybind-item {
+  0% { opacity: 0; transform: translateX(-6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r49-profile-btn {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r49-key-badge {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r49-setting-row {
+  0% { opacity: 0; transform: translateX(-4px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Round 49 animation assignments - Tournament */
+.tournament-panel .r49-tournament-stat { animation: r49-tournament-stat 0.4s ease-out both; }
+.tournament-panel .r49-tournament-stat:nth-child(2) { animation-delay: 0.05s; }
+.tournament-panel .r49-tournament-stat:nth-child(3) { animation-delay: 0.1s; }
+.tournament-panel .r49-tournament-stat:nth-child(4) { animation-delay: 0.15s; }
+.tournament-panel .r49-active-tournament { animation: r49-active-tournament 0.3s ease-out both; }
+.tournament-panel .r49-upcoming-match { animation: r49-upcoming-match 0.5s ease-out both; }
+.tournament-panel .r49-result-item { animation: r49-result-item 0.25s ease-out both; }
+.tournament-panel .r49-result-item:nth-child(2) { animation-delay: 0.04s; }
+.tournament-panel .r49-result-item:nth-child(3) { animation-delay: 0.08s; }
+.tournament-panel .r49-leaderboard-item { animation: r49-leaderboard-item 0.3s ease-out both; }
+.tournament-panel .r49-leaderboard-item:nth-child(2) { animation-delay: 0.05s; }
+.tournament-panel .r49-action-btn { animation: r49-action-btn 0.2s ease-out; }
+.tournament-panel .r49-action-btn:active { transform: scale(0.93); }
+
+/* Round 49 animation assignments - Puzzle */
+.puzzle-panel .r49-puzzle-stat { animation: r49-puzzle-stat 0.4s ease-out both; }
+.puzzle-panel .r49-puzzle-stat:nth-child(2) { animation-delay: 0.05s; }
+.puzzle-panel .r49-puzzle-stat:nth-child(3) { animation-delay: 0.1s; }
+.puzzle-panel .r49-puzzle-stat:nth-child(4) { animation-delay: 0.15s; }
+.puzzle-panel .r49-daily-puzzle { animation: r49-daily-puzzle 0.6s ease-out both; }
+.puzzle-panel .r49-daily-challenge { animation: r49-daily-challenge 0.5s ease-out both; animation-delay: 0.1s; }
+.puzzle-panel .r49-puzzle-type-btn { animation: r49-puzzle-type-btn 0.3s ease-out both; }
+.puzzle-panel .r49-puzzle-type-btn:nth-child(2) { animation-delay: 0.04s; }
+.puzzle-panel .r49-puzzle-type-btn:nth-child(3) { animation-delay: 0.08s; }
+.puzzle-panel .r49-puzzle-type-btn:nth-child(4) { animation-delay: 0.12s; }
+.puzzle-panel .r49-puzzle-type-btn:nth-child(5) { animation-delay: 0.16s; }
+.puzzle-panel .r49-puzzle-type-btn:nth-child(6) { animation-delay: 0.2s; }
+.puzzle-panel .r49-score-item { animation: r49-score-item 0.25s ease-out both; }
+.puzzle-panel .r49-diff-badge { animation: r49-diff-badge 0.3s ease-out both; }
+.puzzle-panel .r49-diff-badge:nth-child(2) { animation-delay: 0.05s; }
+.puzzle-panel .r49-action-btn { animation: r49-action-btn 0.2s ease-out; }
+.puzzle-panel .r49-action-btn:active { transform: scale(0.93); }
+
+/* Round 49 animation assignments - Progress Dashboard */
+.progress-dash-panel .r49-overall-score { animation: r49-overall-score 0.5s ease-out both; }
+.progress-dash-panel .r49-grade-ring { animation: r49-grade-ring 0.6s ease-out both; animation-delay: 0.15s; }
+.progress-dash-panel .r49-progress-fill { animation: r49-progress-fill 1s ease-out both; animation-delay: 0.3s; }
+.progress-dash-panel .r49-category-progress { animation: r49-category-progress 0.3s ease-out both; }
+.progress-dash-panel .r49-category-progress:nth-child(2) { animation-delay: 0.04s; }
+.progress-dash-panel .r49-category-progress:nth-child(3) { animation-delay: 0.08s; }
+.progress-dash-panel .r49-category-progress:nth-child(4) { animation-delay: 0.12s; }
+.progress-dash-panel .r49-category-progress:nth-child(5) { animation-delay: 0.16s; }
+.progress-dash-panel .r49-category-progress:nth-child(6) { animation-delay: 0.2s; }
+.progress-dash-panel .r49-category-progress:nth-child(7) { animation-delay: 0.24s; }
+.progress-dash-panel .r49-category-progress:nth-child(8) { animation-delay: 0.28s; }
+.progress-dash-panel .r49-strength-item { animation: r49-strength-item 0.3s ease-out both; }
+.progress-dash-panel .r49-weakness-item { animation: r49-weakness-item 0.3s ease-out both; animation-delay: 0.1s; }
+.progress-dash-panel .r49-weekly-card { animation: r49-weekly-card 0.4s ease-out both; }
+.progress-dash-panel .r49-suggestion-item { animation: r49-suggestion-item 0.25s ease-out both; }
+.progress-dash-panel .r49-suggestion-item:nth-child(2) { animation-delay: 0.05s; }
+.progress-dash-panel .r49-suggestion-item:nth-child(3) { animation-delay: 0.1s; }
+
+/* Round 49 animation assignments - Controller */
+.controller-panel .r49-controller-stat { animation: r49-controller-stat 0.4s ease-out both; }
+.controller-panel .r49-controller-stat:nth-child(2) { animation-delay: 0.05s; }
+.controller-panel .r49-controller-stat:nth-child(3) { animation-delay: 0.1s; }
+.controller-panel .r49-controller-stat:nth-child(4) { animation-delay: 0.15s; }
+.controller-panel .r49-sensitivity-panel { animation: r49-sensitivity-panel 0.4s ease-out both; }
+.controller-panel .r49-keybind-item { animation: r49-keybind-item 0.25s ease-out both; }
+.controller-panel .r49-keybind-item:nth-child(2) { animation-delay: 0.04s; }
+.controller-panel .r49-keybind-item:nth-child(3) { animation-delay: 0.08s; }
+.controller-panel .r49-keybind-item:nth-child(4) { animation-delay: 0.12s; }
+.controller-panel .r49-keybind-item:nth-child(5) { animation-delay: 0.16s; }
+.controller-panel .r49-profile-btn { animation: r49-profile-btn 0.3s ease-out both; }
+.controller-panel .r49-key-badge { animation: r49-key-badge 0.25s ease-out both; }
+.controller-panel .r49-key-badge:nth-child(2) { animation-delay: 0.03s; }
+.controller-panel .r49-key-badge:nth-child(3) { animation-delay: 0.06s; }
+.controller-panel .r49-setting-row { animation: r49-setting-row 0.25s ease-out both; }
+.controller-panel .r49-setting-row:nth-child(2) { animation-delay: 0.04s; }
+.controller-panel .r49-setting-row:nth-child(3) { animation-delay: 0.08s; }

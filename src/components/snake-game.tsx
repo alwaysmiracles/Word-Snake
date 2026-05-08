@@ -155,7 +155,7 @@ import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, va
 import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme as atGetGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
 // Round 49: Tournament Bracket Wire, Word Puzzle Wire, Progress Dashboard Wire, Controller Config Wire
 import { createTournament, getTournament, getActiveTournaments, generateBracket, getBracket, getMatch, reportMatchResult, advanceBracket, getTournamentStandings, joinTournament, getParticipants, getMyMatchups, getTournamentLeaderboard, getPlayerRanking, getWinRate, getBestStreak as tbbGetBestStreak, claimTournamentReward, getTournamentOverview, getBracketCard, getMatchCard, getMyStats as tbGetMyStats, getRecentResults, startQuickMatch, getQuickMatchStatus } from '@/lib/tournament-bracket-wire'
-import { generateCrossword, getCrosswordClues, checkCrosswordAnswer, getCrosswordProgress, generateAnagram, checkAnagram, generateWordSearch, getWordSearchWords, getWordSearchProgress, generateScramble as pzGenerateScramble, checkScrambleAnswer as pzCheckScrambleAnswer, getScrambleStats, startWordChain, isValidChainWord, getChainLength, getPuzzleStats, getPuzzleStreak, getBestScores, getDailyPuzzle as pzGetDailyChallenge, getDailyPuzzleStreak, getPuzzleOverview, getAvailablePuzzles, getPuzzleCard, getQuickPuzzle, getDailyChallenge as pzGetDailyChallenge, getDifficultyDistribution, claimPuzzleReward, completeDailyPuzzle } from '@/lib/word-puzzle-wire'
+import { generateCrossword, getCrosswordClues, checkCrosswordAnswer, getCrosswordProgress, generateAnagram, checkAnagram, generateWordSearch, getWordSearchWords, getWordSearchProgress, generateScramble as pzGenerateScramble, checkScrambleAnswer as pzCheckScrambleAnswer, getScrambleStats, startWordChain, isValidChainWord, getChainLength, getPuzzleStats, getPuzzleStreak, getBestScores, getDailyPuzzle as pzGetDailyPuzzle, getDailyPuzzleStreak, getPuzzleOverview, getAvailablePuzzles, getPuzzleCard, getQuickPuzzle, getDailyChallenge as pzGetDailyChallenge, getDifficultyDistribution, claimPuzzleReward, completeDailyPuzzle } from '@/lib/word-puzzle-wire'
 import { getOverallProgressScore, getProgressGrade, getProgressPercent, getGameplayProgress, getCollectionProgress, getMasteryProgress as pdGetMasteryProgress, getAchievementProgress, getSocialProgress, getExplorationProgress, getEconomyProgress, getBattlePassProgress, getWeeklyProgress, getProgressTrend, getGoalsAndTargets, getMilestones, getStrengthsAndWeaknesses, getImprovementSuggestions, getAvailableWidgets, getWidgetData, getProgressDashboardOverview, getProgressRingData, getProgressBarData, getSummaryCard } from '@/lib/progress-dashboard-wire'
 import { getDefaultKeybinds, getKeybinds, setKeybind, resetAllKeybinds, getKeybindForAction, getActionForKey, getProfiles, createProfile, deleteProfile, loadProfile as ctrlLoadProfile, getDefaultProfiles, getSensitivity, setSensitivity as ctrlSetSensitivity, getSensitivityPresets, getTouchConfig, setTouchConfig, getGesturesEnabled, toggleGesture, getControllerConfig, getControllerMappings, setControllerMapping, getInputHeatmap, getAPM, getMostUsedKeys, getControllerOverview, getKeybindGrid, getQuickSettings, getRecommendedSettings, getAccessibilityInput, setAccessibilityInput, getInputAssistLevel, setInputAssistLevel } from '@/lib/controller-config-wire'
 // Round 48: Soundtrack Manager Wire, Social Activity Feed Wire, Inventory System Wire, World Map Explorer Wire
@@ -11364,6 +11364,469 @@ export default function SnakeGame() {
                   <div className="flex flex-wrap gap-1.5 mt-1.5">
                     {recommended.slice(0, 4).map((r: { name: string; difficulty: string }, i: number) => (
                       <span key={i} className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded-lg r48-recommended">{r.name} <span className="text-slate-500">({r.difficulty})</span></span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 49: Tournament Bracket Panel */}
+      {showTournamentPanel && mounted && (() => {
+        const overview = getTournamentOverview()
+        const active = getActiveTournaments()
+        const myStats = tbGetMyStats()
+        const leaderboard = getTournamentLeaderboard()
+        const upcoming = getUpcomingMatch()
+        const recentResults = getRecentResults()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTournamentPanel(false)}>
+            <div className="bg-slate-900 border border-orange-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 tournament-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-orange-300 text-lg font-bold">🏆 Tournament Bracket</span>
+                <button onClick={() => setShowTournamentPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-tournament-stat">
+                  <div className="text-orange-400 text-lg font-bold">{overview.totalTournaments}</div>
+                  <div className="text-slate-500 text-[9px]">Total</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-tournament-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{myStats.wins || 0}</div>
+                  <div className="text-slate-500 text-[9px]">Wins</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-tournament-stat">
+                  <div className="text-amber-400 text-lg font-bold">{Math.round(getWinRate() * 100)}%</div>
+                  <div className="text-slate-500 text-[9px]">Win Rate</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-tournament-stat">
+                  <div className="text-rose-400 text-lg font-bold">{tbbGetBestStreak()}</div>
+                  <div className="text-slate-500 text-[9px]">Best Streak</div>
+                </div>
+              </div>
+              {/* Active Tournaments */}
+              {active.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔥 Active Tournaments</span>
+                  <div className="space-y-1.5 mt-1.5">
+                    {active.slice(0, 3).map((t: { id: string; name: string; status: string; participants: number }, i: number) => (
+                      <div key={t.id || i} className="bg-orange-900/10 border border-orange-800/20 rounded-lg px-3 py-2 r49-active-tournament">
+                        <div className="flex items-center justify-between">
+                          <span className="text-orange-300 text-[11px] font-semibold">{t.name}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-800/50 text-emerald-300">{t.status}</span>
+                        </div>
+                        <div className="text-slate-400 text-[10px] mt-0.5">{t.participants || 0} participants</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Upcoming Match */}
+              {upcoming && (
+                <div className="bg-gradient-to-r from-orange-900/20 to-amber-900/20 border border-orange-700/20 rounded-xl p-3 mb-4 r49-upcoming-match">
+                  <div className="text-orange-400 text-[10px] uppercase tracking-wider font-bold">⚔️ Next Match</div>
+                  <div className="text-white font-bold text-sm mt-1">{(upcoming as { player1?: string; player2?: string }).player1 || 'You'} vs {(upcoming as { player1?: string; player2?: string }).player2 || 'Opponent'}</div>
+                  <div className="text-slate-400 text-[11px]">Round {(upcoming as { round?: number }).round || 1}</div>
+                </div>
+              )}
+              {/* Recent Results */}
+              {recentResults.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📋 Recent Results</span>
+                  <div className="space-y-1 mt-1.5 max-h-[120px] overflow-y-auto">
+                    {recentResults.slice(0, 5).map((r: { tournament: string; result: string; score: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r49-result-item">
+                        <span className="text-slate-200 text-[11px]">{r.tournament}</span>
+                        <span className={`text-[10px] font-semibold ${r.result === 'win' ? 'text-emerald-400' : r.result === 'loss' ? 'text-rose-400' : 'text-amber-400'}`}>{r.result.toUpperCase()} ({r.score})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Leaderboard */}
+              {leaderboard.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🏅 Leaderboard</span>
+                  <div className="space-y-1 mt-1.5">
+                    {leaderboard.slice(0, 5).map((p: { name: string; wins: number; score: number }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/40 rounded-lg px-2.5 py-1.5 r49-leaderboard-item">
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-400 text-[11px] font-bold">#{i + 1}</span>
+                          <span className="text-slate-200 text-[11px]">{p.name}</span>
+                        </div>
+                        <span className="text-orange-400 text-[10px] font-semibold">{p.wins}W / {p.score}pts</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Quick Actions */}
+              <div className="flex gap-2 mt-4">
+                <button onClick={() => { createTournament('Quick Arena', 8, 'single'); toast({ title: 'Tournament created!' }) }}
+                  className="flex-1 px-3 py-2 bg-orange-700 hover:bg-orange-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r49-action-btn">
+                  🆕 Create Tournament
+                </button>
+                <button onClick={() => { startQuickMatch(); toast({ title: 'Finding match...' }) }}
+                  className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r49-action-btn">
+                  ⚡ Quick Match
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 49: Word Puzzle Panel */}
+      {showPuzzlePanel && mounted && (() => {
+        const puzzleOverview = getPuzzleOverview()
+        const puzzleStats = getPuzzleStats()
+        const available = getAvailablePuzzles()
+        const dailyPuzzle = pzGetDailyPuzzle()
+        const dailyChallenge = pzGetDailyChallenge()
+        const bestScores = getBestScores()
+        const difficultyDist = getDifficultyDistribution()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPuzzlePanel(false)}>
+            <div className="bg-slate-900 border border-pink-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 puzzle-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-pink-300 text-lg font-bold">🧩 Word Puzzles</span>
+                <button onClick={() => setShowPuzzlePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-puzzle-stat">
+                  <div className="text-pink-400 text-lg font-bold">{puzzleStats.totalPlayed}</div>
+                  <div className="text-slate-500 text-[9px]">Played</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-puzzle-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{puzzleStats.solved || 0}</div>
+                  <div className="text-slate-500 text-[9px]">Solved</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-puzzle-stat">
+                  <div className="text-amber-400 text-lg font-bold">{getPuzzleStreak()}</div>
+                  <div className="text-slate-500 text-[9px]">Streak</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-puzzle-stat">
+                  <div className="text-violet-400 text-lg font-bold">{pzGetDailyPuzzleStreak()}</div>
+                  <div className="text-slate-500 text-[9px]">Daily Streak</div>
+                </div>
+              </div>
+              {/* Daily Puzzle */}
+              {dailyPuzzle && (
+                <div className="bg-gradient-to-r from-pink-900/20 to-purple-900/20 border border-pink-700/20 rounded-xl p-3 mb-4 r49-daily-puzzle">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-pink-400 text-[10px] uppercase tracking-wider font-bold">📝 Daily Puzzle</div>
+                      <div className="text-white font-bold text-sm mt-1">{(dailyPuzzle as { type?: string; difficulty?: string }).type || 'Crossword'}</div>
+                      <div className="text-slate-400 text-[11px]">Difficulty: {(dailyPuzzle as { difficulty?: string }).difficulty || 'Medium'}</div>
+                    </div>
+                    <button onClick={() => { toast({ title: 'Starting daily puzzle!' }) }}
+                      className="px-3 py-1.5 bg-pink-700 hover:bg-pink-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r49-action-btn">
+                      Play
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Daily Challenge */}
+              {dailyChallenge && (
+                <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 border border-amber-700/20 rounded-xl p-3 mb-4 r49-daily-challenge">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-amber-400 text-[10px] uppercase tracking-wider font-bold">🎯 Daily Challenge</div>
+                      <div className="text-white font-bold text-sm mt-1">{(dailyChallenge as { type?: string }).type || 'Mixed'}</div>
+                    </div>
+                    <button onClick={() => { toast({ title: 'Starting daily challenge!' }) }}
+                      className="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r49-action-btn">
+                      Start
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Puzzle Types */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🧠 Puzzle Types</span>
+                <div className="grid grid-cols-2 gap-2 mt-1.5">
+                  {[
+                    { name: 'Crossword', icon: '📝', color: 'pink', action: () => { generateCrossword(); toast({ title: 'New crossword!' }) } },
+                    { name: 'Anagram', icon: '🔤', color: 'purple', action: () => { generateAnagram(); toast({ title: 'New anagram!' }) } },
+                    { name: 'Word Search', icon: '🔍', color: 'cyan', action: () => { generateWordSearch(); toast({ title: 'New word search!' }) } },
+                    { name: 'Scramble', icon: '🔀', color: 'amber', action: () => { pzGenerateScramble('snake'); toast({ title: 'New scramble!' }) } },
+                    { name: 'Word Chain', icon: '⛓️', color: 'emerald', action: () => { startWordChain(); toast({ title: 'Word chain started!' }) } },
+                    { name: 'Quick Play', icon: '⚡', color: 'orange', action: () => { getQuickPuzzle(); toast({ title: 'Quick puzzle!' }) } },
+                  ].map(p => (
+                    <button key={p.name} onClick={p.action}
+                      className="flex items-center gap-2 bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/30 rounded-lg px-3 py-2 text-left transition-all active:scale-95 r49-puzzle-type-btn">
+                      <span className="text-base">{p.icon}</span>
+                      <span className={`text-${p.color}-300 text-[11px] font-medium`}>{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Best Scores */}
+              {bestScores.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📊 Best Scores</span>
+                  <div className="space-y-1 mt-1.5">
+                    {bestScores.slice(0, 4).map((s: { type: string; score: number; date: string }, i: number) => (
+                      <div key={i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r49-score-item">
+                        <span className="text-slate-200 text-[11px]">{s.type}</span>
+                        <span className="text-pink-400 text-[11px] font-bold">{s.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Difficulty Distribution */}
+              {difficultyDist && Object.keys(difficultyDist).length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📈 Difficulty Stats</span>
+                  <div className="flex gap-2 mt-1.5">
+                    {Object.entries(difficultyDist).slice(0, 4).map(([diff, count]) => (
+                      <div key={diff} className="flex-1 bg-slate-800 rounded-lg p-2 text-center r49-diff-badge">
+                        <div className="text-white text-[11px] font-medium capitalize">{diff}</div>
+                        <div className="text-slate-400 text-[10px]">{count as number} played</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 49: Progress Dashboard Panel */}
+      {showProgressDashPanel && mounted && (() => {
+        const overview = getProgressDashboardOverview()
+        const overallScore = getOverallProgressScore()
+        const grade = getProgressGrade()
+        const summary = getSummaryCard()
+        const strengths = getStrengthsAndWeaknesses()
+        const suggestions = getImprovementSuggestions()
+        const weekly = getWeeklyProgress()
+        const milestones = getMilestones()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowProgressDashPanel(false)}>
+            <div className="bg-slate-900 border border-indigo-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 progress-dash-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-indigo-300 text-lg font-bold">📊 Progress Dashboard</span>
+                <button onClick={() => setShowProgressDashPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Overall Score + Grade */}
+              <div className="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-indigo-700/20 rounded-xl p-3 mb-4 r49-overall-score">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-indigo-400 text-[10px] uppercase tracking-wider font-bold">Overall Progress</div>
+                    <div className="text-white font-bold text-2xl mt-1">{overallScore}</div>
+                  </div>
+                  <div className="w-16 h-16 rounded-full bg-indigo-900/40 border-2 border-indigo-500 flex items-center justify-center r49-grade-ring">
+                    <span className="text-indigo-300 text-xl font-bold">{grade}</span>
+                  </div>
+                </div>
+                <div className="mt-2 bg-slate-800 rounded-full h-2 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-indigo-600 to-purple-500 r49-progress-fill" style={{ width: `${Math.min(overallScore, 100)}%` }}></div>
+                </div>
+              </div>
+              {/* Category Progress */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {[
+                  { name: 'Gameplay', value: getGameplayProgress(), color: 'emerald' },
+                  { name: 'Collection', value: getCollectionProgress(), color: 'cyan' },
+                  { name: 'Mastery', value: pdGetMasteryProgress(), color: 'amber' },
+                  { name: 'Achievements', value: getAchievementProgress(), color: 'violet' },
+                  { name: 'Social', value: getSocialProgress(), color: 'sky' },
+                  { name: 'Exploration', value: getExplorationProgress(), color: 'lime' },
+                  { name: 'Economy', value: getEconomyProgress(), color: 'yellow' },
+                  { name: 'Battle Pass', value: getBattlePassProgress(), color: 'rose' },
+                ].map(cat => (
+                  <div key={cat.name} className="bg-slate-800 rounded-lg p-2.5 r49-category-progress">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-slate-300 text-[10px] font-medium">{cat.name}</span>
+                      <span className={`text-${cat.color}-400 text-[10px] font-bold`}>{Math.round(cat.value)}%</span>
+                    </div>
+                    <div className="bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                      <div className={`h-full bg-${cat.color}-500 r49-category-bar-fill`} style={{ width: `${cat.value}%` }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Strengths & Weaknesses */}
+              {strengths && (strengths.strengths?.length || strengths.weaknesses?.length) && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💪 Strengths & Weaknesses</span>
+                  <div className="grid grid-cols-2 gap-2 mt-1.5">
+                    {(strengths.strengths || []).slice(0, 3).map((s: string, i: number) => (
+                      <div key={i} className="bg-emerald-900/10 border border-emerald-800/20 rounded-lg px-2.5 py-1.5 r49-strength-item">
+                        <span className="text-emerald-400 text-[11px]">✓ {s}</span>
+                      </div>
+                    ))}
+                    {(strengths.weaknesses || []).slice(0, 3).map((w: string, i: number) => (
+                      <div key={i} className="bg-rose-900/10 border border-rose-800/20 rounded-lg px-2.5 py-1.5 r49-weakness-item">
+                        <span className="text-rose-400 text-[11px]">✗ {w}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Weekly Progress */}
+              {weekly && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📅 This Week</span>
+                  <div className="bg-slate-800/60 rounded-lg p-3 mt-1.5 r49-weekly-card">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="text-center">
+                        <div className="text-indigo-400 text-lg font-bold">{weekly.gamesPlayed || 0}</div>
+                        <div className="text-slate-500 text-[9px]">Games</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-emerald-400 text-lg font-bold">{weekly.totalScore || 0}</div>
+                        <div className="text-slate-500 text-[9px]">Score</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-amber-400 text-lg font-bold">{weekly.avgScore || 0}</div>
+                        <div className="text-slate-500 text-[9px]">Avg</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Improvement Suggestions */}
+              {suggestions && suggestions.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💡 Suggestions</span>
+                  <div className="space-y-1 mt-1.5">
+                    {suggestions.slice(0, 4).map((s: string, i: number) => (
+                      <div key={i} className="bg-indigo-900/10 border border-indigo-800/20 rounded-lg px-2.5 py-1.5 r49-suggestion-item">
+                        <span className="text-indigo-300 text-[11px]">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 49: Controller Config Panel */}
+      {showControllerPanel && mounted && (() => {
+        const overview = getControllerOverview()
+        const keybinds = getKeybinds()
+        const profiles = getProfiles()
+        const sensitivity = getSensitivity()
+        const apm = getAPM()
+        const heatmap = getInputHeatmap()
+        const mostUsed = getMostUsedKeys()
+        const quickSettings = getQuickSettings()
+        const recommended = getRecommendedSettings()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowControllerPanel(false)}>
+            <div className="bg-slate-900 border border-teal-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 controller-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-teal-300 text-lg font-bold">🎮 Controller Config</span>
+                <button onClick={() => setShowControllerPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-controller-stat">
+                  <div className="text-teal-400 text-lg font-bold">{Math.round(apm)}</div>
+                  <div className="text-slate-500 text-[9px]">APM</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-controller-stat">
+                  <div className="text-cyan-400 text-lg font-bold">{profiles.length}</div>
+                  <div className="text-slate-500 text-[9px]">Profiles</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-controller-stat">
+                  <div className="text-amber-400 text-lg font-bold">{Math.round(sensitivity * 100)}%</div>
+                  <div className="text-slate-500 text-[9px]">Sensitivity</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r49-controller-stat">
+                  <div className="text-violet-400 text-lg font-bold">{Object.keys(keybinds).length}</div>
+                  <div className="text-slate-500 text-[9px]">Keybinds</div>
+                </div>
+              </div>
+              {/* Sensitivity Control */}
+              <div className="bg-slate-800/50 rounded-lg p-3 mb-4 r49-sensitivity-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎯 Sensitivity</span>
+                  <span className="text-teal-400 text-[11px] font-bold">{Math.round(sensitivity * 100)}%</span>
+                </div>
+                <input type="range" min="10" max="200" value={Math.round(sensitivity * 100)}
+                  onChange={e => ctrlSetSensitivity(Number(e.target.value) / 100)}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                <div className="flex justify-between text-[9px] text-slate-500 mt-1">
+                  <span>Low</span><span>Medium</span><span>High</span>
+                </div>
+              </div>
+              {/* Key Bindings */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⌨️ Key Bindings</span>
+                <div className="space-y-1 mt-1.5 max-h-[160px] overflow-y-auto">
+                  {Object.entries(keybinds).slice(0, 8).map(([action, key]) => (
+                    <div key={action} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r49-keybind-item">
+                      <span className="text-slate-200 text-[11px] font-medium capitalize">{(action as string).replace(/([A-Z])/g, ' $1')}</span>
+                      <kbd className="bg-slate-700 text-teal-300 text-[10px] px-2 py-0.5 rounded font-mono">{key as string}</kbd>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Profiles */}
+              {profiles.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">👤 Profiles</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {profiles.slice(0, 5).map((p: { name: string; isDefault?: boolean }, i: number) => (
+                      <button key={i} onClick={() => { ctrlLoadProfile(p.name); toast({ title: `Loaded: ${p.name}` }) }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all active:scale-95 r49-profile-btn ${p.isDefault ? 'bg-teal-700 text-teal-100 ring-1 ring-teal-500' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                        {p.name}
+                      </button>
+                    ))}
+                    <button onClick={() => { createProfile('Custom ' + (profiles.length + 1)); toast({ title: 'Profile created!' }) }}
+                      className="px-2 py-1 rounded-lg text-[10px] bg-slate-800/50 text-slate-400 hover:bg-slate-700 border border-dashed border-slate-600 r49-profile-btn">
+                      + New
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Most Used Keys */}
+              {mostUsed.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔥 Most Used Keys</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {mostUsed.slice(0, 8).map((k: { key: string; count: number }, i: number) => (
+                      <kbd key={i} className="bg-slate-800 text-slate-200 text-[10px] px-2 py-1 rounded-lg font-mono r49-key-badge">
+                        {k.key} <span className="text-teal-400 ml-1">{k.count}</span>
+                      </kbd>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Quick Settings */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⚡ Quick Settings</span>
+                <div className="space-y-1 mt-1.5">
+                  {quickSettings.slice(0, 4).map((s: { name: string; value: boolean | string | number, type: string }, i: number) => (
+                    <div key={i} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-2.5 py-1.5 r49-setting-row">
+                      <span className="text-slate-200 text-[11px]">{s.name}</span>
+                      <span className={`text-[10px] font-semibold ${typeof s.value === 'boolean' ? (s.value ? 'text-emerald-400' : 'text-slate-500') : 'text-teal-400'}`}>
+                        {typeof s.value === 'boolean' ? (s.value ? 'ON' : 'OFF') : String(s.value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Recommended Settings */}
+              {recommended && recommended.length > 0 && (
+                <div>
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💡 Recommended</span>
+                  <div className="space-y-1 mt-1.5">
+                    {recommended.slice(0, 3).map((r: string, i: number) => (
+                      <div key={i} className="bg-teal-900/10 border border-teal-800/20 rounded-lg px-2.5 py-1.5 r49-suggestion-badge">
+                        <span className="text-teal-300 text-[11px]">{r}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
