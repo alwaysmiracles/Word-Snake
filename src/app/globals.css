@@ -4654,7 +4654,7 @@
 
 /* 3. practice session glow border */
 @keyframes practice-session-glow { 0%,100%{border-color:rgba(16,185,129,0.25);} 50%{border-color:rgba(16,185,129,0.55);} }
-.practice-panel:has(.bg-emerald-800\\/60) { animation: practice-session-glow 2.5s ease-in-out infinite; }
+.practice-panel-active { animation: practice-session-glow 2.5s ease-in-out infinite; }
 
 /* 4. practice word pop */
 @keyframes practice-word-pop { 0%{transform:scale(0.8);opacity:0.5;} 50%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
@@ -4686,7 +4686,7 @@
 
 /* 12. calendar day hover glow */
 @keyframes calendar-day-glow { 0%,100%{background-color:rgba(14,165,233,0.15);} 50%{background-color:rgba(14,165,233,0.35);} }
-.calendar-panel .bg-sky-800\\/40:hover { animation: calendar-day-glow 1s ease-in-out infinite; }
+.calendar-day-completed:hover { animation: calendar-day-glow 1s ease-in-out infinite; }
 
 /* 13. calendar star twinkle */
 @keyframes calendar-star-twinkle { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.6;transform:scale(0.85);} }
@@ -4706,7 +4706,7 @@
 
 /* 18. sentence of the day shimmer */
 @keyframes sentence-sotd-shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
-.sentences-panel .border-pink-800\\/20 { background-size:200% 100%; animation: sentence-sotd-shimmer 4s linear infinite; }
+.sentence-sotd-card { background-size:200% 100%; animation: sentence-sotd-shimmer 4s linear infinite; }
 
 /* 19. word highlight pulse */
 @keyframes word-highlight-pulse { 0%,100%{color:rgba(236,72,153,0.8);} 50%{color:rgba(236,72,153,1);text-shadow:0 0 6px rgba(236,72,153,0.3);} }
@@ -4732,3 +4732,96 @@
 .speed-config-btn { animation: feature-btn-stagger 0.25s ease-out 0.1s both; }
 .calendar-btn { animation: feature-btn-stagger 0.25s ease-out 0.15s both; }
 .sentences-btn { animation: feature-btn-stagger 0.25s ease-out 0.2s both; }
+
+/* ============================== */
+/* Round 35: Tips, Mastery, Export, Sound — 25 new animations */
+/* ============================== */
+
+/* 1. tips-panel slide-in */
+@keyframes tips-panel-in { 0%{opacity:0;transform:translateX(-10px);} 100%{opacity:1;transform:translateX(0);} }
+.tips-panel { animation: tips-panel-in 0.3s ease-out; }
+
+/* 2. tip card reveal */
+@keyframes tip-card-reveal { 0%{opacity:0;transform:translateY(6px) scale(0.97);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 3. tip lightbulb glow */
+@keyframes tip-bulb-glow { 0%,100%{text-shadow:0 0 4px rgba(163,230,53,0.4);} 50%{text-shadow:0 0 12px rgba(163,230,53,0.8);} }
+.tips-panel span.text-sm { animation: tip-bulb-glow 3s ease-in-out infinite; }
+
+/* 4. tip next slide */
+@keyframes tip-next-slide { 0%{opacity:0;transform:translateX(10px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 5. tip badge pop */
+@keyframes tip-badge-pop { 0%{transform:scale(0.7);opacity:0;} 60%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
+
+/* 6. mastery-panel slide-in */
+@keyframes mastery-panel-in { 0%{opacity:0;transform:translateY(-10px);} 100%{opacity:1;transform:translateY(0);} }
+.mastery-panel { animation: mastery-panel-in 0.3s ease-out; }
+
+/* 7. mastery trophy shine */
+@keyframes mastery-trophy-shine { 0%{filter:brightness(1);} 50%{filter:brightness(1.4);} 100%{filter:brightness(1);} }
+.mastery-panel span.text-sm { animation: mastery-trophy-shine 2.5s ease-in-out infinite; }
+
+/* 8. mastery level up flash */
+@keyframes mastery-levelup-flash { 0%{box-shadow:0 0 0 0 rgba(251,146,60,0.6);} 100%{box-shadow:0 0 0 12px rgba(251,146,60,0);} }
+
+/* 9. mastery bar fill */
+@keyframes mastery-bar-fill { 0%{width:0%;} 100%{width:var(--mastery-pct, 60%);} }
+
+/* 10. mastery emoji bounce */
+@keyframes mastery-emoji-bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-2px);} }
+.mastery-panel .flex-1 { animation: mastery-emoji-bounce 1.5s ease-in-out infinite; }
+
+/* 11. export-panel slide-in */
+@keyframes export-panel-in { 0%{opacity:0;transform:translateX(10px);} 100%{opacity:1;transform:translateX(0);} }
+.export-panel { animation: export-panel-in 0.3s ease-out; }
+
+/* 12. export button hover glow */
+@keyframes export-btn-glow { 0%,100%{box-shadow:0 0 0 0 rgba(6,182,212,0);} 50%{box-shadow:0 0 6px 1px rgba(6,182,212,0.3);} }
+.export-panel button:hover { animation: export-btn-glow 1s ease-in-out infinite; }
+
+/* 13. export download pulse */
+@keyframes export-download-pulse { 0%{transform:scale(1);} 50%{transform:scale(1.08);} 100%{transform:scale(1);} }
+
+/* 14. export format switch */
+@keyframes export-format-switch { 0%{opacity:0;transform:scale(0.9);} 100%{opacity:1;transform:scale(1);} }
+
+/* 15. export success flash */
+@keyframes export-success-flash { 0%{background-color:rgba(6,182,212,0.2);} 100%{background-color:transparent;} }
+
+/* 16. sound-panel slide-in */
+@keyframes sound-panel-in { 0%{opacity:0;transform:translateY(10px);} 100%{opacity:1;transform:translateY(0);} }
+.sound-panel { animation: sound-panel-in 0.3s ease-out; }
+
+/* 17. sound note float */
+@keyframes sound-note-float { 0%{opacity:0;transform:translateY(4px);} 50%{opacity:1;} 100%{opacity:0;transform:translateY(-4px);} }
+
+/* 18. sound preset select ring */
+@keyframes sound-preset-ring { 0%{box-shadow:0 0 0 0 rgba(192,38,211,0.4);} 100%{box-shadow:0 0 0 6px rgba(192,38,211,0);} }
+.sound-panel button:active { animation: sound-preset-ring 0.3s ease-out; }
+
+/* 19. sound volume wave */
+@keyframes sound-volume-wave { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+
+/* 20. sound equalizer bar */
+@keyframes sound-eq-bar { 0%,100%{height:3px;} 25%{height:10px;} 50%{height:6px;} 75%{height:14px;} }
+
+/* 21. R35 feature button stagger (round 2) */
+@keyframes r35-btn-stagger { 0%{opacity:0;transform:translateY(8px) scale(0.94);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+.tips-btn { animation: r35-btn-stagger 0.25s ease-out 0.05s both; }
+.mastery-btn { animation: r35-btn-stagger 0.25s ease-out 0.1s both; }
+.export-btn { animation: r35-btn-stagger 0.25s ease-out 0.15s both; }
+.sound-panel-btn { animation: r35-btn-stagger 0.25s ease-out 0.2s both; }
+
+/* 22. tip counter increment */
+@keyframes tip-counter-inc { 0%{transform:translateY(-4px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+
+/* 23. mastery legend fire */
+@keyframes mastery-legend-fire { 0%,100%{text-shadow:0 0 3px rgba(251,146,60,0.5);} 50%{text-shadow:0 0 8px rgba(251,146,60,0.9),0 0 15px rgba(239,68,68,0.3);} }
+
+/* 24. export progress bar */
+@keyframes export-progress-bar { 0%{width:0%;background-position:0 0;} 100%{width:100%;background-position:20px 0;} }
+
+/* 25. sound ambient pulse */
+@keyframes sound-ambient-pulse { 0%,100%{border-color:rgba(192,38,211,0.2);} 50%{border-color:rgba(192,38,211,0.45);} }
+.sound-panel { animation: sound-panel-in 0.3s ease-out, sound-ambient-pulse 4s ease-in-out 0.3s infinite; }

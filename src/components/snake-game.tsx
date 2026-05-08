@@ -98,6 +98,10 @@ import { createPracticeConfig, loadPracticeConfig, savePracticeConfig, startPrac
 import { createSpeedConfig, loadSpeedConfig, saveSpeedConfig, setSpeed, adjustSpeed, getFrameInterval, getFPS, applySpeedProfile, calculateCustomCurve, getSpeedForScore, formatSpeed, getSpeedColor, getSpeedLabel, getSpeedProgress, SPEED_PROFILES, DEFAULT_SPEED_CONFIG, type SpeedConfig, type SpeedProfile } from '@/lib/game-speed-config'
 import { getCalendarForMonth, recordCalendarEntry, getCalendarEntry, getCalendarStats, getCurrentStreak, getBestStreak, calculateStars, getMonthName, getDayName, generateCalendarGrid, getCompletionRateByMonth, getHeatmapData, exportCalendarData, importCalendarData, type CalendarEntry, type CalendarMonth, type CalendarStats } from '@/lib/daily-calendar'
 import { getWordSentences, getRandomSentence, getCategorySentences, searchSentences, getSentenceOfTheDay, getSentenceStats, hasSentenceFor, formatSentence, batchGetSentences, generateFillerSentence, type WordSentence } from '@/lib/word-sentences'
+import { createTipConfig, getRelevantTips, getTipOfTheDay, markTipShown, dismissTip, getUnshownTips, getNextTip, getTipStats, formatTipContent, getCategoryEmoji as getTipCategoryEmoji, shouldShowTip, TIPS_DATABASE, type GameTip, type TipConfig } from '@/lib/game-tips'
+import { recordEncounter, getMastery, getMasteryLevel, getAllMasteries, getMasteryStats, getWordsByLevel, getWeakestWords, getStrongestWords, getMasteryProgress, getLevelName, getLevelColor, getLevelEmoji, MASTERY_THRESHOLDS, MASTERY_COLORS, MASTERY_EMOJIS, type MasteryLevel, type WordMastery, type MasteryStats as MasteryStatsType } from '@/lib/word-mastery'
+import { collectExportData, exportAsJSON, exportAsCSV, exportAsMarkdown, exportToClipboard, triggerDownload, createDefaultExportConfig, getExportSizeEstimate, getSectionLabel, getFormatIcon, quickExport, buildShareText, EXPORT_VERSION, type ExportFormat, type ExportSection, type ExportConfig, type ExportResult, type GameExportData } from '@/lib/stats-export'
+import { createPanelConfig, loadPanelConfig, savePanelConfig, toggleSection, selectTab, applyPreset, getAllPresets, getActivePreset, createVisualizerConfig, getVisualizerStyles, getVolumeSummary, formatVolume, getSfxCategories, resetAllAudio, SOUND_PRESETS, type SoundThemePanelConfig, type SoundPreset, type AudioVisualizerConfig } from '@/lib/sound-theme-panel'
 import {
   Play,
   RotateCcw,
@@ -582,6 +586,13 @@ export default function SnakeGame() {
       setCalendarStats(getCalendarStats())
       // Load sentence of the day
       setSentenceOfTheDay(getSentenceOfTheDay())
+      // Load tips
+      setTipStats(getTipStats())
+      setCurrentTip(getTipOfTheDay())
+      // Load mastery stats
+      setMasteryStats(getMasteryStats())
+      // Load sound panel config
+      setSoundPanelConfig(loadPanelConfig())
     }
     const id = requestAnimationFrame(loadData)
     return () => {
@@ -754,6 +765,22 @@ export default function SnakeGame() {
   const [showWordSentences, setShowWordSentences] = useState(false)
   const [currentWordSentence, setCurrentWordSentence] = useState<WordSentence | null>(null)
   const [sentenceOfTheDay, setSentenceOfTheDay] = useState<WordSentence | null>(null)
+  // Game Tips
+  const [showTipsPanel, setShowTipsPanel] = useState(false)
+  const [currentTip, setCurrentTip] = useState<GameTip | null>(null)
+  const [tipConfig, setTipConfig] = useState<TipConfig>(createTipConfig())
+  const [tipStats, setTipStats] = useState({ total: 0, shown: 0, dismissed: 0, remaining: 0 })
+  const tipTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Word Mastery
+  const [showMasteryPanel, setShowMasteryPanel] = useState(false)
+  const [masteryStats, setMasteryStats] = useState<MasteryStatsType | null>(null)
+  // Stats Export
+  const [showExportPanel, setShowExportPanel] = useState(false)
+  const [exportConfig, setExportConfig] = useState<ExportConfig>(createDefaultExportConfig())
+  // Sound Theme Panel
+  const [showSoundPanel, setShowSoundPanel] = useState(false)
+  const [soundPanelConfig, setSoundPanelConfig] = useState<SoundThemePanelConfig>(createPanelConfig())
+  const [activePresetName, setActivePresetName] = useState('default')
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -6387,6 +6414,47 @@ export default function SnakeGame() {
                       💬 Sentences
                     </Button>
                     <Button
+                      onClick={() => {
+                        setShowTipsPanel(!showTipsPanel)
+                        if (!showTipsPanel) { setTipStats(getTipStats()); setCurrentTip(getNextTip({ score: 0, wordsCollected: 0, comboCount: 0, powerupsActive: [], gameStarted: true, gameOver: false, isDailyChallenge: false, difficulty: 'medium', practiceMode: false, timePlayed: 0 }, tipConfig)) }
+                      }}
+                      variant="outline"
+                      className="border-lime-700/50 text-lime-400 hover:bg-lime-900/20 active:scale-95 transition-transform tips-btn"
+                      title="Game Tips"
+                    >
+                      💡 Tips
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowMasteryPanel(!showMasteryPanel)
+                        if (!showMasteryPanel) setMasteryStats(getMasteryStats())
+                      }}
+                      variant="outline"
+                      className="border-orange-700/50 text-orange-400 hover:bg-orange-900/20 active:scale-95 transition-transform mastery-btn"
+                      title="Word Mastery"
+                    >
+                      🏆 Mastery
+                    </Button>
+                    <Button
+                      onClick={() => setShowExportPanel(!showExportPanel)}
+                      variant="outline"
+                      className="border-cyan-700/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform export-btn"
+                      title="Export Stats"
+                    >
+                      📤 Export
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowSoundPanel(!showSoundPanel)
+                        if (!showSoundPanel) { setSoundPanelConfig(loadPanelConfig()) }
+                      }}
+                      variant="outline"
+                      className="border-fuchsia-700/50 text-fuchsia-400 hover:bg-fuchsia-900/20 active:scale-95 transition-transform sound-panel-btn"
+                      title="Sound Settings"
+                    >
+                      🎵 Sound
+                    </Button>
+                    <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
                       title="60-second timed challenge"
@@ -7432,7 +7500,7 @@ export default function SnakeGame() {
 
             {/* Practice Mode Panel */}
             {showPracticeMode && mounted && (
-              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-emerald-900/20 to-green-900/15 border border-emerald-700/25 practice-panel">
+              <div className={`mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-emerald-900/20 to-green-900/15 border border-emerald-700/25 practice-panel ${practiceSession ? 'practice-panel-active' : ''}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm">🎓</span>
@@ -7583,7 +7651,7 @@ export default function SnakeGame() {
                       const stars = entry?.stars ?? 0
                       return (
                         <div key={i} className={`text-[6px] text-center py-0.5 rounded ${
-                          cell ? (entry?.completed ? 'bg-sky-800/40 text-sky-200' : 'text-slate-600') : 'text-transparent'
+                          cell ? (entry?.completed ? 'bg-sky-800/40 text-sky-200 calendar-day-completed' : 'text-slate-600') : 'text-transparent'
                         }`}>
                           {cell?.day ?? '.'}
                           {stars > 0 && <span className="text-[5px] text-amber-400">{'★'.repeat(stars)}</span>}
@@ -7607,7 +7675,7 @@ export default function SnakeGame() {
                   <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-pink-900/40 text-pink-300">{getSentenceStats().totalWords} words</span>
                 </div>
                 {sentenceOfTheDay && (
-                  <div className="mb-2 p-1.5 rounded bg-pink-900/15 border border-pink-800/20">
+                  <div className="mb-2 p-1.5 rounded bg-pink-900/15 border border-pink-800/20 sentence-sotd-card">
                     <div className="text-[7px] text-pink-400 font-bold mb-0.5">Sentence of the Day</div>
                     <div className="text-[8px] text-slate-300 italic">"{sentenceOfTheDay.sentence}"</div>
                     <div className="text-[7px] text-slate-500">— {sentenceOfTheDay.word} ({sentenceOfTheDay.category})</div>
@@ -7624,6 +7692,145 @@ export default function SnakeGame() {
                   </div>
                 )}
                 <div className="text-[7px] text-slate-500">{getSentenceStats().totalSentences} example sentences in database</div>
+              </div>
+            )}
+
+            {/* Game Tips Panel */}
+            {showTipsPanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-lime-900/20 to-green-900/15 border border-lime-700/25 tips-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">💡</span>
+                    <span className="text-[10px] text-lime-300 font-bold">Game Tips</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-lime-900/40 text-lime-300">{tipStats.remaining} new</span>
+                </div>
+                {currentTip && (
+                  <div className="mb-2 p-1.5 rounded bg-lime-900/15 border border-lime-800/20">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-[8px]">{getTipCategoryEmoji(currentTip.category)}</span>
+                      <span className="text-[9px] text-lime-300 font-bold">{currentTip.title}</span>
+                    </div>
+                    <p className="text-[8px] text-slate-300">{currentTip.content}</p>
+                    <div className="flex gap-1 mt-1.5">
+                      <button onClick={() => { markTipShown(currentTip.id); const next = getNextTip({ score: 0, wordsCollected: 0, comboCount: 0, powerupsActive: [], gameStarted: true, gameOver: false, isDailyChallenge: false, difficulty: 'medium', practiceMode: false, timePlayed: 0 }, tipConfig); setCurrentTip(next); setTipStats(getTipStats()) }} className="text-[7px] px-1.5 py-0.5 rounded bg-lime-700/30 text-lime-300 hover:bg-lime-700/50">Next Tip</button>
+                      <button onClick={() => { dismissTip(currentTip.id); const next = getNextTip({ score: 0, wordsCollected: 0, comboCount: 0, powerupsActive: [], gameStarted: true, gameOver: false, isDailyChallenge: false, difficulty: 'medium', practiceMode: false, timePlayed: 0 }, tipConfig); setCurrentTip(next); setTipStats(getTipStats()) }} className="text-[7px] px-1.5 py-0.5 rounded bg-slate-700/30 text-slate-400 hover:bg-slate-700/50">Dismiss</button>
+                    </div>
+                  </div>
+                )}
+                <div className="text-[7px] text-slate-500">Tips: {tipStats.shown}/{tipStats.total} | Dismissed: {tipStats.dismissed}</div>
+              </div>
+            )}
+
+            {/* Word Mastery Panel */}
+            {showMasteryPanel && mounted && masteryStats && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-orange-900/20 to-amber-900/15 border border-orange-700/25 mastery-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🏆</span>
+                    <span className="text-[10px] text-orange-300 font-bold">Word Mastery</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-orange-900/40 text-orange-300">{masteryStats.totalWords} words</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  <div className="text-center p-1 rounded bg-orange-900/20">
+                    <div className="text-[7px] text-slate-500">Mastered</div>
+                    <div className="text-[10px] text-green-400 font-bold">{masteryStats.masteredCount}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-orange-900/20">
+                    <div className="text-[7px] text-slate-500">Legendary</div>
+                    <div className="text-[10px] text-orange-400 font-bold">{masteryStats.legendaryCount}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-orange-900/20">
+                    <div className="text-[7px] text-slate-500">Avg</div>
+                    <div className="text-[10px] text-orange-300 font-bold">{Math.round(masteryStats.averageMastery)}%</div>
+                  </div>
+                </div>
+                {/* Level distribution */}
+                <div className="flex gap-0.5 mb-2">
+                  {(['new','seen','learning','familiar','mastered','legendary'] as MasteryLevel[]).map(level => {
+                    const words = getWordsByLevel(level)
+                    return (
+                      <div key={level} className="flex-1 text-center">
+                        <div className="text-[5px] text-slate-600">{getLevelEmoji(level)}</div>
+                        <div className="text-[7px]" style={{ color: getLevelColor(level) }}>{words.length}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="text-[7px] text-slate-500">Collection rate: {Math.round(masteryStats.collectionRate)}% | Encounters: {masteryStats.totalEncounters}</div>
+              </div>
+            )}
+
+            {/* Stats Export Panel */}
+            {showExportPanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-cyan-900/20 to-teal-900/15 border border-cyan-700/25 export-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📤</span>
+                    <span className="text-[10px] text-cyan-300 font-bold">Export Stats</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-cyan-900/40 text-cyan-300">v{EXPORT_VERSION}</span>
+                </div>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {(['json','csv','markdown','clipboard'] as ExportFormat[]).map(fmt => (
+                    <button
+                      key={fmt}
+                      onClick={async () => {
+                        const data = collectExportData()
+                        if (fmt === 'clipboard') { exportToClipboard(data, exportConfig) }
+                        else { triggerDownload(data, `word-snake-stats.${fmt === 'markdown' ? 'md' : fmt}`, fmt) }
+                      }}
+                      className={`text-[7px] px-1.5 py-0.5 rounded border transition-colors ${
+                        exportConfig.format === fmt ? 'border-cyan-500/60 bg-cyan-900/30 text-cyan-200' : 'border-slate-700/30 bg-slate-800/30 text-slate-500 hover:text-slate-300'
+                      }`}
+                    >{getFormatIcon(fmt)} {fmt.toUpperCase()}</button>
+                  ))}
+                </div>
+                <div className="text-[7px] text-slate-500">
+                  Export all game data including scores, achievements, word collection, and session history
+                </div>
+                <button
+                  onClick={async () => {
+                    const text = buildShareText(collectExportData())
+                    if (text) await exportToClipboard(collectExportData(), { ...exportConfig, format: 'json' })
+                  }}
+                  className="mt-1.5 text-[7px] px-1.5 py-0.5 rounded bg-cyan-700/30 text-cyan-300 hover:bg-cyan-700/50"
+                >📋 Copy Share Summary</button>
+              </div>
+            )}
+
+            {/* Sound Theme Panel */}
+            {showSoundPanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-fuchsia-900/20 to-purple-900/15 border border-fuchsia-700/25 sound-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🎵</span>
+                    <span className="text-[10px] text-fuchsia-300 font-bold">Sound Presets</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-fuchsia-900/40 text-fuchsia-300">{activePresetName}</span>
+                </div>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {getAllPresets().map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        const result = applyPreset(p.id)
+                        if (result) {
+                          setMusicVolume(result.musicVolume)
+                          setActivePresetName(p.name)
+                          savePanelConfig(soundPanelConfig)
+                        }
+                      }}
+                      className={`text-[7px] px-1.5 py-0.5 rounded border transition-colors ${
+                        activePresetName === p.name ? 'border-fuchsia-500/60 bg-fuchsia-900/30 text-fuchsia-200' : 'border-slate-700/30 bg-slate-800/30 text-slate-500 hover:text-slate-300'
+                      }`}
+                      title={p.description}
+                    >{p.emoji} {p.name}</button>
+                  ))}
+                </div>
+                <div className="text-[7px] text-slate-500 mb-1">{getVolumeSummary(Math.round(musicVolume * 100), Math.round(volumeConfig.sfxVolume * 100), Math.round(volumeConfig.masterVolume * 100))}</div>
+                <div className="text-[7px] text-slate-600">Visualizer styles: {getVisualizerStyles().length} available</div>
               </div>
             )}
 
