@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
 import { toast } from '@/hooks/use-toast'
-import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getWordEntryIncludingCustom, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
+import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getWordEntryIncludingCustom, getCategoryInfo, CATEGORY_COLORS, getAllWords, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound, setSoundTheme, playThemePreviewSound, playEasterEggSound, decayVisualizerPulse } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
@@ -47,6 +47,9 @@ import StoryModePrologue from '@/components/story-mode'
 import StatsComparison from '@/components/stats-comparison'
 import { getHighContrastConfig, saveHighContrastConfig, getHighContrastClasses, shouldAnimate, type HighContrastConfig } from '@/lib/high-contrast'
 import { startRecording, recordFrame, stopRecording, isRecording, getReplays, deleteReplay, getReplay, startPlayback, stopPlayback, isPlaybackActive, getPlaybackState, advancePlayback, setPlaybackSpeed, setPlaybackPlaying, getPlaybackProgress, seekPlayback, formatDuration, formatDate, clearAllReplays, type GameReplay, type ReplayFrame } from '@/lib/game-replay'
+import { shouldSpawnObstacle, getMaxObstacles, generateObstacles, checkObstacleCollision, getObstacleDrawInfo, OBSTACLE_CONFIG, MIN_WORDS_FOR_OBSTACLES, type Obstacle, type ObstacleType } from '@/lib/obstacles'
+import { shouldSpawnPortal, getMaxPortalPairs, generatePortalPair, checkPortalTeleport, getPortalDrawInfo, type PortalPair } from '@/lib/portals'
+import { shouldSpawnQuiz, generateQuiz, checkAnswer, saveQuizResult, formatQuizBonus, QUIZ_DURATION, type WordQuiz, type QuizResult } from '@/lib/word-quiz'
 import {
   Play,
   RotateCcw,
@@ -170,6 +173,11 @@ interface GameState {
   speedRunLongestSnake: number
   wordsByCategory: Record<string, number>
   inGameDifficulty: InGameDifficulty | null
+  obstacles: Obstacle[]
+  portalPairs: PortalPair[]
+  activeQuiz: WordQuiz | null
+  quizStreak: number
+  iceSlideQueued: boolean
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -496,6 +504,11 @@ export default function SnakeGame() {
   const prevInGameDiffLevelRef = useRef<number>(0)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const milestoneToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const obstaclesRef = useRef<Obstacle[]>([])
+  const portalPairsRef = useRef<PortalPair[]>([])
+  const portalNextIdRef = useRef(0)
+  const quizStreakRef = useRef(0)
+  const iceSlideQueuedRef = useRef(false)
 
   // Tutorial state
   const [tutorialCompleted, setTutorialCompleted] = useState(false)
@@ -543,6 +556,10 @@ export default function SnakeGame() {
     speedRunLongestSnake: 0,
     wordsByCategory: {} as Record<string, number>,
     inGameDifficulty: null as InGameDifficulty | null,
+    activeQuiz: null as WordQuiz | null,
+    quizStreak: 0,
+    obstacleCount: 0,
+    portalCount: 0,
   })
 
   // Skin state
@@ -614,6 +631,10 @@ export default function SnakeGame() {
       speedRunLongestSnake: gs.speedRunLongestSnake,
       wordsByCategory: gs.wordsByCategory,
       inGameDifficulty: gs.inGameDifficulty,
+      activeQuiz: gs.activeQuiz,
+      quizStreak: gs.quizStreak,
+      obstacleCount: gs.obstacles.length,
+      portalCount: gs.portalPairs.length,
     })
   }, [])
 
@@ -1593,6 +1614,55 @@ export default function SnakeGame() {
       ctx.textAlign = 'start'
       ctx.textBaseline = 'alphabetic'
       ctx.shadowBlur = 0
+    }
+
+    // Draw obstacles
+    const obsNow = Date.now()
+    for (const obs of gs.obstacles) {
+      const drawInfo = getObstacleDrawInfo(obs, obsNow)
+      ctx.globalAlpha = drawInfo.opacity
+      const ox = obs.position.x * CELL_SIZE + CELL_SIZE / 2
+      const oy = obs.position.y * CELL_SIZE + CELL_SIZE / 2
+      ctx.font = `${CELL_SIZE * drawInfo.pulseScale}px serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(drawInfo.emoji, ox, oy)
+    }
+    ctx.globalAlpha = 1
+    ctx.textAlign = 'start'
+    ctx.textBaseline = 'alphabetic'
+
+    // Draw portal pairs
+    for (const pair of gs.portalPairs) {
+      for (const portal of [pair.portalA, pair.portalB]) {
+        const pdi = getPortalDrawInfo(portal, obsNow)
+        const px = portal.position.x * CELL_SIZE + CELL_SIZE / 2
+        const py = portal.position.y * CELL_SIZE + CELL_SIZE / 2
+        // Glow ring
+        ctx.beginPath()
+        ctx.arc(px, py, CELL_SIZE * pdi.pulseScale, 0, Math.PI * 2)
+        ctx.fillStyle = pdi.glowColor
+        ctx.fill()
+        // Inner circle
+        ctx.beginPath()
+        ctx.arc(px, py, CELL_SIZE * 0.5 * pdi.pulseScale, 0, Math.PI * 2)
+        ctx.fillStyle = pdi.color + '80'
+        ctx.fill()
+        // Rotation lines
+        for (let i = 0; i < 4; i++) {
+          const angle = pdi.rotation + (i * Math.PI / 2)
+          const x1 = px + Math.cos(angle) * CELL_SIZE * 0.3
+          const y1 = py + Math.sin(angle) * CELL_SIZE * 0.3
+          const x2 = px + Math.cos(angle) * CELL_SIZE * 0.6 * pdi.pulseScale
+          const y2 = py + Math.sin(angle) * CELL_SIZE * 0.6 * pdi.pulseScale
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.strokeStyle = pdi.color
+          ctx.lineWidth = 2
+          ctx.stroke()
+        }
+      }
     }
 
     // Combo indicator
@@ -2588,6 +2658,18 @@ export default function SnakeGame() {
     gs.lastEatenCategory = null
     gs.comboMultiplier = 1
 
+    // Reset obstacles, portals, quiz
+    gs.obstacles = []
+    gs.portalPairs = []
+    gs.activeQuiz = null
+    gs.quizStreak = 0
+    gs.iceSlideQueued = false
+    obstaclesRef.current = []
+    portalPairsRef.current = []
+    portalNextIdRef.current = 0
+    quizStreakRef.current = 0
+    iceSlideQueuedRef.current = false
+
     // Clear achievement queue and toast
     achievementQueue.clear()
     // Start replay recording (not for PvP or replay mode)
@@ -2709,7 +2791,7 @@ export default function SnakeGame() {
         visualizerBarsRef.current = updateVisualizer(dt)
       }
 
-      if (!gs.gameStarted || gs.gameOver || gs.paused) {
+      if (!gs.gameStarted || gs.gameOver || gs.paused || gs.activeQuiz) {
         draw()
         animFrameRef.current = requestAnimationFrame(gameLoop)
         return
@@ -3292,6 +3374,50 @@ export default function SnakeGame() {
         }
       }
 
+      // Check obstacle collision
+      if (!gs.isDailyChallenge) {
+        const obsCollision = checkObstacleCollision(head, gs.obstacles, Date.now())
+        if (obsCollision.collision) {
+          if (obsCollision.damage === -1) {
+            // Wall or active lava = death
+            const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+            if (hasShield) {
+              const shieldIdx = gs.activePowerUps.findIndex(p => p.type === 'shield')
+              if (shieldIdx >= 0) gs.activePowerUps.splice(shieldIdx, 1)
+              spawnFloatingText('\u{1F6E1}\uFE0F', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
+              spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#60a5fa', 8)
+            } else {
+              handleDeath()
+              draw()
+              animFrameRef.current = requestAnimationFrame(gameLoop)
+              return
+            }
+          } else if (obsCollision.damage > 0) {
+            // Spike damage - remove segments
+            const segmentsToRemove = Math.min(obsCollision.damage, gs.snake.length - 1)
+            gs.snake.splice(gs.snake.length - segmentsToRemove)
+            spawnFloatingText('\u{1F53A} -' + segmentsToRemove, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#ef4444')
+            spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#ef4444', 8)
+            if (gs.snake.length <= 1) { handleDeath(); draw(); animFrameRef.current = requestAnimationFrame(gameLoop); return }
+          } else if (obsCollision.type === 'ice') {
+            // Ice = slide one extra cell
+            iceSlideQueuedRef.current = true
+            spawnFloatingText('\u{1F9CA} Slide!', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#7dd3fc')
+          }
+        }
+      }
+
+      // Check portal teleport
+      if (!gs.isDailyChallenge && gs.portalPairs.length > 0) {
+        const teleportResult = checkPortalTeleport(head, gs.portalPairs, Date.now())
+        if (teleportResult.teleport && teleportResult.destination) {
+          head.x = teleportResult.destination.x
+          head.y = teleportResult.destination.y
+          spawnFloatingText('\u{1F300} Teleport!', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#a855f7')
+          spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#a855f7', 15)
+        }
+      }
+
       const newSnake = [head, ...snake]
 
       if (wordFood) {
@@ -3578,6 +3704,35 @@ export default function SnakeGame() {
               attempts++
             } while (occupied.has(`${puPos.x},${puPos.y}`) && attempts < 50)
             gs.powerUp = { type: puType, position: puPos, spawnTime: Date.now() }
+          }
+
+          // Spawn obstacles
+          if (shouldSpawnObstacle(gs.wordsEaten, gs.difficulty)) {
+            const maxObs = getMaxObstacles(gs.wordsEaten, gs.difficulty)
+            if (gs.obstacles.length < maxObs) {
+              const newObs = generateObstacles(1, gs.snake, gs.wordFood?.position || null, gs.obstacles, { width: GRID_WIDTH, height: GRID_HEIGHT }, gs.difficulty)
+              gs.obstacles.push(...newObs)
+            }
+          }
+          // Spawn portal pairs
+          if (shouldSpawnPortal(gs.wordsEaten)) {
+            const maxPairs = getMaxPortalPairs(gs.wordsEaten)
+            if (gs.portalPairs.length < maxPairs) {
+              const newPair = generatePortalPair(gs.snake, gs.wordFood?.position || null, gs.obstacles, { width: GRID_WIDTH, height: GRID_HEIGHT }, portalNextIdRef.current)
+              if (newPair) {
+                gs.portalPairs.push(newPair)
+                portalNextIdRef.current++
+              }
+            }
+          }
+          // Spawn word quiz
+          if (shouldSpawnQuiz() && !gs.activeQuiz) {
+            const allWords = getAllWords()
+            const quiz = generateQuiz(wordFood.word, wordFood.category, comboPoints, allWords)
+            if (quiz) {
+              gs.activeQuiz = quiz
+              updateUI()
+            }
           }
         } else {
           newSnake.pop()
@@ -4658,6 +4813,57 @@ export default function SnakeGame() {
               <div className={`relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring ${uiState.gameOver ? 'game-over-shake' : ''} ${(!uiState.gameStarted || uiState.gameOver) ? 'preview-snake-glow' : ''} ${hasActiveEffect('reverse_controls') && uiState.gameStarted && !uiState.gameOver ? 'reverse-controls-indicator ring-2' : ''}`}>
                 <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
                 <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
+
+                {/* Word Quiz overlay */}
+                {uiState.activeQuiz && !uiState.gameOver && (
+                  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div className="quiz-overlay glass-morphism-card rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl shadow-purple-900/30">
+                      <div className="text-center mb-4">
+                        <span className="text-2xl">🎯</span>
+                        <p className="text-purple-300 text-sm mt-1 font-medium shimmer-text">Word Quiz Bonus!</p>
+                      </div>
+                      {/* Timer bar */}
+                      <div className="w-full bg-slate-800 rounded-full overflow-hidden mb-4">
+                        <div className="quiz-timer-bar" key={uiState.activeQuiz.expiresAt} />
+                      </div>
+                      <p className="text-white text-center text-lg mb-5 font-medium leading-relaxed">&quot;{uiState.activeQuiz.definition}&quot;</p>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {uiState.activeQuiz.options.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => {
+                              const gs = gameStateRef.current
+                              const quiz = gs.activeQuiz
+                              if (!quiz) return
+                              const result = checkAnswer(quiz, opt, quizStreakRef.current)
+                              if (result.correct) {
+                                quizStreakRef.current++
+                                gs.score += result.bonusPoints
+                                gs.quizStreak = quizStreakRef.current
+                                spawnFloatingText(formatQuizBonus(result.bonusPoints), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#a855f7')
+                                spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#a855f7', 20)
+                              } else {
+                                quizStreakRef.current = 0
+                                gs.quizStreak = 0
+                                spawnFloatingText('✗ Wrong', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ef4444')
+                              }
+                              saveQuizResult(result)
+                              gs.activeQuiz = null
+                              updateUI()
+                            }}
+                            className="quiz-option bg-slate-800/80 hover:bg-purple-900/60 border border-slate-700 hover:border-purple-500 text-white rounded-xl py-3 px-4 text-center transition-all duration-200 active:scale-95 font-medium"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between mt-5 text-sm">
+                        <span className={`${uiState.quizStreak > 0 ? 'streak-fire text-amber-400' : 'text-slate-400'}`}>🔥 Quiz Streak: {uiState.quizStreak}</span>
+                        <span className="badge-glow-purple text-purple-300 font-medium">+{uiState.activeQuiz.bonusPoints} pts</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Tutorial overlay panel */}
@@ -5050,6 +5256,26 @@ export default function SnakeGame() {
                     </div>
                   )
                 })}
+              </div>
+            )}
+
+            {/* Obstacles & Portals indicator */}
+            {!uiState.isDailyChallenge && uiState.gameStarted && (uiState.obstacleCount > 0 || uiState.portalCount > 0) && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {uiState.obstacleCount > 0 && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs border"
+                    style={{ borderColor: 'rgba(120,113,108,0.4)', backgroundColor: 'rgba(120,113,108,0.15)', color: '#a8a29e' }}>
+                    <span>🧱</span>
+                    <span className="font-medium">{uiState.obstacleCount} Obstacle{uiState.obstacleCount !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
+                {uiState.portalCount > 0 && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs border"
+                    style={{ borderColor: 'rgba(168,85,247,0.4)', backgroundColor: 'rgba(168,85,247,0.15)', color: '#a855f7' }}>
+                    <span>🌀</span>
+                    <span className="font-medium">{uiState.portalCount} Portal{uiState.portalCount !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
               </div>
             )}
 

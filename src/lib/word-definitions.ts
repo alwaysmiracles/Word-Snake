@@ -29,6 +29,14 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'glacier', definition: 'A massive, slow-moving body of compacted ice formed over centuries.', example: 'The glacier had been retreating for decades, leaving carved rock behind.', category: 'nature', etymology: "From French 'glace' (ice)" },
   { word: 'aurora', definition: 'A natural light display in the sky, especially in polar regions, caused by charged solar particles.', example: 'The aurora danced in green and violet ribbons across the Arctic sky.', category: 'nature', etymology: "From Latin 'aurora' (dawn)" },
   { word: 'storm', definition: 'A violent disturbance of the atmosphere with strong winds, rain, thunder, or snow.', example: 'The storm arrived suddenly, lashing the coast with fierce winds.', category: 'nature', etymology: "From Old English 'storm'" },
+  { word: 'canyon', definition: 'A deep, narrow valley with steep sides, often carved by a river over millions of years.', example: 'The canyon walls glowed red and orange in the late afternoon sun.', category: 'nature', etymology: "From Spanish 'cañón' (tube, pipe)" },
+  { word: 'reef', definition: 'A ridge of rock, coral, or sand at or near the surface of the water.', example: 'Colorful fish darted among the coral formations of the reef.', category: 'nature', etymology: "From Old Norse 'rif' (rib)" },
+  { word: 'volcano', definition: 'An opening in the earth\'s crust through which lava, ash, and gases erupt.', example: 'The volcano rumbled ominously, sending plumes of smoke into the sky.', category: 'nature', etymology: "From Latin 'Vulcanus' (god of fire)" },
+  { word: 'prairie', definition: 'A large, open area of grassland, especially in North America.', example: 'Wildflowers blanketed the prairie as far as the eye could see.', category: 'nature', etymology: "From French 'prairie' (meadow)" },
+  { word: 'tundra', definition: 'A vast, flat, treeless arctic region with permanently frozen subsoil.', example: 'Only the hardiest plants can survive on the frozen tundra.', category: 'nature', etymology: "From Russian 'tundra' (treeless plain)" },
+  { word: 'oasis', definition: 'A fertile spot in a desert, sustained by a spring or well.', example: 'After days of travel, the oasis appeared like a mirage made real.', category: 'nature', etymology: "From Late Latin 'oasis' (Egyptian)" },
+  { word: 'waterfall', definition: 'A cascade of water falling from a height, formed when a river flows over a steep drop.', example: 'The waterfall roared with a thunderous sound that echoed through the gorge.', category: 'nature', etymology: "Compound of water + fall, OE origins" },
+  { word: 'horizon', definition: 'The line at which the earth\'s surface and the sky appear to meet.', example: 'They watched the sun sink slowly below the distant horizon.', category: 'nature', etymology: "From Greek 'horizōn' (bounding)" },
 
   // Emotions
   { word: 'joy', definition: 'A feeling of great pleasure and happiness.', example: 'Joy filled her heart when she saw her family again.', category: 'emotion', etymology: "From Latin 'gaudia' (delight)" },
@@ -47,6 +55,12 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'zeal', definition: 'Great energy or enthusiasm in pursuit of a cause or objective.', example: 'She pursued her art with the zeal of a true believer.', category: 'emotion', etymology: "From Greek 'zēlos' (jealousy)" },
   { word: 'mirth', definition: 'Amusement, especially as expressed in laughter and merriment.', example: 'The room erupted in mirth at the comedian\'s clever joke.', category: 'emotion', etymology: "From Old English 'myrth' (joy)" },
   { word: 'dread', definition: 'A strong feeling of fear or apprehension about something that may happen.', example: 'A sense of dread crept over him as the shadows lengthened.', category: 'emotion', etymology: "From Old English 'drǣdan' (to fear)" },
+  { word: 'nostalgia', definition: 'A sentimental longing or wistful affection for the past.', example: 'The old photograph filled her with nostalgia for childhood summers.', category: 'emotion', etymology: "From Greek 'nostos' + 'algos' (return + pain)" },
+  { word: 'ecstasy', definition: 'An overwhelming feeling of great happiness or joyful excitement.', example: 'The news of their victory sent the crowd into pure ecstasy.', category: 'emotion', etymology: "From Greek 'ekstasis' (standing outside oneself)" },
+  { word: 'sorrow', definition: 'A feeling of deep distress caused by loss, disappointment, or suffering.', example: 'She spoke quietly, her voice heavy with sorrow.', category: 'emotion', etymology: "From Old English 'sārig' (troubled)" },
+  { word: 'envy', definition: 'A feeling of discontented longing aroused by someone else\'s possessions or qualities.', example: 'He could not hide his envy at their carefree happiness.', category: 'emotion', etymology: "From Latin 'invidia' (looking against)" },
+  { word: 'anguish', definition: 'Severe mental or physical pain or suffering.', example: 'She cried out in anguish when she heard the terrible news.', category: 'emotion', etymology: "From Latin 'angustia' (narrowness)" },
+  { word: 'resolve', definition: 'Firm determination to do something; to decide firmly on a course of action.', example: 'She met every setback with quiet resolve and kept moving forward.', category: 'emotion', etymology: "From Latin 'resolvere' (to unfasten)" },
 
   // Elements
   { word: 'fire', definition: 'Combustion that produces light, heat, and flame; a powerful elemental force.', example: 'The campfire crackled and sent sparks into the night sky.', category: 'element', etymology: "From Old English 'fȳr'" },
@@ -65,6 +79,11 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'cloud', definition: 'A visible mass of condensed water vapor floating in the atmosphere.', example: 'A single white cloud drifted across the otherwise blue sky.', category: 'element', etymology: "From Old English 'clūd' (mass)" },
   { word: 'tide', definition: 'The alternate rising and falling of the sea, caused by the gravitational pull of the moon and sun.', example: 'The tide had gone out, leaving tide pools along the shore.', category: 'element', etymology: "From Old English 'tīd' (time)" },
   { word: 'dew', definition: 'Tiny drops of water that form on cool surfaces overnight through condensation.', example: 'Morning dew clung to every spider web in the garden.', category: 'element', etymology: "From Old English 'dēaw'" },
+  { word: 'mist', definition: 'A thin, diffused fog or vapor suspended in the air, reducing visibility.', example: 'The hills were shrouded in an ethereal morning mist.', category: 'element', etymology: "From Middle English 'mist' (darkness)" },
+  { word: 'quartz', definition: 'A hard, crystalline mineral composed of silicon and oxygen, often found in rocks.', example: 'A vein of pure quartz ran through the cliff face, glittering in the sun.', category: 'element', etymology: "From German 'Quarz' (hard)" },
+  { word: 'monsoon', definition: 'A seasonal prevailing wind bringing heavy rainfall, especially in South Asia.', example: 'The monsoon transformed the parched land into a lush green landscape.', category: 'element', etymology: "From Arabic 'mausim' (season)" },
+  { word: 'eclipse', definition: 'An obscuring of one celestial body by another, or a loss of significance in comparison.', example: 'The solar eclipse drew scientists and spectators from around the world.', category: 'element', etymology: "From Greek 'ekleipsis' (abandonment)" },
+  { word: 'solstice', definition: 'Either of the two times each year when the sun reaches its highest or lowest point in the sky.', example: 'They gathered at Stonehenge to celebrate the summer solstice.', category: 'element', etymology: "From Latin 'solstitium' (sun standing still)" },
 
   // Time
   { word: 'dawn', definition: 'The first appearance of light in the sky before sunrise; the beginning of the day.', example: 'They rose at dawn to begin the long journey ahead.', category: 'time', etymology: "From Old English 'dagung' (daybreak)" },
@@ -75,6 +94,11 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'season', definition: 'One of the four divisions of the year marked by particular weather patterns and daylight hours.', example: 'Each season brings its own beauty and challenges.', category: 'time', etymology: "From Latin 'satio' (sowing)" },
   { word: 'epoch', definition: 'A particular period of time in history or a person\'s life, typically one marked by notable events.', example: 'The invention of the printing press marked a new epoch in human knowledge.', category: 'time', etymology: "From Greek 'epochē' (pause)" },
   { word: 'hour', definition: 'A period of time equal to sixty minutes; a specific point in time.', example: 'They spent one happy hour simply watching the river flow.', category: 'time', etymology: "From Greek 'hōra' (season)" },
+  { word: 'heartbeat', definition: 'A single pulsation of the heart; the rhythm of life itself.', example: 'She held her breath, feeling every heartbeat in the silence.', category: 'time', etymology: "Compound of heart + beat, OE origins" },
+  { word: 'millennium', definition: 'A period of one thousand years; a long-awaited golden age.', example: 'The ancient temple had stood for nearly a millennium.', category: 'time', etymology: "From Latin 'mille' + 'annus' (thousand years)" },
+  { word: 'aftermath', definition: 'The consequences or aftereffects of a significant, often unpleasant, event.', example: 'In the aftermath of the storm, the community came together to rebuild.', category: 'time', etymology: "From Old English 'æfter' + 'mæþ' (after + mowing)" },
+  { word: 'interlude', definition: 'A pause or break between periods of activity; a short intervening episode.', example: 'The quiet interlude between storms was brief but peaceful.', category: 'time', etymology: "From Latin 'interlusio' (between play)" },
+  { word: 'genesis', definition: 'The origin or mode of formation of something; a beginning or coming into being.', example: 'The genesis of their friendship was a shared love of music.', category: 'time', etymology: "From Greek 'genesis' (origin)" },
 
   // Creatures
   { word: 'eagle', definition: 'A large bird of prey with keen eyesight and powerful talons, known for its majestic flight.', example: 'The eagle soared high above the mountain ridge.', category: 'creature', etymology: "From Latin 'aquila'" },
@@ -85,6 +109,11 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'falcon', definition: 'A bird of prey known for its incredible speed and precision in hunting, especially during a dive.', example: 'The falcon dove at breathtaking speed toward its target.', category: 'creature', etymology: "From Latin 'falco'" },
   { word: 'tiger', definition: 'A large solitary cat with a distinctive orange and black striped coat, native to Asia.', example: 'The tiger moved silently through the tall jungle grass.', category: 'creature', etymology: "From Persian 'tigra' (sharp)" },
   { word: 'swan', definition: 'A large, elegant waterbird with a long slender neck, known for its graceful appearance.', example: 'The white swan glided serenely across the moonlit lake.', category: 'creature', etymology: "From Old English 'swan' (singer)" },
+  { word: 'panther', definition: 'A large, powerful wild cat with a dark coat, known for stealth and strength.', example: 'The panther melted into the shadows without a sound.', category: 'creature', etymology: "From Greek 'panther' (all-beast)" },
+  { word: 'raven', definition: 'A large, glossy black bird of the crow family, known for its intelligence and deep calls.', example: 'A lone raven perched on the old fence post, watching silently.', category: 'creature', etymology: "From Old English 'hræfn'" },
+  { word: 'cobra', definition: 'A venomous snake that spreads a hood around its head when threatened.', example: 'The cobra rose from the tall grass, its hood flared wide.', category: 'creature', etymology: "From Portuguese 'cobra' (snake)" },
+  { word: 'mantis', definition: 'A predatory insect with large powerful front legs used for grasping prey.', example: 'The praying mantis remained perfectly still, waiting to strike.', category: 'creature', etymology: "From Greek 'mantis' (prophet)" },
+  { word: 'whale', definition: 'The largest living mammals, marine creatures known for their immense size and deep ocean songs.', example: 'A blue whale breached the surface, sending spray high into the air.', category: 'creature', etymology: "From Old English 'hwæl'" },
 
   // Qualities
   { word: 'wisdom', definition: 'The quality of having experience, knowledge, and good judgment.', example: 'With age came the wisdom to see beyond appearances.', category: 'quality', etymology: "From Old English 'wīsdōm'" },
@@ -95,6 +124,10 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'power', definition: 'The ability or capacity to do something or act in a particular way; strength or influence.', example: 'Knowledge is a power that no one can take away.', category: 'quality', etymology: "From Latin 'potere' (to be able)" },
   { word: 'honor', definition: 'High respect; great esteem; adherence to what is right or to a strict standard of conduct.', example: 'He defended his honor with quiet dignity and resolve.', category: 'quality', etymology: "From Latin 'honos' (esteem)" },
   { word: 'truth', definition: 'That which is true or in accordance with fact or reality.', example: 'The truth, however uncomfortable, is always worth seeking.', category: 'quality', etymology: "From Old English 'trēowth'" },
+  { word: 'resilience', definition: 'The capacity to recover quickly from difficulties; toughness and adaptability.', example: 'Her resilience in the face of adversity inspired everyone around her.', category: 'quality', etymology: "From Latin 'resilire' (to leap back)" },
+  { word: 'harmony', definition: 'A state of peaceful existence and agreement; pleasing arrangement of parts.', example: 'The community lived in harmony with the natural world around them.', category: 'quality', etymology: "From Greek 'harmonia' (joint, agreement)" },
+  { word: 'ambition', definition: 'A strong desire to achieve something, typically requiring determination and hard work.', example: 'His ambition drove him to climb the highest peaks on every continent.', category: 'quality', etymology: "From Latin 'ambitio' (going around)" },
+  { word: 'loyalty', definition: 'A strong feeling of support, faithfulness, or allegiance to someone or something.', example: 'The old dog showed unwavering loyalty to its owner until the very end.', category: 'quality', etymology: "From Latin 'legalis' (legal)" },
 
   // Objects
   { word: 'sword', definition: 'A weapon with a long metal blade and a hilt, used for cutting or thrusting.', example: 'The ancient sword hung above the fireplace, a relic of forgotten wars.', category: 'object', etymology: "From Old English 'sweord'" },
@@ -105,6 +138,10 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'compass', definition: 'An instrument for determining direction, typically using a magnetic needle that points north.', example: 'Without a compass, they relied on the stars to navigate.', category: 'object', etymology: "From Latin 'compassus' (step)" },
   { word: 'feather', definition: 'A flat, light structure forming the plumage of birds, consisting of a central shaft and barbs.', example: 'A single white feather drifted down from the eagle overhead.', category: 'object', etymology: "From Old English 'feþer'" },
   { word: 'key', definition: 'A small piece of shaped metal used to open a lock, or a means of gaining access to something.', example: 'She turned the old brass key and the door creaked open.', category: 'object', etymology: "From Old English 'cǣg'" },
+  { word: 'scroll', definition: 'A roll of parchment or paper for writing on, or to move text or images across a screen.', example: 'The ancient scroll contained secrets lost for centuries.', category: 'object', etymology: "From Latin 'scrolla' (roll)" },
+  { word: 'gem', definition: 'A precious or semiprecious stone, especially one that has been cut and polished.', example: 'A brilliant red gem sat at the center of the ancient ring.', category: 'object', etymology: "From Latin 'gemma' (bud, jewel)" },
+  { word: 'anchor', definition: 'A heavy device used to moor a vessel to the sea bottom; a source of stability.', example: 'She dropped the anchor and let the boat drift gently in the cove.', category: 'object', etymology: "From Latin 'ancora' (hook)" },
+  { word: 'prism', definition: 'A transparent solid that refracts light, separating it into a spectrum of colors.', example: 'A prism turned the beam of sunlight into a vivid rainbow on the wall.', category: 'object', etymology: "From Greek 'prisma' (something sawed)" },
 
   // Actions
   { word: 'soar', definition: 'To fly or rise high in the air with little effort; to ascend above the ordinary.', example: 'The kite began to soar above the hilltops in the rising wind.', category: 'action', etymology: "From Latin 'exaltare' (raise)" },
@@ -115,6 +152,10 @@ const DEFINITIONS: WordDefinition[] = [
   { word: 'glow', definition: 'To emit a steady light, typically without flame; to have a warm, radiant appearance.', example: 'The embers continued to glow long after the fire had faded.', category: 'action', etymology: "From Old English 'glōwan'" },
   { word: 'sparkle', definition: 'To shine with flashes of light; to glitter or gleam.', example: 'Frost crystals sparkle on every surface in the morning sun.', category: 'action', etymology: "From Old Norse 'sparkr' (lively)" },
   { word: 'drift', definition: 'To be carried slowly by a current of air or water; to move aimlessly.', example: 'A small boat drifted gently down the winding river.', category: 'action', etymology: "From Old Norse 'drífa' (snowfall)" },
+  { word: 'conquer', definition: 'To overcome and take control of something by force or through great effort.', example: 'She set out to conquer her fear of heights, one step at a time.', category: 'action', etymology: "From Latin 'conquirere' (to seek)" },
+  { word: 'flourish', definition: 'To grow or develop in a healthy or vigorous way; to thrive.', example: 'With proper care, the garden began to flourish beyond all expectations.', category: 'action', etymology: "From Latin 'florere' (to bloom)" },
+  { word: 'wander', definition: 'To move about without a definite destination or purpose; to roam.', example: 'They loved to wander the cobblestone streets of the old city.', category: 'action', etymology: "From Old English 'wandrian'" },
+  { word: 'ascend', definition: 'To go up or climb to a higher position, level, or rank.', example: 'The hikers began to ascend the final ridge before the summit.', category: 'action', etymology: "From Latin 'ascendere' (to climb)" },
 ]
 
 // Build a Map for O(1) lookup
