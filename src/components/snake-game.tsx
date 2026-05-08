@@ -181,6 +181,10 @@ import { initLeaderboard, getLeaderboardData, getGlobalRankings, getPlayerRank, 
 import { initSoundBoard, playNote, getAvailableInstruments, getCurrentInstrument, selectInstrument, startRecording as sbStartRecording, stopRecording as sbStopRecording, playRecording, saveMelody, deleteMelody, getMelodyLibrary, getPresetMelodies, getMelodyStats, playSoundEffect, getSoundEffects, getSoundBoardStats, getMixerState, setChannelVolume, setMasterVolume as sbSetMasterVolume, getTempo, setTempo, getBeatPatterns, playBeat, stopAllSounds, getRecentMelodies, generateShareCode as sbGenShareCode, importMelody as sbImportMelody, getSoundBoardOverview, getInstrumentGrid, getPianoKeys, getEffectsGrid, getMelodyCard } from '@/lib/soundboard-wire'
 import { initMissionSystem, getMissions, getActiveMissions, getAvailableMissions, getCompletedMissions, acceptMission, cancelMission, updateMissionProgress, completeMission, claimMissionReward, getMissionProgress, getMissionRewards, getMissionsByCategory, getMissionsByDifficulty, getMissionChains, getChainProgress, getNextInChain, getMissionStats, getDailyMissions, getWeeklyMissions, getBonusObjectives, completeBonusObjective, getTotalRewardsEarned, getMissionSuccessRate, getMostCompletedCategory, getStreakData, getMissionHistory, refreshDailyMissions, getRecommendedMissions, getMissionOverview, getMissionCard, getCategoryProgress, getActiveMissionSlots, getRewardSummary, getMissionTimeline } from '@/lib/mission-system-wire'
 import { initEmoteSystem, getEmotes, getUnlockedEmotes, getLockedEmotes, unlockEmote, getEmote, getEmotesByCategory, getCategories as emoteGetCategories, playEmote, getQuickEmotes, setQuickEmote, getRecentEmotes, getEmoteHistory, getEmoteStats, getMostUsedEmotes, getLeastUsedEmotes, getFavoriteEmote, getEmoteAnimation, getEmotePack, getEmotePacks, getPackProgress, unlockPack, checkEmoteCombo, getActiveComboEffect, getEmoteUnlockProgress, getEmoteSystemOverview, getEmoteGrid, getEmoteCard, getEmoteStatsGrid, getQuickEmoteBar, suggestEmote } from '@/lib/emote-system-wire'
+import { initWordAnalytics, getWordPerformanceData, getWordStats as waGetWordStats, getWordFrequency as waGetWordFrequency, getWordLengthDistribution, getDifficultyBreakdown, getCategoryPerformance as waGetCategoryPerformance, getTimeBasedTrends, getLearningCurve, getVocabularyGrowth, getWordPatterns, getWeakWords, getStrongWords, getWordInsights, getAverageWordLength, getLongestStreak as waGetLongestStreak, getWordAccuracy, getCommonMistakes, getImprovementAreas as waGetImprovementAreas, getWordTimeline, getWeeklyReport as waGetWeeklyReport, getMonthlyReport, getAnalyticsOverview, getPerformanceCard, getGrowthChart, getWordCloud as waGetWordCloud, getDistributionGrid, getInsightCard, getTrendChart, getWeaknessCard, getSummaryCard as waGetSummaryCard } from '@/lib/word-analytics-wire'
+import { initColorStudio, getPalettes, getCurrentPalette, selectPalette, createPalette, deletePalette, exportPalette, importPalette, getPaletteHistory, getRandomPalette, getSimilarPalettes, getColorStats, getMostUsedPalette, getPalettePreview, getActiveColorMode, setColorMode, getGradients, createGradient, getGradientPreview, getThemeColors, applyPalette as csApplyPalette, getColorOverview, getPaletteGrid, getPaletteCard, getGradientCard, getColorStatsGrid, getMoodPalettes, suggestPalette, saveCustomColor, getCustomColors, getComplementaryColor, getShade, getTint, hexToRgb, rgbToHex } from '@/lib/color-studio-wire'
+import { initAvatarCustomizer, getParts, getPartOptions, getCurrentAvatarData, setPart, getRandomizeAvatar, getPresetAvatars, applyPreset as avApplyPreset, saveOutfit, loadOutfit, deleteOutfit, getOutfits, generateShareCode as avGenShareCode, importAvatarCode, getAvatarStats, getMostUsedPart, getAvatarHistory, getAvatarOverview, getAvatarCard, getPartGrid, getActiveSlot, getAvatarPreview, getColorForPart, setColorForPart, getColors, unlockPart, isPartUnlocked, getUnlockProgress, getFullAvatar, resetAvatar, getPartCounts, getRarityForPart, getAvatarGallery, getCollectionProgress as avGetCollectionProgress, suggestAvatar, getAvatarBanner } from '@/lib/avatar-customizer-wire'
+import { initTeamSystem, getTeams, createTeam, joinTeam, leaveTeam, disbandTeam, getMyTeam, getTeamMembers, addMember, removeMember, setMemberRole, getTeamStats, getTeamLeaderboard, getTeamRank, getTeamChat, sendTeamMessage, getTeamActivity, getTeamAchievements, getTeamAchievementProgress, getTeamOverview, getTeamCard, getMemberGrid, getTeamComparison, getTeamInvites, acceptInvite, declineInvite, getTeamSettings, updateTeamName, updateTeamAvatar, getTeamBanner as tmGetTeamBanner, getTeamRoster, getTeamPerformance, getTeamGoals, getTeamMilestones, getRecommendedTeams } from '@/lib/team-system-wire'
 import {
   Play,
   RotateCcw,
@@ -971,6 +975,11 @@ export default function SnakeGame() {
   const [showSoundboardPanel, setShowSoundboardPanel] = useState(false)
   const [showMissionPanel, setShowMissionPanel] = useState(false)
   const [showEmotePanel, setShowEmotePanel] = useState(false)
+  // Round 54: Word Analytics, Color Studio, Avatar Customizer, Team System panel states
+  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false)
+  const [showColorStudioPanel, setShowColorStudioPanel] = useState(false)
+  const [showAvatarCustomPanel, setShowAvatarCustomPanel] = useState(false)
+  const [showTeamPanel, setShowTeamPanel] = useState(false)
   // Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config panel states
   const [showTournamentPanel, setShowTournamentPanel] = useState(false)
   const [showPuzzlePanel, setShowPuzzlePanel] = useState(false)
@@ -7991,6 +8000,42 @@ export default function SnakeGame() {
                     >
                       🏪 Market
                     </Button>
+                    {/* Round 54: Word Analytics Button */}
+                    <Button
+                      onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
+                      variant="outline"
+                      className="border-sky-500/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform analytics-btn"
+                      title="Word Analytics"
+                    >
+                      📊 Analytics
+                    </Button>
+                    {/* Round 54: Color Studio Button */}
+                    <Button
+                      onClick={() => setShowColorStudioPanel(!showColorStudioPanel)}
+                      variant="outline"
+                      className="border-fuchsia-500/50 text-fuchsia-400 hover:bg-fuchsia-900/20 active:scale-95 transition-transform colorstudio-btn"
+                      title="Color Studio"
+                    >
+                      🎨 Colors
+                    </Button>
+                    {/* Round 54: Avatar Customizer Button */}
+                    <Button
+                      onClick={() => setShowAvatarCustomPanel(!showAvatarCustomPanel)}
+                      variant="outline"
+                      className="border-lime-500/50 text-lime-400 hover:bg-lime-900/20 active:scale-95 transition-transform avatar-btn"
+                      title="Avatar Customizer"
+                    >
+                      🧑‍🎨 Avatar
+                    </Button>
+                    {/* Round 54: Team System Button */}
+                    <Button
+                      onClick={() => setShowTeamPanel(!showTeamPanel)}
+                      variant="outline"
+                      className="border-teal-500/50 text-teal-400 hover:bg-teal-900/20 active:scale-95 transition-transform team-btn"
+                      title="Team System"
+                    >
+                      👥 Team
+                    </Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -13198,6 +13243,287 @@ export default function SnakeGame() {
                   className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
                   ✨ Check Combo
                 </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 54: Word Analytics Panel */}
+      {showAnalyticsPanel && mounted && (() => {
+        const overview = getAnalyticsOverview()
+        const stats = waGetWordStats()
+        const perf = getPerformanceCard()
+        const weak = getWeakWords(5)
+        const strong = getStrongWords(5)
+        const growth = getGrowthChart()
+        const dist = getWordLengthDistribution()
+        const insights = waGetImprovementAreas().slice(0, 3)
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAnalyticsPanel(false)}>
+            <div className="bg-slate-900 border border-sky-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 analytics-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sky-300 text-lg font-bold">📊 Word Analytics</span>
+                <button onClick={() => setShowAnalyticsPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Words', value: stats.uniqueWords, color: 'text-sky-400' },
+                  { label: 'Accuracy', value: `${stats.avgAccuracy}%`, color: 'text-emerald-400' },
+                  { label: 'Avg Len', value: getAverageWordLength(), color: 'text-amber-400' },
+                  { label: 'Streak', value: waGetLongestStreak(), color: 'text-rose-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r54-stat`} style={{ animationDelay: `${i*80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-4 p-3 bg-gradient-to-r from-sky-900/30 to-blue-900/30 border border-sky-700/30 rounded-lg r54-perf-card">
+                <span className="text-sky-300 text-xs font-semibold">🎯 Performance Grade</span>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="text-3xl">{perf.gradeEmoji || '📊'}</div>
+                  <div>
+                    <div className="text-white text-sm font-bold">{perf.grade || 'B'}</div>
+                    <div className="text-[9px] text-slate-400">{perf.totalWords} words analyzed</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📏 Word Length Distribution</span>
+                <div className="flex gap-1.5 mt-1.5">
+                  {Object.entries(dist).slice(0, 6).map(([len, count]: [string, number], i: number) => (
+                    <div key={i} className="flex-1 text-center r54-dist-bar">
+                      <div className="text-[8px] text-slate-500">{len}L</div>
+                      <div className="w-full bg-slate-700 rounded-full h-16 mt-0.5 relative overflow-hidden">
+                        <div className="absolute bottom-0 w-full bg-gradient-to-t from-sky-500 to-blue-400 rounded-full r54-dist-fill" style={{ height: `${Math.min(100, count / Math.max(...Object.values(dist)) * 100)}%` }}></div>
+                      </div>
+                      <div className="text-[7px] text-slate-400 mt-0.5">{count}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {insights.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💡 Insights</span>
+                  <div className="space-y-1 mt-1.5">{insights.map((ins: { area: string; description: string; priority: string }, i: number) => (
+                    <div key={i} className={`text-[9px] px-2.5 py-1.5 rounded-lg ${ins.priority === 'high' ? 'bg-rose-900/30 text-rose-300 border border-rose-700/30' : 'bg-slate-800 text-slate-400'}`}>
+                      <span className="font-semibold">{ins.area}</span> — {ins.description}
+                    </div>
+                  ))}</div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => toast({ title: 'Report generated!' })} className="flex-1 px-3 py-2 bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">📊 Weekly Report</button>
+                <button onClick={() => toast({ title: 'Report generated!' })} className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">📈 Monthly Report</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 54: Color Studio Panel */}
+      {showColorStudioPanel && mounted && (() => {
+        const palettes = getPalettes()
+        const current = getCurrentPalette()
+        const stats = getColorStats()
+        const grids = getPaletteGrid()
+        const moods = getMoodPalettes('calm')
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowColorStudioPanel(false)}>
+            <div className="bg-slate-900 border border-fuchsia-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 colorstudio-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-fuchsia-300 text-lg font-bold">🎨 Color Studio</span>
+                <button onClick={() => setShowColorStudioPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Palettes', value: stats.totalPalettes, color: 'text-fuchsia-400' },
+                  { label: 'Custom', value: stats.customPalettes, color: 'text-amber-400' },
+                  { label: 'Switches', value: stats.totalSwitches, color: 'text-sky-400' },
+                  { label: 'Mode', value: getActiveColorMode(), color: 'text-emerald-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r54-stat`} style={{ animationDelay: `${i*80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎭 Palettes</span>
+                <div className="grid grid-cols-3 gap-1.5 mt-1.5">
+                  {palettes.slice(0, 15).map((p: { id: string; name: string; mood: string; colors: string[] }, i: number) => (
+                    <div key={i} onClick={() => { selectPalette(p.id); toast({ title: `${p.name} applied!` }) }}
+                      className={`p-2 rounded-lg cursor-pointer transition-all r54-palette-item ${current?.id === p.id ? 'ring-2 ring-fuchsia-400' : 'bg-slate-800 hover:bg-slate-700'}`} style={{ animationDelay: `${i*40}ms` }}>
+                      <div className="flex gap-0.5 mb-1">{p.colors.slice(0, 5).map((c: string, ci: number) => (
+                        <div key={ci} className="flex-1 h-4 rounded" style={{ background: c }}></div>
+                      ))}</div>
+                      <div className="text-[8px] text-slate-400 text-center truncate">{p.name}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">😌 Mood Palettes</span>
+                <div className="flex gap-1.5 mt-1.5 overflow-x-auto">
+                  {moods.slice(0, 5).map((p: { id: string; name: string; colors: string[] }, i: number) => (
+                    <div key={i} className="flex-shrink-0 cursor-pointer r54-mood-item" onClick={() => { selectPalette(p.id); toast({ title: p.name }) }}>
+                      <div className="flex gap-0.5">{p.colors.slice(0, 5).map((c: string, ci: number) => (
+                        <div key={ci} className="w-8 h-8 rounded-lg" style={{ background: c }}></div>
+                      ))}</div>
+                      <div className="text-[7px] text-slate-500 text-center mt-0.5">{p.name}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { const p = getRandomPalette(); if (p) { selectPalette(p.id); toast({ title: p.name }) } }} className="flex-1 px-3 py-2 bg-fuchsia-700 hover:bg-fuchsia-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">🎲 Random</button>
+                <button onClick={() => { createPalette('Custom-' + Date.now(), ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff']); toast({ title: 'Custom palette created!' }) }} className="flex-1 px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">➕ Create</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 54: Avatar Customizer Panel */}
+      {showAvatarCustomPanel && mounted && (() => {
+        const overview = getAvatarOverview()
+        const current = getCurrentAvatarData()
+        const parts = getParts()
+        const presets = getPresetAvatars()
+        const collection = avGetCollectionProgress()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAvatarCustomPanel(false)}>
+            <div className="bg-slate-900 border border-lime-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 avatar-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-lime-300 text-lg font-bold">🧑‍🎨 Avatar Customizer</span>
+                <button onClick={() => setShowAvatarCustomPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Unlocked', value: `${collection.percent}%`, color: 'text-lime-400' },
+                  { label: 'Parts', value: parts.length, color: 'text-sky-400' },
+                  { label: 'Outfits', value: getOutfits().length, color: 'text-amber-400' },
+                  { label: 'History', value: getAvatarHistory(1).length, color: 'text-violet-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r54-stat`} style={{ animationDelay: `${i*80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎨 Body Parts</span>
+                <div className="space-y-2 mt-1.5">
+                  {parts.slice(0, 8).map((part: { id: string; name: string; emoji: string, options: Array<{ id: string; emoji: string }> }, i: number) => (
+                    <div key={i}>
+                      <div className="text-[9px] text-slate-400 font-semibold mb-1">{part.emoji} {part.name}</div>
+                      <div className="flex gap-1 overflow-x-auto">
+                        {part.options.slice(0, 8).map((opt: { id: string; emoji: string }, oi: number) => (
+                          <div key={oi} onClick={() => { setPart(part.id, opt.id); toast({ title: `${part.name}: ${opt.emoji}` }) }}
+                            className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xl cursor-pointer transition-all r54-part-option ${current[part.id] === opt.id ? 'ring-2 ring-lime-400 bg-lime-900/30' : 'bg-slate-800 hover:bg-slate-700'}`}
+                            style={{ animationDelay: `${(i*8+oi)*30}ms` }}>
+                            {opt.emoji}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⭐ Presets</span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {presets.slice(0, 8).map((p: { id: string; name: string; emoji: string }, i: number) => (
+                    <button key={i} onClick={() => { avApplyPreset(p.id); toast({ title: `${p.emoji} ${p.name}` }) }}
+                      className="text-[9px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-full transition-all active:scale-95 r54-preset-btn" style={{ animationDelay: `${i*50}ms` }}>
+                      {p.emoji} {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { getRandomizeAvatar(); toast({ title: 'Avatar randomized!' }) }} className="flex-1 px-3 py-2 bg-lime-700 hover:bg-lime-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">🎲 Randomize</button>
+                <button onClick={() => { saveOutfit('Outfit-' + Date.now()); toast({ title: 'Outfit saved!' }) }} className="flex-1 px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">💾 Save Outfit</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 54: Team System Panel */}
+      {showTeamPanel && mounted && (() => {
+        const myTeam = getMyTeam()
+        const members = myTeam ? getTeamMembers(myTeam.id) : []
+        const lb = getTeamLeaderboard()
+        const invites = getTeamInvites()
+        const stats = myTeam ? getTeamStats(myTeam.id) : null
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTeamPanel(false)}>
+            <div className="bg-slate-900 border border-teal-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 team-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-teal-300 text-lg font-bold">👥 Team System</span>
+                <button onClick={() => setShowTeamPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {myTeam ? (<>
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[
+                    { label: 'Members', value: members.length, color: 'text-teal-400' },
+                    { label: 'Rank', value: `#${getTeamRank(myTeam.id)}`, color: 'text-amber-400' },
+                    { label: 'Score', value: stats?.totalScore || 0, color: 'text-sky-400' },
+                    { label: 'Goals', value: getTeamGoals(myTeam.id).length, color: 'text-violet-400' },
+                  ].map((s, i) => (
+                    <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r54-stat`} style={{ animationDelay: `${i*80}ms` }}>
+                      <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mb-4 p-3 bg-gradient-to-r from-teal-900/30 to-emerald-900/30 border border-teal-700/30 rounded-lg r54-team-card">
+                  <div className="flex items-center gap-3">
+                    <div className="text-3xl">{myTeam.avatar || '👥'}</div>
+                    <div>
+                      <div className="text-white text-sm font-bold">{myTeam.name}</div>
+                      <div className="text-[9px] text-slate-400">{myTeam.description || 'No description'}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🧑‍🤝‍🧑 Members</span>
+                  <div className="space-y-1.5 mt-1.5">
+                    {members.slice(0, 8).map((m: { name: string; role: string; score: number }, i: number) => (
+                      <div key={i} className="bg-slate-800 rounded-lg p-2 flex items-center justify-between r54-member-item" style={{ animationDelay: `${i*60}ms` }}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{m.role === 'Captain' ? '👑' : m.role === 'Co-Captain' ? '🛡️' : '👤'}</span>
+                          <span className="text-[10px] text-white">{m.name}</span>
+                        </div>
+                        <span className="text-[9px] text-teal-400">{m.score} pts</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>) : (<>
+                <div className="mb-4 text-center py-6">
+                  <div className="text-4xl mb-2">🚫</div>
+                  <div className="text-slate-400 text-xs">No team yet. Create or join one!</div>
+                </div>
+              </>)}
+              {invites.length > 0 && (
+                <div className="mb-3">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📨 Invites</span>
+                  <div className="flex gap-1.5 mt-1.5">
+                    {invites.slice(0, 3).map((inv: { teamName: string; teamId: string }, i: number) => (
+                      <div key={i} className="flex-1 bg-slate-800 rounded-lg px-2 py-1.5 text-center r54-invite-item">
+                        <div className="text-[9px] text-slate-300">{inv.teamName}</div>
+                        <div className="flex gap-1 mt-1 justify-center">
+                          <button onClick={() => { acceptInvite(inv.teamId); toast({ title: 'Joined!' }) }} className="text-[8px] bg-emerald-700 hover:bg-emerald-600 text-white px-2 py-0.5 rounded">Accept</button>
+                          <button onClick={() => { declineInvite(inv.teamId); toast({ title: 'Declined' }) }} className="text-[8px] bg-rose-700 hover:bg-rose-600 text-white px-2 py-0.5 rounded">Decline</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                {!myTeam && <button onClick={() => { createTeam('Team-' + Math.random().toString(36).slice(2, 8)); toast({ title: 'Team created!' }) }} className="flex-1 px-3 py-2 bg-teal-700 hover:bg-teal-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">➕ Create Team</button>}
+                <button onClick={() => { const teams = getTeams(); if (teams.length > 0) { joinTeam(teams[0].id); toast({ title: 'Joined!' }) } else { toast({ title: 'No teams available' }) }} className="flex-1 px-3 py-2 bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">🔍 Find Team</button>
+                {myTeam && <button onClick={() => { sendTeamMessage('Go team! 💪'); toast({ title: 'Message sent!' }) }} className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">💬 Chat</button>}
               </div>
             </div>
           </div>
