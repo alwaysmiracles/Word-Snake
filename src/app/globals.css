@@ -5599,3 +5599,83 @@
 
 /* 25. r43b-btn-entrance — Staggered Round 43b button entrance */
 @keyframes r43b-btn-entrance { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Round 44: Live HUD, Enhanced Mastery, Enhanced Score Breakdown, Calendar Heatmap, Quick Stats
+   25 new animations (699 total keyframes)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. live-hud-pulse — HUD data element pulse on update */
+@keyframes live-hud-pulse { 0%{opacity:0.6;transform:translateY(1px);} 50%{opacity:1;transform:translateY(0);} 100%{opacity:0.8;transform:translateY(0);} }
+
+/* 2. live-hud-wpm-tick — WPM counter digit flip */
+@keyframes live-hud-wpm-tick { 0%{transform:scaleY(0.8);opacity:0.5;} 50%{transform:scaleY(1.05);} 100%{transform:scaleY(1);opacity:1;} }
+
+/* 3. live-hud-trend-arrow — Trend arrow bounce */
+@keyframes live-hud-trend-arrow { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-2px);} }
+
+/* 4. live-hud-efficiency-glow — Efficiency meter glow */
+@keyframes live-hud-efficiency-glow { 0%,100%{text-shadow:0 0 0 transparent;} 50%{text-shadow:0 0 6px rgba(96,165,250,0.5);} }
+
+/* 5. mastery-closest-progress — Closest-to-level progress bar fill */
+@keyframes mastery-closest-progress { 0%{width:0;} 100%{width:var(--closest-progress,0%);} }
+
+/* 6. mastery-weak-warn-pulse — Weak category warning pulse */
+@keyframes mastery-weak-warn-pulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+
+/* 7. mastery-session-stat-pop — Session stat cell entrance pop */
+@keyframes mastery-session-stat-pop { 0%{transform:scale(0.9);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+
+/* 8. mastery-level-up-slide — Level-up notification slide */
+@keyframes mastery-level-up-slide { 0%{transform:translateX(-10px);opacity:0;} 100%{transform:translateX(0);opacity:1;} }
+
+/* 9. mastery-velocity-indicator — Velocity indicator blink */
+@keyframes mastery-velocity-indicator { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+
+/* 10. breakdown-cat-bar-fill — Category contribution bar fill */
+@keyframes breakdown-cat-bar-fill { 0%{width:0;} 100%{width:var(--cat-bar-width,0%);} }
+
+/* 11. breakdown-combo-stat — Combo stat cell hover glow */
+@keyframes breakdown-combo-stat { 0%{box-shadow:0 0 0 transparent;} 50%{box-shadow:0 0 8px rgba(244,63,94,0.2);} 100%{box-shadow:0 0 0 transparent;} }
+
+/* 12. breakdown-rating-badge — Score rating badge entrance */
+@keyframes breakdown-rating-badge { 0%{transform:scale(0.8) rotate(-5deg);} 50%{transform:scale(1.1) rotate(2deg);} 100%{transform:scale(1) rotate(0deg);} }
+
+/* 13. calendar-heatmap-cell — Heatmap cell fade-in stagger */
+@keyframes calendar-heatmap-cell { 0%{opacity:0;transform:scale(0.5);} 100%{opacity:1;transform:scale(1);} }
+
+/* 14. calendar-month-bar-grow — Monthly trend bar grow */
+@keyframes calendar-month-bar-grow { 0%{height:0;} 100%{height:var(--month-bar-height,2px);} }
+
+/* 15. calendar-best-streak-badge — Best streak badge glow */
+@keyframes calendar-best-streak-badge { 0%,100%{text-shadow:0 0 0 transparent;} 50%{text-shadow:0 0 4px rgba(251,191,36,0.6);} }
+
+/* 16. quick-stats-bar-in — Quick stats bar slide-in */
+@keyframes quick-stats-bar-in { 0%{opacity:0;transform:translateY(-6px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 17. quick-stat-value-flash — Individual stat value flash */
+@keyframes quick-stat-value-flash { 0%{opacity:0;transform:scale(0.9);} 50%{opacity:1;transform:scale(1.05);} 100%{opacity:1;transform:scale(1);} }
+
+/* 18. quick-stat-icon-bounce — Stat icon micro-bounce */
+@keyframes quick-stat-icon-bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-1px);} }
+
+/* 19. r44-btn-entrance — Staggered Round 44 button entrance */
+@keyframes r44-btn-entrance { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 20. panel-enhanced-section-in — Enhanced section slide-down reveal */
+@keyframes panel-enhanced-section-in { 0%{max-height:0;opacity:0;overflow:hidden;} 100%{max-height:200px;opacity:1;overflow:visible;} }
+
+/* 21. hud-data-refresh — Data refresh shimmer */
+@keyframes hud-data-refresh { 0%{background-position:-100% 0;} 100%{background-position:200% 0;} }
+
+/* 22. category-bar-shimmer — Category bar shimmer sweep */
+@keyframes category-bar-shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+/* 23. heatmap-tooltip-fade — Heatmap tooltip fade */
+@keyframes heatmap-tooltip-fade { 0%{opacity:0;transform:translateY(4px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 24. monthly-bar-current-pulse — Current month bar pulse */
+@keyframes monthly-bar-current-pulse { 0%,100%{box-shadow:0 0 0 transparent;} 50%{box-shadow:0 0 6px rgba(14,165,233,0.4);} }
+
+/* 25. stats-compact-mode — Compact stats mode transition */
+@keyframes stats-compact-mode { 0%{gap:0.75rem;font-size:8px;} 100%{gap:0.5rem;font-size:7px;} }

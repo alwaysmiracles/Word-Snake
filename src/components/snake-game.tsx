@@ -5689,6 +5689,197 @@ export default function SnakeGame() {
     return { percent: Math.min(100, Math.round((current / range) * 100)), label: next.label }
   })()
 
+  // Round 44: Live HUD Overlay — WPM, efficiency, score trend
+  const LiveHudOverlay = () => {
+    try {
+      const hud = realtimeDashboardRef.current.getLiveHudData()
+      const trend = realtimeDashboardRef.current.getScoreTrend()
+      const trendArrow = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'
+      const trendColor = trend === 'up' ? '#4ade80' : trend === 'down' ? '#f87171' : '#94a3b8'
+      return (
+        <div className="flex items-center gap-2 text-[8px] text-slate-400">
+          <span title="Words per minute">⚡{hud.wordsPerMinute.toFixed(1)}/min</span>
+          <span className="text-slate-700">|</span>
+          <span title="Points efficiency">💎{hud.efficiency.toFixed(0)}/min</span>
+          <span className="text-slate-700">|</span>
+          <span title="Score trend" style={{ color: trendColor }}>{trendArrow}</span>
+        </div>
+      )
+    } catch {
+      return null
+    }
+  }
+
+  // Round 44: Enhanced Mastery Section — closest to level-up, weak categories, session summary
+  const MasteryEnhancedSection = () => {
+    try {
+      const closest = masteryPanelWireRef.current.getWordsClosestToLevelUp(3)
+      const weakCats = masteryPanelWireRef.current.getWeakCategories()
+      const sessionSummary = masteryPanelWireRef.current.getSessionSummary()
+      return (
+        <div className="mt-2 border-t border-orange-800/20 pt-2">
+          {/* Closest to Level-Up */}
+          {closest.length > 0 && (
+            <div className="mb-2">
+              <div className="text-[7px] text-slate-500 mb-1">📈 Closest to Level-Up</div>
+              {closest.map((w, i) => (
+                <div key={i} className="flex items-center gap-1 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[7px] text-slate-300 truncate max-w-[80px]">{w.word}</span>
+                      <span className="text-[6px] text-slate-500">{w.currentLevel}→{w.nextLevel}</span>
+                    </div>
+                    <div className="h-1 bg-slate-800 rounded-full overflow-hidden mt-0.5">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${w.progress}%`, backgroundColor: '#f59e0b' }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Weak Categories */}
+          {weakCats.length > 0 && (
+            <div className="mb-2">
+              <div className="text-[7px] text-slate-500 mb-1">⚠️ Weak Categories</div>
+              {weakCats.slice(0, 2).map((wc, i) => (
+                <div key={i} className="text-[7px] text-amber-400/80 mb-0.5">
+                  {wc.category}: {Math.round(wc.avgProgress)}% — {wc.suggestion}
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Session Stats */}
+          <div className="grid grid-cols-3 gap-1">
+            <div className="text-center p-0.5 rounded bg-orange-900/15">
+              <div className="text-[6px] text-slate-600">Velocity</div>
+              <div className="text-[8px] text-orange-300">{sessionSummary.masteryVelocity.toFixed(1)}/min</div>
+            </div>
+            <div className="text-center p-0.5 rounded bg-orange-900/15">
+              <div className="text-[6px] text-slate-600">Level-Ups</div>
+              <div className="text-[8px] text-emerald-400">{sessionSummary.levelUps}</div>
+            </div>
+            <div className="text-center p-0.5 rounded bg-orange-900/15">
+              <div className="text-[6px] text-slate-600">WPM</div>
+              <div className="text-[8px] text-sky-300">{sessionSummary.wordsPerMinute.toFixed(1)}</div>
+            </div>
+          </div>
+        </div>
+      )
+    } catch {
+      return null
+    }
+  }
+
+  // Round 44: Enhanced Score Breakdown — category contribution, combo analysis
+  const ScoreBreakdownEnhancedSection = () => {
+    try {
+      const catContrib = getCategoryContribution(scoreBreakdown)
+      const comboAnalysis = getComboAnalysis(scoreBreakdown)
+      return (
+        <div className="mt-2 border-t border-rose-800/20 pt-2">
+          {/* Category contribution bars */}
+          <div className="text-[7px] text-slate-500 mb-1">📊 By Category</div>
+          {catContrib.slice(0, 4).map((cc, i) => (
+            <div key={i} className="flex items-center gap-1 mb-0.5">
+              <span className="text-[6px] text-slate-400 w-14 truncate">{cc.category}</span>
+              <div className="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-300 bg-gradient-to-r from-rose-500 to-pink-500" style={{ width: `${Math.min(100, cc.percentage * 2)}%` }} />
+              </div>
+              <span className="text-[6px] text-rose-400 w-8 text-right">{Math.round(cc.percentage)}%</span>
+            </div>
+          ))}
+          {/* Combo analysis */}
+          {comboAnalysis && (
+            <div className="mt-1.5 grid grid-cols-3 gap-1">
+              <div className="text-center p-0.5 rounded bg-rose-900/15">
+                <div className="text-[6px] text-slate-600">Avg Combo</div>
+                <div className="text-[8px] text-rose-300">{comboAnalysis.avgComboSize?.toFixed(1) ?? '-'}</div>
+              </div>
+              <div className="text-center p-0.5 rounded bg-rose-900/15">
+                <div className="text-[6px] text-slate-600">Max Combo</div>
+                <div className="text-[8px] text-amber-400">{comboAnalysis.maxCombo ?? '-'}</div>
+              </div>
+              <div className="text-center p-0.5 rounded bg-rose-900/15">
+                <div className="text-[6px] text-slate-600">Words</div>
+                <div className="text-[8px] text-sky-300">{comboAnalysis.totalCombos ?? scoreBreakdown.entries.length}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    } catch {
+      return null
+    }
+  }
+
+  // Round 44: Calendar Heatmap + Monthly Trends
+  const CalendarEnhancedSection = () => {
+    try {
+      const heatmap = getHeatmapData()
+      const monthlyRates = getCompletionRateByMonth(new Date().getFullYear())
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      const currentMonth = new Date().getMonth()
+      return (
+        <div className="mt-2 border-t border-sky-800/20 pt-2">
+          {/* Heatmap */}
+          <div className="text-[7px] text-slate-500 mb-1">🔥 90-Day Activity</div>
+          <div className="grid grid-cols-15 gap-px">
+            {heatmap.map((entry, i) => (
+              <div
+                key={i}
+                title={`${entry.date}: ${entry.intensity > 0 ? entry.intensity + '★' : 'No play'}`}
+                className="w-1 h-1.5 rounded-sm"
+                style={{
+                  backgroundColor: entry.intensity === 0 ? 'rgba(51,65,85,0.3)' : entry.intensity === 1 ? 'rgba(14,165,233,0.4)' : entry.intensity === 2 ? 'rgba(14,165,233,0.6)' : entry.intensity === 3 ? 'rgba(14,165,233,0.8)' : 'rgba(251,191,36,0.9)',
+                }}
+              />
+            ))}
+          </div>
+          {/* Monthly Trends */}
+          <div className="text-[7px] text-slate-500 mt-1.5 mb-1">📈 Monthly Completion ({new Date().getFullYear()})</div>
+          <div className="flex items-end gap-0.5 h-6">
+            {months.map((m, i) => {
+              const rate = monthlyRates[i] ?? 0
+              const isCurrentMonth = i === currentMonth
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-full rounded-t-sm transition-all duration-300"
+                    style={{
+                      height: `${Math.max(2, rate * 24)}px`,
+                      backgroundColor: isCurrentMonth ? '#0ea5e9' : rate > 0 ? 'rgba(14,165,233,0.5)' : 'rgba(51,65,85,0.3)',
+                    }}
+                    title={`${m}: ${Math.round(rate * 100)}%`}
+                  />
+                  {i % 3 === 0 && <span className="text-[4px] text-slate-600">{m}</span>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )
+    } catch {
+      return null
+    }
+  }
+
+  // Round 44: Real-time Quick Stats bar in sidebar header area
+  const RealtimeQuickStatsBar = () => {
+    try {
+      const stats = realtimeDashboardRef.current.getRealtimeQuickStats()
+      return (
+        <div className="flex items-center justify-center gap-3 text-[7px] text-slate-500 py-1">
+          <span title="Games played">🎮 {stats.gamesPlayed}</span>
+          <span title="Total score">⭐ {stats.totalScore > 999 ? `${(stats.totalScore / 1000).toFixed(1)}k` : stats.totalScore}</span>
+          <span title="Best score" className="text-amber-400">🏆 {stats.bestScore}</span>
+          <span title="Streak">🔥 {stats.currentStreak}d</span>
+        </div>
+      )
+    } catch {
+      return null
+    }
+  }
+
   // Round 43b: Story Level Select inline content
   const StoryLevelSelectContent = () => {
     try {
@@ -7317,9 +7508,13 @@ export default function SnakeGame() {
               <CardTitle className="text-amber-400 text-base flex items-center gap-2">
                 📚 Collected Words
               </CardTitle>
-              <Badge variant="secondary" className="bg-amber-900/50 text-amber-400 border-amber-700 text-xs">
-                {totalCount}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {/* Round 44: Live HUD Overlay */}
+                <LiveHudOverlay />
+                <Badge variant="secondary" className="bg-amber-900/50 text-amber-400 border-amber-700 text-xs">
+                  {totalCount}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
@@ -7933,6 +8128,9 @@ export default function SnakeGame() {
               </div>
             )}
 
+            {/* Round 44: Real-time Quick Stats Bar */}
+            <RealtimeQuickStatsBar />
+
             {/* SFX Event Sounds Toggle */}
             {mounted && (
               <div className="mb-3 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-orange-900/15 to-amber-900/10 border border-orange-700/20 sfx-events-panel">
@@ -8292,7 +8490,9 @@ export default function SnakeGame() {
                     })}
                   </div>
                 )}
-                {calendarStats && <div className="mt-1 text-[7px] text-slate-500">Rate: {Math.round(calendarStats.completionRate)}%</div>}
+                {calendarStats && <div className="mt-1 text-[7px] text-slate-500">Rate: {Math.round(calendarStats.completionRate)}% | Best streak: <span className="text-amber-400">{getBestStreak()}d</span></div>}
+                {/* Round 44: Calendar Heatmap + Monthly Trends */}
+                <CalendarEnhancedSection />
               </div>
             )}
 
@@ -8362,7 +8562,9 @@ export default function SnakeGame() {
                     <span className="text-sm">🏆</span>
                     <span className="text-[10px] text-orange-300 font-bold">Word Mastery</span>
                   </div>
-                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-orange-900/40 text-orange-300">{masteryStats.totalWords} words</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-orange-900/40 text-orange-300">{masteryStats.totalWords} words</span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-3 gap-1 mb-2">
                   <div className="text-center p-1 rounded bg-orange-900/20">
@@ -8391,6 +8593,8 @@ export default function SnakeGame() {
                   })}
                 </div>
                 <div className="text-[7px] text-slate-500">Collection rate: {Math.round(masteryStats.collectionRate)}% | Encounters: {masteryStats.totalEncounters}</div>
+                {/* Round 44: Enhanced Mastery — Closest to Level-Up + Session Stats */}
+                <MasteryEnhancedSection />
               </div>
             )}
 
@@ -8496,6 +8700,8 @@ export default function SnakeGame() {
                     <span className="text-rose-400">+{formatPoints(e.totalPoints)}</span>
                   </div>
                 ))}
+                {/* Round 44: Enhanced Score Breakdown — Category + Rarity + Combo */}
+                <ScoreBreakdownEnhancedSection />
               </div>
             )}
 
