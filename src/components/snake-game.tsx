@@ -90,6 +90,10 @@ import { triggerGameEvent, createEventTriggerer, batchTriggerEvents, GAME_EVENT_
 import { getSaveSlots, saveToSlot, loadFromSlot, deleteSaveSlot, getAutoSave, setAutoSave, clearAutoSave, getSlotSummary, exportSaveData, importSaveData, formatSaveAge, SAVE_VERSION, DEFAULT_SLOT_CONFIG, SAVE_STORAGE_KEY, AUTOSAVE_KEY, type SaveSlot, type SerializableGameState, type SaveSlotConfig } from '@/lib/game-state-manager'
 import { loadAccessibilityConfig, saveAccessibilityConfig, updateConfig, announceToScreenReader, applyAccessibilityStyles, shouldReduceMotion, getHighContrastTheme, speakText, stopSpeaking, isSpeaking, COLOR_BLIND_FILTERS, DEFAULT_ACCESSIBILITY_CONFIG, type AccessibilityConfig } from '@/lib/accessibility-manager'
 import { gameEvents, emitGameEvent, getEventHistory as getHookEventHistory, onGameStart, onGameEnd, onWordEat, onScoreChange, onComboChange, onPowerUp, onAchievement, onAnyEvent, createEventCounter, createEventTimer, type GameHookEvent, type GameEventPayload, type SubscriptionHandle } from '@/lib/game-event-hooks'
+import { initAutoSfx, isSfxWired, HOOK_TO_SFX_MAP, getUnmappedEvents } from '@/lib/sfx-auto-trigger'
+import { ColorBlindFilterSVG, getFilterCSS, getColorBlindOverlayStyle, COLOR_BLIND_FILTER_CONFIGS, type ColorBlindMode } from '@/lib/color-blind-filters'
+import { createKeyboardNav, createSidebarNavItems, useKeyboardNav, isKeyboardUser, type NavItem } from '@/lib/keyboard-navigation'
+import { calculateAnalytics, getAnalyticsSummary, getActivityLevel, getEventTimeline, createAnalyticsSnapshot, EVENT_CATEGORIES, getCategoryEmoji, formatEventTimeline, type EventAnalytics, type AnalyticsSnapshot, type EventCategory } from '@/lib/event-analytics'
 import {
   Play,
   RotateCcw,
@@ -553,12 +557,23 @@ export default function SnakeGame() {
       saveTriggerRef.current = createEventTriggerer({ enabled: sfxEventsEnabled === 'true', masterVolume: 0.7, sfxConfig: loadSfxConfig() })
       // Initialize game event hooks — wire SFX sounds to events
       eventCounterRef.current = createEventCounter(['word:eat', 'game:start', 'achievement:unlock', 'combo:increase', 'powerup:collect'])
-      onGameStart(() => { if (sfxEventsPref === 'true') triggerGameEvent('game.start', { enabled: true, masterVolume: 0.7, sfxConfig: loadSfxConfig() }) })
-      onWordEat(() => { if (sfxEventsPref === 'true') triggerGameEvent('word.eat', { enabled: true, masterVolume: 0.7, sfxConfig: loadSfxConfig() }) })
-      onAchievement(() => { if (sfxEventsPref === 'true') triggerGameEvent('achievement.unlock', { enabled: true, masterVolume: 0.7, sfxConfig: loadSfxConfig() }) })
+      // Initialize auto SFX wiring for ALL 38 events
+      autoSfxCleanupRef.current = initAutoSfx(sfxEventsPref === 'true', loadSfxConfig())
+      // Initialize event analytics
+      setEventAnalytics(calculateAnalytics())
+      analyticsTimerRef.current = setInterval(() => {
+        if (document.visibilityState === 'visible') setEventAnalytics(calculateAnalytics())
+      }, 5000)
+      // Load accessibility color blind config
+      const savedA11y = loadAccessibilityConfig()
+      setA11yConfig(savedA11y)
     }
     const id = requestAnimationFrame(loadData)
-    return () => cancelAnimationFrame(id)
+    return () => {
+      cancelAnimationFrame(id)
+      if (autoSfxCleanupRef.current) autoSfxCleanupRef.current()
+      if (analyticsTimerRef.current) clearInterval(analyticsTimerRef.current)
+    }
   }, [mounted])
 
   const gameStateRef = useRef<GameState>({
@@ -699,6 +714,12 @@ export default function SnakeGame() {
   const [showA11yPanel, setShowA11yPanel] = useState(false)
   // Game event hook system
   const eventCounterRef = useRef<(() => Record<string, number>) | null>(null)
+  // Auto SFX wiring cleanup
+  const autoSfxCleanupRef = useRef<(() => void) | null>(null)
+  // Event analytics
+  const [eventAnalytics, setEventAnalytics] = useState<EventAnalytics | null>(null)
+  const [showEventAnalytics, setShowEventAnalytics] = useState(false)
+  const analyticsTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -5189,6 +5210,8 @@ export default function SnakeGame() {
     <div className={`flex flex-col lg:flex-row gap-4 w-full max-w-[1100px] mx-auto transition-all duration-700 ${nightMode.enabled ? 'night-mode-active' : ''}`}
       style={nightMode.enabled ? { filter: getNightModeFilter(nightMode) } : undefined}
     >
+      {/* Color Blind SVG Filter Definitions */}
+      <ColorBlindFilterSVG />
       {/* Game Area */}
       <div className="flex-1 min-w-0">
         {/* Aurora background behind card */}
@@ -6277,6 +6300,14 @@ export default function SnakeGame() {
                       ♿ Accessibility
                     </Button>
                     <Button
+                      onClick={() => setShowEventAnalytics(!showEventAnalytics)}
+                      variant="outline"
+                      className="border-violet-700/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform analytics-panel-btn"
+                      title="Event Analytics"
+                    >
+                      📊 Analytics
+                    </Button>
+                    <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
                       title="60-second timed challenge"
@@ -7275,6 +7306,46 @@ export default function SnakeGame() {
                     <span key={event} className="text-[7px] px-1.5 py-0.5 rounded-full bg-slate-800/60 text-slate-400 border border-slate-700/20">
                       {event.split(':')[1]}: {count}
                     </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Event Analytics Dashboard */}
+            {showEventAnalytics && mounted && eventAnalytics && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-violet-900/20 to-purple-900/15 border border-violet-700/25 analytics-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📊</span>
+                    <span className="text-[10px] text-violet-300 font-bold">Event Analytics</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-violet-900/40 text-violet-300">{eventAnalytics.recentActivity}</span>
+                </div>
+                <p className="text-[8px] text-slate-400 mb-2">{getAnalyticsSummary()}</p>
+                {/* Category breakdown */}
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {Object.entries(eventAnalytics.categoryBreakdown).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([cat, count]) => (
+                    <span key={cat} className="text-[7px] px-1.5 py-0.5 rounded-full border border-slate-700/20 bg-slate-800/40 text-slate-400">
+                      {getCategoryEmoji(cat as EventCategory)} {cat}: {count}
+                    </span>
+                  ))}
+                </div>
+                {/* Sparkline timeline */}
+                {eventAnalytics.eventTimeline.length > 1 && (
+                  <div className="text-[7px] text-slate-500 mb-1">Activity: <span className="font-mono tracking-wider">{formatEventTimeline(eventAnalytics.eventTimeline)}</span></div>
+                )}
+                {/* Top events */}
+                <div className="space-y-0.5">
+                  {eventAnalytics.topEvents.slice(0, 3).map((e, i) => (
+                    <div key={e.event} className="flex items-center justify-between">
+                      <span className="text-[7px] text-slate-400 truncate max-w-[120px]">{e.event}</span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-16 h-1 rounded-full bg-slate-800 overflow-hidden">
+                          <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${e.percent}%` }} />
+                        </div>
+                        <span className="text-[7px] text-slate-500">{e.count}</span>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

@@ -4555,3 +4555,87 @@
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Round 34: 25 new CSS animations (376→401 total keyframes)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. analytics-panel — Slide-in entrance for analytics */
+.analytics-panel { animation: analytics-panel-in 0.4s cubic-bezier(0.16,1,0.3,1); }
+@keyframes analytics-panel-in { 0% { opacity:0; transform:translateY(-8px) scaleY(0.97); } 100% { opacity:1; transform:translateY(0) scaleY(1); } }
+
+/* 2. analytics-panel-btn shimmer sweep */
+.analytics-panel-btn { position:relative; overflow:hidden; }
+.analytics-panel-btn::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:linear-gradient(45deg,transparent 40%,rgba(139,92,246,0.12) 50%,transparent 60%); animation:analytics-sweep 3s ease-in-out infinite; }
+@keyframes analytics-sweep { 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
+
+/* 3. analytics-bar-fill smooth */
+.analytics-panel .h-full { transition: width 0.6s cubic-bezier(0.16,1,0.3,1); }
+
+/* 4. sfx-auto-wire pulse */
+@keyframes sfx-auto-wire { 0%,100%{box-shadow:0 0 4px rgba(234,88,12,0.2);} 50%{box-shadow:0 0 12px rgba(234,88,12,0.5);} }
+
+/* 5. colorblind filter transition */
+@keyframes cb-filter-transition { 0%{filter:none;} 100%{filter:url(#protanopia-filter);} }
+
+/* 6. keyboard focus visible */
+.keyboard-focus-visible:focus-visible { outline:2px solid rgba(59,130,246,0.8); outline-offset:2px; box-shadow:0 0 0 4px rgba(59,130,246,0.3); animation:kb-focus-ring 0.3s ease; }
+@keyframes kb-focus-ring { 0%{box-shadow:0 0 0 0 rgba(59,130,246,0.6);} 100%{box-shadow:0 0 0 4px rgba(59,130,246,0.3);} }
+
+/* 7. keyboard nav highlight */
+@keyframes kb-nav-highlight { 0%{background-color:transparent;} 100%{background-color:rgba(59,130,246,0.15);} }
+
+/* 8. sparkline pulse */
+@keyframes sparkline-pulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+
+/* 9. hook fire flash */
+@keyframes hook-fire-flash { 0%{background-color:rgba(139,92,246,0.25);} 100%{background-color:transparent;} }
+
+/* 10. wire-all pulse */
+@keyframes wire-all-pulse { 0%,100%{border-color:rgba(16,185,129,0.2);} 50%{border-color:rgba(16,185,129,0.5);} }
+
+/* 11. category tag pop */
+@keyframes category-tag-pop { 0%{transform:scale(0.8);opacity:0;} 60%{transform:scale(1.05);opacity:1;} 100%{transform:scale(1);opacity:1;} }
+
+/* 12. zone switch */
+@keyframes zone-switch { 0%{opacity:0.3;} 100%{opacity:1;} }
+
+/* 13. top event bar */
+@keyframes top-event-bar { 0%{transform:scaleX(0);transform-origin:left;} 100%{transform:scaleX(1);transform-origin:left;} }
+
+/* 14. event connected */
+@keyframes event-connected { 0%{background-color:rgba(34,197,94,0.3);} 100%{background-color:transparent;} }
+
+/* 15. SVG filter appear */
+@keyframes svg-filter-appear { 0%{opacity:0;} 100%{opacity:1;} }
+
+/* 16. activity level pulse */
+@keyframes activity-level-pulse { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+
+/* 17. nav item glow */
+@keyframes nav-item-glow { 0%{box-shadow:inset 0 0 0 1px rgba(59,130,246,0.3);} 100%{box-shadow:inset 0 0 0 1px rgba(59,130,246,0.6),0 0 8px rgba(59,130,246,0.2);} }
+
+/* 18. summary text fade */
+@keyframes summary-text-fade { 0%{opacity:0;transform:translateY(-2px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 19. wire checkmark */
+@keyframes wire-checkmark { 0%{transform:scale(0) rotate(-45deg);opacity:0;} 60%{transform:scale(1.2) rotate(0deg);opacity:1;} 100%{transform:scale(1) rotate(0deg);opacity:1;} }
+
+/* 20. nav announce */
+@keyframes nav-announce { 0%{opacity:0;max-height:0;} 100%{opacity:0.9;max-height:30px;} }
+
+/* 21. timeline bar grow */
+@keyframes timeline-bar-grow { 0%{width:0%;} 100%{width:100%;} }
+
+/* 22. CB filter apply */
+@keyframes cb-filter-apply { 0%{filter:none;} 50%{filter:url(#protanopia-filter);opacity:0.9;} 100%{filter:url(#protanopia-filter);opacity:1;} }
+
+/* 23. idle shimmer */
+@keyframes idle-shimmer { 0%,100%{opacity:0.4;} 50%{opacity:0.7;} }
+
+/* 24. escape flash */
+@keyframes escape-flash { 0%{background-color:rgba(239,68,68,0.2);} 100%{background-color:transparent;} }
+
+/* 25. analytics refresh pulse */
+@keyframes analytics-refresh { 0%{border-color:rgba(139,92,246,0.15);} 50%{border-color:rgba(139,92,246,0.4);} 100%{border-color:rgba(139,92,246,0.15);} }
+.analytics-panel { animation: analytics-refresh 6s ease-in-out infinite; }
