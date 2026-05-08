@@ -1485,3 +1485,72 @@
 .color-picker-swatch:active {
   transform: scale(1.05);
 }
+
+/* ===== Multi-Language Word Pack Animations ===== */
+
+/* Chinese word pack glow — warm red pulsing glow */
+@keyframes pack-chinese-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.7); }
+}
+.pack-chinese-glow { animation: pack-chinese-glow 2s ease-in-out infinite; }
+
+/* Japanese word pack glow — pink pulsing glow */
+@keyframes pack-japanese-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(236, 72, 153, 0.4); }
+  50% { box-shadow: 0 0 18px rgba(236, 72, 153, 0.7); }
+}
+.pack-japanese-glow { animation: pack-japanese-glow 2s ease-in-out infinite; }
+
+/* Kanji float — subtle floating rotation for East Asian word elements */
+@keyframes kanji-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
+.kanji-float { animation: kanji-float 3s ease-in-out infinite; }
+
+/* Language badge pop — scale-in entrance for language badges */
+@keyframes language-badge-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.language-badge-pop { animation: language-badge-pop 0.4s ease-out forwards; }
+
+/* ===== Game Replay System Animations ===== */
+
+/* Replay pulse — gentle opacity breathing for recording indicator */
+@keyframes replay-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.replay-pulse { animation: replay-pulse 1.5s ease-in-out infinite; }
+
+/* Replay badge glow — red pulsing glow for replay mode badge */
+@keyframes replay-badge-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.5), 0 2px 8px rgba(0,0,0,0.3); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 2px 12px rgba(0,0,0,0.4); }
+}
+.replay-badge-glow { animation: replay-badge-glow 2s ease-in-out infinite; }
+
+/* Replay progress shine — moving highlight on progress bar */
+@keyframes replay-progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.replay-progress-shine { animation: replay-progress-shine 2s linear infinite; }
+
+/* Replay card enter — staggered fade-in for replay list cards */
+@keyframes replay-card-enter {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.replay-card-enter { animation: replay-card-enter 0.3s ease-out forwards; }
+
+/* Replay speed change — quick scale pop when changing speed */
+@keyframes replay-speed-change {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.replay-speed-change { animation: replay-speed-change 0.3s ease-out; }

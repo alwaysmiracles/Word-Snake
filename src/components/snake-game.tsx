@@ -41,6 +41,7 @@ import { downloadShareCard, type ShareCardData } from '@/lib/share-card'
 import { WORD_PACKS, getActivePack, setActivePack, isPackUnlocked, getWordsFromPack, getPackWordEntry, getPackCategoryInfo, checkPackUnlocks, type WordPack, PACK_CATEGORY_INFO } from '@/lib/word-packs'
 import { isTutorialCompleted, markTutorialCompleted, saveTutorialProgress, resetTutorial as resetTutorialData, createTutorialState, type TutorialState } from '@/lib/tutorial'
 import { createPvPState, P2_COLORS, type PvPState } from '@/lib/pvp-mode'
+import { startRecording, recordFrame, stopRecording, isRecording, getReplays, deleteReplay, getReplay, startPlayback, stopPlayback, isPlaybackActive, getPlaybackState, advancePlayback, setPlaybackSpeed, setPlaybackPlaying, getPlaybackProgress, seekPlayback, formatDuration, formatDate, clearAllReplays, type GameReplay, type ReplayFrame } from '@/lib/game-replay'
 import {
   Play,
   RotateCcw,
@@ -65,6 +66,11 @@ import {
   ChevronRight,
   Lock,
   Package,
+  Film,
+  Trash2,
+  SkipForward,
+  SkipBack,
+  X,
 } from 'lucide-react'
 
 // Game constants
@@ -309,6 +315,15 @@ export default function SnakeGame() {
 
   // Keyboard shortcuts dialog
   const [showShortcuts, setShowShortcuts] = useState(false)
+
+  // Replay dialog
+  const [showReplayDialog, setShowReplayDialog] = useState(false)
+  const [replayList, setReplayList] = useState<GameReplay[]>([])
+  const [replayMode, setReplayMode] = useState(false)
+  const [replaySpeed, setReplaySpeed] = useState(1)
+  const [replayPaused, setReplayPaused] = useState(false)
+  const [replayProgress, setReplayProgress] = useState(0)
+  const [replayFrame, setReplayFrame] = useState<ReplayFrame | null>(null)
 
   // Sound theme state
   const [activeSoundTheme, setActiveSoundTheme] = useState<SoundThemeId>('default')
@@ -773,6 +788,8 @@ export default function SnakeGame() {
     gs.lastEatenCategory = null
     gs.comboMultiplier = 1
     achievementQueue.clear()
+    // Start replay recording
+    try { startRecording() } catch { /* ignore */ }
     gs.lastAchievement = null
     if (toastTimerRef.current) { clearTimeout(toastTimerRef.current); toastTimerRef.current = null }
     if (milestoneToastTimerRef.current) { clearTimeout(milestoneToastTimerRef.current); milestoneToastTimerRef.current = null }
@@ -2298,6 +2315,10 @@ export default function SnakeGame() {
 
     // Clear achievement queue and toast
     achievementQueue.clear()
+    // Start replay recording (not for PvP or replay mode)
+    if (!pvpRef.current && !isPlaybackActive()) {
+      try { startRecording() } catch { /* ignore */ }
+    }
     gs.lastAchievement = null
     if (toastTimerRef.current) {
       clearTimeout(toastTimerRef.current)
@@ -2774,6 +2795,20 @@ export default function SnakeGame() {
 
       const handleDeath = () => {
         gs.gameOver = true
+        // Stop replay recording and save
+        if (isRecording()) {
+          try {
+            const savedReplay = stopRecording({
+              difficulty: gs.difficulty,
+              isDailyChallenge: gs.isDailyChallenge,
+              weather: gs.weather,
+              wordPack: activeWordPack !== 'default' ? activeWordPack : 'classic',
+            })
+            if (savedReplay) {
+              toast({ title: 'Replay Saved', description: `Game recorded (${formatDuration(savedReplay.duration)})`, variant: 'default' })
+            }
+          } catch { /* ignore */ }
+        }
         const stored = typeof window !== 'undefined' ? parseInt(localStorage.getItem('word-snake-highscore') ?? '0', 10) : 0
         if (gs.score > stored) {
           localStorage.setItem('word-snake-highscore', String(gs.score))
@@ -3259,6 +3294,21 @@ export default function SnakeGame() {
         if (Math.abs(dy) > 0) foodPos.y += Math.sign(dy)
       }
 
+      // Record replay frame (throttled inside recordFrame)
+      if (isRecording() && !pvpRef.current) {
+        try {
+          recordFrame({
+            snake: gs.snake.map(s => ({ x: s.x, y: s.y })),
+            direction: gs.direction,
+            food: gs.wordFood ? { x: gs.wordFood.position.x, y: gs.wordFood.position.y, word: gs.wordFood.word } : null,
+            powerUp: gs.powerUp ? { x: gs.powerUp.position.x, y: gs.powerUp.position.y, type: gs.powerUp.type, emoji: POWERUP_CONFIG[gs.powerUp.type].emoji } : null,
+            score: gs.score,
+            wordsEaten: [...collectedWordsRef.current],
+            comboCount: gs.comboCount,
+          })
+        } catch { /* ignore */ }
+      }
+
       updateUI()
       draw()
       animFrameRef.current = requestAnimationFrame(gameLoop)
@@ -3707,6 +3757,88 @@ export default function SnakeGame() {
     playSound(playClickSound)
     resetGame(true)
   }
+
+  // Replay playback functions
+  const loadAndPlayReplay = useCallback((replay: GameReplay) => {
+    const gs = gameStateRef.current
+    // Set up game state for replay
+    gs.snake = replay.frames[0]?.snake.map(s => ({ x: s.x, y: s.y })) ?? [{ x: 5, y: 12 }, { x: 4, y: 12 }, { x: 3, y: 12 }]
+    gs.direction = replay.frames[0]?.direction ?? 'RIGHT'
+    gs.gameStarted = true
+    gs.gameOver = false
+    gs.paused = false
+    gs.score = 0
+    gs.wordsEaten = 0
+    gs.wordFood = null
+    gs.powerUp = null
+    gs.activePowerUps = []
+    gs.comboCount = 0
+    gs.comboMultiplier = 1
+    gs.weather = replay.weather as GameState['weather']
+    weatherParticlesRef.current = []
+    pvpRef.current = null
+    // Clear tutorial, speed run
+    gs.isSpeedRun = false
+    gs.isDailyChallenge = false
+
+    setReplayMode(true)
+    setReplaySpeed(1)
+    setReplayPaused(false)
+    setReplayProgress(0)
+    setReplayFrame(replay.frames[0] ?? null)
+    startPlayback(replay, 1)
+    updateUI()
+    toast({ title: 'Replay Started', description: `Watching ${replay.difficulty} game — ${replay.finalScore} pts`, variant: 'default' })
+  }, [updateUI])
+
+  const exitReplayMode = useCallback(() => {
+    stopPlayback()
+    setReplayMode(false)
+    setReplayPaused(false)
+    setReplayProgress(0)
+    setReplayFrame(null)
+    const gs = gameStateRef.current
+    gs.gameStarted = false
+    gs.gameOver = false
+    gs.paused = false
+    updateUI()
+  }, [updateUI])
+
+  // Replay playback loop - advance frames
+  useEffect(() => {
+    if (!replayMode || replayPaused) return
+    const interval = setInterval(() => {
+      const frame = advancePlayback()
+      if (!frame) {
+        setReplayMode(false)
+        stopPlayback()
+        const gs = gameStateRef.current
+        gs.gameStarted = false
+        updateUI()
+        return
+      }
+      const gs = gameStateRef.current
+      gs.snake = frame.snake.map(s => ({ x: s.x, y: s.y }))
+      gs.direction = frame.direction as Direction
+      gs.score = frame.score
+      gs.comboCount = frame.comboCount
+      gs.wordsEaten = frame.wordsEaten.length
+      if (frame.food) {
+        gs.wordFood = { word: frame.food.word, position: { x: frame.food.x, y: frame.food.y }, category: 'nature', rarity: 'common' }
+      } else {
+        gs.wordFood = null
+      }
+      if (frame.powerUp) {
+        gs.powerUp = { type: frame.powerUp.type as PowerUpType, position: { x: frame.powerUp.x, y: frame.powerUp.y }, spawnTime: Date.now() }
+      } else {
+        gs.powerUp = null
+      }
+      setReplayFrame(frame)
+      setReplayProgress(getPlaybackProgress())
+      updateUI()
+    }, 60 / replaySpeed) // Base 60ms per frame, adjusted by speed
+    return () => clearInterval(interval)
+  }, [replayMode, replayPaused, replaySpeed, updateUI])
 
   // Streak display data
   const streakDisplay = streakInfo && streakInfo.currentStreak > 0
@@ -4302,6 +4434,13 @@ export default function SnakeGame() {
                       <Gauge className="h-4 w-4 mr-1" /> Speed Run
                     </Button>
                     <Button
+                      onClick={() => { setReplayList(getReplays()); setShowReplayDialog(true) }}
+                      variant="outline"
+                      className="border-purple-700/50 text-purple-400 hover:bg-purple-900/20 active:scale-95 transition-transform"
+                    >
+                      <Film className="h-4 w-4 mr-1" /> Replays
+                    </Button>
+                    <Button
                       onClick={() => setShowSettings(true)}
                       variant="outline"
                       className="border-slate-600/50 text-slate-300 hover:bg-slate-800/50 active:scale-95 transition-transform"
@@ -4810,6 +4949,136 @@ export default function SnakeGame() {
           <span className="text-[10px] text-rose-400/60">
             Speed Run Best: {speedRunBest.bestScore} pts ({speedRunBest.totalRuns} runs)
           </span>
+        </div>
+      )}
+
+      {/* Replay Dialog */}
+      {showReplayDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-purple-700/40 rounded-xl p-5 w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col shadow-2xl shadow-purple-900/20">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2">
+                <Film className="h-5 w-5" /> Game Replays
+              </h3>
+              <button onClick={() => setShowReplayDialog(false)} className="text-slate-400 hover:text-white transition-colors p-1">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {replayList.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-3xl mb-2 animate-float">🎬</div>
+                <p className="text-slate-400 text-sm">No replays yet</p>
+                <p className="text-slate-500 text-xs mt-1">Play a game to record it automatically!</p>
+              </div>
+            ) : (
+              <>
+                <ScrollArea className="flex-1 -mx-1">
+                  <div className="space-y-2 px-1">
+                    {replayList.map((replay) => (
+                      <div key={replay.id} className="replay-card-enter bg-slate-800/60 border border-slate-700/40 rounded-lg p-3 hover:border-purple-600/40 transition-colors">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-slate-400">{formatDate(replay.date)}</span>
+                          <div className="flex items-center gap-1">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                              replay.difficulty === 'easy' ? 'bg-green-900/50 text-green-400' :
+                              replay.difficulty === 'hard' ? 'bg-red-900/50 text-red-400' :
+                              'bg-amber-900/50 text-amber-400'
+                            }`}>{replay.difficulty}</span>
+                            {replay.isDailyChallenge && <span className="text-[10px] text-amber-400">📅</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-white font-bold text-lg">{replay.finalScore}</span>
+                            <span className="text-slate-400 text-xs ml-2">pts</span>
+                            <span className="text-slate-500 text-xs ml-2">{replay.wordsCollected.length}w</span>
+                            <span className="text-slate-500 text-xs ml-1">{formatDuration(replay.duration)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                setShowReplayDialog(false)
+                                loadAndPlayReplay(replay)
+                              }}
+                              className="p-1.5 bg-purple-600/80 hover:bg-purple-500 rounded-md transition-colors"
+                              title="Watch replay"
+                            >
+                              <Play className="h-3.5 w-3.5 text-white" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                deleteReplay(replay.id)
+                                setReplayList(getReplays())
+                              }}
+                              className="p-1.5 bg-slate-700/80 hover:bg-red-900/60 rounded-md transition-colors"
+                              title="Delete replay"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-slate-400" />
+                            </button>
+                          </div>
+                        </div>
+                        {replay.maxCombo > 1 && (
+                          <span className="text-[10px] text-orange-400/70">🔥 Max combo: ×{replay.maxCombo}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+                <div className="mt-3 pt-2 border-t border-slate-700/40 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500">{replayList.length}/10 slots</span>
+                  {replayList.length > 0 && (
+                    <button
+                      onClick={() => { clearAllReplays(); setReplayList([]) }}
+                      className="text-[10px] text-slate-500 hover:text-red-400 transition-colors"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Replay Mode Overlay */}
+      {replayMode && (
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 animate-in slide-in-from-top duration-300">
+          <div className="bg-red-900/90 border border-red-600/60 rounded-lg px-3 py-1.5 flex items-center gap-3 shadow-lg replay-badge-glow">
+            <span className="text-red-300 font-bold text-xs tracking-wider">REPLAY</span>
+            <div className="w-px h-4 bg-red-700/50" />
+            <button onClick={() => setReplaySpeed(s => Math.max(0.5, s - 0.5))} className="text-white/70 hover:text-white transition-colors p-0.5">
+              <SkipBack className="h-3 w-3" />
+            </button>
+            <span className="text-white text-xs font-mono w-10 text-center">{replaySpeed}x</span>
+            <button onClick={() => setReplaySpeed(s => Math.min(4, s + 0.5))} className="text-white/70 hover:text-white transition-colors p-0.5">
+              <SkipForward className="h-3 w-3" />
+            </button>
+            <div className="w-px h-4 bg-red-700/50" />
+            <button onClick={() => setReplayPaused(p => !p)} className="text-white/70 hover:text-white transition-colors p-0.5">
+              {replayPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+            </button>
+            <button
+              onClick={exitReplayMode}
+              className="text-red-400 hover:text-red-300 transition-colors text-xs font-medium ml-1"
+            >
+              Exit
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Replay Progress Bar */}
+      {replayMode && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/80 backdrop-blur-sm">
+          <div className="h-1 bg-slate-700 w-full">
+            <div
+              className="h-full bg-gradient-to-r from-purple-600 to-pink-500 transition-all duration-200 relative overflow-hidden"
+              style={{ width: `${replayProgress * 100}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent replay-progress-shine" />
+            </div>
+          </div>
         </div>
       )}
     </div>
