@@ -1,99 +1,87 @@
 ---
-Task ID: 29
-Agent: Development Agent (Round 29)
-Task: Volume Slider, Multilingual Active Word Source, Responsive Layout System, Multilingual Achievements, CSS Animations
+Task ID: 30
+Agent: Development Agent (Round 30)
+Task: SFX Volume Mixer, Word Book Export, Achievement Showcase Share, Enhanced Stats Compare, CSS Animations
 
 Work Log:
-- **QA**: `next build` compiles successfully (158.0ms static generation). ESLint zero errors. Dev server unstable (known environment issue — used build verification instead).
-- **Feature: Volume Slider Control** — Created `src/lib/volume-slider.ts` (127 lines) and integrated:
-  - Music volume slider in game header with mute toggle button
-  - Emoji-based volume icon: 🔇/🔈/🔉/🔊 based on level
-  - Hover popup panel with range slider (0-100%, step 5%)
-  - 5 named presets: Silent (0%), Background (15%), Normal (35%), Loud (60%), Max (100%)
-  - Preset snap buttons with active state highlight
-  - Volume label and percentage display
-  - Persisted to localStorage (`wordsnake_volume_config`)
-  - Connected to MusicEngine.setVolume() for real-time audio control
-  - Color-coded fill: green (low), yellow (medium), red (high)
-- **Feature: Multilingual Active Word Source** — Created `src/lib/multilingual-integration.ts` (155 lines) and integrated:
-  - Language Source selector in sidebar (below word packs)
-  - Shows Default + all unlocked multilingual packs as pill buttons
-  - Active pack highlighted with language-specific color glow
-  - Progress indicator (collected/total) on each language pill
-  - Active multilingual pack indicator card with progress bar
-  - spawnWord() updated: multilingual source takes priority over regular packs
-  - Multilingual words feed directly into game word-food system
-  - Persistent selection via localStorage (`wordsnake_active_multilingual_pack`)
-  - Per-language collection tracking via multilingualProgressRef
-  - Falls back to default pool when multilingual pack is exhausted
-- **Feature: Responsive Layout System** — Created `src/lib/responsive-layout.ts` (187 lines) and integrated:
-  - calculateLayout() for pixel-perfect metrics per device type
-  - Desktop: canvas 60% width, sidebar 280px right, 16px gap
-  - Tablet: canvas 55% width, sidebar 240px, 12px gap
-  - Mobile landscape: canvas 70% height, sidebar 180px, compact header
-  - Mobile portrait: canvas full-width, sidebar below at 40% height
-  - Safe area insets (notch) accounted for
-  - 3 animated layout transition CSS classes: smooth, bounce, fade
-  - LAYOUT_BREAKPOINTS: mobile 768, tablet/desktop 1024
-  - getSidebarStyle(), getCanvasStyle(), getGameContainerStyle() for inline styles
-- **Feature: Multilingual Achievements** — Created `src/lib/multilingual-achievements.ts` (118 lines) and integrated:
-  - 6 new achievements with emoji badges:
-    1. 🌍 Polyglot Beginner — Collect words in 2+ languages
-    2. 🗺️ Language Explorer — 5+ words in any single foreign language
-    3. 👑 Multilingual Master — 15+ words in each unlocked language
-    4. 🎓 Korean Scholar — Collect all 24 Korean words
-    5. 🥐 French Connoisseur — Collect all 25 French words
-    6. ☀️ Spanish Adventurer — Collect all 26 Spanish words
-  - Achievement panel in sidebar (shows when any multilingual pack is unlocked)
-  - Unlocked/locked states with visual distinction
-  - Checked at game-over alongside regular achievements
-  - Toast notifications via achievement queue
-  - Persistent unlock state via localStorage
-  - Progress badge (X/6) in panel header
-- **CSS: 28 new animations** (278 total keyframes, +253 lines):
-  1. volume-mute-btn — Soft press glow on hover
-  2. volume-mute-pulse — Pulse animation for mute button
-  3. volume-slider-track — Gradient track glow on hover
-  4. volume-slider-fill — Smooth color transition
-  5. volume-panel-enter — Slide-down popup entrance
-  6. volume-range-input — Custom styled range thumb
-  7. volume-preset-shimmer — Shimmer on preset hover
-  8. multi-source-glow — Language pill glow
-  9. multi-source-border-flow — Gradient border animation
-  10. multi-source-progress-shimmer — Progress bar shimmer
-  11. multi-achieve-panel-glow — Subtle green pulse
-  12. multi-achieve-badge-pop — Pop-in for badge
-  13. multi-achieve-item-enter — Staggered entrance (6 items)
-  14. multi-achieve-emoji-bounce — Celebration bounce
-  15. layout-transition-smooth — Smooth resize
-  16. layout-transition-bounce — Bouncy resize
-  17. layout-transition-fade — Fade resize
-  18. volume-icon-rotate — Rotation on mute toggle
-  19. multi-source-select-pulse — Pulse on language switch
-  20. volume-glow-low — Green glow for low volume
-  21. volume-glow-mid — Yellow glow for medium volume
-  22. volume-glow-high — Red glow for high volume
-  23. multi-lang-flag-wave — Gentle flag wave
-  24. multi-achieve-unlock-flash — Green flash on unlock
-  25. responsive-sidebar-slide — Sidebar slide on mobile
-  26. responsive-canvas-rescale — Canvas scale transition
-  27. volume-preset-active-ring — Ring on active preset
-  28. multi-source-crossfade — Cross-fade on language switch
-- **Build**: Compiles successfully (158.0ms). ESLint zero errors.
+- **QA**: `next build` compiles successfully (149.5ms static generation). ESLint zero errors.
+- **Feature: SFX Volume Mixer** — Created `src/lib/sfx-volume-control.ts` (157 lines) and integrated:
+  - SFX Mixer button in game header (emoji-based icon)
+  - Hover popup with master volume slider + 9 category sliders
+  - Categories: eat, powerup, achievement, gameOver, ui, combo, boss, quiz, easterEgg
+  - Each category has independent volume control
+  - 4 mixer presets: Balanced (0.7), Immersive (1.0), Minimal (0.3), Focus (0.5)
+  - Mute All button with red pulse animation
+  - Master × category volume multiplication for effective volume
+  - Persisted to localStorage (`wordsnake_sfx_volume_config`)
+- **Feature: Word Book Export** — Created `src/lib/word-book-export.ts` (189 lines) and integrated:
+  - Export button in sidebar "Export & Share" panel
+  - Generates 1080×1920 canvas image with word collection
+  - 3 themes: dark (slate-900), light (white cards), neon (dark + colored glows)
+  - 3 card styles: grid, list, compact
+  - Title banner with gradient, stats summary row, word cards, category legend
+  - Each card: word, category color dot, category label, optional definition
+  - Downloads as PNG via canvas.toBlob()
+- **Feature: Achievement Showcase Share** — Created `src/lib/achievement-showcase.ts` (231 lines) and integrated:
+  - Share button in sidebar "Export & Share" panel
+  - Generates 1080×1080 canvas image with achievement badges
+  - 3 layouts: badge_grid (6-col emoji circles), timeline (vertical list), stats_card
+  - 3 themes: gold (warm amber), silver (cool blue), neon (dark + cyan/magenta glows)
+  - Unlocked: colored glowing circle; Locked: gray with 🔒
+  - Newest unlock: gold ring highlight
+  - Web Share API support with download fallback
+- **Feature: Enhanced Stats Compare** — Created `src/lib/stats-compare-enhanced.ts` (181 lines) and integrated:
+  - Game session saving at game-over (score, wordsEaten, duration, difficulty, wordsPerMinute, longestCombo, bossDefeated, quizzesCorrect)
+  - Stores up to 50 sessions in localStorage (`wordsnake_game_sessions`)
+  - Performance panel in sidebar showing 4 key trends with ↑↓→ arrows
+  - 7 tracked metrics: score, wordsEaten, wordsPerMinute, duration, longestCombo, bossDefeated, quizzesCorrect
+  - Trend analysis: direction (up/down/stable), percentChange, average, best, worst
+  - Performance rating: excellent (top 10%) 🌟, good (top 40%) 👍, average 😐, below_average 💪
+  - "Copy Stats" button generates human-readable comparison text to clipboard
+  - Color-coded performance indicator
+- **CSS: 26 new animations** (301 total keyframes, +211 lines):
+  1. sfx-mixer-btn — Purple glow on hover
+  2. sfx-mixer-enter — Slide-down popup entrance
+  3. sfx-master-range — Purple thumb with glow
+  4. sfx-category-range — Small cyan thumb
+  5. sfx-preset-shimmer — Shimmer on hover
+  6. sfx-mute-pulse — Red border pulse
+  7. stats-compare-shimmer — Cyan/blue/purple border cycle
+  8. stats-trend-up-flash — Green flash for positive trends
+  9. stats-trend-down-flash — Red flash for negative trends
+  10. stats-rating-pop — Rating emoji pop animation
+  11. export-panel-glow — Violet panel glow
+  12. export-btn-bounce — Scale bounce on hover
+  13. export-achieve-shimmer — Gold shimmer on achievement export
+  14. export-stats-glow — Cyan glow on stats export
+  15. sfx-category-enter — Staggered category row entrance
+  16. showcase-badge-glow — Gold ring for achievement badge
+  17. showcase-timeline-pulse — Timeline dot pulse
+  18. wordbook-card-enter — Card slide-in animation
+  19. wordbook-banner-flow — Title gradient flow
+  20. perf-bar-fill — Animated bar fill
+  21. stats-copy-toast — Copy feedback toast
+  22. sfx-mixer-close — Close animation
+  23. export-download-flash — Green flash on download
+  24. compare-arrow-bounce — Trend arrow bounce
+  25. showcase-share-pulse — Share button pulse ring
+  26. wordbook-watermark-fade — Watermark opacity pulse
+- **Build**: Compiles successfully (149.5ms). ESLint zero errors.
 
 Stage Summary:
-- 4 new lib files: volume-slider.ts (127), multilingual-integration.ts (155), responsive-layout.ts (187), multilingual-achievements.ts (118) = 587 lines
-- 4 major integrations into snake-game.tsx: Volume Slider UI, Multilingual Word Source, Responsive Layout, Multilingual Achievements
-- 28 new CSS animations (278 total keyframes)
-- Total project features: 91+, Total CSS animations: 278+
-- snake-game.tsx: 7038 lines (+267), globals.css: 3705 lines (+253)
+- 4 new lib files: sfx-volume-control.ts (157), word-book-export.ts (189), achievement-showcase.ts (231), stats-compare-enhanced.ts (181) = 758 lines
+- 4 major integrations into snake-game.tsx: SFX Mixer, Word Book Export, Achievement Showcase, Stats Compare
+- 26 new CSS animations (301 total keyframes)
+- Total project features: 95+, Total CSS animations: 301+
+- snake-game.tsx: 7232 lines (+194), globals.css: 3916 lines (+211)
+- 68 lib files total
 - Build + lint pass cleanly
 
 ## Project Current State
 
 **Status**: Feature-rich, highly polished, and stable
 
-The application is a comprehensive Word Snake game with 91+ major features.
+The application is a comprehensive Word Snake game with 95+ major features.
 
 ### What Works
 - **Game**: Start, play, pause, resume, game over, restart
@@ -128,12 +116,17 @@ The application is a comprehensive Word Snake game with 91+ major features.
 - **6 Easter Eggs**: Sequence, collection, special word triggers
 - **Tutorial Mode**: 9-step guided tutorial
 - **Sound Visualizer**: 4 styles, 4 color schemes
-- **Music Generator**: 5 procedural styles with play/pause/style controls + volume slider (NEW)
+- **Music Generator**: 5 procedural styles with play/pause/style controls
+- **Volume Slider**: Music volume with mute, popup, range slider, 5 presets
+- **SFX Volume Mixer**: 9-category independent volume control with 4 presets (NEW)
 - **Word Collection Book**: Full encyclopedia with search, category tabs, progress
-- **32 Achievements**: 26 original + 6 multilingual (NEW: 🌍 Polyglot Beginner, 🗺️ Language Explorer, 👑 Multilingual Master, 🎓 Korean Scholar, 🥐 French Connoisseur, ☀️ Spanish Adventurer)
+- **Word Book Export**: Download collection as themed PNG image (NEW)
+- **32 Achievements**: 26 original + 6 multilingual
+- **Achievement Showcase Share**: Download achievement badge grid as PNG (NEW)
 - **4 Sound Themes**: Default, Retro 8-bit, Soft Ambient, Epic Orchestra
 - **Leaderboard**: Per-difficulty top 10
 - **Game Statistics Dashboard**: 20+ metrics
+- **Enhanced Stats Compare**: Session tracking, 7-metric trends, performance rating (NEW)
 - **Word Pronunciation**: Web Speech API
 - **Game Stats Share Card**: Downloadable PNG
 - **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
@@ -154,16 +147,15 @@ The application is a comprehensive Word Snake game with 91+ major features.
 - **AI Difficulty Slider**: Real-time 1-10 intelligence slider
 - **Hammer Power-up**: 🔨 8s wall-breaking buff with 2.5x bonus points
 - **Multilingual Word Packs**: 🇰🇷 Korean, 🇫🇷 French, 🇪🇸 Spanish — 75 words, coin unlock
+- **Multilingual Active Word Source**: Select language packs as active game word source
 - **Obstacle Difficulty Scaling**: 5-tier dynamic scaling based on progress
 - **Event Feed Persistence**: Cross-session event history with deduplication
+- **Responsive Layout System**: Device-adaptive canvas/sidebar metrics with transitions
+- **Multilingual Achievements**: 6 language-themed achievements with sidebar panel
 - **Haptic Feedback**: Integrated at destructible wall + hammer interactions
-- **Volume Slider**: Emoji mute toggle, hover popup, range slider, 5 presets (NEW)
-- **Multilingual Active Word Source**: Select unlocked language packs as active word source (NEW)
-- **Responsive Layout System**: Device-adaptive canvas/sidebar metrics with transitions (NEW)
-- **Multilingual Achievements**: 6 language-themed achievements with sidebar panel (NEW)
-- **Visual Polish**: 278 CSS animations, particles, confetti, page transitions, aurora
+- **Visual Polish**: 301 CSS animations, particles, confetti, page transitions, aurora
 
-### All Library Files
+### All Library Files (68 total)
 - `src/lib/game-event-feed.ts` — Game event tracking and feed system (Round 23)
 - `src/lib/particle-effects.ts` — Comprehensive particle effects with 15 presets (Round 23)
 - `src/lib/responsive-ux.ts` — Mobile detection, responsive config, haptic feedback (Round 23)
@@ -175,30 +167,35 @@ The application is a comprehensive Word Snake game with 91+ major features.
 - `src/lib/multilingual-packs.ts` — Korean/French/Spanish word packs (Round 28)
 - `src/lib/obstacle-difficulty-scaling.ts` — 5-tier difficulty-based obstacle scaling (Round 28)
 - `src/lib/event-feed-persistence.ts` — Cross-session event history (Round 28)
-- `src/lib/volume-slider.ts` — Music volume slider with presets (Round 29) (NEW)
-- `src/lib/multilingual-integration.ts` — Multilingual active word source (Round 29) (NEW)
-- `src/lib/responsive-layout.ts` — Responsive canvas/sidebar layout (Round 29) (NEW)
-- `src/lib/multilingual-achievements.ts` — 6 multilingual achievements (Round 29) (NEW)
+- `src/lib/volume-slider.ts` — Music volume slider with presets (Round 29)
+- `src/lib/multilingual-integration.ts` — Multilingual active word source (Round 29)
+- `src/lib/responsive-layout.ts` — Responsive canvas/sidebar layout (Round 29)
+- `src/lib/multilingual-achievements.ts` — 6 multilingual achievements (Round 29)
+- `src/lib/sfx-volume-control.ts` — 9-category SFX volume mixer (Round 30) (NEW)
+- `src/lib/word-book-export.ts` — Word collection PNG export (Round 30) (NEW)
+- `src/lib/achievement-showcase.ts` — Achievement badge showcase image (Round 30) (NEW)
+- `src/lib/stats-compare-enhanced.ts` — Session tracking + trend analysis (Round 30) (NEW)
 
 ### Known Issues / Risks
 - Dev server unstable due to resource limitations (use `next build` for verification)
 - On-screen D-pad may interfere with game canvas touch events on some devices
 - Dynamic difficulty needs more games (3+) to start adjusting
 - PvP mode is keyboard-only (no mobile support for two players)
-- AI Bot may occasionally make suboptimal moves on Easy difficulty (intentional)
 - Static obstacles and portals only active in classic mode (not daily challenge/speed run)
 - Moving obstacles and destructible walls spawn only in classic mode
 - Music plays via Web Audio API — requires user gesture to start on mobile browsers
-- Responsive layout functions created but inline style application to containers not yet wired to JSX (functions ready to use)
+- Responsive layout functions created but inline style application to containers not yet fully wired
+- Word book export uses Canvas 2D — some complex Unicode characters may render differently across browsers
+- Achievement showcase uses localStorage data — achievements must be unlocked in the same browser session
 
 ### Suggested Next Steps
-1. **Full Responsive Layout Wiring**: Apply getGameContainerStyle(), getSidebarStyle(), getCanvasStyle() inline styles to actual JSX container elements for dynamic resize
-2. **Multilingual Word Pronunciation**: Use Web Speech API for non-English word pronunciation
-3. **Music Volume Per-Sound**: Separate volume controls for music vs. sound effects
-4. **Game Event Feed Sound Effects**: Sound effects per event type, filterable event history
-5. **Online Leaderboard**: Server-side global rankings
-6. **Word Book Export**: Download word collection as PDF
-7. **Accessibility**: Screen reader support, high contrast mode enhancements
-8. **PvP Mobile Support**: Touch controls for two-player mode
-9. **Achievement Showcase**: Share achievement badge as image
-10. **Advanced Responsive Layout**: Media queries + CSS Grid for true mobile-first redesign
+1. **Full Responsive Layout Wiring**: Apply getGameContainerStyle(), getSidebarStyle(), getCanvasStyle() to actual JSX
+2. **Multilingual Word Pronunciation**: Use Web Speech API for non-English words
+3. **Online Leaderboard**: Server-side global rankings
+4. **PvP Mobile Support**: Touch controls for two-player mode
+5. **Game Replay Sharing**: Upload/share replay files
+6. **Accessibility**: Screen reader support, high contrast mode, keyboard navigation improvements
+7. **Sound Effects per Event Type**: Map SFX categories to game events (eat→eat, powerup→powerup, etc.)
+8. **Stats Dashboard Charts**: Visual charts for score/words trends using Canvas
+9. **Word Pack Creator**: User-created custom word packs with sharing
+10. **Tutorial Enhancements**: Interactive tutorial with guided gameplay steps

@@ -74,6 +74,10 @@ import { createInitialVolumeConfig, saveVolumeConfig, loadVolumeConfig, getVolum
 import { getRandomMultilingualWord, getMultilingualPackProgress, getTotalMultilingualCollection, hasAnyUnlockedMultilingualPack, getUnlockedMultilingualPackIds, MULTILINGUAL_PACK_ICONS, LANGUAGE_LABELS, type MultilingualGameWord } from '@/lib/multilingual-integration'
 import { calculateLayout, getCanvasScaleFactor, shouldUseCompactUI, getSidebarStyle, getCanvasStyle, getGameContainerStyle, ANIMATED_LAYOUT_TRANSITIONS, LAYOUT_BREAKPOINTS, type LayoutMetrics } from '@/lib/responsive-layout'
 import { MULTILINGUAL_ACHIEVEMENTS, getAllMultilingualAchievementIds, checkMultilingualAchievements as checkMultiAchievements, createMultilingualStats, type MultilingualAchievementStats } from '@/lib/multilingual-achievements'
+import { createInitialSfxConfig, saveSfxConfig, loadSfxConfig, getSfxVolume, setSfxMasterVolume, toggleSfxMute, resetSfxCategories, getSfxIcon, formatSfxPercent, SFX_MIXER_PRESETS, applySfxPreset, type SfxVolumeConfig, type SfxCategory, SFX_CATEGORY_DEFAULTS } from '@/lib/sfx-volume-control'
+import { generateWordBookCanvas, downloadWordBookImage, exportWordBook, calculateExportStats, DEFAULT_EXPORT_CONFIG, type WordBookExportConfig } from '@/lib/word-book-export'
+import { generateAchievementShowcaseCanvas, downloadAchievementShowcase, shareAchievementShowcase, calculateShowcaseStats, DEFAULT_SHOWCASE_CONFIG, type AchievementShowcaseConfig } from '@/lib/achievement-showcase'
+import { saveSession, getSessions, getLastNSessions, calculateTrends, compareSessions, generateComparisonText, getPerformanceColor, type GameSession, type ComparisonSummary, STATS_STORAGE_KEY } from '@/lib/stats-compare-enhanced'
 import {
   Play,
   RotateCcw,
@@ -501,6 +505,17 @@ export default function SnakeGame() {
       }
       // Calculate responsive layout
       layoutMetricsRef.current = calculateLayout(deviceInfo, responsiveConfig)
+      // Load SFX volume config
+      setSfxConfig(loadSfxConfig())
+      // Load stats comparison from recent sessions
+      const recentSessions = getLastNSessions(10)
+      if (recentSessions.length >= 2) {
+        const sessions = getSessions()
+        if (sessions.length >= 1) {
+          const currentSession = sessions[0]
+          setComparisonSummary(compareSessions(currentSession, sessions.slice(1)))
+        }
+      }
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -603,6 +618,11 @@ export default function SnakeGame() {
   const layoutMetricsRef = useRef<LayoutMetrics | null>(null)
   // Multilingual achievement tracking
   const [multilingualAchievementsUnlocked, setMultilingualAchievementsUnlocked] = useState<string[]>([])
+  // SFX volume control state
+  const [sfxConfig, setSfxConfig] = useState<SfxVolumeConfig>(createInitialSfxConfig())
+  const [showSfxPanel, setShowSfxPanel] = useState(false)
+  // Stats comparison state
+  const [comparisonSummary, setComparisonSummary] = useState<ComparisonSummary | null>(null)
   // Event feed persistence
   const gameIdRef = useRef<string>(`game-${Date.now()}`)
   const [persistentEventCount, setPersistentEventCount] = useState(0)
@@ -3700,6 +3720,26 @@ export default function SnakeGame() {
               return updated
             })
           }
+          // Save game session for stats comparison
+          if (typeof window !== 'undefined') {
+            const session: GameSession = {
+              id: `session-${Date.now()}`,
+              timestamp: Date.now(),
+              score: gs.score,
+              wordsEaten: gs.wordsEaten,
+              duration: uiState.elapsedTime,
+              difficulty: gs.difficulty,
+              wordsPerMinute: uiState.elapsedTime > 0 ? Math.round((gs.wordsEaten / uiState.elapsedTime) * 60) : 0,
+              longestCombo: gs.maxCombo || 0,
+              bossDefeated: gs.bossDefeatedCount || 0,
+              quizzesCorrect: gs.quizCorrectCount || 0,
+            }
+            saveSession(session)
+            const allSessions = getSessions()
+            if (allSessions.length >= 2) {
+              setComparisonSummary(compareSessions(allSessions[0], allSessions.slice(1)))
+            }
+          }
           // Also check milestones on game over
           const newlyUnlockedMilestones = checkMilestones()
           if (newlyUnlockedMilestones.length > 0) {
@@ -5306,6 +5346,90 @@ export default function SnakeGame() {
                     </div>
                   </div>
                 </div>
+                {/* SFX volume button */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowSfxPanel(!showSfxPanel)}
+                    className="h-7 w-7 flex items-center justify-center text-sm cursor-pointer hover:bg-slate-700/40 rounded transition-colors sfx-mixer-btn"
+                    title="Sound Effects Mixer"
+                  >
+                    {sfxConfig.muted ? '🔇' : getSfxIcon(sfxConfig.volume, false)}
+                  </button>
+                  {showSfxPanel && mounted && (
+                    <div className="absolute top-full mt-2 right-0 w-56 p-2.5 rounded-lg bg-slate-900/95 border border-slate-700/50 shadow-xl backdrop-blur-sm z-50 sfx-mixer-popup">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] text-slate-400 font-medium">SFX Mixer</span>
+                        <span className="text-[10px] text-slate-500">{formatSfxPercent(sfxConfig.muted ? 0 : sfxConfig.volume)}</span>
+                      </div>
+                      {/* Master SFX volume */}
+                      <div className="mb-2">
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          value={sfxConfig.muted ? 0 : sfxConfig.volume}
+                          onChange={(e) => {
+                            const vol = parseFloat(e.target.value)
+                            const newConfig = setSfxMasterVolume(sfxConfig, vol)
+                            setSfxConfig(newConfig)
+                            saveSfxConfig(newConfig)
+                          }}
+                          className="w-full h-1 bg-slate-700 rounded-full appearance-none cursor-pointer sfx-master-range"
+                        />
+                      </div>
+                      {/* Category volumes */}
+                      <div className="space-y-1.5 max-h-40 overflow-y-auto scrollbar-thin">
+                        {(Object.entries(SFX_CATEGORY_DEFAULTS) as [SfxCategory, typeof SFX_CATEGORY_DEFAULTS[SfxCategory]][]).map(([cat, def]) => (
+                          <div key={cat} className="flex items-center gap-1.5">
+                            <span className="text-[9px] w-4 text-center">{def.emoji}</span>
+                            <span className="text-[8px] text-slate-500 w-14 truncate">{def.label}</span>
+                            <input
+                              type="range"
+                              min={0}
+                              max={1}
+                              step={0.05}
+                              value={sfxConfig.categories[cat] ?? def.defaultVolume}
+                              onChange={(e) => {
+                                const vol = parseFloat(e.target.value)
+                                const newConfig = setSfxCategoryVolume(sfxConfig, cat, vol)
+                                setSfxConfig(newConfig)
+                                saveSfxConfig(newConfig)
+                              }}
+                              className="flex-1 h-0.5 bg-slate-700 rounded-full appearance-none cursor-pointer sfx-category-range"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      {/* Presets */}
+                      <div className="flex gap-1 mt-2 flex-wrap">
+                        {SFX_MIXER_PRESETS.map((preset, i) => (
+                          <button
+                            key={preset.name}
+                            onClick={() => {
+                              const newConfig = applySfxPreset(sfxConfig, i)
+                              setSfxConfig(newConfig)
+                              saveSfxConfig(newConfig)
+                            }}
+                            className="px-1.5 py-0.5 text-[7px] rounded-full border border-slate-700/30 bg-slate-800/60 text-slate-400 hover:text-slate-200 transition-all active:scale-90 sfx-preset-btn"
+                          >
+                            {preset.emoji} {preset.name}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => {
+                            const newConfig = toggleSfxMute(sfxConfig)
+                            setSfxConfig(newConfig)
+                            saveSfxConfig(newConfig)
+                          }}
+                          className="px-1.5 py-0.5 text-[7px] rounded-full border border-red-700/30 bg-red-900/30 text-red-400 hover:text-red-300 transition-all active:scale-90 sfx-mute-all-btn"
+                        >
+                          🔇 Mute All
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-4">
@@ -6508,6 +6632,76 @@ export default function SnakeGame() {
                       </div>
                     )
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Enhanced Stats Comparison */}
+            {mounted && comparisonSummary && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-cyan-900/15 to-blue-900/10 border border-cyan-700/20 stats-compare-panel">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <BarChart3 className="h-3 w-3 text-cyan-400" />
+                  <span className="text-[10px] text-slate-400 font-medium">Performance</span>
+                  <span className="text-[9px] ml-auto font-bold" style={{ color: getPerformanceColor(comparisonSummary.performanceRating) }}>
+                    {comparisonSummary.ratingEmoji} {comparisonSummary.performanceRating.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {comparisonSummary.trends.slice(0, 4).map(trend => (
+                    <div key={trend.metric} className="flex items-center justify-between text-[9px]">
+                      <span className="text-slate-500 capitalize">{trend.metric.replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-300">{trend.values[trend.values.length - 1]?.toLocaleString() ?? '—'}</span>
+                        <span className={trend.direction === 'up' ? 'text-green-400' : trend.direction === 'down' ? 'text-red-400' : 'text-slate-500'}>
+                          {trend.direction === 'up' ? '↑' : trend.direction === 'down' ? '↓' : '→'}{Math.abs(trend.percentChange)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Export Actions */}
+            {mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-violet-900/15 to-fuchsia-900/10 border border-violet-700/20 export-actions-panel">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Share2 className="h-3 w-3 text-violet-400" />
+                  <span className="text-[10px] text-slate-400 font-medium">Export & Share</span>
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  <button
+                    onClick={async () => {
+                      const words = getWordList().map(([w]) => w)
+                      if (words.length === 0) return
+                      await exportWordBook(words)
+                      if (canHaptic()) hapticFeedback('success')
+                    }}
+                    className="px-2 py-1 text-[8px] rounded-full border border-violet-700/30 bg-violet-900/30 text-violet-300 hover:bg-violet-800/40 transition-all active:scale-90 export-wordbook-btn"
+                  >
+                    📖 Word Book
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await shareAchievementShowcase()
+                      if (canHaptic()) hapticFeedback('success')
+                    }}
+                    className="px-2 py-1 text-[8px] rounded-full border border-amber-700/30 bg-amber-900/30 text-amber-300 hover:bg-amber-800/40 transition-all active:scale-90 export-achieve-btn"
+                  >
+                    🏆 Achievements
+                  </button>
+                  <button
+                    onClick={() => {
+                      const text = comparisonSummary ? generateComparisonText(comparisonSummary) : 'No comparison data yet. Play more games!'
+                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                        navigator.clipboard.writeText(text)
+                      }
+                      if (canHaptic()) hapticFeedback('selection')
+                    }}
+                    className="px-2 py-1 text-[8px] rounded-full border border-cyan-700/30 bg-cyan-900/30 text-cyan-300 hover:bg-cyan-800/40 transition-all active:scale-90 export-stats-btn"
+                  >
+                    📊 Copy Stats
+                  </button>
                 </div>
               </div>
             )}

@@ -3703,3 +3703,214 @@
   0% { opacity: 1; transform: translateY(0) scale(1); }
   100% { opacity: 0; transform: translateY(-4px) scale(0.98); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Round 30 — SFX Mixer, Word Book Export, Achievement Showcase,
+              Enhanced Stats Compare (26 animations)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. sfx-mixer-btn — Glow on hover */
+.sfx-mixer-btn {
+  transition: all 0.2s ease;
+}
+.sfx-mixer-btn:hover {
+  filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.5));
+}
+
+/* 2. sfx-mixer-popup — Slide-down entrance */
+@keyframes sfx-mixer-enter {
+  0% { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sfx-mixer-popup {
+  animation: sfx-mixer-enter 0.2s ease-out;
+}
+
+/* 3. sfx-master-range — Custom thumb with purple glow */
+.sfx-master-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #a855f7;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
+  transition: box-shadow 0.2s;
+}
+.sfx-master-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.7);
+}
+
+/* 4. sfx-category-range — Small cyan thumb */
+.sfx-category-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #06b6d4;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(6, 182, 212, 0.4);
+  transition: box-shadow 0.2s;
+}
+
+/* 5. sfx-preset-btn — Shimmer on hover */
+@keyframes sfx-preset-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.sfx-preset-btn:hover {
+  animation: sfx-preset-shimmer 1.5s linear infinite;
+}
+
+/* 6. sfx-mute-all-btn — Red pulse */
+@keyframes sfx-mute-pulse {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.3); }
+  50% { border-color: rgba(239, 68, 68, 0.6); }
+}
+.sfx-mute-all-btn:hover {
+  animation: sfx-mute-pulse 1s ease-in-out infinite;
+}
+
+/* 7. stats-compare-panel — Cyan shimmer border */
+@keyframes stats-compare-shimmer {
+  0% { border-color: rgba(6, 182, 212, 0.2); }
+  33% { border-color: rgba(59, 130, 246, 0.2); }
+  66% { border-color: rgba(168, 85, 247, 0.2); }
+  100% { border-color: rgba(6, 182, 212, 0.2); }
+}
+.stats-compare-panel {
+  animation: stats-compare-shimmer 5s ease-in-out infinite;
+}
+
+/* 8. stats-trend-up — Green flash */
+@keyframes stats-trend-up-flash {
+  0% { color: #22c55e; text-shadow: 0 0 6px rgba(34, 197, 94, 0.5); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+/* 9. stats-trend-down — Red flash */
+@keyframes stats-trend-down-flash {
+  0% { color: #ef4444; text-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+/* 10. stats-rating-pop — Rating emoji pop */
+@keyframes stats-rating-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 11. export-actions-panel — Violet glow */
+@keyframes export-panel-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(139, 92, 246, 0); }
+  50% { box-shadow: 0 0 12px rgba(139, 92, 246, 0.12); }
+}
+.export-actions-panel {
+  animation: export-panel-glow 3s ease-in-out infinite;
+}
+
+/* 12. export-wordbook-btn — Scale bounce on hover */
+@keyframes export-btn-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.export-wordbook-btn:hover {
+  animation: export-btn-bounce 0.4s ease-in-out;
+}
+
+/* 13. export-achieve-btn — Gold shimmer */
+@keyframes export-achieve-shimmer {
+  0% { box-shadow: 0 0 0 rgba(251, 191, 36, 0); }
+  50% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.3); }
+  100% { box-shadow: 0 0 0 rgba(251, 191, 36, 0); }
+}
+.export-achieve-btn:hover {
+  animation: export-achieve-shimmer 1s ease-in-out infinite;
+}
+
+/* 14. export-stats-btn — Cyan glow */
+@keyframes export-stats-glow {
+  0% { box-shadow: 0 0 0 rgba(6, 182, 212, 0); }
+  50% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.3); }
+  100% { box-shadow: 0 0 0 rgba(6, 182, 212, 0); }
+}
+.export-stats-btn:hover {
+  animation: export-stats-glow 1s ease-in-out infinite;
+}
+
+/* 15. sfx-category-row — Staggered entrance */
+@keyframes sfx-category-enter {
+  0% { opacity: 0; transform: translateX(-6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* 16. showcase-badge-glow — Gold ring for achievement showcase */
+@keyframes showcase-badge-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(251, 191, 36, 0.6); }
+}
+
+/* 17. showcase-timeline-dot — Pulse for timeline dots */
+@keyframes showcase-timeline-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* 18. wordbook-card-enter — Card slide-in */
+@keyframes wordbook-card-enter {
+  0% { opacity: 0; transform: translateY(8px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 19. wordbook-title-banner — Gradient flow */
+@keyframes wordbook-banner-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 20. performance-bar-fill — Animated fill */
+@keyframes perf-bar-fill {
+  0% { width: 0; }
+  100% { width: var(--fill-width, 100%); }
+}
+
+/* 21. stats-copy-toast — Toast notification for copy */
+@keyframes stats-copy-toast {
+  0% { opacity: 0; transform: translateY(10px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-5px); }
+}
+
+/* 22. sfx-mixer-close — Close animation */
+@keyframes sfx-mixer-close {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-4px) scale(0.98); }
+}
+
+/* 23. export-download-flash — Flash on download click */
+@keyframes export-download-flash {
+  0% { background-color: rgba(34, 197, 94, 0.3); }
+  100% { background-color: transparent; }
+}
+
+/* 24. compare-arrow-animate — Arrow bounce */
+@keyframes compare-arrow-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* 25. showcase-share-btn — Share button pulse */
+@keyframes showcase-share-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(168, 85, 247, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+}
+
+/* 26. wordbook-watermark — Subtle fade */
+@keyframes wordbook-watermark-fade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+}
