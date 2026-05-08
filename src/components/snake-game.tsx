@@ -141,6 +141,10 @@ import { createStoryModeWire, type StoryModeWire } from '@/lib/story-mode-level-
 import { createWiringHubCompletionWire, type WiringHubCompletionWire } from '@/lib/wiring-hub-completion-wire'
 import { createMinigamePlayWire, type MinigamePlayWire } from '@/lib/minigame-play-wire'
 import { createMasteryPanelWire, type MasteryPanelWire } from '@/lib/mastery-panel-wire'
+import { getXPBarData, getXPBreakdown as getXPBarBreakdown, getXPSessionVelocity, getTitleProgress, getLevelMilestoneReward, logXPEvent, resetSession as xpResetSession } from '@/lib/xp-progression-wire'
+import { generateHeatmap, analyzeDeath, calculateEfficiency, getSessionTrends, findBestMoments, generateWeaknessReport, assignPerformanceGrade, getQuickSummary } from '@/lib/replay-analyzer-wire'
+import { getSeasonOverview, getTierDisplayData, claimReward as bpClaimReward, addSeasonXP, checkTierUpgrades, getSeasonCountdown, getPremiumStatus, getSeasonHistory, getXPSources, checkDailyLoginBonus } from '@/lib/battle-pass-wire'
+import { getAchievementGallery, getRecentUnlocks, getUnlockedStats, getNextClosest, getCategorySummary, getRarityDistribution, getSessionUnlocks, getShowcaseData, getUnlockStreak, getCompletionForecast } from '@/lib/achievement-showcase-wire'
 import {
   Play,
   RotateCcw,
@@ -892,6 +896,12 @@ export default function SnakeGame() {
   const wiringHubCompletionRef = useRef<WiringHubCompletionWire>(createWiringHubCompletionWire())
   const minigamePlayWireRef = useRef<MinigamePlayWire>(createMinigamePlayWire(minigameLauncherRef.current))
   const masteryPanelWireRef = useRef<MasteryPanelWire>(createMasteryPanelWire(masteryPanelRef.current, masteryTrackerRef.current))
+  // Round 45: XP Progression is standalone functions (no ref needed)
+  // Round 45: XP Progression, Replay Analyzer, Battle Pass, Achievement Showcase panel states
+  const [showXPDetailPanel, setShowXPDetailPanel] = useState(false)
+  const [showReplayPanel, setShowReplayPanel] = useState(false)
+  const [showBPPremium, setShowBPPremium] = useState(false)
+  const [showAchShowcase, setShowAchShowcase] = useState(false)
   const [showEventLog, setShowEventLog] = useState(false)
   const [showMinigames, setShowMinigames] = useState(false)
   const [eventLogEntries, setEventLogEntries] = useState<Array<{id:string;type:string;level:string;message:string;emoji:string;color:string;timestamp:number}>>([])
@@ -3277,6 +3287,8 @@ export default function SnakeGame() {
     sfxVolumeCatRef.current.setGameContext('playing')
     // Round 43b: Mastery panel wire — game start
     masteryPanelWireRef.current.onGameStart()
+    // Round 45: XP progression — reset session on game start
+    xpResetSession()
     gs.wordFood = null
     gs.startTime = Date.now()
     gs.elapsedTime = 0
@@ -3784,6 +3796,8 @@ export default function SnakeGame() {
             }
             // Round 42: Real-time dashboard — word eat event
             realtimeDashboardRef.current.pushWordEatEvent(wordFood.word, wordFood.category || 'general', points)
+            // Round 45: XP progression — log XP on word eat
+            try { logXPEvent('wordEat', points) } catch { /* no-op */ }
             // Round 43b: Mastery panel wire — refresh on word eat
             const masteryPanelNotif = masteryPanelWireRef.current.onWordEaten(wordFood.word, wordFood.category || 'general', gs.difficulty || 'medium')
             // Round 42: Word bomb detonation on word eat
@@ -4123,6 +4137,12 @@ export default function SnakeGame() {
         masteryTrackerRef.current.saveSessionData()
         // Round 43b: Mastery panel wire — game end
         masteryPanelWireRef.current.onGameEnd()
+        // Round 45: XP progression — log game complete XP
+        try { logXPEvent('gameComplete', gs.score) } catch { /* no-op */ }
+        // Round 45: Battle pass — add season XP on game end
+        try { addSeasonXP(Math.floor(gs.score / 10), 'gameplay' as any) } catch { /* no-op */ }
+        // Round 45: Daily login bonus check
+        try { checkDailyLoginBonus() } catch { /* no-op */ }
         playSound(playGameOverSound)
 
         // Save daily challenge result if applicable
@@ -5881,6 +5901,231 @@ export default function SnakeGame() {
   }
 
   // Round 43b: Story Level Select inline content
+  // ── Round 45: XP Progression Panel ──
+  const XPProgressionPanelContent = () => {
+    try {
+      const barData = getXPBarData()
+      const breakdown = getXPBarBreakdown()
+      const velocity = getXPSessionVelocity()
+      const titleProg = getTitleProgress()
+      const milestone = getLevelMilestoneReward(barData.level + 1)
+      return (
+        <div className="space-y-3">
+          {/* XP Bar */}
+          <div className="bg-slate-800/60 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-bold text-cyan-300">Level {barData.level}</span>
+              <span className="text-[10px] text-slate-400">{barData.currentXP} / {barData.xpToNextLevel} XP</span>
+            </div>
+            <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-700 xp-bar-fill" style={{ width: `${barData.percentage}%` }} />
+            </div>
+            <div className="text-[10px] text-cyan-400/70 mt-1">{barData.percentage.toFixed(1)}% to next level</div>
+          </div>
+          {/* Title progress */}
+          {titleProg && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5 border border-fuchsia-700/30">
+              <div className="text-[9px] text-slate-500 mb-1">Next Title</div>
+              <div className="text-xs text-fuchsia-300">{titleProg.icon} {titleProg.name}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">{titleProg.progress}</div>
+            </div>
+          )}
+          {/* Milestone reward */}
+          {milestone && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5 border border-amber-700/30">
+              <div className="text-[9px] text-slate-500 mb-1">Level {milestone.level} Milestone</div>
+              <div className="text-xs text-amber-300">{milestone.emoji} {milestone.name}</div>
+              <div className="text-[10px] text-slate-400">{milestone.description}</div>
+            </div>
+          )}
+          {/* Velocity */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-slate-800/40 rounded-lg p-2 text-center xp-velocity-cell">
+              <div className="text-sm font-bold text-cyan-400">{velocity.xpPerMinute.toFixed(1)}</div>
+              <div className="text-[9px] text-slate-500">XP/min</div>
+            </div>
+            <div className="bg-slate-800/40 rounded-lg p-2 text-center xp-event-cell">
+              <div className="text-sm font-bold text-emerald-400">{velocity.eventCount}</div>
+              <div className="text-[9px] text-slate-500">Events</div>
+            </div>
+          </div>
+          {/* XP breakdown */}
+          <div className="bg-slate-800/40 rounded-lg p-2.5">
+            <div className="text-[9px] text-slate-500 mb-2">XP Breakdown</div>
+            {breakdown.categories.map((cat: { category: string; xp: number; percentage: number }) => (
+              <div key={cat.category} className="flex items-center gap-2 mb-1.5">
+                <div className="flex-1">
+                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-cyan-500/60 rounded-full xp-cat-bar" style={{ width: `${cat.percentage}%` }} />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 min-w-[100px]">
+                  <span className="text-[9px] text-slate-400">{cat.category}</span>
+                  <span className="text-[9px] text-cyan-300 font-medium">{cat.xp}xp</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Est time to next level */}
+          <div className="text-center text-[10px] text-slate-500">
+            Est. time to next level: {velocity.estimatedMinutesToNextLevel > 0 ? `${Math.ceil(velocity.estimatedMinutesToNextLevel)} min` : 'N/A'}
+          </div>
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load XP data</div> }
+  }
+
+  // ── Round 45: Replay Analyzer Panel ──
+  const ReplayAnalyzerPanelContent = () => {
+    try {
+      const trends = getSessionTrends()
+      const weakness = generateWeaknessReport()
+      return (
+        <div className="space-y-3">
+          {/* Session Trends */}
+          <div className="bg-slate-800/60 rounded-lg p-3">
+            <div className="text-[9px] text-slate-500 mb-2">Session Trends</div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-700/40 rounded p-2 text-center replay-trend-cell">
+                <div className="text-sm font-bold text-rose-400">{trends.avgScore.toFixed(0)}</div>
+                <div className="text-[9px] text-slate-500">Avg Score</div>
+              </div>
+              <div className="bg-slate-700/40 rounded p-2 text-center replay-trend-cell">
+                <div className="text-sm font-bold text-emerald-400">{trends.bestScore}</div>
+                <div className="text-[9px] text-slate-500">Best Score</div>
+              </div>
+              <div className="bg-slate-700/40 rounded p-2 text-center replay-trend-cell">
+                <div className="text-sm font-bold text-amber-400">{trends.trendDirection === 'improving' ? '↑' : trends.trendDirection === 'declining' ? '↓' : '→'}</div>
+                <div className="text-[9px] text-slate-500">Trend</div>
+              </div>
+              <div className="bg-slate-700/40 rounded p-2 text-center replay-trend-cell">
+                <div className="text-sm font-bold text-cyan-400">{trends.consistencyScore.toFixed(0)}%</div>
+                <div className="text-[9px] text-slate-500">Consistency</div>
+              </div>
+            </div>
+          </div>
+          {/* Improvement Rate */}
+          {trends.improvementRate !== 0 && (
+            <div className={`rounded-lg p-2.5 text-center ${trends.improvementRate > 0 ? 'bg-emerald-900/30 border border-emerald-700/30' : 'bg-red-900/30 border border-red-700/30'}`}>
+              <span className="text-xs">{trends.improvementRate > 0 ? '📈' : '📉'} Score changing by {Math.abs(trends.improvementRate).toFixed(1)}/game</span>
+            </div>
+          )}
+          {/* Weakness Report */}
+          <div className="bg-slate-800/40 rounded-lg p-2.5">
+            <div className="text-[9px] text-slate-500 mb-2">Weakness Report</div>
+            {weakness.weaknesses.length > 0 ? (
+              <div className="space-y-2">
+                {weakness.weaknesses.slice(0, 4).map((w: { category: string; severity: string; suggestion: string; evidence: string }, i: number) => (
+                  <div key={i} className="bg-slate-700/30 rounded p-2 replay-weakness-card">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`w-2 h-2 rounded-full ${w.severity === 'high' ? 'bg-red-500' : w.severity === 'medium' ? 'bg-amber-500' : 'bg-green-500'}`} />
+                      <span className="text-[10px] font-medium text-slate-300">{w.category}</span>
+                    </div>
+                    <div className="text-[9px] text-slate-400">{w.suggestion}</div>
+                    <div className="text-[8px] text-slate-500 mt-0.5 italic">{w.evidence}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[10px] text-slate-500 text-center">Play more games to generate analysis</div>
+            )}
+          </div>
+          {/* Replay Count */}
+          <div className="text-center text-[10px] text-slate-500">
+            Total replays analyzed: {trends.totalGames}
+            {trends.currentStreak > 0 && <span className="ml-2 text-emerald-400">Current streak: {trends.currentStreak} games</span>}
+          </div>
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load replay data</div> }
+  }
+
+  // ── Round 45: Achievement Showcase Panel ──
+  const AchievementShowcasePanelContent = () => {
+    try {
+      const showcase = getShowcaseData()
+      const stats = getUnlockedStats()
+      const recent = getRecentUnlocks(5)
+      const closest = getNextClosest(3)
+      const categories = getCategorySummary()
+      const streak = getUnlockStreak()
+      return (
+        <div className="space-y-3">
+          {/* Stats overview */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center ach-stat-cell">
+              <div className="text-lg font-bold text-fuchsia-400">{stats.unlocked}</div>
+              <div className="text-[9px] text-slate-500">Unlocked</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center ach-stat-cell">
+              <div className="text-lg font-bold text-amber-400">{stats.percentage.toFixed(0)}%</div>
+              <div className="text-[9px] text-slate-500">Complete</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center ach-stat-cell">
+              <div className="text-lg font-bold text-cyan-400">{streak.currentStreak}</div>
+              <div className="text-[9px] text-slate-500">Day Streak</div>
+            </div>
+          </div>
+          {/* Recent Unlocks */}
+          {recent.length > 0 && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5">
+              <div className="text-[9px] text-slate-500 mb-2">Recent Unlocks</div>
+              <div className="space-y-1.5">
+                {recent.map((a: { id: string; emoji: string; name: string; timeAgo: string }, i: number) => (
+                  <div key={a.id} className="flex items-center gap-2 bg-slate-700/30 rounded p-1.5 ach-recent-card">
+                    <span className="text-base">{a.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-medium text-slate-300 truncate">{a.name}</div>
+                      <div className="text-[8px] text-slate-500">{a.timeAgo}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Closest to Unlock */}
+          {closest.length > 0 && (
+            <div className="bg-slate-800/40 rounded-lg p-2.5">
+              <div className="text-[9px] text-slate-500 mb-2">Closest to Unlock</div>
+              <div className="space-y-1.5">
+                {closest.map((a: { id: string; emoji: string; name: string; rarity: string }, i: number) => (
+                  <div key={a.id} className="flex items-center gap-2 bg-slate-700/30 rounded p-1.5 ach-closest-card">
+                    <span className="text-base opacity-50">{a.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-slate-400 truncate">{a.name}</div>
+                    </div>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded ${a.rarity === 'common' ? 'bg-slate-700 text-slate-400' : a.rarity === 'rare' ? 'bg-blue-900/40 text-blue-300' : a.rarity === 'epic' ? 'bg-purple-900/40 text-purple-300' : 'bg-amber-900/40 text-amber-300'}`}>{a.rarity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Category Summary */}
+          <div className="bg-slate-800/40 rounded-lg p-2.5">
+            <div className="text-[9px] text-slate-500 mb-2">Categories</div>
+            <div className="space-y-1.5">
+              {categories.slice(0, 5).map((cat: { category: string; unlocked: number; total: number; percentage: number }, i: number) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="text-[9px] text-slate-400 w-16 truncate">{cat.category}</span>
+                  <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-fuchsia-500/60 rounded-full ach-cat-bar" style={{ width: `${cat.percentage}%` }} />
+                  </div>
+                  <span className="text-[9px] text-slate-500">{cat.unlocked}/{cat.total}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Completion forecast */}
+          {showcase.forecast && (
+            <div className="text-center text-[10px] text-slate-500">
+              {showcase.forecast}
+            </div>
+          )}
+        </div>
+      )
+    } catch { return <div className="text-xs text-slate-500">Unable to load achievement data</div> }
+  }
+
   const StoryLevelSelectContent = () => {
     try {
       const chapters = storyModeWireRef.current.getChapterList()
@@ -7119,6 +7364,33 @@ export default function SnakeGame() {
                       title="Game Tips"
                     >
                       💡 Tips
+                    </Button>
+                    {/* Round 45: XP Progression panel button */}
+                    <Button
+                      onClick={() => setShowXPDetailPanel(!showXPDetailPanel)}
+                      variant="outline"
+                      className="border-cyan-700/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform xp-progression-btn"
+                      title="XP & Level Progression"
+                    >
+                      🆙 XP Progress
+                    </Button>
+                    {/* Round 45: Replay Analyzer panel button */}
+                    <Button
+                      onClick={() => setShowReplayPanel(!showReplayPanel)}
+                      variant="outline"
+                      className="border-rose-700/50 text-rose-400 hover:bg-rose-900/20 active:scale-95 transition-transform replay-analyzer-btn"
+                      title="Replay Analyzer"
+                    >
+                      📼 Replay
+                    </Button>
+                    {/* Round 45: Achievement Showcase panel button */}
+                    <Button
+                      onClick={() => setShowAchShowcase(!showAchShowcase)}
+                      variant="outline"
+                      className="border-fuchsia-700/50 text-fuchsia-400 hover:bg-fuchsia-900/20 active:scale-95 transition-transform ach-showcase-btn"
+                      title="Achievement Showcase"
+                    >
+                      🏅 Showcase
                     </Button>
                     <Button
                       onClick={() => {
@@ -9739,6 +10011,45 @@ export default function SnakeGame() {
               <button onClick={() => setShowStoryLevelSelect(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
             </div>
             <StoryLevelSelectContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 45: XP Progression Panel */}
+      {showXPDetailPanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowXPDetailPanel(false)}>
+          <div className="bg-slate-900/95 border border-cyan-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl xp-progression-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-cyan-400">🆙 XP & Level Progression</h3>
+              <button onClick={() => setShowXPDetailPanel(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <XPProgressionPanelContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 45: Replay Analyzer Panel */}
+      {showReplayPanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowReplayPanel(false)}>
+          <div className="bg-slate-900/95 border border-rose-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl replay-analyzer-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-rose-400">📼 Replay Analyzer</h3>
+              <button onClick={() => setShowReplayPanel(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <ReplayAnalyzerPanelContent />
+          </div>
+        </div>
+      )}
+
+      {/* Round 45: Achievement Showcase Panel */}
+      {showAchShowcase && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAchShowcase(false)}>
+          <div className="bg-slate-900/95 border border-fuchsia-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl ach-showcase-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-fuchsia-400">🏅 Achievement Showcase</h3>
+              <button onClick={() => setShowAchShowcase(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <AchievementShowcasePanelContent />
           </div>
         </div>
       )}
