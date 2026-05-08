@@ -4639,3 +4639,96 @@
 /* 25. analytics refresh pulse */
 @keyframes analytics-refresh { 0%{border-color:rgba(139,92,246,0.15);} 50%{border-color:rgba(139,92,246,0.4);} 100%{border-color:rgba(139,92,246,0.15);} }
 .analytics-panel { animation: analytics-refresh 6s ease-in-out infinite; }
+
+/* ============================== */
+/* Round 34: Practice, Speed, Calendar, Sentences — 25 new animations */
+/* ============================== */
+
+/* 1. practice-panel slide-in */
+@keyframes practice-panel-in { 0%{opacity:0;transform:translateX(-12px);} 100%{opacity:1;transform:translateX(0);} }
+.practice-panel { animation: practice-panel-in 0.3s ease-out; }
+
+/* 2. practice start button pulse */
+@keyframes practice-start-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4);} 50%{box-shadow:0 0 0 4px rgba(16,185,129,0);} }
+.practice-start-btn { animation: practice-start-pulse 2s ease-in-out infinite; }
+
+/* 3. practice session glow border */
+@keyframes practice-session-glow { 0%,100%{border-color:rgba(16,185,129,0.25);} 50%{border-color:rgba(16,185,129,0.55);} }
+.practice-panel:has(.bg-emerald-800\\/60) { animation: practice-session-glow 2.5s ease-in-out infinite; }
+
+/* 4. practice word pop */
+@keyframes practice-word-pop { 0%{transform:scale(0.8);opacity:0.5;} 50%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
+
+/* 5. practice accuracy bar fill */
+@keyframes practice-accuracy-fill { 0%{width:0%;} 100%{width:var(--accuracy-pct, 80%);} }
+
+/* 6. speed panel slide-in */
+@keyframes speed-panel-in { 0%{opacity:0;transform:translateY(-8px);} 100%{opacity:1;transform:translateY(0);} }
+.speed-config-panel { animation: speed-panel-in 0.3s ease-out; }
+
+/* 7. speed slider thumb glow */
+@keyframes speed-thumb-glow { 0%,100%{box-shadow:0 0 4px rgba(245,158,11,0.4);} 50%{box-shadow:0 0 10px rgba(245,158,11,0.7);} }
+.speed-slider::-webkit-slider-thumb { animation: speed-thumb-glow 1.5s ease-in-out infinite; }
+
+/* 8. speed profile select flash */
+@keyframes speed-profile-flash { 0%{background-color:rgba(245,158,11,0.3);} 100%{background-color:rgba(245,158,11,0);} }
+.speed-config-panel button:active { animation: speed-profile-flash 0.4s ease-out; }
+
+/* 9. speed indicator blink */
+@keyframes speed-indicator-blink { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+/* 10. speed change ripple */
+@keyframes speed-change-ripple { 0%{box-shadow:0 0 0 0 rgba(245,158,11,0.3);} 100%{box-shadow:0 0 0 12px rgba(245,158,11,0);} }
+
+/* 11. calendar panel slide-in */
+@keyframes calendar-panel-in { 0%{opacity:0;transform:translateX(12px);} 100%{opacity:1;transform:translateX(0);} }
+.calendar-panel { animation: calendar-panel-in 0.3s ease-out; }
+
+/* 12. calendar day hover glow */
+@keyframes calendar-day-glow { 0%,100%{background-color:rgba(14,165,233,0.15);} 50%{background-color:rgba(14,165,233,0.35);} }
+.calendar-panel .bg-sky-800\\/40:hover { animation: calendar-day-glow 1s ease-in-out infinite; }
+
+/* 13. calendar star twinkle */
+@keyframes calendar-star-twinkle { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.6;transform:scale(0.85);} }
+
+/* 14. calendar month transition */
+@keyframes calendar-month-slide { 0%{opacity:0;transform:translateX(20px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 15. calendar streak fire */
+@keyframes calendar-streak-fire { 0%{text-shadow:0 0 4px rgba(251,146,60,0.5);} 50%{text-shadow:0 0 10px rgba(251,146,60,0.8);} 100%{text-shadow:0 0 4px rgba(251,146,60,0.5);} }
+
+/* 16. sentences panel slide-in */
+@keyframes sentences-panel-in { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:translateY(0);} }
+.sentences-panel { animation: sentences-panel-in 0.3s ease-out; }
+
+/* 17. sentence reveal typewriter */
+@keyframes sentence-typewriter { 0%{width:0;} 100%{width:100%;} }
+
+/* 18. sentence of the day shimmer */
+@keyframes sentence-sotd-shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+.sentences-panel .border-pink-800\\/20 { background-size:200% 100%; animation: sentence-sotd-shimmer 4s linear infinite; }
+
+/* 19. word highlight pulse */
+@keyframes word-highlight-pulse { 0%,100%{color:rgba(236,72,153,0.8);} 50%{color:rgba(236,72,153,1);text-shadow:0 0 6px rgba(236,72,153,0.3);} }
+
+/* 20. sentence category badge float */
+@keyframes sentence-badge-float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-1px);} }
+
+/* 21. practice mode entry celebration */
+@keyframes practice-celebrate { 0%{transform:scale(1);} 25%{transform:scale(1.08) rotate(2deg);} 50%{transform:scale(1.04) rotate(-1deg);} 100%{transform:scale(1) rotate(0deg);} }
+
+/* 22. speed profile badge glow */
+@keyframes speed-badge-glow { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);} 50%{box-shadow:0 0 6px 1px rgba(245,158,11,0.2);} }
+
+/* 23. calendar heatmap cell pulse */
+@keyframes heatmap-cell-pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+
+/* 24. sentence card flip in */
+@keyframes sentence-flip-in { 0%{transform:rotateX(90deg);opacity:0;} 100%{transform:rotateX(0deg);opacity:1;} }
+
+/* 25. feature button entrance stagger */
+@keyframes feature-btn-stagger { 0%{opacity:0;transform:translateY(6px) scale(0.95);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+.practice-btn { animation: feature-btn-stagger 0.25s ease-out 0.05s both; }
+.speed-config-btn { animation: feature-btn-stagger 0.25s ease-out 0.1s both; }
+.calendar-btn { animation: feature-btn-stagger 0.25s ease-out 0.15s both; }
+.sentences-btn { animation: feature-btn-stagger 0.25s ease-out 0.2s both; }

@@ -94,6 +94,10 @@ import { initAutoSfx, isSfxWired, HOOK_TO_SFX_MAP, getUnmappedEvents } from '@/l
 import { ColorBlindFilterSVG, getFilterCSS, getColorBlindOverlayStyle, COLOR_BLIND_FILTER_CONFIGS, type ColorBlindMode } from '@/lib/color-blind-filters'
 import { createKeyboardNav, createSidebarNavItems, useKeyboardNav, isKeyboardUser, type NavItem } from '@/lib/keyboard-navigation'
 import { calculateAnalytics, getAnalyticsSummary, getActivityLevel, getEventTimeline, createAnalyticsSnapshot, EVENT_CATEGORIES, getCategoryEmoji, formatEventTimeline, type EventAnalytics, type AnalyticsSnapshot, type EventCategory } from '@/lib/event-analytics'
+import { createPracticeConfig, loadPracticeConfig, savePracticeConfig, startPracticeSession, recordPracticeWord, endPracticeSession, getPracticeHistory, getPracticeStats, getPracticeWordOfTheDay, exportPracticeData, importPracticeData, formatPracticeDuration, getWordDifficulty, isRecentWord, type PracticeModeConfig, type PracticeWordEntry, type PracticeStats, type PracticeSessionSummary, type PracticeSession } from '@/lib/practice-mode'
+import { createSpeedConfig, loadSpeedConfig, saveSpeedConfig, setSpeed, adjustSpeed, getFrameInterval, getFPS, applySpeedProfile, calculateCustomCurve, getSpeedForScore, formatSpeed, getSpeedColor, getSpeedLabel, getSpeedProgress, SPEED_PROFILES, DEFAULT_SPEED_CONFIG, type SpeedConfig, type SpeedProfile } from '@/lib/game-speed-config'
+import { getCalendarForMonth, recordCalendarEntry, getCalendarEntry, getCalendarStats, getCurrentStreak, getBestStreak, calculateStars, getMonthName, getDayName, generateCalendarGrid, getCompletionRateByMonth, getHeatmapData, exportCalendarData, importCalendarData, type CalendarEntry, type CalendarMonth, type CalendarStats } from '@/lib/daily-calendar'
+import { getWordSentences, getRandomSentence, getCategorySentences, searchSentences, getSentenceOfTheDay, getSentenceStats, hasSentenceFor, formatSentence, batchGetSentences, generateFillerSentence, type WordSentence } from '@/lib/word-sentences'
 import {
   Play,
   RotateCcw,
@@ -567,6 +571,17 @@ export default function SnakeGame() {
       // Load accessibility color blind config
       const savedA11y = loadAccessibilityConfig()
       setA11yConfig(savedA11y)
+      // Load practice mode config
+      setPracticeConfig(loadPracticeConfig())
+      setPracticeHistory(getPracticeHistory())
+      // Load speed config
+      setSpeedConfig(loadSpeedConfig())
+      // Load calendar data
+      const now = new Date()
+      setCalendarMonth(getCalendarForMonth(now.getFullYear(), now.getMonth()))
+      setCalendarStats(getCalendarStats())
+      // Load sentence of the day
+      setSentenceOfTheDay(getSentenceOfTheDay())
     }
     const id = requestAnimationFrame(loadData)
     return () => {
@@ -720,6 +735,25 @@ export default function SnakeGame() {
   const [eventAnalytics, setEventAnalytics] = useState<EventAnalytics | null>(null)
   const [showEventAnalytics, setShowEventAnalytics] = useState(false)
   const analyticsTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Practice Mode
+  const [showPracticeMode, setShowPracticeMode] = useState(false)
+  const [practiceConfig, setPracticeConfig] = useState<PracticeModeConfig>(createPracticeConfig())
+  const [practiceSession, setPracticeSession] = useState<PracticeSession | null>(null)
+  const [practiceStats, setPracticeStats] = useState<PracticeStats | null>(null)
+  const [practiceHistory, setPracticeHistory] = useState<PracticeSessionSummary[]>([])
+  // Game Speed Config
+  const [speedConfig, setSpeedConfig] = useState<SpeedConfig>(createSpeedConfig())
+  const [showSpeedConfig, setShowSpeedConfig] = useState(false)
+  // Daily Challenge Calendar
+  const [showCalendarPanel, setShowCalendarPanel] = useState(false)
+  const [calendarMonth, setCalendarMonth] = useState<CalendarMonth | null>(null)
+  const [calendarStats, setCalendarStats] = useState<CalendarStats | null>(null)
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear())
+  const [calendarMonthIdx, setCalendarMonthIdx] = useState(new Date().getMonth())
+  // Word Sentences
+  const [showWordSentences, setShowWordSentences] = useState(false)
+  const [currentWordSentence, setCurrentWordSentence] = useState<WordSentence | null>(null)
+  const [sentenceOfTheDay, setSentenceOfTheDay] = useState<WordSentence | null>(null)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -6308,6 +6342,51 @@ export default function SnakeGame() {
                       📊 Analytics
                     </Button>
                     <Button
+                      onClick={() => {
+                        setShowPracticeMode(!showPracticeMode)
+                        if (!showPracticeMode) { setPracticeHistory(getPracticeHistory()); setPracticeStats(getPracticeStats()) }
+                      }}
+                      variant="outline"
+                      className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform practice-btn"
+                      title="Practice Mode"
+                    >
+                      🎓 Practice
+                    </Button>
+                    <Button
+                      onClick={() => setShowSpeedConfig(!showSpeedConfig)}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform speed-config-btn"
+                      title="Game Speed Configuration"
+                    >
+                      ⚡ Speed
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowCalendarPanel(!showCalendarPanel)
+                        if (!showCalendarPanel) { setCalendarMonth(getCalendarForMonth(calendarYear, calendarMonthIdx)); setCalendarStats(getCalendarStats()) }
+                      }}
+                      variant="outline"
+                      className="border-sky-700/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform calendar-btn"
+                      title="Daily Challenge Calendar"
+                    >
+                      📅 Calendar
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowWordSentences(!showWordSentences)
+                        if (!showWordSentences) {
+                          const s = getSentenceOfTheDay()
+                          setSentenceOfTheDay(s)
+                          if (uiStateRef.current.wordFood) setCurrentWordSentence(getRandomSentence(uiStateRef.current.wordFood.word))
+                        }
+                      }}
+                      variant="outline"
+                      className="border-pink-700/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform sentences-btn"
+                      title="Word Context Sentences"
+                    >
+                      💬 Sentences
+                    </Button>
+                    <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
                       title="60-second timed challenge"
@@ -7348,6 +7427,203 @@ export default function SnakeGame() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Practice Mode Panel */}
+            {showPracticeMode && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-emerald-900/20 to-green-900/15 border border-emerald-700/25 practice-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🎓</span>
+                    <span className="text-[10px] text-emerald-300 font-bold">Practice Mode</span>
+                  </div>
+                  <span className={`text-[8px] px-1.5 py-0.5 rounded-full ${practiceSession ? 'bg-emerald-800/60 text-emerald-200' : 'bg-slate-800/60 text-slate-400'}`}>
+                    {practiceSession ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <p className="text-[8px] text-slate-400 mb-2">Learn vocabulary without game over risk</p>
+                <div className="flex gap-1.5 mb-2">
+                  <button
+                    onClick={() => {
+                      const session = startPracticeSession(practiceConfig)
+                      setPracticeSession(session)
+                      emitGameEvent('practice:start', { sessionId: session.sessionId })
+                    }}
+                    className="text-[8px] px-2 py-1 rounded bg-emerald-700/40 text-emerald-300 hover:bg-emerald-700/60 transition-colors practice-start-btn"
+                  >Start Session</button>
+                  <button
+                    onClick={() => {
+                      if (practiceSession) {
+                        const summary = endPracticeSession(practiceSession, practiceStats)
+                        setPracticeSession(null)
+                        setPracticeHistory(getPracticeHistory())
+                        setPracticeStats(getPracticeStats())
+                        emitGameEvent('practice:end', { sessionId: practiceSession.sessionId })
+                      }
+                    }}
+                    className="text-[8px] px-2 py-1 rounded bg-slate-700/40 text-slate-300 hover:bg-slate-700/60 transition-colors"
+                  >End Session</button>
+                </div>
+                {practiceStats && (
+                  <div className="grid grid-cols-3 gap-1 mb-2">
+                    <div className="text-center p-1 rounded bg-emerald-900/20">
+                      <div className="text-[7px] text-slate-500">Words</div>
+                      <div className="text-[10px] text-emerald-300 font-bold">{practiceStats.totalWords}</div>
+                    </div>
+                    <div className="text-center p-1 rounded bg-emerald-900/20">
+                      <div className="text-[7px] text-slate-500">Accuracy</div>
+                      <div className="text-[10px] text-emerald-300 font-bold">{practiceStats.totalWords > 0 ? Math.round(practiceStats.correctFirst / practiceStats.totalWords * 100) : 0}%</div>
+                    </div>
+                    <div className="text-center p-1 rounded bg-emerald-900/20">
+                      <div className="text-[7px] text-slate-500">Streak</div>
+                      <div className="text-[10px] text-emerald-300 font-bold">{practiceStats.streak}</div>
+                    </div>
+                  </div>
+                )}
+                <div className="text-[7px] text-slate-500">Sessions: {practiceHistory.length} | Best streak: {practiceStats?.bestStreak ?? 0}</div>
+              </div>
+            )}
+
+            {/* Game Speed Configuration Panel */}
+            {showSpeedConfig && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-amber-900/20 to-yellow-900/15 border border-amber-700/25 speed-config-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">⚡</span>
+                    <span className="text-[10px] text-amber-300 font-bold">Speed Control</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-amber-900/40 text-amber-300">{formatSpeed(getFrameInterval(speedConfig))}</span>
+                </div>
+                <div className="mb-2">
+                  <div className="flex justify-between text-[7px] text-slate-500 mb-1">
+                    <span>{getSpeedLabel(speedConfig.currentSpeed)}</span>
+                    <span>{getFPS(speedConfig)} FPS</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={speedConfig.minSpeed}
+                    max={speedConfig.maxSpeed}
+                    value={speedConfig.currentSpeed}
+                    onChange={(e) => {
+                      const newConfig = setSpeed(speedConfig, parseInt(e.target.value))
+                      setSpeedConfig(newConfig)
+                      saveSpeedConfig(newConfig)
+                    }}
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer speed-slider"
+                    style={{ background: `linear-gradient(to right, ${getSpeedColor(speedConfig.minSpeed)}, ${getSpeedColor(speedConfig.maxSpeed)})` }}
+                  />
+                  <div className="flex justify-between text-[6px] text-slate-600 mt-0.5">
+                    <span>Slow</span><span>Fast</span>
+                  </div>
+                </div>
+                {/* Speed Profiles */}
+                <div className="flex flex-wrap gap-1">
+                  {SPEED_PROFILES.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        const newConfig = applySpeedProfile(speedConfig, p.id)
+                        setSpeedConfig(newConfig)
+                        saveSpeedConfig(newConfig)
+                      }}
+                      className={`text-[7px] px-1.5 py-0.5 rounded border transition-colors ${
+                        speedConfig.speedProfile === p.id
+                          ? 'border-amber-500/60 bg-amber-900/30 text-amber-200'
+                          : 'border-slate-700/30 bg-slate-800/30 text-slate-500 hover:text-slate-300'
+                      }`}
+                      title={p.description}
+                    >{p.icon} {p.name}</button>
+                  ))}
+                </div>
+                <div className="mt-2 text-[7px] text-slate-500">
+                  Progress: <span className="text-amber-400">{getSpeedProgress(speedConfig.currentSpeed, speedConfig.minSpeed, speedConfig.maxSpeed)}%</span>
+                </div>
+              </div>
+            )}
+
+            {/* Daily Challenge Calendar Panel */}
+            {showCalendarPanel && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-sky-900/20 to-blue-900/15 border border-sky-700/25 calendar-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📅</span>
+                    <span className="text-[10px] text-sky-300 font-bold">Daily Calendar</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => { const m = calendarMonthIdx === 0 ? 11 : calendarMonthIdx - 1; const y = calendarMonthIdx === 0 ? calendarYear - 1 : calendarYear; setCalendarMonthIdx(m); setCalendarYear(y); setCalendarMonth(getCalendarForMonth(y, m)) }} className="text-[8px] px-1 py-0.5 rounded bg-sky-900/40 text-sky-300 hover:bg-sky-900/60">◀</button>
+                    <span className="text-[8px] text-sky-200">{getMonthName(calendarMonthIdx)} {calendarYear}</span>
+                    <button onClick={() => { const m = calendarMonthIdx === 11 ? 0 : calendarMonthIdx + 1; const y = calendarMonthIdx === 11 ? calendarYear + 1 : calendarYear; setCalendarMonthIdx(m); setCalendarYear(y); setCalendarMonth(getCalendarForMonth(y, m)) }} className="text-[8px] px-1 py-0.5 rounded bg-sky-900/40 text-sky-300 hover:bg-sky-900/60">▶</button>
+                  </div>
+                </div>
+                {calendarStats && (
+                  <div className="grid grid-cols-3 gap-1 mb-2">
+                    <div className="text-center p-1 rounded bg-sky-900/20">
+                      <div className="text-[7px] text-slate-500">Completed</div>
+                      <div className="text-[10px] text-sky-300 font-bold">{calendarStats.totalCompleted}</div>
+                    </div>
+                    <div className="text-center p-1 rounded bg-sky-900/20">
+                      <div className="text-[7px] text-slate-500">Streak</div>
+                      <div className="text-[10px] text-sky-300 font-bold">{calendarStats.currentStreak}d</div>
+                    </div>
+                    <div className="text-center p-1 rounded bg-sky-900/20">
+                      <div className="text-[7px] text-slate-500">Stars</div>
+                      <div className="text-[10px] text-amber-300 font-bold">{calendarStats.totalStars}</div>
+                    </div>
+                  </div>
+                )}
+                {/* Mini calendar grid */}
+                {calendarMonth && (
+                  <div className="grid grid-cols-7 gap-0.5">
+                    {['M','T','W','T','F','S','S'].map((d, i) => (
+                      <div key={i} className="text-[6px] text-center text-slate-600 py-0.5">{d}</div>
+                    ))}
+                    {generateCalendarGrid(calendarYear, calendarMonthIdx).map((cell, i) => {
+                      const entry = calendarMonth.days.find(d => d.date === cell?.date)
+                      const stars = entry?.stars ?? 0
+                      return (
+                        <div key={i} className={`text-[6px] text-center py-0.5 rounded ${
+                          cell ? (entry?.completed ? 'bg-sky-800/40 text-sky-200' : 'text-slate-600') : 'text-transparent'
+                        }`}>
+                          {cell?.day ?? '.'}
+                          {stars > 0 && <span className="text-[5px] text-amber-400">{'★'.repeat(stars)}</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                {calendarStats && <div className="mt-1 text-[7px] text-slate-500">Rate: {Math.round(calendarStats.completionRate)}%</div>}
+              </div>
+            )}
+
+            {/* Word Sentences Panel */}
+            {showWordSentences && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-pink-900/20 to-rose-900/15 border border-pink-700/25 sentences-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">💬</span>
+                    <span className="text-[10px] text-pink-300 font-bold">Word Sentences</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-pink-900/40 text-pink-300">{getSentenceStats().totalWords} words</span>
+                </div>
+                {sentenceOfTheDay && (
+                  <div className="mb-2 p-1.5 rounded bg-pink-900/15 border border-pink-800/20">
+                    <div className="text-[7px] text-pink-400 font-bold mb-0.5">Sentence of the Day</div>
+                    <div className="text-[8px] text-slate-300 italic">"{sentenceOfTheDay.sentence}"</div>
+                    <div className="text-[7px] text-slate-500">— {sentenceOfTheDay.word} ({sentenceOfTheDay.category})</div>
+                  </div>
+                )}
+                {currentWordSentence && (
+                  <div className="mb-2 p-1.5 rounded bg-slate-900/20 border border-slate-800/20">
+                    <div className="text-[7px] text-slate-400 font-bold mb-0.5">Current Word: {uiStateRef.current.wordFood?.word ?? ''}</div>
+                    <div className="text-[8px] text-slate-300">"{currentWordSentence.sentence}"</div>
+                    <div className="flex gap-1 mt-1">
+                      <span className="text-[6px] px-1 py-0.5 rounded bg-pink-900/30 text-pink-300">{currentWordSentence.category}</span>
+                      <span className="text-[6px] px-1 py-0.5 rounded bg-slate-800/40 text-slate-400">{currentWordSentence.difficulty}</span>
+                    </div>
+                  </div>
+                )}
+                <div className="text-[7px] text-slate-500">{getSentenceStats().totalSentences} example sentences in database</div>
               </div>
             )}
 
