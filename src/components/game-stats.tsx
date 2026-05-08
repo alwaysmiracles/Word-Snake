@@ -38,7 +38,7 @@ function StatCard({ icon: Icon, value, label, valueColor = 'text-amber-400' }: {
   valueColor?: string
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-slate-800/50 border border-slate-700/40 min-w-0 stat-breathe">
+    <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-slate-800/50 border border-slate-700/40 min-w-0 stat-breathe-enhanced">
       <Icon className="h-4 w-4 text-slate-400 shrink-0" />
       <span className={`text-base font-bold ${valueColor} leading-tight text-center break-words stats-value-glow`}>{value}</span>
       <span className="text-[10px] text-slate-500 text-center leading-tight">{label}</span>

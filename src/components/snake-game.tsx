@@ -6,6 +6,7 @@ import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getW
 import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
+import { checkMilestones, getActiveMilestoneBonuses, MILESTONE_CONFIG, type MilestoneConfig } from '@/lib/achievement-milestones'
 import AchievementGallery from '@/components/achievement-gallery'
 import GameStatsDialog from '@/components/game-stats'
 import CustomWordsDialog from '@/components/custom-words-dialog'
@@ -22,6 +23,7 @@ import { getWordDefinition } from '@/lib/word-definitions'
 import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DESPAWN_TIME, type PowerUpType, type PowerUpConfig } from '@/lib/powerups'
 import { trackGameEnd, trackWordEaten, trackPowerUpCollected, trackCombo, trackDailyPlayed } from '@/lib/game-stats'
 import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, type SnakeSkin } from '@/lib/snake-skins'
+import { getGridTheme, getAllGridThemes, getSavedGridTheme, saveGridTheme, type GridThemeId } from '@/lib/grid-themes'
 import {
   Play,
   RotateCcw,
@@ -118,6 +120,9 @@ interface GameState {
   weather: 'clear' | 'rain' | 'snow' | 'stars'
   activeSkin: SnakeSkin
   showMiniMap: boolean
+  gridTheme: GridThemeId
+  extraLifeAvailable: boolean
+  lastMilestone: { name: string; emoji: string; description: string } | null
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -227,6 +232,10 @@ export default function SnakeGame() {
       const savedSkin = getSavedSkin()
       gameStateRef.current.activeSkin = savedSkin
       setActiveSkin(savedSkin)
+      // Load saved grid theme
+      const savedTheme = getSavedGridTheme()
+      gameStateRef.current.gridTheme = savedTheme
+      setActiveGridTheme(savedTheme)
       // Load mini-map visibility
       try {
         const mapPref = localStorage.getItem('word-snake-minimap')
@@ -274,6 +283,9 @@ export default function SnakeGame() {
     weather: 'clear' as const,
     activeSkin: 'classic' as SnakeSkin,
     showMiniMap: true,
+    gridTheme: 'classic' as GridThemeId,
+    extraLifeAvailable: false,
+    lastMilestone: null,
   })
 
   const lastRenderRef = useRef(0)
@@ -286,6 +298,7 @@ export default function SnakeGame() {
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const milestoneToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [uiState, setUiState] = useState({
     score: 0,
@@ -313,16 +326,25 @@ export default function SnakeGame() {
     weather: 'clear' as GameState['weather'],
     activeSkin: 'classic' as SnakeSkin,
     showMiniMap: true,
+    gridTheme: 'classic' as GridThemeId,
+    extraLifeAvailable: false,
+    lastMilestone: null as { name: string; emoji: string; description: string } | null,
   })
 
   // Skin state
   const [activeSkin, setActiveSkin] = useState<SnakeSkin>('classic')
+
+  // Grid theme state
+  const [activeGridTheme, setActiveGridTheme] = useState<GridThemeId>('classic')
 
   // Track word additions for entrance animation - key increments trigger re-render with animation
   const [newWordKey, setNewWordKey] = useState(0)
 
   // Skin bounce state for temporary class
   const [skinBounce, setSkinBounce] = useState(false)
+
+  // Grid theme switch ripple state for temporary class
+  const [themeSwitchRipple, setThemeSwitchRipple] = useState(false)
 
   const updateUI = useCallback(() => {
     const gs = gameStateRef.current
@@ -352,6 +374,9 @@ export default function SnakeGame() {
       weather: gs.weather,
       activeSkin: gs.activeSkin,
       showMiniMap: gs.showMiniMap,
+      gridTheme: gs.gridTheme,
+      extraLifeAvailable: gs.extraLifeAvailable,
+      lastMilestone: gs.lastMilestone,
     })
   }, [])
 
@@ -474,18 +499,81 @@ export default function SnakeGame() {
     const gs = gameStateRef.current
     const { snake, direction, wordFood, gameStarted, gameOver, paused } = gs
 
-    // Clear canvas
-    ctx.fillStyle = '#0f172a'
+    // Get grid theme
+    const gridTheme = getGridTheme(gs.gridTheme)
+
+    // Clear canvas with theme background
+    ctx.fillStyle = gridTheme.bgColor
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-    // Draw subtle grid dots
-    ctx.fillStyle = '#1e293b'
-    for (let x = 0; x <= GRID_WIDTH; x++) {
+    // Draw grid based on theme gridType
+    ctx.fillStyle = gridTheme.gridColor
+    if (gridTheme.gridType === 'dots') {
+      for (let x = 0; x <= GRID_WIDTH; x++) {
+        for (let y = 0; y <= GRID_HEIGHT; y++) {
+          ctx.beginPath()
+          ctx.arc(x * CELL_SIZE, y * CELL_SIZE, 0.5, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+    } else if (gridTheme.gridType === 'lines') {
+      ctx.strokeStyle = gridTheme.gridColor
+      ctx.globalAlpha = 0.15
+      ctx.lineWidth = 0.5
+      for (let x = 0; x <= GRID_WIDTH; x++) {
+        ctx.beginPath()
+        ctx.moveTo(x * CELL_SIZE, 0)
+        ctx.lineTo(x * CELL_SIZE, CANVAS_HEIGHT)
+        ctx.stroke()
+      }
       for (let y = 0; y <= GRID_HEIGHT; y++) {
         ctx.beginPath()
-        ctx.arc(x * CELL_SIZE, y * CELL_SIZE, 0.5, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.moveTo(0, y * CELL_SIZE)
+        ctx.lineTo(CANVAS_WIDTH, y * CELL_SIZE)
+        ctx.stroke()
       }
+      ctx.globalAlpha = 1
+    } else if (gridTheme.gridType === 'crosshatch') {
+      ctx.strokeStyle = gridTheme.gridColor
+      ctx.globalAlpha = 0.08
+      ctx.lineWidth = 0.5
+      // Vertical lines
+      for (let x = 0; x <= GRID_WIDTH; x++) {
+        ctx.beginPath()
+        ctx.moveTo(x * CELL_SIZE, 0)
+        ctx.lineTo(x * CELL_SIZE, CANVAS_HEIGHT)
+        ctx.stroke()
+      }
+      // Horizontal lines
+      for (let y = 0; y <= GRID_HEIGHT; y++) {
+        ctx.beginPath()
+        ctx.moveTo(0, y * CELL_SIZE)
+        ctx.lineTo(CANVAS_WIDTH, y * CELL_SIZE)
+        ctx.stroke()
+      }
+      // Diagonal lines for crosshatch
+      ctx.globalAlpha = 0.04
+      for (let d = -GRID_HEIGHT; d <= GRID_WIDTH + GRID_HEIGHT; d += 2) {
+        ctx.beginPath()
+        ctx.moveTo(d * CELL_SIZE, 0)
+        ctx.lineTo((d - GRID_HEIGHT) * CELL_SIZE, CANVAS_HEIGHT)
+        ctx.stroke()
+      }
+      ctx.globalAlpha = 1
+    } else if (gridTheme.gridType === 'organic') {
+      // Organic moss-like dot pattern with varied sizes and opacity
+      const seed = 42
+      for (let x = 0; x <= GRID_WIDTH; x++) {
+        for (let y = 0; y <= GRID_HEIGHT; y++) {
+          const hash = ((x * 7919 + y * 104729 + seed) % 100) / 100
+          const radius = 0.5 + hash * 1.5
+          ctx.globalAlpha = 0.15 + hash * 0.25
+          ctx.beginPath()
+          ctx.arc(x * CELL_SIZE, y * CELL_SIZE, radius, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+      ctx.globalAlpha = 1
     }
 
     // Weather effects
@@ -556,9 +644,9 @@ export default function SnakeGame() {
       gradient.addColorStop(0.5, 'rgba(239, 68, 68, 0.15)')
       gradient.addColorStop(1, 'rgba(245, 158, 11, 0.15)')
     } else {
-      gradient.addColorStop(0, 'rgba(34, 197, 94, 0.1)')
-      gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.1)')
-      gradient.addColorStop(1, 'rgba(245, 158, 11, 0.1)')
+      gradient.addColorStop(0, gridTheme.borderColor)
+      gradient.addColorStop(0.5, gridTheme.borderGlowColor)
+      gradient.addColorStop(1, gridTheme.borderColor)
     }
     ctx.strokeStyle = gradient
     ctx.lineWidth = 2
@@ -642,7 +730,7 @@ export default function SnakeGame() {
         ctx.fillStyle = gs.isDailyChallenge ? '#ffffff' : skin.eyeColor
         ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
         ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
-        ctx.fillStyle = '#0f172a'
+        ctx.fillStyle = gridTheme.bgColor
         ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize, 0, Math.PI * 2); ctx.fill()
         ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize, 0, Math.PI * 2); ctx.fill()
       } else {
@@ -733,6 +821,33 @@ export default function SnakeGame() {
         }
       }
     })
+
+    // Platinum milestone: golden sparkle particle trail behind snake head
+    if (gameStarted && !gameOver && !paused && snake.length > 0) {
+      try {
+        const bonuses = getActiveMilestoneBonuses()
+        if (bonuses.hasGoldenTrail) {
+          const headSeg = snake[0]
+          const hx = headSeg.x * CELL_SIZE + CELL_SIZE / 2
+          const hy = headSeg.y * CELL_SIZE + CELL_SIZE / 2
+          // Spawn 1-2 golden sparkle particles each frame
+          for (let i = 0; i < 2; i++) {
+            const angle = Math.random() * Math.PI * 2
+            const speed = 0.3 + Math.random() * 0.8
+            particlesRef.current.push({
+              x: hx + (Math.random() - 0.5) * 8,
+              y: hy + (Math.random() - 0.5) * 8,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 0.6 + Math.random() * 0.4,
+              maxLife: 1,
+              color: Math.random() > 0.5 ? '#ffd700' : '#fff8dc',
+              size: 1.5 + Math.random() * 2,
+            })
+          }
+        }
+      } catch { /* ignore */ }
+    }
 
     // Draw word food with category-based coloring
     if (wordFood) {
@@ -939,7 +1054,8 @@ export default function SnakeGame() {
       }
 
       // Background
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'
+      const mmBg = hexToRgb(gridTheme.bgColor)
+      ctx.fillStyle = `rgba(${mmBg.r}, ${mmBg.g}, ${mmBg.b}, 0.85)`
       ctx.beginPath()
       ctx.roundRect(mapX, mapY, MAP_W, MAP_H, 6)
       ctx.fill()
@@ -1045,9 +1161,18 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
+    // Scanlines overlay (retro CRT effect)
+    if (gridTheme.scanlines) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'
+      for (let y = 0; y < CANVAS_HEIGHT; y += 3) {
+        ctx.fillRect(0, y, CANVAS_WIDTH, 1)
+      }
+    }
+
     // Game over overlay
     if (gameOver) {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.88)'
+      const goBg = hexToRgb(gridTheme.bgColor)
+      ctx.fillStyle = `rgba(${goBg.r}, ${goBg.g}, ${goBg.b}, 0.88)`
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
       const lineGrad = ctx.createLinearGradient(CANVAS_WIDTH * 0.2, 0, CANVAS_WIDTH * 0.8, 0)
@@ -1115,31 +1240,37 @@ export default function SnakeGame() {
 
     // Start screen
     if (!gameStarted) {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)'
+      const ssBg = hexToRgb(gridTheme.bgColor)
+      ctx.fillStyle = `rgba(${ssBg.r}, ${ssBg.g}, ${ssBg.b}, 0.92)`
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
       const startSkin = getSnakeSkin(gs.activeSkin)
+
+      // === LEFT COLUMN: Title, legends, info ===
+      const leftCenterX = CANVAS_WIDTH * 0.33
+
+      // Title
       ctx.shadowColor = startSkin.glowColor; ctx.shadowBlur = 20
-      ctx.fillStyle = startSkin.headColor; ctx.font = 'bold 38px sans-serif'
+      ctx.fillStyle = startSkin.headColor; ctx.font = 'bold 36px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('WORD SNAKE', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80)
+      ctx.fillText('WORD SNAKE', leftCenterX, 68)
       ctx.shadowBlur = 0
 
-      ctx.fillStyle = '#94a3b8'; ctx.font = '14px sans-serif'
-      ctx.fillText('Eat words, collect them, make poetry', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 48)
+      ctx.fillStyle = '#94a3b8'; ctx.font = '13px sans-serif'
+      ctx.fillText('Eat words, collect them, make poetry', leftCenterX, 92)
 
-      // Category legend
+      // Category legend (2 columns on left side)
       const categories: WordCategory[] = ['nature', 'emotion', 'element', 'time', 'creature', 'quality', 'object', 'action']
-      const cols = 4
-      const startY = CANVAS_HEIGHT / 2 - 20
-      const rowH = 18
-      const colW = 140
+      const catCols = 2
+      const catStartY = 116
+      const catRowH = 18
+      const catColW = 130
       categories.forEach((cat, i) => {
         const info = getCategoryInfo(cat)
-        const col = i % cols
-        const row = Math.floor(i / cols)
-        const x = CANVAS_WIDTH / 2 - (cols * colW) / 2 + col * colW + 10
-        const y = startY + row * rowH
+        const col = i % catCols
+        const row = Math.floor(i / catCols)
+        const x = leftCenterX - (catCols * catColW) / 2 + col * catColW + 10
+        const y = catStartY + row * catRowH
         ctx.fillStyle = CATEGORY_COLORS[cat]
         ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill()
         ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif'
@@ -1147,58 +1278,206 @@ export default function SnakeGame() {
         ctx.fillText(info.label, x + 8, y + 4)
       })
 
-      // Streak bonus legend
-      if (streakInfo && streakInfo.currentStreak > 0) {
-        const activeBonus = getActiveStreakBonus(streakInfo.currentStreak)
-        const bonusY = startY + 50
-        ctx.textAlign = 'center'
-        ctx.fillStyle = '#f59e0b'; ctx.font = '11px sans-serif'
-        if (activeBonus) {
-          ctx.fillText(`🔥 ${streakInfo.currentStreak}-day streak: ${activeBonus.name} (×${activeBonus.multiplier} bonus)`, CANVAS_WIDTH / 2, bonusY)
-        } else {
-          const next = STREAK_BONUSES.find((b) => b.days > streakInfo.currentStreak)
-          if (next) {
-            ctx.fillText(`🔥 ${streakInfo.currentStreak}-day streak (${next.days - streakInfo.currentStreak} days to ${next.name})`, CANVAS_WIDTH / 2, bonusY)
-          }
-        }
-      }
-
       // Rarity legend
-      const rarityY = startY + (Math.ceil(categories.length / cols)) * rowH + 10
+      const rarityY = catStartY + (Math.ceil(categories.length / catCols)) * catRowH + 8
       ctx.textAlign = 'center'
       ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'
-      ctx.fillText('Rarity:', CANVAS_WIDTH / 2 - 80, rarityY)
+      ctx.fillText('Rarity:', leftCenterX - 70, rarityY)
       const rarities: WordRarity[] = ['common', 'uncommon', 'rare', 'legendary']
-      let rx = CANVAS_WIDTH / 2 - 50
+      let rx = leftCenterX - 42
       rarities.forEach((r) => {
         const rc = RARITY_CONFIG[r]
         ctx.fillStyle = rc.color
         ctx.font = '10px sans-serif'
         ctx.textAlign = 'left'
         ctx.fillText(`${rc.emoji || '•'} ${rc.label}`, rx, rarityY)
-        rx += 65
+        rx += 60
       })
       ctx.textAlign = 'start'
 
       // Weather info note
       ctx.textAlign = 'center'
       ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'
-      ctx.fillText('Weather changes each game — Rain slows, Snow fogs, Stars boost!', CANVAS_WIDTH / 2, rarityY + 16)
+      ctx.fillText('Weather changes each game', leftCenterX, rarityY + 16)
+      ctx.fillText('Rain slows · Snow fogs · Stars boost', leftCenterX, rarityY + 30)
       ctx.textAlign = 'start'
 
+      // Streak bonus legend
+      if (streakInfo && streakInfo.currentStreak > 0) {
+        const activeBonus = getActiveStreakBonus(streakInfo.currentStreak)
+        const bonusY = rarityY + 48
+        ctx.textAlign = 'center'
+        ctx.fillStyle = '#f59e0b'; ctx.font = '11px sans-serif'
+        if (activeBonus) {
+          ctx.fillText(`🔥 ${streakInfo.currentStreak}-day streak: ${activeBonus.name}`, leftCenterX, bonusY)
+          ctx.fillStyle = '#d97706'; ctx.font = '10px sans-serif'
+          ctx.fillText(`×${activeBonus.multiplier} bonus`, leftCenterX, bonusY + 14)
+        } else {
+          const next = STREAK_BONUSES.find((b) => b.days > streakInfo.currentStreak)
+          if (next) {
+            ctx.fillText(`🔥 ${streakInfo.currentStreak}-day streak`, leftCenterX, bonusY)
+            ctx.fillStyle = '#d97706'; ctx.font = '10px sans-serif'
+            ctx.fillText(`${next.days - streakInfo.currentStreak} days to ${next.name}`, leftCenterX, bonusY + 14)
+          }
+        }
+        ctx.textAlign = 'start'
+      }
+
+      // === RIGHT COLUMN: Animated Snake Skin Preview ===
+      const previewCenterX = CANVAS_WIDTH * 0.72
+      const previewCenterY = 195
+      const previewSegments = 10
+      const segSize = 18
+      const segGap = 22
+      const time = Date.now()
+
+      // Generate S-curve positions with gentle wave animation
+      const previewPositions: { x: number; y: number }[] = []
+      for (let i = 0; i < previewSegments; i++) {
+        const t = i / (previewSegments - 1) // 0 to 1
+        const baseX = previewCenterX - (previewSegments / 2 - i) * segGap * 0.6
+        // S-curve: sine wave offset, animated gently
+        const waveOffset = Math.sin(t * Math.PI * 2 + time / 1200) * 28
+        const microWave = Math.sin(t * Math.PI * 3 + time / 800 + i * 0.3) * 4
+        previewPositions.push({
+          x: baseX + Math.sin(t * Math.PI * 1.2) * 15,
+          y: previewCenterY + waveOffset + microWave,
+        })
+      }
+
+      // Draw glow behind preview snake
+      ctx.globalAlpha = 0.06
+      ctx.fillStyle = startSkin.glowColor
+      for (const seg of previewPositions) {
+        ctx.beginPath()
+        ctx.arc(seg.x, seg.y, segSize * 0.9, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+
+      // Draw preview snake segments (body first, then head on top)
+      for (let i = previewSegments - 1; i >= 0; i--) {
+        const seg = previewPositions[i]
+
+        if (i === 0) {
+          // Head
+          ctx.shadowColor = startSkin.glowColor
+          ctx.shadowBlur = 10
+          ctx.fillStyle = startSkin.headColor
+          ctx.beginPath()
+          ctx.roundRect(seg.x - segSize / 2 + 1, seg.y - segSize / 2 + 1, segSize - 2, segSize - 2, 5)
+          ctx.fill()
+          ctx.shadowBlur = 0
+
+          // Eyes - facing right-ish (toward next segment direction)
+          const nextSeg = previewPositions[1]
+          const dx = nextSeg.x - seg.x
+          const dy = nextSeg.y - seg.y
+          const eyeAngle = Math.atan2(dy, dx)
+          const eyeOffset = 4
+          const eyePerpOffset = 3.5
+
+          const eye1x = seg.x + Math.cos(eyeAngle) * eyeOffset + Math.cos(eyeAngle + Math.PI / 2) * eyePerpOffset
+          const eye1y = seg.y + Math.sin(eyeAngle) * eyeOffset + Math.sin(eyeAngle + Math.PI / 2) * eyePerpOffset
+          const eye2x = seg.x + Math.cos(eyeAngle) * eyeOffset + Math.cos(eyeAngle - Math.PI / 2) * eyePerpOffset
+          const eye2y = seg.y + Math.sin(eyeAngle) * eyeOffset + Math.sin(eyeAngle - Math.PI / 2) * eyePerpOffset
+
+          ctx.fillStyle = startSkin.eyeColor
+          ctx.beginPath(); ctx.arc(eye1x, eye1y, 3, 0, Math.PI * 2); ctx.fill()
+          ctx.beginPath(); ctx.arc(eye2x, eye2y, 3, 0, Math.PI * 2); ctx.fill()
+          ctx.fillStyle = gridTheme.bgColor
+          ctx.beginPath(); ctx.arc(eye1x, eye1y, 1.8, 0, Math.PI * 2); ctx.fill()
+          ctx.beginPath(); ctx.arc(eye2x, eye2y, 1.8, 0, Math.PI * 2); ctx.fill()
+        } else {
+          // Body segment
+          const ratio = 1 - i / previewSegments
+
+          // Determine fill color based on pattern (same logic as gameplay snake)
+          if (startSkin.pattern === 'rainbow') {
+            const hue = (i * 360 / previewSegments + time / 50) % 360
+            ctx.fillStyle = `hsl(${hue}, 70%, 55%)`
+          } else if (startSkin.pattern === 'gradient') {
+            const c0 = hexToRgb(startSkin.bodyGradient[0])
+            const c1 = hexToRgb(startSkin.bodyGradient[1])
+            const alpha = 0.6 + ratio * 0.4
+            const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+            const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+            const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+          } else if (startSkin.pattern === 'striped') {
+            const c0 = hexToRgb(startSkin.bodyGradient[0])
+            const c1 = hexToRgb(startSkin.bodyGradient[1])
+            const alpha = (0.6 + ratio * 0.4) * (i % 2 === 0 ? 1 : 0.55)
+            const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+            const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+            const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+          } else if (startSkin.pattern === 'dotted') {
+            const c0 = hexToRgb(startSkin.bodyGradient[0])
+            const c1 = hexToRgb(startSkin.bodyGradient[1])
+            const alpha = 0.6 + ratio * 0.4
+            const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+            const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+            const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+          } else {
+            // solid pattern
+            const c0 = hexToRgb(startSkin.bodyGradient[0])
+            const c1 = hexToRgb(startSkin.bodyGradient[1])
+            const alpha = 0.6 + ratio * 0.4
+            const r = Math.floor(c0.r + (c1.r - c0.r) * ratio)
+            const g = Math.floor(c0.g + (c1.g - c0.g) * ratio)
+            const b = Math.floor(c0.b + (c1.b - c0.b) * ratio)
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+          }
+
+          // Draw connector between adjacent segments (except dotted)
+          if (startSkin.pattern !== 'dotted' && i > 0) {
+            const prev = previewPositions[i - 1]
+            ctx.fillRect(
+              Math.min(prev.x, seg.x) - segSize / 2 + 3,
+              Math.min(prev.y, seg.y) - segSize / 2 + 3,
+              Math.abs(prev.x - seg.x) + segSize - 6,
+              Math.abs(prev.y - seg.y) + segSize - 6
+            )
+          }
+
+          // Draw segment shape
+          if (startSkin.pattern === 'dotted') {
+            ctx.beginPath()
+            ctx.arc(seg.x, seg.y, segSize / 2 - 3, 0, Math.PI * 2)
+            ctx.fill()
+          } else {
+            ctx.beginPath()
+            ctx.roundRect(seg.x - segSize / 2 + 2, seg.y - segSize / 2 + 2, segSize - 4, segSize - 4, 3)
+            ctx.fill()
+          }
+        }
+      }
+
+      // Skin name below the preview snake
+      ctx.textAlign = 'center'
+      ctx.fillStyle = startSkin.headColor; ctx.font = 'bold 14px sans-serif'
+      ctx.fillText(startSkin.name, previewCenterX, previewCenterY + 85)
+      ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'
+      ctx.fillText(startSkin.description, previewCenterX, previewCenterY + 100)
+      ctx.textAlign = 'start'
+
+      // === BOTTOM: Controls and start prompt ===
       ctx.textAlign = 'center'
       ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif'
-      ctx.fillText('Arrow Keys / WASD  •  Space to start  •  Swipe on mobile', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 60)
+      ctx.fillText('Arrow Keys / WASD  •  Space to start  •  Swipe on mobile', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 50)
 
       const alpha = 0.5 + Math.sin(Date.now() / 500) * 0.3
       ctx.fillStyle = `rgba(74, 222, 128, ${alpha})`; ctx.font = 'bold 16px sans-serif'
-      ctx.fillText('Press Space or click to start', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 90)
+      ctx.fillText('Press Space or click to start', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 25)
       ctx.textAlign = 'start'
     }
 
     // Pause overlay
     if (paused && gameStarted && !gameOver) {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.78)'
+      const poBg = hexToRgb(gridTheme.bgColor)
+      ctx.fillStyle = `rgba(${poBg.r}, ${poBg.g}, ${poBg.b}, 0.78)`
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
       ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 15
@@ -1274,6 +1553,15 @@ export default function SnakeGame() {
       clearTimeout(toastTimerRef.current)
       toastTimerRef.current = null
     }
+
+    // Reset milestone state and set extra life from Silver milestone
+    gs.lastMilestone = null
+    if (milestoneToastTimerRef.current) {
+      clearTimeout(milestoneToastTimerRef.current)
+      milestoneToastTimerRef.current = null
+    }
+    const milestoneBonuses = getActiveMilestoneBonuses()
+    gs.extraLifeAvailable = milestoneBonuses.extraLife > 0
 
     // Random weather
     const weathers: GameState['weather'][] = ['clear', 'rain', 'snow', 'stars']
@@ -1424,6 +1712,19 @@ export default function SnakeGame() {
             const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
             enqueueAchievements(notifications)
           }
+          // Also check milestones on game over
+          const newlyUnlockedMilestones = checkMilestones()
+          if (newlyUnlockedMilestones.length > 0) {
+            for (const ms of newlyUnlockedMilestones) {
+              gs.lastMilestone = { name: ms.name, emoji: ms.emoji, description: ms.description }
+              if (milestoneToastTimerRef.current) clearTimeout(milestoneToastTimerRef.current)
+              milestoneToastTimerRef.current = setTimeout(() => {
+                gameStateRef.current.lastMilestone = null
+                updateUI()
+              }, 5000)
+            }
+            updateUI()
+          }
         } catch { /* ignore */ }
       }
 
@@ -1451,6 +1752,16 @@ export default function SnakeGame() {
           gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
           spawnFloatingText('🛡️', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
           // Let it pass through — the head overlaps one body segment for one frame
+        } else if (gs.extraLifeAvailable) {
+          // Silver milestone: extra life — remove 3 tail segments instead of dying
+          gs.extraLifeAvailable = false
+          const removeCount = Math.min(3, snake.length - 1)
+          if (removeCount > 0) {
+            snake.splice(snake.length - removeCount, removeCount)
+          }
+          spawnFloatingText('EXTRA LIFE!', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 30, '#fbbf24')
+          spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#fbbf24', 20)
+          // Let it pass through — the head overlaps one body segment for one frame
         } else {
           handleDeath()
           draw()
@@ -1477,6 +1788,10 @@ export default function SnakeGame() {
           const settings = DIFFICULTY_SETTINGS[diff]
           const entry = getWordEntryIncludingCustom(wordFood.word)
           let points = entry ? entry.points : wordFood.word.length * 10
+
+          // Bronze milestone bonus: +5 points per word before multipliers
+          const mBonuses = getActiveMilestoneBonuses()
+          points += mBonuses.pointsPerWord
 
           // Double Points power-up
           if (gs.activePowerUps.some(pu => pu.type === 'double_points')) {
@@ -1572,10 +1887,33 @@ export default function SnakeGame() {
             }
           }
 
+          // Check achievement milestones
+          try {
+            const newlyUnlockedMilestones = checkMilestones()
+            if (newlyUnlockedMilestones.length > 0) {
+              for (const ms of newlyUnlockedMilestones) {
+                spawnFloatingText(`${ms.emoji} ${ms.name}!`, wx, wy - 88, ms.color)
+                // Show milestone toast
+                gs.lastMilestone = { name: ms.name, emoji: ms.emoji, description: ms.description }
+                if (milestoneToastTimerRef.current) clearTimeout(milestoneToastTimerRef.current)
+                milestoneToastTimerRef.current = setTimeout(() => {
+                  gameStateRef.current.lastMilestone = null
+                  updateUI()
+                }, 5000)
+                // Apply Silver milestone extra life if just unlocked
+                if (ms.bonusType === 'extra_life') {
+                  gs.extraLifeAvailable = true
+                }
+              }
+              updateUI()
+            }
+          } catch { /* ignore */ }
+
           spawnWord()
 
-          // Chance to spawn power-up
-          if (Math.random() < POWERUP_SPAWN_CHANCE && !gs.powerUp) {
+          // Chance to spawn power-up — Gold milestone doubles spawn rate
+          const effectiveSpawnChance = POWERUP_SPAWN_CHANCE * mBonuses.spawnRateMultiplier
+          if (Math.random() < effectiveSpawnChance && !gs.powerUp) {
             const puType = getRandomPowerUpType()
             // Find empty position (not on snake, not on word food)
             const occupied = new Set([
@@ -2045,8 +2383,45 @@ export default function SnakeGame() {
                 </div>
               )}
 
+              {/* Grid Theme Selector */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-slate-500 font-medium">🖥️ Theme</span>
+                    <span className="text-[10px] text-slate-600">— {getGridTheme(activeGridTheme).name}: {getGridTheme(activeGridTheme).description}</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                    {getAllGridThemes().map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setActiveGridTheme(t.id)
+                          gameStateRef.current.gridTheme = t.id
+                          saveGridTheme(t.id)
+                          setThemeSwitchRipple(true)
+                          setTimeout(() => setThemeSwitchRipple(false), 500)
+                          updateUI()
+                        }}
+                        className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border-2 active:scale-95 ${
+                          activeGridTheme === t.id
+                            ? 'border-white scale-110 shadow-lg grid-theme-badge-glow'
+                            : 'border-slate-700/50 hover:border-slate-500/60'
+                        } ${themeSwitchRipple && activeGridTheme === t.id ? 'theme-switch-ripple' : ''}`}
+                        style={{
+                          backgroundColor: t.bgColor + 'cc',
+                          boxShadow: activeGridTheme === t.id ? `0 0 12px ${t.gridColor}40` : undefined,
+                        }}
+                        title={`${t.name}: ${t.description}`}
+                      >
+                        {t.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Canvas with dramatic border and inner glow */}
-              <div className={`relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring ${uiState.gameOver ? 'game-over-shake' : ''}`}>
+              <div className={`relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring ${uiState.gameOver ? 'game-over-shake' : ''} ${(!uiState.gameStarted || uiState.gameOver) ? 'preview-snake-glow' : ''}`}>
                 <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
                 <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
               </div>
@@ -2220,6 +2595,17 @@ export default function SnakeGame() {
                   {streakDisplay && (
                     <span className="text-amber-400/80"> — {streakDisplay.name} (×{streakDisplay.multiplier})</span>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Extra life indicator (Silver milestone) */}
+            {uiState.extraLifeAvailable && uiState.gameStarted && (
+              <div className="mb-3 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-slate-800/40 to-slate-800/20 border border-slate-600/30 flex items-center gap-2">
+                <span className="extra-life-shield inline-block text-base">🛡️</span>
+                <div className="text-xs">
+                  <span className="text-slate-300 font-bold">Extra Life</span>
+                  <span className="text-slate-500 ml-1">— Silver milestone</span>
                 </div>
               </div>
             )}
@@ -2435,6 +2821,25 @@ export default function SnakeGame() {
               <p className="text-amber-400/80 text-xs">{uiState.lastAchievement.description}</p>
             </div>
             <Sparkles className="h-4 w-4 text-amber-500 sparkle-spin" />
+          </div>
+        </div>
+      )}
+
+      {/* Milestone celebration toast */}
+      {uiState.lastMilestone && (
+        <div className="fixed top-36 right-4 z-[91] animate-in slide-in-from-right-5 fade-in duration-500">
+          <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-gradient-to-r from-yellow-900/95 via-amber-900/95 to-yellow-900/95 border-2 border-yellow-500/60 shadow-2xl shadow-yellow-600/30 backdrop-blur-sm">
+            <span className="text-3xl">{uiState.lastMilestone.emoji}</span>
+            <div>
+              <p className="text-yellow-300 text-[10px] font-black uppercase tracking-widest mb-0.5">
+                Milestone Unlocked!
+              </p>
+              <p className="text-yellow-200 text-sm font-bold">
+                {uiState.lastMilestone.name}
+              </p>
+              <p className="text-yellow-400/80 text-xs">{uiState.lastMilestone.description}</p>
+            </div>
+            <Sparkles className="h-5 w-5 text-yellow-400 sparkle-spin" />
           </div>
         </div>
       )}

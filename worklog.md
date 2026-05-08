@@ -1346,3 +1346,343 @@ The application is a comprehensive Word Snake game with 32+ major features.
 8. **Custom Word Import/Export**: Allow bulk import of word lists via JSON/CSV
 9. **Achievement Milestones**: Bonus rewards at 25%/50%/75%/100% completion
 10. **Canvas Grid Themes**: Different visual themes for the game grid (neon, retro, nature)
+
+---
+Task ID: 12-a
+Agent: Snake Skin Preview Agent
+Task: Add Snake Skin Preview on Start Screen Canvas
+
+Work Log:
+- Modified `src/components/snake-game.tsx` — rewrote the start screen section in `draw()`:
+  - **Two-column layout**: Reorganized the start screen from fully-centered to a left/right split
+    - Left column (33% width): Title "WORD SNAKE", subtitle, category legend (2 columns), rarity legend, weather info, streak bonus
+    - Right column (72% center): Animated snake skin preview + skin name/description
+    - Bottom strip: Controls info and "Press Space or click to start" prompt
+  - **Animated snake preview**: 10-segment snake rendered in an S-curve pattern
+    - Positions calculated using sine waves: primary wave (`t * π * 2 + time/1200`) for S-curve, secondary micro-wave (`t * π * 3 + time/800`) for subtle oscillation
+    - Uses `Date.now()` for smooth animation timing
+    - Preview snake uses the exact same rendering logic as the in-game snake: headColor, bodyGradient, eyeColor, pattern (solid/striped/dotted/gradient/rainbow)
+    - Head features eyes that track the direction toward the next segment using `Math.atan2()`
+    - Glow effect behind the preview snake (6% opacity, matching `glowColor`)
+    - Connector segments between adjacent body segments (except dotted pattern)
+  - **Skin name display**: Below the preview snake, shows the skin name in `headColor` (bold 14px) and description in slate gray (10px)
+  - **Instant skin switch**: Since the preview reads `gs.activeSkin` every frame, changing the skin via the emoji buttons instantly updates the preview
+- No changes to `src/lib/snake-skins.ts` needed — the existing data structure (`headColor`, `bodyGradient`, `glowColor`, `eyeColor`, `pattern`) is sufficient
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- **Animated Snake Skin Preview**: Live animated preview of the selected snake skin on the start screen canvas
+- 10-segment S-curve snake with gentle wave animation, matching all 5 skin patterns (solid, gradient, striped, dotted, rainbow)
+- Skin name and description displayed below the preview in the skin's color
+- Two-column start screen layout: info on left, preview on right
+- Preview instantly updates when player selects a different skin
+- All existing functionality preserved
+
+---
+Task ID: 12-b
+Agent: Grid Themes Agent
+Task: Add Canvas Grid Themes — visual theme selector for game canvas appearance
+
+Work Log:
+- Created `src/lib/grid-themes.ts`:
+  - `GridThemeId` type: 'classic' | 'neon' | 'retro' | 'nature'
+  - `GridType` type: 'dots' | 'lines' | 'crosshatch' | 'organic'
+  - `GridThemeConfig` interface with: id, name, emoji, bgColor, gridColor, gridType, borderColor, borderGlowColor, description, scanlines
+  - 4 grid themes:
+    - **Classic** (🌙): Dark navy (#0f172a) background, subtle dot grid, green/purple border glow — preserves current default look
+    - **Neon** (💠): Pure black (#000000) background, bright neon cyan grid lines (0.15 opacity), glowing cyan/green border, cyberpunk feel
+    - **Retro** (📺): Dark green (#0a1a0a) background, green crosshatch grid lines with diagonal overlay, green border, CRT scanline effect (horizontal semi-transparent lines every 3px)
+    - **Nature** (🌿): Dark forest (#0a1f0a) background, organic moss-like dot pattern with varied sizes/opacity, earthy brown border
+  - `getGridTheme()`, `getAllGridThemes()`, `getSavedGridTheme()`, `saveGridTheme()` functions
+  - localStorage key: `word-snake-grid-theme`
+- Modified `src/components/snake-game.tsx`:
+  - Added import for grid theme functions and types
+  - Extended `GameState` interface with `gridTheme: GridThemeId`
+  - Added `gridTheme` to `gameStateRef` initial value, `uiState`, and `updateUI()`
+  - Added `activeGridTheme` state with `setActiveGridTheme` setter
+  - Load saved grid theme on mount (via `getSavedGridTheme()`) alongside skin loading
+  - **Theme selector UI**: Horizontal scrollable row of emoji buttons below the skin selector:
+    - Only visible before game starts or after game over (same condition as skin selector)
+    - Label: "🖥️ Theme" with current theme name and description
+    - Each theme button shows its emoji, with theme bgColor as background
+    - Selected theme has white border, scale-110, and glow shadow
+    - Click saves to localStorage and updates game state
+  - **Modified `draw()` function** to use selected theme:
+    - Background fill uses `gridTheme.bgColor` instead of hardcoded `#0f172a`
+    - Grid rendering uses `gridTheme.gridColor` and `gridTheme.gridType`:
+      - `dots`: Same as before (small circles at grid intersections)
+      - `lines`: Full grid lines at 0.15 opacity for neon feel
+      - `crosshatch`: Vertical + horizontal + diagonal lines for retro CRT look
+      - `organic`: Moss-like dots with deterministic varied sizes and opacity (hash-based)
+    - Border glow uses `gridTheme.borderColor` and `gridTheme.borderGlowColor` (daily challenge border still uses amber)
+    - Scanlines: If `gridTheme.scanlines === true`, draws horizontal semi-transparent black lines (1px every 3px) across the canvas for retro CRT effect
+    - Overlay backgrounds (game over, start screen, pause, mini-map) now use theme bgColor with appropriate alpha instead of hardcoded navy
+    - Snake eye pupils now use `gridTheme.bgColor` instead of hardcoded navy for visual consistency
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- **Canvas Grid Themes Feature**: 4 distinct visual themes for the game canvas grid
+- Theme selection persists via localStorage (key: `word-snake-grid-theme`)
+- Classic theme preserves the original look exactly
+- Each theme has unique background color, grid type/pattern, border glow, and optional scanlines
+- Theme selector UI placed below skin selector with consistent design pattern
+- All overlay backgrounds now match the selected theme's color
+- Independent from skin selection — works with any snake skin
+
+---
+Task ID: 12-c
+Agent: Achievement Milestone Rewards Agent
+Task: Add Achievement Milestone Rewards — bonus perks at achievement completion thresholds
+
+Work Log:
+- Created `src/lib/achievement-milestones.ts`:
+  - `MilestoneConfig` interface with id, name, threshold, emoji, description, bonusType, bonusValue, color, glowColor
+  - `MILESTONE_CONFIG` array with 4 tiers:
+    - Bronze (3/11 achievements): "Apprentice Wordsmith" — +5 points per word eaten
+    - Silver (6/11 achievements): "Journeyman Poet" — 1 extra life per game (survive self-collision once)
+    - Gold (9/11 achievements): "Master Lexicon" — 2× power-up spawn rate
+    - Platinum (11/11 achievements): "Legendary Scribe" — Golden sparkle particle trail on snake
+  - `BonusType` type: 'points_per_word' | 'extra_life' | 'spawn_rate' | 'golden_trail'
+  - `getUnlockedMilestones()`: Read from localStorage key `word-snake-milestones`
+  - `unlockMilestone(id)`: Save to localStorage, returns true if newly unlocked
+  - `getMilestones(unlockedCount)`: Returns array of {milestone, unlocked, progress} for UI rendering
+  - `checkMilestones()`: Compares current achievement count vs unlocked milestones, returns newly unlocked configs
+  - `getActiveMilestoneBonuses()`: Returns {pointsPerWord, extraLife, spawnRateMultiplier, hasGoldenTrail}
+  - `getNextMilestone(unlockedCount)`: Returns next locked milestone with remaining count, or null if all unlocked
+  - `getMilestoneProgress(unlockedCount)`: Returns overall percentage
+  - All milestone unlock data persisted in localStorage
+- Modified `src/components/achievement-gallery.tsx`:
+  - Added `MilestoneTier` component rendering each milestone as a card:
+    - Unlocked: colored border with glow shadow, milestone-colored checkmark, emoji, name, bonus description, "Unlocked" label
+    - Locked: grayed out, lock icon, progress bar with milestone color, progress percentage
+  - Added milestone section below overall progress bar:
+    - "Milestone Rewards" header with description
+    - 4-column grid of milestone tier cards (responsive: 2 cols mobile, 4 cols desktop)
+    - Next milestone progress indicator: "X more achievements to unlock [name]"
+    - "All milestones unlocked!" message when all 4 are achieved
+  - Imported `getMilestones`, `getNextMilestone`, `MILESTONE_CONFIG` from achievement-milestones
+- Modified `src/components/snake-game.tsx`:
+  - Extended `GameState` with `extraLifeAvailable: boolean` and `lastMilestone: { name, emoji, description } | null`
+  - Extended `uiState` with same fields
+  - Added `milestoneToastTimerRef` for milestone toast auto-dismiss (5 seconds)
+  - `resetGame()`: Sets `extraLifeAvailable` from Silver milestone bonus, clears lastMilestone, clears timer
+  - **Bronze bonus**: +5 points added to each word's base points before all multipliers
+  - **Silver bonus**: On self-collision, if extraLifeAvailable, removes 3 tail segments instead of dying, shows "EXTRA LIFE!" floating text with gold particles, sets extraLifeAvailable to false
+  - **Gold bonus**: Power-up spawn chance multiplied by `mBonuses.spawnRateMultiplier` (doubled for Gold)
+  - **Platinum bonus**: In draw(), golden sparkle particles (#ffd700 / #fff8dc) trail behind snake head each frame
+  - **Milestone checking**: After eating a word (alongside streak milestone check), calls `checkMilestones()` and:
+    - Shows floating text on canvas with milestone emoji and name
+    - Sets `lastMilestone` for toast notification
+    - If Silver milestone just unlocked, sets `extraLifeAvailable = true` immediately
+    - Auto-dismisses toast after 5 seconds
+  - Also checks milestones on game over (in handleDeath)
+  - **Milestone celebration toast**: Golden-themed toast at top-36 (below achievement toast) with:
+    - "MILESTONE UNLOCKED!" header in uppercase tracking-widest
+    - Milestone emoji, name, and bonus description
+    - Gradient yellow/amber background with double gold border
+    - Sparkles icon with sparkle-spin animation
+    - z-index 91 (above achievement toast at 90)
+  - All milestone bonuses stack with existing bonuses (power-ups, combo, weather, streak)
+- All code passes ESLint with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- Complete Achievement Milestone Rewards system with 4 tiers and gameplay bonuses
+- Bronze: +5 pts/word, Silver: extra life, Gold: 2× spawn rate, Platinum: golden trail
+- Milestone section in Achievement Gallery with progress indicators
+- Milestone celebration toast notification
+- All bonuses stack with existing power-ups, combo, weather, and streak
+- Milestone progress persisted in localStorage
+
+---
+Task ID: 12-d
+Agent: Import/Export Agent
+Task: Add Custom Word Import/Export Feature
+
+Work Log:
+- Modified `src/lib/custom-words.ts` — Added 6 new functions:
+  - `exportCustomWordsJSON()`: Returns pretty-printed JSON string of all custom words in `[{word, category, points}, ...]` format
+  - `importCustomWordsJSON(jsonString)`: Parses JSON array, validates each entry (word, category, points), skips duplicates, enforces max 50 words. Returns `{imported, skipped, errors[]}`.
+  - `exportCustomWordsCSV()`: Returns CSV string with "word,category,points" header and one row per word. Fields containing commas are quoted.
+  - `importCustomWordsCSV(csvString)`: Parses CSV with proper quoted-field handling (via custom `parseCSVLine()`), auto-detects header row, validates each entry. Returns `{imported, skipped, errors[]}`.
+  - `generateSampleJSON()`: Returns sample JSON with 3 example words (serenity/emotion, crystal/element, phoenix/creature)
+  - `generateSampleCSV()`: Returns sample CSV with same 3 example words
+  - Added `VALID_CATEGORIES` constant for import validation
+  - Both import functions use same validation as `addCustomWord`: 3-15 chars, letters only, max 50 words, no duplicates (case-insensitive)
+  - Both import functions auto-calculate points from word length if missing/invalid, but use provided points if valid
+  - CSV parser handles quoted fields (RFC 4180), escaped double quotes, and trims whitespace
+- Modified `src/components/custom-words-dialog.tsx` — Added Import/Export UI section:
+  - New state: `importFormat` ('json'|'csv'), `importText`, `importResult`
+  - `downloadFile()` helper using Blob + URL.createObjectURL for file downloads
+  - **Export buttons**: "Export JSON" and "Export CSV" buttons (disabled when no words exist)
+  - **Import section**: JSON/CSV radio buttons, textarea with format-specific placeholder, "Import Words" button
+  - **Import results**: Inline display showing "X imported, Y skipped" with scrollable error list (max 10 shown, "+N more" for overflow)
+  - **Sample download links**: "Download sample JSON" and "Download sample CSV" as underlined links
+  - Section appears at bottom of dialog below the Clear All button, separated by divider
+  - Import state (text, result) resets when dialog closes
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- **Custom Word Import/Export**: Full bulk import/export via JSON and CSV formats
+- Export downloads .json or .csv files with all custom words
+- Import with textarea paste, format selector, inline error display
+- Sample template files available for download
+- Same validation as single-word add (3-15 chars, letters only, max 50, no duplicates)
+- CSV parser handles quoted fields per RFC 4180
+
+---
+Task ID: 12-e
+Agent: Frontend Styling Expert
+Task: Visual Polish Round 12 — More CSS Micro-interactions and Animations
+
+Work Log:
+- **globals.css**: Added 9 new CSS animation classes + 1 enhanced animation:
+  - `milestone-unlock-fanfare`: Golden sparkle burst with scale + rotate + opacity (1s, one-shot)
+  - `theme-switch-ripple`: Expanding circular ripple on grid theme change (0.5s, one-shot)
+  - `preview-snake-glow`: Pulsing glow on canvas container when on start screen (2s loop)
+  - `import-success-flash`: Green flash across import results area on successful import (0.5s, one-shot)
+  - `extra-life-shield`: Rotating shield ring animation for Silver milestone extra life indicator (3s loop)
+  - `word-eaten-burst`: Expanding ring burst effect at word-eaten position (0.4s, forwards)
+  - `grid-theme-badge-glow`: Subtle glow pulse on currently selected grid theme badge (2s loop)
+  - `milestone-tier-shimmer`: Golden shimmer sweep across unlocked milestone tier cards (3s loop)
+  - `custom-word-hover`: Slide-right emerald highlight on custom word list items on hover (via ::before pseudo-element)
+  - `stat-breathe-enhanced`: Enhanced version of stat-breathe with subtle outer glow (3s loop)
+- **snake-game.tsx**: Applied 5 new animation classes:
+  - Added `themeSwitchRipple` state (like existing `skinBounce`) for temporary ripple class on grid theme change
+  - Applied `preview-snake-glow` to canvas container when on start/game-over screen
+  - Applied `theme-switch-ripple` temporarily when grid theme changes (0.5s duration)
+  - Applied `grid-theme-badge-glow` to the selected grid theme button (persistent loop)
+  - Added Extra Life indicator in sidebar with `extra-life-shield` class on the 🛡️ emoji when Silver milestone is active
+- **achievement-gallery.tsx**: Applied 2 new animation classes:
+  - Applied `milestone-tier-shimmer` to all unlocked milestone tier cards (persistent loop)
+  - Applied `milestone-unlock-fanfare` to newly unlocked milestone cards using useEffect + prevUnlockedRef pattern (1s one-shot)
+  - Added `useState`, `useEffect`, `useRef` imports for unlock detection
+- **custom-words-dialog.tsx**: Applied 2 new animation classes:
+  - Applied `import-success-flash` to import results div when imported > 0 (0.5s one-shot)
+  - Applied `custom-word-hover` to each custom word item in the list (hover interaction)
+- **game-stats.tsx**: Enhanced stat card breathing animation:
+  - Replaced `stat-breathe` with `stat-breathe-enhanced` on StatCard component (subtle outer glow added)
+- All code passes ESLint with zero errors
+- No existing functionality broken
+
+Stage Summary:
+- Added 9 new CSS animation classes + 1 enhanced animation to globals.css (total 55+ CSS animations)
+- Applied animations across 4 component files with proper state management
+- All animations are subtle and polished — nothing jarring
+- Zero lint errors
+
+---
+Task ID: 12
+Agent: Review Agent (cron Round 12)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA with agent-browser**: Tested page load, game start/pause, navigation, custom words dialog, achievement gallery — all features working correctly, no JS errors
+- **No bugs found during QA** — app loads cleanly, ESLint passes with zero errors, no console errors
+- **Feature: Snake Skin Preview** (via Task agent 12-a):
+  - 10-segment animated snake preview on start screen using sine wave animation
+  - Same rendering as in-game: headColor, bodyGradient, eyeColor, pattern (solid/striped/dotted/gradient/rainbow)
+  - Eyes that follow direction, glow effect behind preview snake
+  - Skin name + description displayed below preview in skin's headColor
+  - Start screen reorganized into two-column layout (left: legends, right: preview)
+  - Instantly updates when player selects a different skin
+- **Feature: Canvas Grid Themes** (via Task agent 12-b):
+  - Created `src/lib/grid-themes.ts` with 4 themes: Classic (🌙), Neon (💠), Retro (📺), Nature (🌿)
+  - Classic: dark navy dot grid (default, preserves original look)
+  - Neon: pure black with bright cyan grid lines, cyberpunk feel
+  - Retro: dark green with crosshatch + CRT scanline overlay
+  - Nature: dark forest with organic moss-like dots, earthy brown border
+  - Theme selector UI: horizontal scrollable emoji buttons below skin selector
+  - localStorage persistence (key: word-snake-grid-theme)
+  - Canvas drawing fully themed: background, grid, border, scanlines, overlay backgrounds
+- **Feature: Achievement Milestone Rewards** (via Task agent 12-c):
+  - Created `src/lib/achievement-milestones.ts` with 4 milestone tiers:
+    - Bronze (3/11): "Apprentice Wordsmith" — +5 points per word
+    - Silver (6/11): "Journeyman Poet" — 1 extra life per game
+    - Gold (9/11): "Master Lexicon" — 2× power-up spawn rate
+    - Platinum (11/11): "Legendary Scribe" — golden sparkle particle trail
+  - Milestone section in Achievement Gallery with tier cards (locked/unlocked states)
+  - Gameplay bonuses applied: bronze points, silver extra life (remove 3 tail segments + "EXTRA LIFE!" text), gold spawn rate, platinum sparkle trail
+  - Milestone celebration toast on unlock
+  - All bonuses stack with power-ups, combo, weather, streak
+- **Feature: Custom Word Import/Export** (via Task agent 12-d):
+  - Added 6 functions to `src/lib/custom-words.ts`: exportCustomWordsJSON, importCustomWordsJSON, exportCustomWordsCSV, importCustomWordsCSV, generateSampleJSON, generateSampleCSV
+  - Import/Export section in Custom Words dialog: Export JSON/CSV buttons, import textarea with format selector, inline results display
+  - Sample template downloads for JSON and CSV formats
+  - Full validation: 3-15 chars, letters only, max 50, no duplicates, invalid categories rejected
+  - CSV parser handles quoted fields (RFC 4180)
+- **Visual Polish** (via Task agent 12-e):
+  - 9 new CSS animations: milestone-unlock-fanfare, theme-switch-ripple, preview-snake-glow, import-success-flash, extra-life-shield, word-eaten-burst, grid-theme-badge-glow, milestone-tier-shimmer, custom-word-hover
+  - 1 enhanced animation: stat-breathe-enhanced
+  - Applied across 4 component files: snake-game.tsx, achievement-gallery.tsx, custom-words-dialog.tsx, game-stats.tsx
+- **Post-implementation QA**: Verified all features compile and render correctly via agent-browser
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- No bugs found in QA
+- 5 major new features (snake skin preview, canvas grid themes, achievement milestones, custom word import/export, visual polish)
+- 9 new CSS animation classes + 1 enhanced
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 37+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **8 Snake Skins**: Classic, Ocean, Fire Wyrm, Royal, Frost, Shadow, Rainbow, Golden with unique patterns + animated preview
+- **4 Canvas Grid Themes**: Classic, Neon (cyberpunk), Retro (CRT scanlines), Nature (organic)
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **4 Word Rarities**: Common, Uncommon (×1.5), Rare (×2.5), Legendary (×5) with special visual effects
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **Custom Word Lists**: Add up to 50 custom words with category and auto-points
+- **Custom Word Import/Export**: JSON and CSV formats with validation
+- **5 Power-ups**: Slow-Mo (🐢), Double Points (💎), Shrink (✂️), Magnet (🧲), Shield (🛡️)
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Canvas Weather with Gameplay Effects**: Rain (-10% speed), Snow (fog -5% speed), Stars (+20% points), Clear (no effect)
+- **Canvas Mini-map**: Bird's eye view of snake, words, and power-ups (toggleable)
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Achievement Milestones**: 4 tiers (Bronze/Silver/Gold/Platinum) with gameplay bonuses
+- **Sound Effects**: Web Audio API sounds for all interactions including power-ups (with mute toggle)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **Game Statistics Dashboard**: 20+ tracked metrics across 4 categories
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **Poem Sharing**: Generate 1080×1080 shareable social image, Web Share API
+- **Poem Favorites**: Mark/unmark poems as favorites, persistent collection (max 20)
+- **Achievement Gallery**: Full modal with progress bars, milestone rewards, locked/unlocked states, 11 achievements
+- **Achievement Queue**: Multiple achievements shown in sequence with cascading toasts
+- **11 Achievements**: Toast notifications, canvas floating text, gallery modal
+- **Word Definitions + Etymology**: Tooltips on hover showing definition, example, and word origin
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Visual Polish**: 54+ CSS animations, particles, confetti, page transitions, aurora background, shimmer effects, glow rings, combo fire flicker, rarity effects, weather particles/badges, skin patterns, card hover lift, streak fire, word item highlight, progress bar shine, header shimmer, footer wave, weather badge glow, game over shake, stat breathe, dialog slide-up, milestone fanfare, theme ripple, preview glow, extra life shield, grid theme badge glow, milestone tier shimmer
+- **Copy/Download/Share Poem**: Copy to clipboard, download as PNG, share via Web Share API
+
+### Known Issues / Risks
+- Poem download PNG doesn't wrap long lines well
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Confetti canvas doesn't resize on window resize
+- Shield power-up wrapping behavior might be unexpected
+- Some etymology entries are approximate
+- Turbopack cache can become stale — may need .next cache clearing after large changes
+- Radix Dialogs don't always respond to agent-browser click (tooling limitation, works for real users)
+
+### Suggested Next Steps
+1. **Multi-language Support**: Word sets in other languages (Chinese, Japanese, etc.)
+2. **Game Replay**: Record and replay game sessions
+3. **Sound Customization**: Choose different sound themes
+4. **Accessibility**: Screen reader support, high contrast mode
+5. **Online Leaderboard**: Server-side leaderboard with global rankings
+6. **Poem Collage**: Combine multiple poems into a collage image
+7. **Keyboard Shortcuts Panel**: Show all keyboard shortcuts in a help dialog
+8. **Canvas Grid Theme Preview**: Animated preview of grid themes on start screen (similar to skin preview)
+9. **Sound Visualizer**: Audio waveform visualization during sound effects
+10. **Snake Trail Customization**: Choose different trail effects (particles, fade, sparkle)

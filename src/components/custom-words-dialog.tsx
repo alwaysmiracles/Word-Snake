@@ -21,6 +21,12 @@ import {
   getCustomWordCount,
   calculatePoints,
   validateWord,
+  exportCustomWordsJSON,
+  importCustomWordsJSON,
+  exportCustomWordsCSV,
+  importCustomWordsCSV,
+  generateSampleJSON,
+  generateSampleCSV,
 } from '@/lib/custom-words'
 
 interface CustomWordsDialogProps {
@@ -36,6 +42,9 @@ export default function CustomWordsDialog({ open, onOpenChange }: CustomWordsDia
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [confirmClear, setConfirmClear] = useState(false)
+  const [importFormat, setImportFormat] = useState<'json' | 'csv'>('json')
+  const [importText, setImportText] = useState('')
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; errors: string[] } | null>(null)
 
   const customWords = getCustomWords()
   const count = customWords.length
@@ -98,9 +107,57 @@ export default function CustomWordsDialog({ open, onOpenChange }: CustomWordsDia
     if (!newOpen) {
       setConfirmClear(false)
       setError(null)
+      setImportText('')
+      setImportResult(null)
     }
     onOpenChange(newOpen)
   }, [onOpenChange])
+
+  const downloadFile = useCallback((content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, [])
+
+  const handleExportJSON = useCallback(() => {
+    const json = exportCustomWordsJSON()
+    downloadFile(json, 'word-snake-custom-words.json', 'application/json')
+  }, [downloadFile])
+
+  const handleExportCSV = useCallback(() => {
+    const csv = exportCustomWordsCSV()
+    downloadFile(csv, 'word-snake-custom-words.csv', 'text/csv')
+  }, [downloadFile])
+
+  const handleDownloadSampleJSON = useCallback(() => {
+    const sample = generateSampleJSON()
+    downloadFile(sample, 'word-snake-sample.json', 'application/json')
+  }, [downloadFile])
+
+  const handleDownloadSampleCSV = useCallback(() => {
+    const sample = generateSampleCSV()
+    downloadFile(sample, 'word-snake-sample.csv', 'text/csv')
+  }, [downloadFile])
+
+  const handleImport = useCallback(() => {
+    const trimmed = importText.trim()
+    if (!trimmed) return
+
+    const result = importFormat === 'json'
+      ? importCustomWordsJSON(trimmed)
+      : importCustomWordsCSV(trimmed)
+
+    setImportResult(result)
+    if (result.imported > 0) {
+      setRefreshKey((k) => k + 1)
+    }
+  }, [importText, importFormat])
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -224,7 +281,7 @@ export default function CustomWordsDialog({ open, onOpenChange }: CustomWordsDia
                   return (
                     <div
                       key={cw.word}
-                      className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-emerald-700/50 transition-all duration-200"
+                      className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-emerald-700/50 transition-all duration-200 custom-word-hover"
                     >
                       <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
                         <span
@@ -281,6 +338,124 @@ export default function CustomWordsDialog({ open, onOpenChange }: CustomWordsDia
             )}
           </div>
         )}
+
+        {/* Divider */}
+        <div className="border-t border-slate-700/50 my-1" />
+
+        {/* Import/Export Section */}
+        <div className="space-y-3">
+          <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+            <span>📦</span> Import / Export
+          </span>
+
+          {/* Export buttons */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportJSON}
+              disabled={count === 0}
+              className="flex-1 border-slate-600/50 text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 active:scale-95 transition-all duration-200"
+            >
+              📄 Export JSON
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              disabled={count === 0}
+              className="flex-1 border-slate-600/50 text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 active:scale-95 transition-all duration-200"
+            >
+              📊 Export CSV
+            </Button>
+          </div>
+
+          {/* Import section */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <label className="text-[11px] text-slate-500">Format:</label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="radio"
+                  name="importFormat"
+                  checked={importFormat === 'json'}
+                  onChange={() => { setImportFormat('json'); setImportResult(null) }}
+                  className="accent-emerald-500"
+                />
+                <span className="text-xs text-slate-300">JSON</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="radio"
+                  name="importFormat"
+                  checked={importFormat === 'csv'}
+                  onChange={() => { setImportFormat('csv'); setImportResult(null) }}
+                  className="accent-emerald-500"
+                />
+                <span className="text-xs text-slate-300">CSV</span>
+              </label>
+            </div>
+
+            <textarea
+              value={importText}
+              onChange={(e) => { setImportText(e.target.value); setImportResult(null) }}
+              placeholder={importFormat === 'json'
+                ? 'Paste JSON array, e.g. [{"word":"serenity","category":"emotion","points":15}]'
+                : 'Paste CSV, e.g. word,category,points\nserenity,emotion,15'
+              }
+              rows={4}
+              className="w-full rounded-md bg-slate-800 border border-slate-600 text-slate-200 placeholder:text-slate-500 text-xs font-mono p-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-y"
+            />
+
+            <Button
+              onClick={handleImport}
+              disabled={!importText.trim()}
+              size="sm"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all duration-200"
+            >
+              ⬆️ Import Words
+            </Button>
+
+            {/* Import results */}
+            {importResult && (
+              <div className={`rounded-md bg-slate-800/80 border border-slate-700/50 p-3 space-y-1.5 ${importResult.imported > 0 ? 'import-success-flash' : ''}`}>
+                <p className="text-xs text-slate-300">
+                  <span className="text-emerald-400 font-semibold">{importResult.imported}</span> imported,{' '}
+                  <span className="text-amber-400 font-semibold">{importResult.skipped}</span> skipped
+                </p>
+                {importResult.errors.length > 0 && (
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] text-red-400 font-medium">{importResult.errors.length} error{importResult.errors.length !== 1 ? 's' : ''}:</p>
+                    <div className="max-h-24 overflow-y-auto scrollbar-fancy space-y-0.5">
+                      {importResult.errors.slice(0, 10).map((err, idx) => (
+                        <p key={idx} className="text-[10px] text-red-400/80">• {err}</p>
+                      ))}
+                      {importResult.errors.length > 10 && (
+                        <p className="text-[10px] text-slate-500">...and {importResult.errors.length - 10} more</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Sample download links */}
+          <div className="flex items-center gap-4 pt-1">
+            <button
+              onClick={handleDownloadSampleJSON}
+              className="text-[11px] text-emerald-400/70 hover:text-emerald-300 transition-colors underline underline-offset-2 decoration-emerald-400/30"
+            >
+              Download sample JSON
+            </button>
+            <button
+              onClick={handleDownloadSampleCSV}
+              className="text-[11px] text-emerald-400/70 hover:text-emerald-300 transition-colors underline underline-offset-2 decoration-emerald-400/30"
+            >
+              Download sample CSV
+            </button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )

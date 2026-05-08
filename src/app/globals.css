@@ -707,3 +707,130 @@
 .game-over-shake {
   animation: game-over-shake 0.5s ease-out;
 }
+
+/* ===== Round 12 Visual Polish Micro-Interactions ===== */
+
+/* 1. Milestone unlock fanfare — golden sparkle burst */
+@keyframes milestone-fanfare {
+  0% { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+  30% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+  50% { transform: scale(1.05) rotate(-2deg); opacity: 1; }
+  70% { transform: scale(1.08) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.milestone-unlock-fanfare {
+  animation: milestone-fanfare 1s ease-out;
+}
+
+/* 2. Theme switch ripple — expanding circular ripple effect */
+@keyframes theme-ripple {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
+  100% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+}
+
+.theme-switch-ripple {
+  animation: theme-ripple 0.5s ease-out;
+}
+
+/* 3. Preview snake glow — pulsing glow on skin preview area */
+@keyframes snake-glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.15), 0 0 20px rgba(34, 197, 94, 0.05); }
+  50% { box-shadow: 0 0 16px rgba(34, 197, 94, 0.25), 0 0 32px rgba(34, 197, 94, 0.1); }
+}
+
+.preview-snake-glow {
+  animation: snake-glow-pulse 2s ease-in-out infinite;
+}
+
+/* 4. Import success flash — green flash across import results */
+@keyframes import-flash {
+  0% { background-color: rgba(34, 197, 94, 0.25); }
+  100% { background-color: transparent; }
+}
+
+.import-success-flash {
+  animation: import-flash 0.5s ease-out;
+}
+
+/* 5. Extra life shield — rotating shield ring animation */
+@keyframes shield-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.extra-life-shield {
+  animation: shield-rotate 3s linear infinite;
+}
+
+/* 6. Word eaten burst — expanding ring burst */
+@keyframes word-burst {
+  0% { transform: scale(0.5); opacity: 0.8; box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5); }
+  100% { transform: scale(2); opacity: 0; box-shadow: 0 0 0 16px rgba(251, 191, 36, 0); }
+}
+
+.word-eaten-burst {
+  animation: word-burst 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+/* 7. Grid theme badge glow — glow on selected theme badge */
+@keyframes theme-badge-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(148, 163, 184, 0.2); }
+  50% { box-shadow: 0 0 14px rgba(148, 163, 184, 0.35), 0 0 24px rgba(148, 163, 184, 0.1); }
+}
+
+.grid-theme-badge-glow {
+  animation: theme-badge-glow 2s ease-in-out infinite;
+}
+
+/* 8. Milestone tier shimmer — shimmer sweep across milestone tier cards */
+@keyframes tier-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.milestone-tier-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(251, 191, 36, 0.06) 45%,
+    rgba(251, 191, 36, 0.1) 50%,
+    rgba(251, 191, 36, 0.06) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: tier-shimmer 3s ease-in-out infinite;
+}
+
+/* 9. Custom word hover — slide-right background highlight */
+.custom-word-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-word-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.08), transparent);
+  transition: left 0.35s ease;
+  pointer-events: none;
+}
+
+.custom-word-hover:hover::before {
+  left: 100%;
+}
+
+/* Enhanced stat-breathe — slightly more visible glow */
+@keyframes stat-breathe-enhanced {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.1), 0 0 0 rgba(148, 163, 184, 0); }
+  50% { box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2), 0 0 10px rgba(148, 163, 184, 0.06); }
+}
+
+.stat-breathe-enhanced {
+  animation: stat-breathe-enhanced 3s ease-in-out infinite;
+}
