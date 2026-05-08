@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { ACHIEVEMENTS, getUnlockedAchievements, type AchievementStats } from '@/lib/achievements'
 import { getMilestones, getNextMilestone, MILESTONE_CONFIG, type MilestoneConfig } from '@/lib/achievement-milestones'
+import { isSkinUnlocked, getAllSkins, type SnakeSkinConfig } from '@/lib/snake-skins'
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { Check, Lock } from 'lucide-react'
+import { Check, Lock, Gift } from 'lucide-react'
 
 interface AchievementGalleryProps {
   open: boolean
@@ -163,6 +164,23 @@ function MilestoneTier({ milestone, unlocked, progress }: {
           <span>Unlocked</span>
         </div>
       )}
+      {/* Skin reward for milestone */}
+      {(() => {
+        const rewardSkin = getAllSkins().find(
+          (s) => s.unlockType === 'milestone' && s.unlockRequirement === `milestone:${milestone.threshold}`
+        )
+        if (!rewardSkin) return null
+        return (
+          <div className={`flex items-center gap-1 mt-1.5 px-1.5 py-0.5 rounded text-[9px] ${
+            unlocked
+              ? 'text-amber-300'
+              : 'bg-slate-800/60 text-slate-500'
+          }`} style={unlocked ? { backgroundColor: `${milestone.color}20` } : undefined}>
+            <Gift className="h-2.5 w-2.5" />
+            <span>{unlocked ? `Unlocked: ${rewardSkin.emoji} ${rewardSkin.name}` : `Reward: ${rewardSkin.emoji} ${rewardSkin.name}`}</span>
+          </div>
+        )
+      })()}
     </div>
   )
 }
@@ -243,6 +261,11 @@ export default function AchievementGallery({ open, onOpenChange, stats }: Achiev
             const progress = getProgress(achievement.id, stats)
             const progressPercent = progress.target > 0 ? Math.min((progress.current / progress.target) * 100, 100) : 0
 
+            // Check if this achievement unlocks a skin
+            const rewardSkin = getAllSkins().find(
+              (s) => s.unlockType === 'achievement' && s.unlockRequirement === achievement.id
+            )
+
             return (
               <div
                 key={achievement.id}
@@ -313,6 +336,17 @@ export default function AchievementGallery({ open, onOpenChange, stats }: Achiev
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
+                  </div>
+                )}
+                {/* Skin reward badge */}
+                {rewardSkin && (
+                  <div className={`flex items-center gap-1 mt-1.5 px-1.5 py-0.5 rounded text-[9px] ${
+                    isUnlocked
+                      ? 'bg-amber-900/40 text-amber-300'
+                      : 'bg-slate-800/60 text-slate-500'
+                  }`}>
+                    <Gift className="h-2.5 w-2.5" />
+                    <span>{isUnlocked ? `Unlocked: ${rewardSkin.emoji} ${rewardSkin.name}` : `Reward: ${rewardSkin.emoji} ${rewardSkin.name}`}</span>
                   </div>
                 )}
               </div>

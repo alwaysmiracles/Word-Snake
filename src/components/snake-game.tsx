@@ -22,7 +22,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { getWordDefinition } from '@/lib/word-definitions'
 import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DESPAWN_TIME, type PowerUpType, type PowerUpConfig } from '@/lib/powerups'
 import { trackGameEnd, trackWordEaten, trackPowerUpCollected, trackCombo, trackDailyPlayed } from '@/lib/game-stats'
-import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, type SnakeSkin } from '@/lib/snake-skins'
+import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, isSkinUnlocked, getSkinUnlockMap, type SnakeSkin } from '@/lib/snake-skins'
 import { getGridTheme, getAllGridThemes, getSavedGridTheme, saveGridTheme, type GridThemeId } from '@/lib/grid-themes'
 import { getSavedSoundTheme, getAllSoundThemes, saveSoundTheme, type SoundThemeId } from '@/lib/sound-themes'
 import { getSavedTrail, getAllTrails, saveTrail, type SnakeTrailType, spawnTrailParticles, drawTrail, updateTrailParticles, type TrailParticle } from '@/lib/snake-trails'
@@ -33,6 +33,7 @@ import { isSpeechSupported, pronounceWord } from '@/lib/word-pronunciation'
 import { getSpeedRunDuration, getSpeedRunBest, saveSpeedRunResult, type SpeedRunResult } from '@/lib/speed-run'
 import { getNightModeConfig, saveNightModeConfig, shouldAutoEnableNightMode, getNightModeFilter, type NightModeConfig } from '@/lib/night-mode'
 import { getPlayerLevel, getDifficultyAdjustment, recordGamePerformance, type DifficultyAdjustment } from '@/lib/dynamic-difficulty'
+import { calculateInGameDifficulty, getSpeedMultiplier, type InGameDifficulty } from '@/lib/in-game-difficulty'
 import { downloadShareCard, type ShareCardData } from '@/lib/share-card'
 import {
   Play,
@@ -144,6 +145,7 @@ interface GameState {
   speedRunPowerUpsCollected: number
   speedRunLongestSnake: number
   wordsByCategory: Record<string, number>
+  inGameDifficulty: InGameDifficulty | null
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -336,10 +338,11 @@ export default function SnakeGame() {
         result: getDailyChallengeResult(),
       })
       setStreakInfo(getStreak())
-      // Load saved skin
+      // Load saved skin (fallback to classic if locked)
       const savedSkin = getSavedSkin()
-      gameStateRef.current.activeSkin = savedSkin
-      setActiveSkin(savedSkin)
+      const resolvedSkin = isSkinUnlocked(savedSkin) ? savedSkin : 'classic'
+      gameStateRef.current.activeSkin = resolvedSkin
+      setActiveSkin(resolvedSkin)
       // Load saved grid theme
       const savedTheme = getSavedGridTheme()
       gameStateRef.current.gridTheme = savedTheme
@@ -418,6 +421,7 @@ export default function SnakeGame() {
     speedRunPowerUpsCollected: 0,
     speedRunLongestSnake: 0,
     wordsByCategory: {},
+    inGameDifficulty: null,
   })
 
   const lastRenderRef = useRef(0)
@@ -429,6 +433,7 @@ export default function SnakeGame() {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
+  const prevInGameDiffLevelRef = useRef<number>(0)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const milestoneToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -467,6 +472,7 @@ export default function SnakeGame() {
     speedRunPowerUpsCollected: 0,
     speedRunLongestSnake: 0,
     wordsByCategory: {} as Record<string, number>,
+    inGameDifficulty: null as InGameDifficulty | null,
   })
 
   // Skin state
@@ -533,6 +539,7 @@ export default function SnakeGame() {
       speedRunPowerUpsCollected: gs.speedRunPowerUpsCollected,
       speedRunLongestSnake: gs.speedRunLongestSnake,
       wordsByCategory: gs.wordsByCategory,
+      inGameDifficulty: gs.inGameDifficulty,
     })
   }, [])
 
@@ -1182,6 +1189,63 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
+    // In-game progressive difficulty indicator (top-left badge)
+    if (gs.inGameDifficulty && gameStarted && !gameOver && !paused) {
+      const igd = gs.inGameDifficulty
+      const badgePulse = igd.level >= 8 ? (0.7 + Math.sin(Date.now() / 200) * 0.3) : 1
+      ctx.globalAlpha = badgePulse
+
+      // Badge background
+      const badgeX = 8
+      const badgeY = 6
+      ctx.font = 'bold 10px sans-serif'
+      const labelWidth = ctx.measureText(`${igd.emoji} ${igd.label}`).width
+      const badgeW = labelWidth + 20
+      const badgeH = 18
+
+      // Glow for legendary
+      if (igd.level >= 10) {
+        ctx.shadowColor = igd.glowColor
+        ctx.shadowBlur = 12 + Math.sin(Date.now() / 150) * 6
+      } else if (igd.level >= 7) {
+        ctx.shadowColor = igd.color
+        ctx.shadowBlur = 6
+      }
+
+      ctx.fillStyle = `${igd.color}18`
+      ctx.beginPath()
+      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4)
+      ctx.fill()
+
+      // Border
+      ctx.strokeStyle = `${igd.color}60`
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4)
+      ctx.stroke()
+
+      ctx.shadowBlur = 0
+
+      // Text
+      ctx.fillStyle = igd.color
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(`${igd.emoji} ${igd.label}`, badgeX + 6, badgeY + badgeH / 2)
+
+      // Speed indicator
+      ctx.fillStyle = `${igd.color}99`
+      ctx.font = '8px monospace'
+      ctx.fillText(`×${igd.speedMultiplier.toFixed(2)}`, badgeX + badgeW - 4, badgeY + badgeH / 2 - 7)
+
+      // Level number
+      ctx.fillStyle = igd.glowColor
+      ctx.font = 'bold 8px sans-serif'
+      ctx.fillText(`Lv.${igd.level}`, badgeX + badgeW - 4, badgeY + badgeH / 2 + 5)
+
+      ctx.textBaseline = 'alphabetic'
+      ctx.globalAlpha = 1
+    }
+
     // Active power-ups HUD at bottom
     if (gs.activePowerUps.length > 0 && gameStarted && !gameOver) {
       const hudY = CANVAS_HEIGHT - 24
@@ -1377,6 +1441,13 @@ export default function SnakeGame() {
 
       ctx.fillStyle = '#64748b'; ctx.font = '14px sans-serif'
       ctx.fillText(`${gs.wordsEaten} words collected  •  ${formatTime(gs.elapsedTime)}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 25)
+
+      // In-game difficulty reached
+      if (gs.inGameDifficulty && gs.inGameDifficulty.level >= 3) {
+        ctx.fillStyle = gs.inGameDifficulty.color
+        ctx.font = '12px sans-serif'
+        ctx.fillText(`${gs.inGameDifficulty.emoji} Peak: ${gs.inGameDifficulty.label} (Lv.${gs.inGameDifficulty.level})`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 43)
+      }
 
       // Daily challenge result
       if (gs.isDailyChallenge) {
@@ -1752,6 +1823,10 @@ export default function SnakeGame() {
     gs.speedRunLongestSnake = gs.snake.length
     gs.wordsByCategory = {}
 
+    // Reset in-game progressive difficulty
+    gs.inGameDifficulty = null
+    prevInGameDiffLevelRef.current = 0
+
     // If speed run, set timer
     if (isSpeedRun) {
       gs.isSpeedRun = true
@@ -1840,7 +1915,7 @@ export default function SnakeGame() {
         gs.powerUp = null
       }
 
-      // Speed modifiers: base_speed → weather_modifier → slow_mo_modifier
+      // Speed modifiers: base_speed → weather_modifier → slow_mo_modifier → in-game_difficulty
       let effectiveSpeed = gs.speed
       const weatherConf = WEATHER_CONFIG[gs.weather]
       if (weatherConf.speedMultiplier > 1) {
@@ -1848,6 +1923,10 @@ export default function SnakeGame() {
       }
       if (gs.activePowerUps.some(pu => pu.type === 'slow_mo')) {
         effectiveSpeed = Math.floor(effectiveSpeed * 1.6) // 60% slower = speed value 1.6x higher
+      }
+      // In-game progressive difficulty: divide by speed multiplier to make game faster
+      if (gs.inGameDifficulty) {
+        effectiveSpeed = Math.floor(effectiveSpeed / gs.inGameDifficulty.speedMultiplier)
       }
 
       if (timestamp - lastRenderRef.current < effectiveSpeed) {
@@ -1935,6 +2014,14 @@ export default function SnakeGame() {
           if (newlyUnlocked.length > 0) {
             const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
             enqueueAchievements(notifications)
+            // Check if any newly unlocked achievement unlocks a skin
+            const skinMap = getSkinUnlockMap()
+            for (const a of newlyUnlocked) {
+              const skinUnlock = skinMap[a.id]
+              if (skinUnlock && isSkinUnlocked(skinUnlock.skinId)) {
+                enqueueAchievements([{ title: `New Skin Unlocked: ${skinUnlock.skinName}!`, description: `Select it in Settings`, emoji: skinUnlock.skinEmoji }])
+              }
+            }
           }
           // Also check milestones on game over
           const newlyUnlockedMilestones = checkMilestones()
@@ -1946,6 +2033,15 @@ export default function SnakeGame() {
                 gameStateRef.current.lastMilestone = null
                 updateUI()
               }, 5000)
+            }
+            // Check if any milestone unlocks a skin
+            const skinMap = getSkinUnlockMap()
+            for (const ms of newlyUnlockedMilestones) {
+              const milestoneKey = `milestone:${ms.threshold}`
+              const skinUnlock = skinMap[milestoneKey]
+              if (skinUnlock && isSkinUnlocked(skinUnlock.skinId)) {
+                enqueueAchievements([{ title: `New Skin Unlocked: ${skinUnlock.skinName}!`, description: `Select it in Settings`, emoji: skinUnlock.skinEmoji }])
+              }
             }
             updateUI()
           }
@@ -2092,6 +2188,21 @@ export default function SnakeGame() {
           spawnParticles(wx, wy + CELL_SIZE / 2, '#4ade80', 8)
           playSound(playEatSound)
 
+          // Update in-game progressive difficulty
+          const prevLevel = prevInGameDiffLevelRef.current
+          const newDifficulty = calculateInGameDifficulty(gs.score, gs.wordsEaten, gs.snake.length, gs.elapsedTime)
+          gs.inGameDifficulty = newDifficulty
+          if (newDifficulty.level > prevLevel && prevLevel > 0) {
+            // Level up! Show notification
+            prevInGameDiffLevelRef.current = newDifficulty.level
+            spawnFloatingText(`${newDifficulty.emoji} DIFFICULTY UP!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 60, newDifficulty.color)
+            spawnFloatingText(`${newDifficulty.label}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40, newDifficulty.glowColor)
+            spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, newDifficulty.color, 20)
+            spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, newDifficulty.glowColor, 15)
+          } else if (prevLevel === 0) {
+            prevInGameDiffLevelRef.current = newDifficulty.level
+          }
+
           // Check achievements after eating a word
           try {
             const wl = Object.entries(useWordStore.getState().collectedWords)
@@ -2109,6 +2220,14 @@ export default function SnakeGame() {
               const notifications = newlyUnlocked.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
               enqueueAchievements(notifications)
               spawnFloatingText(`🏆 ${newlyUnlocked[0].title}`, wx, wy - 44, '#fbbf24')
+              // Check if any newly unlocked achievement unlocks a skin
+              const skinMap = getSkinUnlockMap()
+              for (const a of newlyUnlocked) {
+                const skinUnlock = skinMap[a.id]
+                if (skinUnlock && isSkinUnlocked(skinUnlock.skinId)) {
+                  enqueueAchievements([{ title: `New Skin Unlocked: ${skinUnlock.skinName}!`, description: `Select it in Settings`, emoji: skinUnlock.skinEmoji }])
+                }
+              }
             }
           } catch { /* ignore */ }
 
@@ -2521,7 +2640,7 @@ export default function SnakeGame() {
                     </div>
                   )}
                   <div className="relative">
-                    <Badge key={uiState.score} variant="secondary" className="bg-green-900/50 text-green-400 border-green-700 stat-counter-flash">
+                    <Badge key={uiState.score} variant="secondary" className="bg-green-900/50 text-green-400 border-green-700 stat-counter-flash score-milestone-glow">
                       <Zap className="h-3 w-3 mr-1" />
                       {uiState.score}
                     </Badge>
@@ -2724,31 +2843,37 @@ export default function SnakeGame() {
                     <span className="text-[10px] text-slate-600">— {getSnakeSkin(activeSkin).name}: {getSnakeSkin(activeSkin).description}</span>
                   </div>
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                    {getAllSkins().map((s) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          setActiveSkin(s.id)
-                          gameStateRef.current.activeSkin = s.id
-                          saveSnakeSkin(s.id)
-                          setSkinBounce(true)
-                          setTimeout(() => setSkinBounce(false), 400)
-                          updateUI()
-                        }}
-                        className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border-2 active:scale-95 ${
-                          activeSkin === s.id
-                            ? 'border-white scale-110 shadow-lg'
-                            : 'border-slate-700/50 hover:border-slate-500/60'
-                        } ${skinBounce && activeSkin === s.id ? 'skin-select-bounce' : ''}`}
-                        style={{
-                          backgroundColor: s.headColor + '30',
-                          boxShadow: activeSkin === s.id ? `0 0 12px ${s.glowColor}40` : undefined,
-                        }}
-                        title={`${s.name}: ${s.description}`}
-                      >
-                        {s.emoji}
-                      </button>
-                    ))}
+                    {getAllSkins().map((s) => {
+                      const locked = !isSkinUnlocked(s.id)
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => {
+                            if (locked) return
+                            setActiveSkin(s.id)
+                            gameStateRef.current.activeSkin = s.id
+                            saveSnakeSkin(s.id)
+                            setSkinBounce(true)
+                            setTimeout(() => setSkinBounce(false), 400)
+                            updateUI()
+                          }}
+                          className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border-2 ${
+                            locked
+                              ? 'opacity-40 pointer-events-none border-slate-700/30'
+                              : activeSkin === s.id
+                                ? 'border-white scale-110 shadow-lg active:scale-95'
+                                : 'border-slate-700/50 hover:border-slate-500/60 active:scale-95'
+                          } ${!locked && skinBounce && activeSkin === s.id ? 'skin-select-bounce' : ''}`}
+                          style={{
+                            backgroundColor: s.headColor + '30',
+                            boxShadow: !locked && activeSkin === s.id ? `0 0 12px ${s.glowColor}40` : undefined,
+                          }}
+                          title={locked ? s.unlockLabel ?? 'Locked' : `${s.name}: ${s.description}`}
+                        >
+                          {s.emoji}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -3314,7 +3439,7 @@ export default function SnakeGame() {
         open={showSettings}
         onOpenChange={setShowSettings}
         currentSkin={activeSkin}
-        onSkinChange={(skin) => { gameStateRef.current.activeSkin = skin.id; setActiveSkin(skin); saveSnakeSkin(skin.id) }}
+        onSkinChange={(skin) => { if (!isSkinUnlocked(skin.id)) return; gameStateRef.current.activeSkin = skin.id; setActiveSkin(skin); saveSnakeSkin(skin.id) }}
         currentGridTheme={activeGridTheme}
         onGridThemeChange={(theme) => { gameStateRef.current.gridTheme = theme; setActiveGridTheme(theme); saveGridTheme(theme) }}
         currentSoundTheme={activeSoundTheme}

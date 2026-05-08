@@ -70,8 +70,12 @@ function Confetti() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    const updateSize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    updateSize()
+    window.addEventListener('resize', updateSize)
 
     const particles: { x: number; y: number; vx: number; vy: number; color: string; size: number; rotation: number; rotationSpeed: number; life: number }[] = []
     const colors = ['#a855f7', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4']
@@ -121,6 +125,7 @@ function Confetti() {
 
     return () => {
       cancelAnimationFrame(animId)
+      window.removeEventListener('resize', updateSize)
       canvas?.remove()
     }
   }, [])

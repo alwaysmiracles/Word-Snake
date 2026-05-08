@@ -9,7 +9,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { getAllSkins, saveSnakeSkin, type SnakeSkin } from '@/lib/snake-skins'
+import { getAllSkins, saveSnakeSkin, isSkinUnlocked, type SnakeSkin } from '@/lib/snake-skins'
+import { Lock } from 'lucide-react'
 import { getAllGridThemes, saveGridTheme, type GridThemeId } from '@/lib/grid-themes'
 import { getAllSoundThemes, saveSoundTheme, type SoundThemeId } from '@/lib/sound-themes'
 import { getAllTrails, saveTrail, type SnakeTrailType } from '@/lib/snake-trails'
@@ -119,27 +120,41 @@ export default function SettingsPanel({
             {/* Snake Skins */}
             <SettingSection title="Snake Skin" emoji="🐍">
               <div className="flex flex-wrap gap-2">
-                {skins.map((skin) => (
-                  <button
-                    key={skin.id}
-                    onClick={() => handleSkinChange(skin)}
-                    title={skin.description}
-                    className={`relative flex flex-col items-center gap-1 p-2 rounded-lg border transition-all duration-200 min-w-[60px] hover:bg-slate-800/60 ${
-                      currentSkin.id === skin.id
-                        ? 'border-white/40 bg-slate-800/80 shadow-lg scale-105'
-                        : 'border-slate-700/40 bg-slate-800/30'
-                    } ${skinBounce === skin.id ? 'scale-110' : ''}`}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-md border border-white/10"
-                      style={{
-                        background: `linear-gradient(135deg, ${skin.headColor}, ${skin.bodyGradient[skin.bodyGradient.length - 1] || skin.headColor})`,
-                      }}
-                    />
-                    <span className="text-lg leading-none">{skin.emoji}</span>
-                    <span className="text-[9px] text-slate-400 truncate max-w-[56px]">{skin.name}</span>
-                  </button>
-                ))}
+                {skins.map((skin) => {
+                  const locked = !isSkinUnlocked(skin.id)
+                  return (
+                    <button
+                      key={skin.id}
+                      onClick={() => !locked && handleSkinChange(skin)}
+                      title={locked ? skin.unlockLabel ?? 'Locked' : skin.description}
+                      className={`relative flex flex-col items-center gap-1 p-2 rounded-lg border transition-all duration-200 min-w-[60px] ${
+                        locked
+                          ? 'opacity-50 pointer-events-none border-slate-700/30 bg-slate-800/20 locked-skin-shimmer'
+                          : currentSkin.id === skin.id
+                            ? 'border-white/40 bg-slate-800/80 shadow-lg scale-105 breathing-border'
+                            : 'border-slate-700/40 bg-slate-800/30 hover:bg-slate-800/60 skin-card-hover'
+                      } ${!locked && skinBounce === skin.id ? 'scale-110' : ''}`}
+                    >
+                      {/* Lock overlay */}
+                      {locked && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-900/40">
+                          <Lock className="h-4 w-4 text-slate-400" />
+                        </div>
+                      )}
+                      <div
+                        className={`w-7 h-7 rounded-md border border-white/10 ${locked ? 'grayscale' : ''}`}
+                        style={{
+                          background: `linear-gradient(135deg, ${skin.headColor}, ${skin.bodyGradient[skin.bodyGradient.length - 1] || skin.headColor})`,
+                        }}
+                      />
+                      <span className={`text-lg leading-none ${locked ? 'grayscale' : ''}`}>{skin.emoji}</span>
+                      <span className={`text-[9px] truncate max-w-[56px] ${locked ? 'text-slate-600' : 'text-slate-400'}`}>{skin.name}</span>
+                      {locked && skin.unlockLabel && (
+                        <span className="text-[8px] text-amber-500/70 truncate max-w-[56px]">{skin.unlockLabel}</span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </SettingSection>
 

@@ -12,6 +12,9 @@ export interface SnakeSkinConfig {
   glowColor: string
   eyeColor: string
   pattern: SkinPattern
+  unlockType?: 'achievement' | 'milestone'
+  unlockRequirement?: string
+  unlockLabel?: string
 }
 
 export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
@@ -47,6 +50,9 @@ export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
     glowColor: '#ef4444',
     eyeColor: '#fef08a',
     pattern: 'striped',
+    unlockType: 'achievement',
+    unlockRequirement: 'high_roller',
+    unlockLabel: 'Unlock: Score 500+',
   },
   royal: {
     id: 'royal',
@@ -58,6 +64,9 @@ export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
     glowColor: '#8b5cf6',
     eyeColor: '#fde68a',
     pattern: 'dotted',
+    unlockType: 'achievement',
+    unlockRequirement: 'poet_laureate',
+    unlockLabel: 'Unlock: Create 5 Poems',
   },
   ice: {
     id: 'ice',
@@ -80,6 +89,9 @@ export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
     glowColor: '#4b5563',
     eyeColor: '#c084fc',
     pattern: 'solid',
+    unlockType: 'achievement',
+    unlockRequirement: 'marathon',
+    unlockLabel: 'Unlock: Play 10 Games',
   },
   rainbow: {
     id: 'rainbow',
@@ -102,6 +114,9 @@ export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
     glowColor: '#f59e0b',
     eyeColor: '#fef3c7',
     pattern: 'striped',
+    unlockType: 'milestone',
+    unlockRequirement: 'milestone:9',
+    unlockLabel: 'Unlock: 9 Achievements (Gold Tier)',
   },
 }
 
@@ -132,4 +147,55 @@ export function saveSnakeSkin(id: SnakeSkin): void {
   try {
     localStorage.setItem(SKIN_STORAGE_KEY, id)
   } catch { /* ignore */ }
+}
+
+import { getUnlockedAchievements } from './achievements'
+
+/**
+ * Check if a skin is unlocked for the current user.
+ * Free skins (no unlockType) are always unlocked.
+ * Achievement skins require the specific achievement to be unlocked.
+ * Milestone skins require the user to have reached the achievement count threshold.
+ */
+export function isSkinUnlocked(skinId: string): boolean {
+  const skin = SNAKE_SKINS[skinId as SnakeSkin]
+  if (!skin || !skin.unlockType) return true
+
+  if (skin.unlockType === 'achievement') {
+    const unlocked = getUnlockedAchievements()
+    return unlocked.includes(skin.unlockRequirement!)
+  }
+
+  if (skin.unlockType === 'milestone' && skin.unlockRequirement?.startsWith('milestone:')) {
+    const threshold = parseInt(skin.unlockRequirement.split(':')[1], 10)
+    if (isNaN(threshold)) return false
+    const unlocked = getUnlockedAchievements()
+    return unlocked.length >= threshold
+  }
+
+  return false
+}
+
+/**
+ * Get all skin IDs that the current user has unlocked.
+ */
+export function getUnlockedSkins(): string[] {
+  return SKIN_ORDER.filter((id) => isSkinUnlocked(id))
+}
+
+/**
+ * Get the mapping of achievement/milestone IDs to the skin they unlock.
+ */
+export function getSkinUnlockMap(): Record<string, { skinId: SnakeSkin; skinName: string; skinEmoji: string }> {
+  const map: Record<string, { skinId: SnakeSkin; skinName: string; skinEmoji: string }> = {}
+  for (const skin of getAllSkins()) {
+    if (skin.unlockRequirement) {
+      map[skin.unlockRequirement] = {
+        skinId: skin.id,
+        skinName: skin.name,
+        skinEmoji: skin.emoji,
+      }
+    }
+  }
+  return map
 }
