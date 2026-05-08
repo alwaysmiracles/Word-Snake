@@ -43,6 +43,9 @@ import { isTutorialCompleted, markTutorialCompleted, saveTutorialProgress, reset
 import { createPvPState, P2_COLORS, type PvPState } from '@/lib/pvp-mode'
 import { createAiBot, calculateAiBotMove, updateAiBot, checkAiBotCollision, getAiBotDrawInfo, type AiBotState } from '@/lib/ai-bot'
 import WordBook from '@/components/word-book'
+import StoryModePrologue from '@/components/story-mode'
+import StatsComparison from '@/components/stats-comparison'
+import { getHighContrastConfig, saveHighContrastConfig, getHighContrastClasses, shouldAnimate, type HighContrastConfig } from '@/lib/high-contrast'
 import { startRecording, recordFrame, stopRecording, isRecording, getReplays, deleteReplay, getReplay, startPlayback, stopPlayback, isPlaybackActive, getPlaybackState, advancePlayback, setPlaybackSpeed, setPlaybackPlaying, getPlaybackProgress, seekPlayback, formatDuration, formatDate, clearAllReplays, type GameReplay, type ReplayFrame } from '@/lib/game-replay'
 import {
   Play,
@@ -74,6 +77,8 @@ import {
   SkipForward,
   SkipBack,
   X,
+  Eye,
+  BarChart3,
 } from 'lucide-react'
 
 // Game constants
@@ -417,6 +422,8 @@ export default function SnakeGame() {
       setActiveWordPack(savedPack)
       const unlocked = WORD_PACKS.filter(p => isPackUnlocked(p)).map(p => p.id)
       setUnlockedPackIds(unlocked)
+      // Load high contrast accessibility config
+      setHighContrast(getHighContrastConfig())
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -475,6 +482,9 @@ export default function SnakeGame() {
   const pvpRef = useRef<PvPState | null>(null)
   const aiBotRef = useRef<AiBotState | null>(null)
   const [showWordBook, setShowWordBook] = useState(false)
+  const [showStoryMode, setShowStoryMode] = useState(false)
+  const [showStatsComparison, setShowStatsComparison] = useState(false)
+  const [highContrast, setHighContrast] = useState<HighContrastConfig>({ enabled: false, intensity: 'medium', reduceMotion: false, largeText: false })
   const [aiBotActive, setAiBotActive] = useState(false)
   const floatingTextsRef = useRef<FloatingText[]>([])
   const particlesRef = useRef<Particle[]>([])
@@ -4788,6 +4798,37 @@ export default function SnakeGame() {
                     >
                       <Settings className="h-4 w-4 mr-1" /> Settings
                     </Button>
+                    <Button
+                      onClick={() => { setShowStoryMode(true); playSound(playClickSound) }}
+                      variant="outline"
+                      className="border-violet-700/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform"
+                      title="Story Mode Prologue"
+                    >
+                      📖 Story
+                    </Button>
+                    <Button
+                      onClick={() => { setShowStatsComparison(true); playSound(playClickSound) }}
+                      variant="outline"
+                      className="border-teal-700/50 text-teal-400 hover:bg-teal-900/20 active:scale-95 transition-transform"
+                      title="Performance Dashboard"
+                    >
+                      <BarChart3 className="h-4 w-4 mr-1" /> Dashboard
+                    </Button>
+                    <button
+                      onClick={() => {
+                        const newConfig = { ...highContrast, enabled: !highContrast.enabled }
+                        setHighContrast(newConfig)
+                        saveHighContrastConfig(newConfig)
+                        playSound(playClickSound)
+                      }}
+                      className={`p-2 rounded-lg border transition-all active:scale-95 ${highContrast.enabled
+                        ? 'border-yellow-500/60 text-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-900/20'
+                        : 'border-slate-600/50 text-slate-400 hover:bg-slate-800/50 hover:text-slate-300'
+                      }`}
+                      title="Toggle High Contrast Accessibility"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
                     {tutorialCompleted && (
                       <button
                         onClick={() => { handleTutorialReset(); startTutorial() }}
@@ -5425,6 +5466,8 @@ export default function SnakeGame() {
 
       {/* Word Book Overlay */}
       <WordBook isOpen={showWordBook} onClose={() => setShowWordBook(false)} />
+      <StoryModePrologue isOpen={showStoryMode} onClose={() => setShowStoryMode(false)} onStartGame={() => { setShowStoryMode(false); resetGame() }} />
+      <StatsComparison isOpen={showStatsComparison} onClose={() => setShowStatsComparison(false)} />
     </div>
   )
 }
