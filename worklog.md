@@ -2104,3 +2104,171 @@ The application is a comprehensive Word Snake game with 49+ major features.
 8. **Word Pack DLC**: Additional themed word packs (Shakespeare, Science, etc.)
 9. **Snake Skin Customization**: Color picker for custom skin colors
 10. **Easter Eggs**: Hidden features triggered by special word combinations
+---
+Task ID: 16
+Agent: Review Agent (cron Round 16)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA**: Build passes with zero errors, ESLint passes with zero errors. Project stable.
+- **No bugs found** — code compiles cleanly, no type errors, no lint warnings
+- **Feature: Word Pack DLC System**:
+  - Created `src/lib/word-packs.ts`:
+    - 5 themed word packs: Cosmos (free, 12 words), Ocean Depths (free, 12 words), Mythology (locked: collect 50 words, 12 words), Shakespeare (locked: create 5 poems, 12 words), Science (locked: score 500, 12 words)
+    - 60 new themed words with definitions and custom categories
+    - `PACK_CATEGORY_INFO` for category display (space, ocean_life, mythology, literature, science)
+    - Utility functions: `getActivePack()`, `setActivePack()`, `isPackUnlocked()`, `getUnlockedPacks()`, `getWordsFromPack()`, `checkPackUnlocks()`
+  - Modified `src/components/snake-game.tsx`:
+    - Word Pack Selector UI on start screen: horizontal scrollable pill buttons with emoji + name + word count
+    - Locked packs show 🔒 with unlock requirement tooltip
+    - `spawnWord()` pulls from active pack first, falls back to default pool
+    - Category rendering handles pack categories with fallback colors
+    - After achievement/score changes, `checkPackUnlocks()` runs and shows toast notification
+  - Modified `src/components/make-poem.tsx`:
+    - Active Word Pack badge in sidebar showing emoji, name, description, word count
+- **Feature: Tutorial/Guided Mode**:
+  - Created `src/lib/tutorial.ts`:
+    - 9 tutorial steps: Welcome → Movement → Eating Words → Scoring → Categories → Power-ups → Controls → Poems → Complete
+    - `TutorialStep` and `TutorialState` interfaces
+    - localStorage helpers: `isTutorialCompleted()`, `markTutorialCompleted()`, `getTutorialProgress()`, `saveTutorialProgress()`, `resetTutorial()`
+  - Modified `src/components/snake-game.tsx`:
+    - "Tutorial" button (blue, GraduationCap icon) on start screen when not completed
+    - "Replay Tutorial" text link when completed
+    - Tutorial launches special slow-paced game with overlay panel
+    - Canvas: semi-transparent dim overlay, pulsing spotlight circle on relevant element
+    - "🎓 Tutorial X/9" label on canvas top-left
+    - Action steps (move_up, eat_word) auto-advance; other steps advance via "Next" button
+    - Confetti on tutorial completion
+    - Tutorial state separate from normal game state
+- **Feature: Easter Eggs System**:
+  - Created `src/lib/easter-eggs.ts`:
+    - 6 easter eggs across 3 types (sequence, collection, special_word):
+      - Nature's Harmony (eat nature→serenity→blossom): Rainbow Snake 15s
+      - Elemental Fury (eat fire→water→storm): Color Explosion
+      - Time Lord (eat dawn→dusk→eternity): Slow-Mo 10s
+      - True Word Master (collect joy, grace, hope, peace, valor): Confetti Burst (one-time)
+      - Ouroboros (eat wisdom): Extra Life (one-time)
+      - Chaos Mode (eat lightning): Reverse Controls 8s
+    - Session-scoped state tracking, active timed effects with expiration
+  - Modified `src/lib/word-pool.ts`: Added 5 missing easter egg trigger words
+  - Modified `src/lib/sounds.ts`: Added `playEasterEggSound()` — magical 5-note arpeggio
+  - Modified `src/components/snake-game.tsx`:
+    - After eating a word, `checkEasterEggs()` runs against all patterns
+    - Canvas floating text with golden easter egg message
+    - Rainbow Snake: HSL cycling override for 15s
+    - Confetti Burst: 80+ particles with gravity/rotation
+    - Color Explosion: 120 confetti + 6 random burst points
+    - Extra Life: grants shield mechanic
+    - Reverse Controls: swaps UP↔DOWN, LEFT↔RIGHT for 8s
+    - Active effect indicator badges on canvas
+- **Feature: Poem Collage**:
+  - Created `src/lib/poem-collage.ts`:
+    - 4 collage layouts: Grid 2×2, Masonry, Film Strip, Polaroid
+    - `generatePoemCollage()`: Client-side canvas rendering with gradient backgrounds, rounded cards, style badges, word-wrapped text, word badges, dates
+    - `downloadPoemCollage()`: PNG download
+    - `getCollagePoemSources()`: Reads from favorites + sessionStorage recent poems
+  - Modified `src/components/make-poem.tsx`:
+    - "Create Collage" button (purple/blue gradient, Camera icon) in sidebar
+    - 3-step dialog: Select Poems (max 6) → Choose Layout → Generate & Download
+    - Session storage sync for recent poems
+- **Visual Polish — Round 16**:
+  - Added 10 new CSS animations to `globals.css`:
+    - `word-pack-glow`: Colored glow pulse for active word pack (2s loop)
+    - `tutorial-spotlight`: Scale/opacity oscillation for tutorial (2s loop)
+    - `easter-egg-reveal`: Dramatic scale overshoot reveal (0.6s one-shot)
+    - `pack-card-enter`: Staggered fade-in for cards (0.4s one-shot)
+    - `collage-card-float`: Subtle float for collage cards (3s loop)
+    - `reverse-controls-indicator`: Flashing red border (0.5s loop)
+    - `rainbow-text-flow`: Hue-rotating rainbow text (4s loop)
+    - `tutorial-step-progress`: Width transition for progress (0.4s)
+    - `egg-badge-shimmer`: Gold shimmer on badges (2.5s loop)
+    - `pack-unlock-burst`: Quick scale burst for unlock (0.5s one-shot)
+  - Applied animations across snake-game.tsx, make-poem.tsx
+- **New Files**:
+  - `src/lib/word-packs.ts`: Word pack DLC system
+  - `src/lib/tutorial.ts`: Tutorial mode
+  - `src/lib/easter-eggs.ts`: Easter eggs engine
+  - `src/lib/poem-collage.ts`: Poem collage generator
+- **Modified Files**:
+  - `src/lib/word-pool.ts`: 5 new easter egg words
+  - `src/lib/sounds.ts`: Easter egg sound
+  - `src/components/snake-game.tsx`: Word packs, tutorial, easter eggs, CSS classes
+  - `src/components/make-poem.tsx`: Word pack badge, poem collage dialog, CSS classes
+  - `src/app/globals.css`: 10 new CSS animations
+- ESLint passes with zero errors
+- `next build` compiles successfully with zero errors
+
+Stage Summary:
+- No bugs found
+- 4 major new features (Word Pack DLC, Tutorial Mode, Easter Eggs, Poem Collage)
+- 10 new CSS animations
+- 60 new themed words across 5 word packs
+- 6 easter eggs with varied effects
+- All code passes ESLint and builds successfully
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 53+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard
+- **In-Game Progressive Difficulty**: 10-level curve within a game (×1.0 → ×1.8)
+- **Dynamic Difficulty**: 10-level AI system between games
+- **8 Snake Skins**: 4 free + 4 unlockable via achievements
+- **Achievement-to-Skin Unlock**: Fire, Royal, Shadow, Golden skins
+- **4 Canvas Grid Themes**: Classic, Neon, Retro, Nature
+- **Night Mode**: Sepia filter, auto-enable
+- **8 Default Word Categories** + **5 Word Packs** (Cosmos, Ocean Depths, Mythology, Shakespeare, Science)
+- **148 total words** (88 default + 60 themed)
+- **4 Word Rarities**: Common, Uncommon, Rare, Legendary
+- **Category Filter**: Toggle categories on/off
+- **Custom Word Lists**: 50 custom words with JSON/CSV import/export
+- **5 Power-ups**: Slow-Mo, Double Points, Shrink, Magnet, Shield
+- **Combo Chain**: Same-category eating builds multiplier
+- **Canvas Weather**: Rain, Snow, Stars
+- **Canvas Mini-map**: Toggleable bird's eye view
+- **Speed Run Mode**: 60-second timed challenge
+- **Daily Challenge**: Deterministic daily word set
+- **Streak System**: 4 milestone tiers
+- **6 Easter Eggs**: Sequence, collection, and special word triggers with varied effects
+- **Tutorial Mode**: 9-step guided tutorial for new players
+- **11 Achievements**: With toast notifications and gallery
+- **4 Sound Themes**: Default, Retro 8-bit, Soft Ambient, Epic Orchestra
+- **Leaderboard**: Per-difficulty top 10
+- **Game Statistics Dashboard**: 20+ metrics
+- **Word Pronunciation**: Web Speech API
+- **Game Stats Share Card**: Downloadable PNG
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Style-specific prompts
+- **Poem Sharing**: 1080×1080 image, Web Share API
+- **Poem Favorites**: Persistent collection (max 20)
+- **Poem Collage**: 4 layouts, combine poems into downloadable image
+- **Word Definitions + Etymology**: Tooltips on hover
+- **Settings Panel**: Skins, themes, sound, trails
+- **Game Over Stats**: Performance rating, category breakdown
+- **Mobile Support**: Touch/swipe, D-pad
+- **Keyboard Shortcuts**: Help dialog
+- **5 Trail Effects**: None, Fade, Particles, Sparkle, Rainbow
+- **Visual Polish**: 89+ CSS animations
+- **Copy/Download/Share Poem**: Clipboard, PNG, share
+
+### Known Issues / Risks
+- `.env` placeholder exists in early git history (low risk)
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Dynamic difficulty needs more games (3+) to start adjusting
+- Easter egg reverse controls may confuse players briefly (intended design)
+
+### Suggested Next Steps
+1. **Multi-language Support**: Word sets in Chinese, Japanese, etc.
+2. **Game Replay**: Record and replay game sessions
+3. **Accessibility**: Screen reader support, high contrast mode
+4. **Online Leaderboard**: Server-side leaderboard with global rankings
+5. **Sound Visualizer**: Audio waveform visualization
+6. **Word Pack Community**: User-created word packs with sharing
+7. **Snake Skin Customization**: Color picker for custom skins
+8. **PvP Mode**: Two-player local multiplayer
+9. **Story Mode**: Narrative-driven campaign with levels
+10. **Widget/Embed**: Embeddable mini-game widget

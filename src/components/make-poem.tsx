@@ -10,6 +10,7 @@ import { AchievementQueue, type AchievementNotification } from '@/lib/achievemen
 import AchievementGallery from '@/components/achievement-gallery'
 import { getStreak, getActiveStreakBonus, type StreakInfo } from '@/lib/streak'
 import { getLeaderboard, getBestScore, type Difficulty, type LeaderboardEntry } from '@/lib/leaderboard'
+import { getActivePack, WORD_PACKS, getPackCategoryInfo, PACK_CATEGORY_INFO } from '@/lib/word-packs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -19,6 +20,15 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { getWordDefinition } from '@/lib/word-definitions'
 import { getFavoritePoems, addFavoritePoem, removeFavoritePoem, isFavoritePoem, type FavoritePoem } from '@/lib/poem-favorites'
 import { generateShareImage, sharePoem } from '@/lib/poem-share'
+import { downloadPoemCollage, getCollagePoemSources, COLLAGE_LAYOUTS, type PoemCollageItem, type CollageLayout } from '@/lib/poem-collage'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Checkbox } from '@/components/ui/checkbox'
 import { trackPoemCreated } from '@/lib/game-stats'
 import GameStatsDialog from '@/components/game-stats'
 import {
@@ -39,6 +49,9 @@ import {
   Star,
   Share,
   Volume1,
+  LayoutGrid,
+  Camera,
+  ImageIcon,
 } from 'lucide-react'
 
 type PoemStyle = 'free_verse' | 'haiku' | 'limerick' | 'sonnet'
@@ -185,6 +198,11 @@ export default function MakePoem() {
   const [showAchievementGallery, setShowAchievementGallery] = useState(false)
   const [sharingId, setSharingId] = useState<number | null>(null)
   const [showGameStats, setShowGameStats] = useState(false)
+  const [showCollageDialog, setShowCollageDialog] = useState(false)
+  const [collageStep, setCollageStep] = useState<1 | 2 | 3>(1)
+  const [selectedPoemKeys, setSelectedPoemKeys] = useState<Set<string>>(new Set())
+  const [selectedLayout, setSelectedLayout] = useState<CollageLayout>(COLLAGE_LAYOUTS[0])
+  const [collagePoems, setCollagePoems] = useState<PoemCollageItem[]>([])
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
@@ -296,6 +314,15 @@ export default function MakePoem() {
 
       setPoemResult(result)
       setPoemHistory((prev) => [result, ...prev])
+
+      // Store recent poems for collage
+      try {
+        const stored = sessionStorage.getItem('word-snake-recent-poems')
+        const recent = stored ? JSON.parse(stored) : []
+        recent.unshift({ poem: result.poem, style: result.style, usedWords: result.usedWords, timestamp: result.timestamp })
+        if (recent.length > 10) recent.length = 10
+        sessionStorage.setItem('word-snake-recent-poems', JSON.stringify(recent))
+      } catch { /* ignore */ }
 
       if (result.usedWords.length > 0) {
         removeWords(result.usedWords)
@@ -553,7 +580,7 @@ export default function MakePoem() {
             {/* Current Poem Result with decorative border pattern */}
             {poemResult && (
               <div className="mb-6">
-                <div className="poem-card-ornate p-5 rounded-lg bg-gradient-to-br from-purple-900/20 via-slate-800/80 to-slate-800/40 border border-purple-700/30 relative overflow-hidden">
+                <div className="poem-card-ornate p-5 rounded-lg bg-gradient-to-br from-purple-900/20 via-slate-800/80 to-slate-800/40 border border-purple-700/30 relative overflow-hidden collage-card-float">
                   <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-500/5 to-transparent" />
                   <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500/5 to-transparent" />
                   {/* Decorative corner lines */}
@@ -600,11 +627,14 @@ export default function MakePoem() {
                             const entry = getWordEntry(word)
                             const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
                             const catInfo = entry ? getCategoryInfo(entry.category) : null
+                            const packCatInfo = !entry ? getPackCategoryInfo(word) : null
+                            const displayColor = catColor !== '#94a3b8' ? catColor : packCatInfo?.color ?? '#94a3b8'
+                            const displayCatInfo = catInfo ?? packCatInfo
                             return (
                               <Tooltip key={`${word}-${i}`}>
                                 <TooltipTrigger asChild>
                                   <Badge variant="secondary" className="bg-purple-900/40 text-purple-300 text-xs border-purple-700/50 cursor-default hover:bg-purple-900/60 transition-colors">
-                                    <span className="w-1.5 h-1.5 rounded-full mr-1 shrink-0" style={{ backgroundColor: catColor }} />
+                                    <span className="w-1.5 h-1.5 rounded-full mr-1 shrink-0" style={{ backgroundColor: displayColor }} />
                                     {word}
                                   </Badge>
                                 </TooltipTrigger>
@@ -616,10 +646,10 @@ export default function MakePoem() {
                                   {wordDef ? (
                                     <div className="space-y-1.5">
                                       <div className="flex items-center gap-1.5">
-                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: catColor }} />
+                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: displayColor }} />
                                         <span className="font-bold text-sm text-white">{word}</span>
-                                        {catInfo && (
-                                          <span className="text-[10px] text-slate-400 ml-0.5">{catInfo.label}</span>
+                                        {displayCatInfo && (
+                                          <span className="text-[10px] text-slate-400 ml-0.5">{displayCatInfo.label}</span>
                                         )}
                                       </div>
                                       <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
@@ -654,7 +684,7 @@ export default function MakePoem() {
                 <ScrollArea className="h-[250px]">
                   <div className="space-y-3 pr-2">
                     {poemHistory.slice(1).map((poem) => (
-                      <div key={poem.timestamp} className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 hover:shadow-lg hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all duration-200 relative group card-hover-lift">
+                      <div key={poem.timestamp} className="p-4 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-slate-600/50 hover:shadow-lg hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all duration-200 relative group card-hover-lift pack-card-enter">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="secondary" className="bg-purple-900/20 text-purple-400 text-[10px] border-purple-700/20 px-1.5 h-4">
                             {POEM_STYLES[poem.style]?.label ?? 'Free Verse'}
@@ -740,6 +770,37 @@ export default function MakePoem() {
               )
             })()}
 
+            {/* Poem Collage Button */}
+            {(() => {
+              const favCount = getFavoritePoems().length
+              const totalAvailable = favCount + poemHistory.length
+              if (totalAvailable < 2) return null
+              return (
+                <Button
+                  onClick={() => {
+                    const sources = getCollagePoemSources()
+                    const allPoems: PoemCollageItem[] = []
+                    const seen = new Set<string>()
+                    for (const p of [...sources.favorites, ...sources.recent]) {
+                      if (!seen.has(p.poem)) {
+                        seen.add(p.poem)
+                        allPoems.push(p)
+                      }
+                    }
+                    setCollagePoems(allPoems.slice(0, 6))
+                    setSelectedPoemKeys(new Set(allPoems.slice(0, Math.min(4, allPoems.length)).map((_, i) => String(i))))
+                    setCollageStep(1)
+                    setSelectedLayout(COLLAGE_LAYOUTS[0])
+                    setShowCollageDialog(true)
+                  }}
+                  className="w-full mb-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-medium text-sm shadow-lg shadow-purple-900/20 transition-all duration-200 active:scale-[0.98]"
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  Create Collage
+                </Button>
+              )
+            })()}
+
             {/* Empty State with pulsing sparkle */}
             {!poemResult && !loading && poemHistory.length === 0 && (
               <div className="text-center py-12 text-slate-500">
@@ -781,6 +842,30 @@ export default function MakePoem() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
+            {/* Active Word Pack badge */}
+            {(() => {
+              const packId = getActivePack()
+              if (packId === 'default') return null
+              const pack = WORD_PACKS.find(p => p.id === packId)
+              if (!pack) return null
+              return (
+                <div className="mb-3 px-2.5 py-2 rounded-lg border" style={{ borderColor: `${pack.color}30`, backgroundColor: `${pack.color}08` }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{pack.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-medium" style={{ color: pack.color }}>{pack.name}</span>
+                        <Badge variant="secondary" className="text-[9px] h-4 px-1" style={{ backgroundColor: `${pack.color}15`, color: pack.color, borderColor: `${pack.color}30` }}>
+                          {pack.words.length} words
+                        </Badge>
+                      </div>
+                      <p className="text-[10px] text-slate-500 truncate">{pack.description}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Category breakdown */}
             {Object.keys(categoryStats).length > 0 && (
               <div className="mb-3 p-2 rounded-lg bg-slate-800/40 border border-slate-700/30">
@@ -788,11 +873,12 @@ export default function MakePoem() {
                 <div className="flex flex-wrap gap-1.5">
                   {Object.entries(categoryStats).map(([cat, count]) => {
                     const catInfo = getCategoryInfo(cat as WordCategory)
-                    const catColor = CATEGORY_COLORS[cat as WordCategory] ?? '#94a3b8'
+                    const catColor = CATEGORY_COLORS[cat as WordCategory] ?? PACK_CATEGORY_INFO[cat]?.color ?? '#94a3b8'
+                    const packInfo = PACK_CATEGORY_INFO[cat]
                     return (
                       <div key={cat} className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border" style={{ borderColor: `${catColor}30`, backgroundColor: `${catColor}10`, color: catColor }}>
                         <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
-                        {catInfo?.label ?? cat}: {count}
+                        {catInfo?.label ?? packInfo?.label ?? cat}: {count}
                       </div>
                     )
                   })}
@@ -814,18 +900,21 @@ export default function MakePoem() {
                       const entry = getWordEntry(word)
                       const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
                       const catInfo = entry ? getCategoryInfo(entry.category) : null
+                      const packCatInfo = !entry ? getPackCategoryInfo(word) : null
+                      const displayColor = catColor !== '#94a3b8' ? catColor : packCatInfo?.color ?? '#94a3b8'
+                      const displayCatInfo = catInfo ?? packCatInfo
                       const wordDef = getWordDefinition(word)
                       return (
                         <Tooltip key={word}>
                           <TooltipTrigger asChild>
                             <div className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-slate-800/60 border border-slate-700/50 group hover:bg-slate-800 hover:border-amber-700/50 transition-all duration-200 cursor-default word-item-highlight">
                               <span className="text-amber-300 text-sm font-mono flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125" style={{ backgroundColor: catColor }} />
+                                <span className="w-2 h-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125" style={{ backgroundColor: displayColor }} />
                                 {word}
                                 {/* Category emoji on hover */}
-                                {catInfo && (
+                                {displayCatInfo && (
                                   <span className="text-[10px] opacity-0 group-hover:opacity-60 transition-opacity duration-200">
-                                    {catInfo.emoji}
+                                    {displayCatInfo.emoji}
                                   </span>
                                 )}
                               </span>
@@ -852,10 +941,10 @@ export default function MakePoem() {
                             {wordDef ? (
                               <div className="space-y-1.5">
                                 <div className="flex items-center gap-1.5">
-                                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: catColor }} />
+                                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: displayColor }} />
                                   <span className="font-bold text-sm text-white">{word}</span>
-                                  {catInfo && (
-                                    <span className="text-[10px] text-slate-400 ml-0.5">{catInfo.label}</span>
+                                  {displayCatInfo && (
+                                    <span className="text-[10px] text-slate-400 ml-0.5">{displayCatInfo.label}</span>
                                   )}
                                 </div>
                                 <p className="text-xs text-slate-300 leading-relaxed">{wordDef.definition}</p>
@@ -867,10 +956,10 @@ export default function MakePoem() {
                             ) : (
                               <div className="space-y-1">
                                 <span className="font-bold text-sm text-white">{word}</span>
-                                {catInfo && (
+                                {displayCatInfo && (
                                   <div className="flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
-                                    <span className="text-[10px] text-slate-400">{catInfo.label}</span>
+                                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: displayColor }} />
+                                    <span className="text-[10px] text-slate-400">{displayCatInfo.label}</span>
                                   </div>
                                 )}
                               </div>
@@ -1037,6 +1126,244 @@ export default function MakePoem() {
             </button>
           </CardContent>
         </Card>
+
+      {/* Poem Collage Dialog */}
+      <Dialog open={showCollageDialog} onOpenChange={(open) => { setShowCollageDialog(open); if (!open) setCollageStep(1) }}>
+        <DialogContent className="sm:max-w-[540px] max-h-[85vh] overflow-y-auto bg-slate-900 border-slate-700 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-purple-400">
+              <ImageIcon className="h-5 w-5" />
+              Poem Collage
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Combine your poems into a shareable image
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Step indicators */}
+          <div className="flex items-center gap-2 mb-4">
+            {([1, 2, 3] as const).map((step) => (
+              <button
+                key={step}
+                onClick={() => setCollageStep(step)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                  collageStep === step
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-900/30'
+                    : step < collageStep
+                      ? 'bg-purple-900/40 text-purple-400 hover:bg-purple-900/60'
+                      : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                }`}
+              >
+                {step < collageStep ? <Check className="h-3 w-3" /> : <span className="w-4 h-4 flex items-center justify-center rounded-full bg-current/20 text-[10px]">{step}</span>}
+                {step === 1 && 'Select'}
+                {step === 2 && 'Layout'}
+                {step === 3 && 'Generate'}
+              </button>
+            ))}
+          </div>
+
+          {/* Step 1: Select Poems */}
+          {collageStep === 1 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-400">Select poems (max 6):</span>
+                <span className="text-xs text-slate-500">{selectedPoemKeys.size} selected</span>
+              </div>
+              <div className="flex gap-2 mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 border-slate-600 text-slate-300 hover:bg-slate-800"
+                  onClick={() => {
+                    const favKeys = collagePoems.filter(p => p.isFavorite).map((_, i) => String(i))
+                    setSelectedPoemKeys(new Set(favKeys))
+                  }}
+                >
+                  <Heart className="h-3 w-3 mr-1" />
+                  Select Favorites
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 border-slate-600 text-slate-300 hover:bg-slate-800"
+                  onClick={() => {
+                    setSelectedPoemKeys(new Set(collagePoems.map((_, i) => String(i)).slice(0, 6)))
+                  }}
+                >
+                  <BookOpen className="h-3 w-3 mr-1" />
+                  Select All
+                </Button>
+              </div>
+              <ScrollArea className="max-h-[300px]">
+                <div className="space-y-2 pr-2">
+                  {collagePoems.length === 0 ? (
+                    <p className="text-sm text-slate-500 text-center py-6">No poems available yet. Create and favorite some poems first!</p>
+                  ) : (
+                    collagePoems.map((poem, idx) => {
+                      const key = String(idx)
+                      const isSelected = selectedPoemKeys.has(key)
+                      const preview = poem.poem.split('\n').slice(0, 2).join(' ')
+                      return (
+                        <label
+                          key={key}
+                          className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-150 ${
+                            isSelected
+                              ? 'bg-purple-900/20 border-purple-600/40'
+                              : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-600/60'
+                          }`}
+                        >
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => {
+                              const next = new Set(selectedPoemKeys)
+                              if (checked && next.size < 6) {
+                                next.add(key)
+                              } else {
+                                next.delete(key)
+                              }
+                              setSelectedPoemKeys(next)
+                            }}
+                            className="mt-0.5 border-slate-600 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Badge variant="secondary" className="bg-purple-900/30 text-purple-400 text-[10px] px-1.5 h-4">
+                                {poem.style.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                              </Badge>
+                              {poem.isFavorite && <Star className="h-3 w-3 text-amber-400 fill-amber-400" />}
+                              <span className="text-[10px] text-slate-500 ml-auto">{poem.date}</span>
+                            </div>
+                            <p className="text-xs text-slate-400 italic font-serif truncate">{preview}{poem.poem.length > 80 ? '…' : ''}</p>
+                          </div>
+                        </label>
+                      )
+                    })
+                  )}
+                </div>
+              </ScrollArea>
+              <Button
+                onClick={() => { if (selectedPoemKeys.size >= 2) setCollageStep(2) }}
+                disabled={selectedPoemKeys.size < 2}
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white"
+              >
+                Continue to Layout
+              </Button>
+            </div>
+          )}
+
+          {/* Step 2: Choose Layout */}
+          {collageStep === 2 && (
+            <div className="space-y-3">
+              <span className="text-sm text-slate-400">Choose a layout:</span>
+              <div className="grid grid-cols-2 gap-3">
+                {COLLAGE_LAYOUTS.map((layout) => (
+                  <button
+                    key={layout.id}
+                    onClick={() => setSelectedLayout(layout)}
+                    className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                      selectedLayout.id === layout.id
+                        ? 'bg-purple-900/30 border-purple-600/50 shadow-md shadow-purple-900/20'
+                        : 'bg-slate-800/50 border-slate-700/40 hover:border-slate-600/60 hover:bg-slate-800/80'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">{layout.emoji}</span>
+                      <div>
+                        <p className={`text-sm font-medium ${selectedLayout.id === layout.id ? 'text-purple-300' : 'text-slate-300'}`}>
+                          {layout.name}
+                        </p>
+                        <p className="text-[10px] text-slate-500">{layout.columns} col · {layout.maxWidth}×{layout.maxHeight}</p>
+                      </div>
+                    </div>
+                    {/* Mini layout preview */}
+                    <div className="h-12 rounded-lg overflow-hidden flex gap-0.5" style={{ background: `linear-gradient(135deg, ${layout.bgGradient[0]}, ${layout.bgGradient[1]})` }}>
+                      {layout.columns === 1 && (
+                        <div className="flex-1 flex flex-col gap-0.5 p-1">
+                          <div className="h-2 bg-white/15 rounded-sm" />
+                          <div className="h-2 bg-white/15 rounded-sm" />
+                          <div className="h-2 bg-white/15 rounded-sm" />
+                        </div>
+                      )}
+                      {layout.columns === 2 && (
+                        <>
+                          <div className="flex-1 flex flex-col gap-0.5 p-1">
+                            <div className="h-3 bg-white/15 rounded-sm" />
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                          </div>
+                          <div className="flex-1 flex flex-col gap-0.5 p-1">
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                            <div className="h-3 bg-white/15 rounded-sm" />
+                          </div>
+                        </>
+                      )}
+                      {layout.columns === 3 && (
+                        <>
+                          <div className="flex-1 flex flex-col gap-0.5 p-1">
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                          </div>
+                          <div className="flex-1 flex flex-col gap-0.5 p-1">
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                          </div>
+                          <div className="flex-1 flex flex-col gap-0.5 p-1">
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                            <div className="h-2 bg-white/15 rounded-sm" />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setCollageStep(1)} className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-800">
+                  Back
+                </Button>
+                <Button onClick={() => setCollageStep(3)} className="flex-1 bg-purple-600 hover:bg-purple-500 text-white">
+                  Preview & Download
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Generate & Download */}
+          {collageStep === 3 && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className="text-sm text-slate-400 mb-1">
+                  {selectedPoemKeys.size} poem{selectedPoemKeys.size !== 1 ? 's' : ''} · {selectedLayout.name} layout
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Your collage will be {selectedLayout.maxWidth}×{selectedLayout.maxHeight}px
+              </div>
+              <Button
+                onClick={() => {
+                  const selectedPoems = Array.from(selectedPoemKeys)
+                    .map(k => collagePoems[parseInt(k)])
+                    .filter(Boolean)
+                  if (selectedPoems.length < 2) return
+                  downloadPoemCollage(selectedPoems, selectedLayout)
+                  setShowCollageDialog(false)
+                }}
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-medium shadow-lg shadow-purple-900/30"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Collage PNG
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setCollageStep(2)}
+                className="w-full border-slate-600 text-slate-300 hover:bg-slate-800"
+              >
+                Back to Layout
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Game Stats Modal */}
       <GameStatsDialog

@@ -282,3 +282,60 @@ export function playThemePreviewSound(themeId: SoundThemeId) {
     // Audio not available
   }
 }
+
+// Easter egg discovery sound — a magical rising arpeggio with shimmer
+export function playEasterEggSound() {
+  try {
+    const ctx = getAudioContext()
+    const theme = getSoundTheme(currentSoundTheme)
+    const now = ctx.currentTime
+    const vol = theme.volumeScale
+
+    // Magical 5-note ascending arpeggio (wider range than power-up)
+    const notes = [523, 659, 784, 1047, 1568] // C5, E5, G5, C6, G6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = theme.powerUpWave
+      const startTime = now + i * 0.07
+      osc.frequency.setValueAtTime(freq, startTime)
+      gain.gain.setValueAtTime(0.12 * vol, startTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.35)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(startTime)
+      osc.stop(startTime + 0.35)
+    })
+
+    // High shimmer overlay (delayed)
+    const shimmerNotes = [2093, 2637] // C7, E7
+    shimmerNotes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      const startTime = now + 0.3 + i * 0.08
+      osc.frequency.setValueAtTime(freq, startTime)
+      gain.gain.setValueAtTime(0.06 * vol, startTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.6)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(startTime)
+      osc.stop(startTime + 0.6)
+    })
+
+    // Warm pad underneath
+    const pad = ctx.createOscillator()
+    const padGain = ctx.createGain()
+    pad.type = 'sine'
+    pad.frequency.setValueAtTime(262, now) // C4
+    pad.frequency.linearRampToValueAtTime(523, now + 0.5) // C5
+    padGain.gain.setValueAtTime(0.06 * vol, now)
+    padGain.gain.exponentialRampToValueAtTime(0.01, now + 0.8)
+    pad.connect(padGain)
+    padGain.connect(ctx.destination)
+    pad.start(now)
+    pad.stop(now + 0.8)
+  } catch {
+    // Audio not available
+  }
+}

@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
+import { toast } from '@/hooks/use-toast'
 import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getWordEntryIncludingCustom, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
-import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound, setSoundTheme, playThemePreviewSound } from '@/lib/sounds'
+import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound, setSoundTheme, playThemePreviewSound, playEasterEggSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import { checkMilestones, getActiveMilestoneBonuses, MILESTONE_CONFIG, type MilestoneConfig } from '@/lib/achievement-milestones'
@@ -23,6 +24,7 @@ import { getWordDefinition } from '@/lib/word-definitions'
 import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DESPAWN_TIME, type PowerUpType, type PowerUpConfig } from '@/lib/powerups'
 import { trackGameEnd, trackWordEaten, trackPowerUpCollected, trackCombo, trackDailyPlayed } from '@/lib/game-stats'
 import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, isSkinUnlocked, getSkinUnlockMap, type SnakeSkin } from '@/lib/snake-skins'
+import { checkEasterEggs, hasActiveEffect, expireEasterEggEffects, resetEasterEggForNewGame, type EasterEgg, type EasterEggEffect } from '@/lib/easter-eggs'
 import { getGridTheme, getAllGridThemes, getSavedGridTheme, saveGridTheme, type GridThemeId } from '@/lib/grid-themes'
 import { getSavedSoundTheme, getAllSoundThemes, saveSoundTheme, type SoundThemeId } from '@/lib/sound-themes'
 import { getSavedTrail, getAllTrails, saveTrail, type SnakeTrailType, spawnTrailParticles, drawTrail, updateTrailParticles, type TrailParticle } from '@/lib/snake-trails'
@@ -35,6 +37,8 @@ import { getNightModeConfig, saveNightModeConfig, shouldAutoEnableNightMode, get
 import { getPlayerLevel, getDifficultyAdjustment, recordGamePerformance, type DifficultyAdjustment } from '@/lib/dynamic-difficulty'
 import { calculateInGameDifficulty, getSpeedMultiplier, type InGameDifficulty } from '@/lib/in-game-difficulty'
 import { downloadShareCard, type ShareCardData } from '@/lib/share-card'
+import { WORD_PACKS, getActivePack, setActivePack, isPackUnlocked, getWordsFromPack, getPackWordEntry, getPackCategoryInfo, checkPackUnlocks, type WordPack, PACK_CATEGORY_INFO } from '@/lib/word-packs'
+import { isTutorialCompleted, markTutorialCompleted, saveTutorialProgress, resetTutorial as resetTutorialData, createTutorialState, type TutorialState } from '@/lib/tutorial'
 import {
   Play,
   RotateCcw,
@@ -55,6 +59,10 @@ import {
   Volume1,
   Moon,
   Share2,
+  GraduationCap,
+  ChevronRight,
+  Lock,
+  Package,
 } from 'lucide-react'
 
 // Game constants
@@ -318,6 +326,12 @@ export default function SnakeGame() {
   // Streak state (lazy init to avoid hydration mismatch)
   const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null)
 
+  // Active word pack state
+  const [activeWordPack, setActiveWordPack] = useState<string>('default')
+  const [unlockedPackIds, setUnlockedPackIds] = useState<string[]>([])
+  const [wordPackToast, setWordPackToast] = useState<{ name: string; emoji: string; description: string } | null>(null)
+  const wordPackToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // Track if mounted (client-side only data loading)
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
@@ -374,6 +388,13 @@ export default function SnakeGame() {
       setNightMode(nmConfig)
       // Load dynamic difficulty
       setDynDiff(getDifficultyAdjustment())
+      // Load tutorial state
+      setTutorialCompleted(isTutorialCompleted())
+      // Load active word pack and unlocked packs
+      const savedPack = getActivePack()
+      setActiveWordPack(savedPack)
+      const unlocked = WORD_PACKS.filter(p => isPackUnlocked(p)).map(p => p.id)
+      setUnlockedPackIds(unlocked)
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -433,9 +454,21 @@ export default function SnakeGame() {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
+  // Easter egg confetti particles (separate from game particles)
+  const easterEggParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; rotation: number; rotSpeed: number}[]>([])
   const prevInGameDiffLevelRef = useRef<number>(0)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const milestoneToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Tutorial state
+  const [tutorialCompleted, setTutorialCompleted] = useState(false)
+  const [tutorialActive, setTutorialActive] = useState(false)
+  const tutorialStateRef = useRef<TutorialState | null>(null)
+  const tutorialTutorialGameRef = useRef(false) // Whether the current game is a tutorial game
+  const tutorialEatWordPendingRef = useRef(false) // Whether we're waiting for the player to eat a word
+  const tutorialConfettiRef = useRef<{x: number; y: number; vx: number; vy: number; color: string; size: number; rotation: number; rotSpeed: number; life: number}[]>([])
+  const tutorialConfettiActiveRef = useRef(false)
+  const [tutorialJustCompleted, setTutorialJustCompleted] = useState(false)
 
   const [uiState, setUiState] = useState({
     score: 0,
@@ -501,6 +534,10 @@ export default function SnakeGame() {
 
   // Grid theme switch ripple state for temporary class
   const [themeSwitchRipple, setThemeSwitchRipple] = useState(false)
+
+  // Easter egg active effects display state
+  const [activeEasterEggs, setActiveEasterEggs] = useState<Array<{ id: string; name: string; emoji: string; effect: EasterEggEffect; expiresAt: number }>>([])
+  const easterEggCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const updateUI = useCallback(() => {
     const gs = gameStateRef.current
@@ -609,6 +646,26 @@ export default function SnakeGame() {
     }
   }, [])
 
+  // Spawn confetti particles for easter egg celebrations
+  const spawnEasterEggConfetti = useCallback((x: number, y: number, count: number) => {
+    const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6']
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 1.5
+      const speed = 2 + Math.random() * 5
+      easterEggParticlesRef.current.push({
+        x: x + (Math.random() - 0.5) * 40,
+        y: y + (Math.random() - 0.5) * 20,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 3,
+        life: 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: 3 + Math.random() * 5,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
+      })
+    }
+  }, [])
+
   const spawnWord = useCallback(() => {
     const gs = gameStateRef.current
     const occupiedPositions = new Set(gs.snake.map((s) => `${s.x},${s.y}`))
@@ -625,10 +682,28 @@ export default function SnakeGame() {
       const entry = getWordEntry(word)
       category = entry?.category ?? 'nature'
     } else {
-      const collected = Array.from(collectedWordsRef.current)
-      const pick = getRandomWordWithCategories(collected, gs.activeCategories)
-      word = pick.word
-      category = pick.category
+      // Check if a word pack is active
+      const packId = getActivePack()
+      if (packId !== 'default') {
+        const packWords = getWordsFromPack(packId)
+        const collected = Array.from(collectedWordsRef.current)
+        const available = packWords.filter((w) => !collected.includes(w.word))
+        if (available.length > 0) {
+          const pick = available[Math.floor(Math.random() * available.length)]
+          word = pick.word
+          category = pick.category as WordCategory
+        } else {
+          // Pack exhausted — fall back to default pool
+          const pick = getRandomWordWithCategories(collected, gs.activeCategories)
+          word = pick.word
+          category = pick.category
+        }
+      } else {
+        const collected = Array.from(collectedWordsRef.current)
+        const pick = getRandomWordWithCategories(collected, gs.activeCategories)
+        word = pick.word
+        category = pick.category
+      }
     }
 
     const margin = 3
@@ -652,6 +727,20 @@ export default function SnakeGame() {
     const seconds = totalSeconds % 60
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
+
+  // Helper to push direction with reverse controls support (easter egg)
+  const pushDirection = useCallback((dir: Direction) => {
+    if (hasActiveEffect('reverse_controls')) {
+      const reverseMap: Record<Direction, Direction> = {
+        UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT',
+      }
+      dir = reverseMap[dir]
+    }
+    directionQueueRef.current.push(dir)
+    if (directionQueueRef.current.length > 2) {
+      directionQueueRef.current = directionQueueRef.current.slice(-2)
+    }
+  }, [])
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -861,12 +950,19 @@ export default function SnakeGame() {
 
     // Draw snake
     const skin = getSnakeSkin(gs.activeSkin)
+    const isRainbowEgg = hasActiveEffect('rainbow_snake')
     snake.forEach((segment, index) => {
       if (index === 0) {
         // Snake head
-        ctx.shadowColor = gs.isDailyChallenge ? '#f59e0b' : skin.glowColor
-        ctx.shadowBlur = 12
-        ctx.fillStyle = gs.isDailyChallenge ? '#fbbf24' : skin.headColor
+        const headColor = isRainbowEgg
+          ? `hsl(${(Date.now() / 10) % 360}, 80%, 60%)`
+          : (gs.isDailyChallenge ? '#fbbf24' : skin.headColor)
+        const glowColor = isRainbowEgg
+          ? headColor
+          : (gs.isDailyChallenge ? '#f59e0b' : skin.glowColor)
+        ctx.shadowColor = glowColor
+        ctx.shadowBlur = isRainbowEgg ? 18 : 12
+        ctx.fillStyle = headColor
         ctx.beginPath()
         ctx.roundRect(
           segment.x * CELL_SIZE + 1,
@@ -904,7 +1000,11 @@ export default function SnakeGame() {
         const ratio = 1 - index / snake.length
 
         // Determine fill color based on pattern
-        if (gs.isDailyChallenge) {
+        if (isRainbowEgg) {
+          // Easter egg rainbow: faster cycling than rainbow skin
+          const hue = (index * 360 / snake.length + Date.now() / 30) % 360
+          ctx.fillStyle = `hsl(${hue}, 85%, 60%)`
+        } else if (gs.isDailyChallenge) {
           const red = Math.floor(160 + ratio * 95)
           const alpha = 0.6 + ratio * 0.4
           ctx.fillStyle = `rgba(${red}, 158, 34, ${alpha})`
@@ -1022,23 +1122,26 @@ export default function SnakeGame() {
     }
 
     // Draw word food with category-based coloring
+    const isGiantFood = hasActiveEffect('giant_food')
     if (wordFood) {
       const { word, position, spawnTime, category } = wordFood
       const elapsed = Date.now() - spawnTime
-      const pulse = 1 + Math.sin(elapsed / 300) * 0.08
-      const catColor = CATEGORY_COLORS[category] ?? '#f59e0b'
+      const giantScale = isGiantFood ? 1.6 : 1
+      const pulse = (1 + Math.sin(elapsed / 300) * 0.08) * giantScale
+      const catColor = CATEGORY_COLORS[category] ?? PACK_CATEGORY_INFO[category]?.color ?? '#f59e0b'
 
-      ctx.font = 'bold 11px monospace'
+      const fontSize = isGiantFood ? 14 : 11
+      ctx.font = `bold ${fontSize}px monospace`
       const wordWidth = ctx.measureText(word).width
-      const padding = 8
+      const padding = isGiantFood ? 12 : 8
       const boxWidth = (wordWidth + padding * 2) * pulse
       const boxHeight = (CELL_SIZE + padding) * pulse
       const boxX = position.x * CELL_SIZE + CELL_SIZE / 2 - boxWidth / 2
       const boxY = position.y * CELL_SIZE + CELL_SIZE / 2 - boxHeight / 2
 
       // Glow
-      ctx.shadowColor = catColor
-      ctx.shadowBlur = 16 + Math.sin(elapsed / 200) * 6
+      ctx.shadowColor = isGiantFood ? '#fbbf24' : catColor
+      ctx.shadowBlur = (isGiantFood ? 28 : 16) + Math.sin(elapsed / 200) * 6
 
       // Background
       const bgGrad = ctx.createLinearGradient(boxX, boxY, boxX + boxWidth, boxY + boxHeight)
@@ -1181,9 +1284,10 @@ export default function SnakeGame() {
       ctx.textAlign = 'right'
       ctx.fillText(`🔥 ×${gs.comboMultiplier.toFixed(1)} COMBO`, CANVAS_WIDTH - 12, 22)
       if (gs.lastEatenCategory) {
-        ctx.fillStyle = CATEGORY_COLORS[gs.lastEatenCategory] ?? '#f59e0b'
+        ctx.fillStyle = CATEGORY_COLORS[gs.lastEatenCategory] ?? PACK_CATEGORY_INFO[gs.lastEatenCategory]?.color ?? '#f59e0b'
         ctx.font = '10px sans-serif'
-        ctx.fillText(`${gs.comboCount}× ${getCategoryInfo(gs.lastEatenCategory).label}`, CANVAS_WIDTH - 12, 36)
+        const catLabel = getCategoryInfo(gs.lastEatenCategory)?.label ?? PACK_CATEGORY_INFO[gs.lastEatenCategory]?.label ?? gs.lastEatenCategory
+        ctx.fillText(`${gs.comboCount}× ${catLabel}`, CANVAS_WIDTH - 12, 36)
       }
       ctx.textAlign = 'start'
       ctx.globalAlpha = 1
@@ -1403,11 +1507,107 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
+    // Draw easter egg confetti particles
+    const eeParticles = easterEggParticlesRef.current
+    for (let i = eeParticles.length - 1; i >= 0; i--) {
+      const p = eeParticles[i]
+      p.x += p.vx
+      p.y += p.vy
+      p.vy += 0.1 // gravity
+      p.vx *= 0.99 // air resistance
+      p.life -= 0.008
+      p.rotation += p.rotSpeed
+      if (p.life <= 0) { eeParticles.splice(i, 1); continue }
+
+      ctx.save()
+      ctx.translate(p.x, p.y)
+      ctx.rotate(p.rotation)
+      ctx.globalAlpha = Math.min(1, p.life * 2)
+      ctx.fillStyle = p.color
+      // Draw rectangle confetti
+      ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2)
+      ctx.restore()
+      ctx.globalAlpha = 1
+    }
+
     // Scanlines overlay (retro CRT effect)
     if (gridTheme.scanlines) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'
       for (let y = 0; y < CANVAS_HEIGHT; y += 3) {
         ctx.fillRect(0, y, CANVAS_WIDTH, 1)
+      }
+    }
+
+    // Tutorial canvas overlay
+    if (tutorialTutorialGameRef.current && gameStarted && !gameOver) {
+      const ts = tutorialStateRef.current
+      if (ts && ts.active) {
+        const step = ts.steps[ts.currentStep]
+        if (step) {
+          // Dim overlay
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'
+          ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+          // Spotlight highlight
+          const pulse = 0.6 + Math.sin(Date.now() / 400) * 0.4
+          let spotlightX = CANVAS_WIDTH / 2
+          let spotlightY = CANVAS_HEIGHT / 2
+          let spotlightRadius = 60
+
+          if (step.highlight === 'snake' && snake.length > 0) {
+            const head = snake[0]
+            spotlightX = head.x * CELL_SIZE + CELL_SIZE / 2
+            spotlightY = head.y * CELL_SIZE + CELL_SIZE / 2
+            spotlightRadius = 70
+          } else if (step.highlight === 'food' && wordFood) {
+            spotlightX = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
+            spotlightY = wordFood.position.y * CELL_SIZE + CELL_SIZE / 2
+            spotlightRadius = 65
+          } else if (step.highlight === 'score') {
+            spotlightX = CANVAS_WIDTH / 2
+            spotlightY = 16
+            spotlightRadius = 50
+          } else if (step.highlight === 'controls') {
+            spotlightX = CANVAS_WIDTH / 2
+            spotlightY = CANVAS_HEIGHT - 20
+            spotlightRadius = 55
+          }
+
+          if (step.highlight !== 'none') {
+            // Pulsing circle
+            ctx.beginPath()
+            ctx.arc(spotlightX, spotlightY, spotlightRadius * (0.9 + pulse * 0.1), 0, Math.PI * 2)
+            ctx.strokeStyle = `rgba(96, 165, 250, ${pulse * 0.8})`
+            ctx.lineWidth = 2.5
+            ctx.stroke()
+
+            // Inner glow
+            const grad = ctx.createRadialGradient(spotlightX, spotlightY, 0, spotlightX, spotlightY, spotlightRadius)
+            grad.addColorStop(0, `rgba(96, 165, 250, ${pulse * 0.15})`)
+            grad.addColorStop(1, 'rgba(96, 165, 250, 0)')
+            ctx.fillStyle = grad
+            ctx.beginPath()
+            ctx.arc(spotlightX, spotlightY, spotlightRadius, 0, Math.PI * 2)
+            ctx.fill()
+
+            // Animated ring
+            const ringRadius = spotlightRadius + 5 + pulse * 8
+            ctx.beginPath()
+            ctx.arc(spotlightX, spotlightY, ringRadius, 0, Math.PI * 2)
+            ctx.strokeStyle = `rgba(96, 165, 250, ${0.3 * (1 - pulse)})`
+            ctx.lineWidth = 1
+            ctx.stroke()
+          }
+
+          // "TUTORIAL" label in top-left corner of canvas
+          ctx.fillStyle = 'rgba(59, 130, 246, 0.7)'
+          ctx.font = 'bold 10px sans-serif'
+          ctx.textAlign = 'left'
+          ctx.textBaseline = 'top'
+          ctx.fillText(`🎓 Tutorial  ${ts.currentStep + 1}/${ts.steps.length}`, 8, 6)
+          ctx.textAlign = 'start'
+          ctx.textBaseline = 'alphabetic'
+        }
       }
     }
 
@@ -1493,6 +1693,28 @@ export default function SnakeGame() {
       ctx.fillStyle = `rgba(${ssBg.r}, ${ssBg.g}, ${ssBg.b}, 0.92)`
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
+      // Tutorial completion confetti
+      if (tutorialConfettiActiveRef.current) {
+        const confetti = tutorialConfettiRef.current
+        for (let i = confetti.length - 1; i >= 0; i--) {
+          const c = confetti[i]
+          c.x += c.vx
+          c.y += c.vy
+          c.vy += 0.12
+          c.rotation += c.rotSpeed
+          c.life -= 0.008
+          if (c.life <= 0) { confetti.splice(i, 1); continue }
+          ctx.save()
+          ctx.translate(c.x, c.y)
+          ctx.rotate(c.rotation)
+          ctx.globalAlpha = Math.min(1, c.life * 2)
+          ctx.fillStyle = c.color
+          ctx.fillRect(-c.size / 2, -c.size / 4, c.size, c.size / 2)
+          ctx.restore()
+          ctx.globalAlpha = 1
+        }
+      }
+
       const startSkin = getSnakeSkin(gs.activeSkin)
 
       // === LEFT COLUMN: Title, legends, info ===
@@ -1515,12 +1737,12 @@ export default function SnakeGame() {
       const catRowH = 18
       const catColW = 130
       categories.forEach((cat, i) => {
-        const info = getCategoryInfo(cat)
+        const info = getCategoryInfo(cat) ?? { label: cat, color: '#94a3b8', emoji: '📝' }
         const col = i % catCols
         const row = Math.floor(i / catCols)
         const x = leftCenterX - (catCols * catColW) / 2 + col * catColW + 10
         const y = catStartY + row * catRowH
-        ctx.fillStyle = CATEGORY_COLORS[cat]
+        ctx.fillStyle = CATEGORY_COLORS[cat] ?? PACK_CATEGORY_INFO[cat]?.color ?? '#94a3b8'
         ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill()
         ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif'
         ctx.textAlign = 'left'
@@ -1768,6 +1990,9 @@ export default function SnakeGame() {
     floatingTextsRef.current = []
     particlesRef.current = []
     collectedWordsRef.current = new Set()
+    easterEggParticlesRef.current = []
+    setActiveEasterEggs([])
+    resetEasterEggForNewGame()
     setLeaderboardRank(0)
 
     // Daily challenge setup
@@ -1910,6 +2135,9 @@ export default function SnakeGame() {
       const now = Date.now()
       gs.activePowerUps = gs.activePowerUps.filter(pu => pu.expiresAt === 0 || pu.expiresAt > now)
 
+      // Expire easter egg effects
+      expireEasterEggEffects()
+
       // Expire uncollected power-up on the grid after 15 seconds
       if (gs.powerUp && (now - gs.powerUp.spawnTime) > POWERUP_DESPAWN_TIME) {
         gs.powerUp = null
@@ -1923,6 +2151,14 @@ export default function SnakeGame() {
       }
       if (gs.activePowerUps.some(pu => pu.type === 'slow_mo')) {
         effectiveSpeed = Math.floor(effectiveSpeed * 1.6) // 60% slower = speed value 1.6x higher
+      }
+      // Easter egg slow_mo effect (Time Lord)
+      if (hasActiveEffect('slow_mo')) {
+        effectiveSpeed = Math.floor(effectiveSpeed * 1.6)
+      }
+      // Easter egg speed_boost effect
+      if (hasActiveEffect('speed_boost')) {
+        effectiveSpeed = Math.floor(effectiveSpeed * 0.75) // 25% faster
       }
       // In-game progressive difficulty: divide by speed multiplier to make game faster
       if (gs.inGameDifficulty) {
@@ -2045,6 +2281,21 @@ export default function SnakeGame() {
             }
             updateUI()
           }
+          // Check word pack unlocks on game over
+          try {
+            const newPacks = checkPackUnlocks()
+            if (newPacks.length > 0) {
+              setUnlockedPackIds(WORD_PACKS.filter(p => isPackUnlocked(p)).map(p => p.id))
+              for (const packId of newPacks) {
+                const pack = WORD_PACKS.find(p => p.id === packId)
+                if (pack) {
+                  setWordPackToast({ name: pack.name, emoji: pack.emoji, description: pack.description })
+                  if (wordPackToastTimerRef.current) clearTimeout(wordPackToastTimerRef.current)
+                  wordPackToastTimerRef.current = setTimeout(() => setWordPackToast(null), 5000)
+                }
+              }
+            }
+          } catch { /* ignore */ }
         } catch { /* ignore */ }
       }
 
@@ -2107,7 +2358,8 @@ export default function SnakeGame() {
           const diff = gs.difficulty
           const settings = DIFFICULTY_SETTINGS[diff]
           const entry = getWordEntryIncludingCustom(wordFood.word)
-          let points = entry ? entry.points : wordFood.word.length * 10
+          const packEntry = getPackWordEntry(wordFood.word)
+          let points = packEntry ? packEntry.points : entry ? entry.points : wordFood.word.length * 10
 
           // Bronze milestone bonus: +5 points per word before multipliers
           const mBonuses = getActiveMilestoneBonuses()
@@ -2188,6 +2440,82 @@ export default function SnakeGame() {
           spawnParticles(wx, wy + CELL_SIZE / 2, '#4ade80', 8)
           playSound(playEatSound)
 
+          // ---- Easter egg checking ----
+          const eatenWord = wordFood.word
+          const triggeredEggs = checkEasterEggs(eatenWord, collectedWordsRef.current)
+          if (triggeredEggs.length > 0) {
+            for (const egg of triggeredEggs) {
+              playSound(playEasterEggSound)
+
+              // Show floating text on canvas
+              spawnFloatingText(`🥚 ${egg.message}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20, '#fbbf24')
+
+              // Show toast notification
+              toast({
+                title: `${egg.emoji} Easter Egg Discovered!`,
+                description: `${egg.name}: ${egg.description}`,
+              })
+
+              // Apply effects
+              if (egg.effect === 'rainbow_snake' || egg.effect === 'slow_mo' || egg.effect === 'reverse_controls') {
+                const expiresAt = egg.duration ? Date.now() + egg.duration : 0
+                setActiveEasterEggs(prev => {
+                  const filtered = prev.filter(e => e.effect !== egg.effect)
+                  return [...filtered, { id: egg.id, name: egg.name, emoji: egg.emoji, effect: egg.effect, expiresAt }]
+                })
+                // Clean up display after duration
+                if (egg.duration) {
+                  setTimeout(() => {
+                    setActiveEasterEggs(prev => prev.filter(e => e.id !== egg.id))
+                  }, egg.duration)
+                }
+              }
+
+              if (egg.effect === 'confetti_burst') {
+                spawnEasterEggConfetti(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 3, 80)
+              }
+
+              if (egg.effect === 'color_explosion') {
+                spawnEasterEggConfetti(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 120)
+                // Also spawn color bursts across the grid
+                for (let i = 0; i < 6; i++) {
+                  const rx = Math.random() * CANVAS_WIDTH
+                  const ry = Math.random() * CANVAS_HEIGHT
+                  spawnParticles(rx, ry, `hsl(${Math.random() * 360}, 80%, 60%)`, 10)
+                }
+              }
+
+              if (egg.effect === 'extra_life') {
+                gs.extraLifeAvailable = true
+                updateUI()
+              }
+
+              if (egg.effect === 'giant_food') {
+                // Giant food is handled purely in rendering - set a timed display
+                const expiresAt = Date.now() + 10000
+                setActiveEasterEggs(prev => {
+                  const filtered = prev.filter(e => e.effect !== 'giant_food')
+                  return [...filtered, { id: egg.id, name: egg.name, emoji: egg.emoji, effect: 'giant_food' as EasterEggEffect, expiresAt }]
+                })
+                setTimeout(() => {
+                  setActiveEasterEggs(prev => prev.filter(e => e.id !== egg.id))
+                }, 10000)
+              }
+
+              if (egg.effect === 'speed_boost') {
+                // Temporarily make the snake faster (reduce speed by 20% for duration)
+                const expiresAt = Date.now() + (egg.duration ?? 5000)
+                setActiveEasterEggs(prev => {
+                  const filtered = prev.filter(e => e.effect !== 'speed_boost')
+                  return [...filtered, { id: egg.id, name: egg.name, emoji: egg.emoji, effect: 'speed_boost' as EasterEggEffect, expiresAt }]
+                })
+                setTimeout(() => {
+                  setActiveEasterEggs(prev => prev.filter(e => e.id !== egg.id))
+                }, egg.duration ?? 5000)
+              }
+            }
+          }
+
           // Update in-game progressive difficulty
           const prevLevel = prevInGameDiffLevelRef.current
           const newDifficulty = calculateInGameDifficulty(gs.score, gs.wordsEaten, gs.snake.length, gs.elapsedTime)
@@ -2229,6 +2557,22 @@ export default function SnakeGame() {
                 }
               }
             }
+            // Check word pack unlocks
+            try {
+              const newPacks = checkPackUnlocks()
+              if (newPacks.length > 0) {
+                setUnlockedPackIds(WORD_PACKS.filter(p => isPackUnlocked(p)).map(p => p.id))
+                for (const packId of newPacks) {
+                  const pack = WORD_PACKS.find(p => p.id === packId)
+                  if (pack) {
+                    spawnFloatingText(`📦 ${pack.emoji} ${pack.name} Pack Unlocked!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80, pack.color)
+                    setWordPackToast({ name: pack.name, emoji: pack.emoji, description: pack.description })
+                    if (wordPackToastTimerRef.current) clearTimeout(wordPackToastTimerRef.current)
+                    wordPackToastTimerRef.current = setTimeout(() => setWordPackToast(null), 5000)
+                  }
+                }
+              }
+            } catch { /* ignore */ }
           } catch { /* ignore */ }
 
           // Check streak milestones
@@ -2417,7 +2761,17 @@ export default function SnakeGame() {
         ArrowLeft: 'LEFT', a: 'LEFT', A: 'LEFT',
         ArrowRight: 'RIGHT', d: 'RIGHT', D: 'RIGHT',
       }
-      const newDir = keyToDir[e.key]
+
+      // Easter egg: reverse controls (Chaos Mode)
+      const reverseMap: Record<Direction, Direction> = {
+        UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT',
+      }
+      const isReversed = hasActiveEffect('reverse_controls')
+
+      let newDir = keyToDir[e.key]
+      if (newDir && isReversed) {
+        newDir = reverseMap[newDir]
+      }
       if (newDir) {
         e.preventDefault()
         directionQueueRef.current.push(newDir)
@@ -2496,6 +2850,189 @@ export default function SnakeGame() {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     }
   }, [])
+
+  // === Tutorial Functions ===
+  const startTutorial = useCallback(() => {
+    // Create tutorial state (don't resume — always start fresh for clarity)
+    const state = createTutorialState(false)
+    tutorialStateRef.current = state
+    tutorialTutorialGameRef.current = true
+    tutorialEatWordPendingRef.current = false
+    setTutorialActive(true)
+
+    // Start a special slow-paced game (easy difficulty, slow speed)
+    const gs = gameStateRef.current
+    gs.snake = [
+      { x: 5, y: 12 },
+      { x: 4, y: 12 },
+      { x: 3, y: 12 },
+    ]
+    gs.direction = 'RIGHT'
+    gs.gameOver = false
+    gs.paused = false
+    gs.score = 0
+    gs.speed = 220 // Slow speed for tutorial
+    gs.wordsEaten = 0
+    gs.gameStarted = true
+    gs.wordFood = null
+    gs.startTime = Date.now()
+    gs.elapsedTime = 0
+    gs.difficulty = 'easy'
+    directionQueueRef.current = []
+    floatingTextsRef.current = []
+    particlesRef.current = []
+    collectedWordsRef.current = new Set()
+    setLeaderboardRank(0)
+    gs.isDailyChallenge = false
+    gs.dailyChallengeWords = []
+    gs.dailyWordsCollected = []
+    gs.dailyTargetScore = 0
+    gs.streakMultiplier = 1
+    gs.powerUp = null
+    gs.activePowerUps = []
+    gs.comboCount = 0
+    gs.lastEatenCategory = null
+    gs.comboMultiplier = 1
+    achievementQueue.clear()
+    gs.lastAchievement = null
+    gs.lastMilestone = null
+    gs.weather = 'clear'
+    weatherParticlesRef.current = []
+    gs.isSpeedRun = false
+    gs.speedRunTimeLeft = 60
+    gs.speedRunMaxCombo = 0
+    gs.speedRunPowerUpsCollected = 0
+    gs.speedRunLongestSnake = gs.snake.length
+    gs.wordsByCategory = {}
+    gs.inGameDifficulty = null
+    prevInGameDiffLevelRef.current = 0
+
+    spawnWord()
+    playSound(playStartSound)
+    updateUI()
+  }, [updateUI, playSound, spawnWord])
+
+  const advanceTutorial = useCallback(() => {
+    const ts = tutorialStateRef.current
+    if (!ts) return
+    const nextStep = ts.currentStep + 1
+    if (nextStep >= ts.steps.length) {
+      // Tutorial complete
+      markTutorialCompleted()
+      setTutorialCompleted(true)
+      setTutorialActive(false)
+      tutorialStateRef.current = null
+      tutorialTutorialGameRef.current = false
+
+      // Spawn confetti!
+      const confettiColors = ['#60a5fa', '#f59e0b', '#4ade80', '#f472b6', '#a78bfa', '#34d399', '#fbbf24']
+      const confetti = tutorialConfettiRef.current
+      for (let i = 0; i < 80; i++) {
+        confetti.push({
+          x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 200,
+          y: CANVAS_HEIGHT / 2 + (Math.random() - 0.5) * 100,
+          vx: (Math.random() - 0.5) * 8,
+          vy: -Math.random() * 6 - 2,
+          color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          size: 3 + Math.random() * 5,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.3,
+          life: 1,
+        })
+      }
+      tutorialConfettiActiveRef.current = true
+      setTutorialJustCompleted(true)
+
+      // Clear confetti after 3 seconds
+      setTimeout(() => {
+        tutorialConfettiActiveRef.current = false
+        tutorialConfettiRef.current = []
+        setTutorialJustCompleted(false)
+      }, 3000)
+
+      // End the tutorial game and return to start screen
+      const gs = gameStateRef.current
+      gs.gameStarted = false
+      gs.gameOver = false
+      updateUI()
+    } else {
+      ts.currentStep = nextStep
+      saveTutorialProgress(nextStep)
+
+      // If the next step requires eating a word, set pending flag
+      const step = ts.steps[nextStep]
+      if (step.action === 'eat_word') {
+        tutorialEatWordPendingRef.current = true
+      } else {
+        tutorialEatWordPendingRef.current = false
+      }
+
+      // Force game to be unpaused during tutorial
+      const gs = gameStateRef.current
+      if (gs.paused) {
+        gs.paused = false
+        updateUI()
+      }
+    }
+  }, [updateUI])
+
+  const endTutorial = useCallback(() => {
+    const gs = gameStateRef.current
+    gs.gameStarted = false
+    gs.gameOver = false
+    tutorialStateRef.current = null
+    tutorialTutorialGameRef.current = false
+    tutorialEatWordPendingRef.current = false
+    setTutorialActive(false)
+    updateUI()
+  }, [updateUI])
+
+  const handleTutorialReset = useCallback(() => {
+    resetTutorialData()
+    setTutorialCompleted(false)
+  }, [])
+
+  // Tutorial keyboard handler
+  const handleTutorialKey = useCallback((e: KeyboardEvent) => {
+    const ts = tutorialStateRef.current
+    if (!ts || !ts.active) return
+    const step = ts.steps[ts.currentStep]
+
+    if (e.key === 'Enter') {
+      // Advance non-action steps with Enter
+      if (!step.action || step.id === 'complete') {
+        advanceTutorial()
+      }
+      return
+    }
+
+    if (step.action === 'move_up' && (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W')) {
+      // The normal game key handler will process the direction. Just advance after a tick.
+      setTimeout(() => advanceTutorial(), 300)
+    }
+  }, [advanceTutorial])
+
+  // Tutorial key listener
+  useEffect(() => {
+    if (!tutorialActive) return
+    window.addEventListener('keydown', handleTutorialKey)
+    return () => window.removeEventListener('keydown', handleTutorialKey)
+  }, [tutorialActive, handleTutorialKey])
+
+  // Watch for word eating during tutorial
+  const prevWordsEatenRef = useRef(0)
+  useEffect(() => {
+    if (!tutorialActive) {
+      prevWordsEatenRef.current = 0
+      return
+    }
+    const gs = gameStateRef.current
+    if (tutorialEatWordPendingRef.current && gs.wordsEaten > prevWordsEatenRef.current) {
+      tutorialEatWordPendingRef.current = false
+      setTimeout(() => advanceTutorial(), 500)
+    }
+    prevWordsEatenRef.current = gs.wordsEaten
+  }, [uiState.wordsEaten, tutorialActive, advanceTutorial])
 
   const wordList = getWordList()
   const totalCount = getTotalCount()
@@ -2748,6 +3285,84 @@ export default function SnakeGame() {
                 </div>
               )}
 
+              {/* Word Pack Selector - horizontal scrollable pills */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Package className="h-3.5 w-3.5 text-slate-500" />
+                    <span className="text-xs text-slate-500 font-medium">Word Pack:</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                    {/* Default pack */}
+                    <button
+                      onClick={() => {
+                        setActivePack('default')
+                        setActiveWordPack('default')
+                        playSound(playClickSound)
+                      }}
+                      className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border active:scale-95 ${
+                        activeWordPack === 'default'
+                          ? 'bg-slate-600/60 text-slate-100 border-slate-400/50 shadow-sm shadow-slate-500/20'
+                          : 'bg-slate-800/60 text-slate-400 border-slate-700/30 hover:text-slate-200 hover:border-slate-600/50'
+                      }`}
+                    >
+                      <span>🐍</span>
+                      <span>Classic</span>
+                      <span className="text-[9px] opacity-60">{WORD_ENTRIES.length}</span>
+                    </button>
+                    {WORD_PACKS.map((pack) => {
+                      const unlocked = unlockedPackIds.includes(pack.id)
+                      const isActive = activeWordPack === pack.id
+                      return (
+                        <button
+                          key={pack.id}
+                          onClick={() => {
+                            if (!unlocked) return
+                            setActivePack(pack.id)
+                            setActiveWordPack(pack.id)
+                            playSound(playClickSound)
+                          }}
+                          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border active:scale-95 ${
+                            isActive && unlocked
+                              ? 'text-white shadow-sm word-pack-glow'
+                              : unlocked
+                                ? 'text-slate-300 border-slate-700/30 hover:border-slate-600/50 hover:text-slate-100'
+                                : 'text-slate-600 border-slate-700/20 cursor-not-allowed opacity-60'
+                          }`}
+                          style={isActive && unlocked ? {
+                            backgroundColor: `${pack.color}30`,
+                            borderColor: `${pack.color}60`,
+                            '--pack-glow': `${pack.color}40`,
+                            boxShadow: `0 0 12px ${pack.color}20`,
+                          } : unlocked ? {
+                            backgroundColor: `${pack.color}10`,
+                          } : undefined}
+                          title={!unlocked ? pack.unlockLabel : `${pack.name}: ${pack.description} (${pack.words.length} words)`}
+                        >
+                          <span>{pack.emoji}</span>
+                          <span>{pack.name}</span>
+                          <span className="text-[9px] opacity-60">{pack.words.length}</span>
+                          {!unlocked && <Lock className="h-3 w-3 ml-0.5" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {activeWordPack !== 'default' && (() => {
+                    const activePack = WORD_PACKS.find(p => p.id === activeWordPack)
+                    if (!activePack) return null
+                    return (
+                      <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r border border-slate-700/30" style={{ backgroundImage: `linear-gradient(to right, ${activePack.color}08, transparent)` }}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{activePack.emoji}</span>
+                          <span className="text-xs text-slate-300 font-medium">{activePack.name}</span>
+                          <span className="text-[10px] text-slate-500">{activePack.description}</span>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+              )}
+
               {/* Category Filter - wraps on small screens */}
               {(!uiState.gameStarted || uiState.gameOver) && (
                 <div className="mb-3">
@@ -2961,10 +3576,62 @@ export default function SnakeGame() {
               )}
 
               {/* Canvas with dramatic border and inner glow */}
-              <div className={`relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring ${uiState.gameOver ? 'game-over-shake' : ''} ${(!uiState.gameStarted || uiState.gameOver) ? 'preview-snake-glow' : ''}`}>
+              <div className={`relative rounded-lg overflow-hidden ring-1 ring-slate-600/50 ring-offset-1 ring-offset-slate-900 shadow-lg shadow-slate-950/50 canvas-glow-ring ${uiState.gameOver ? 'game-over-shake' : ''} ${(!uiState.gameStarted || uiState.gameOver) ? 'preview-snake-glow' : ''} ${hasActiveEffect('reverse_controls') && uiState.gameStarted && !uiState.gameOver ? 'reverse-controls-indicator ring-2' : ''}`}>
                 <div className="absolute inset-0 rounded-lg ring-2 ring-inset ring-green-500/10 pointer-events-none" />
                 <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block w-full h-auto" />
               </div>
+
+              {/* Tutorial overlay panel */}
+              {tutorialActive && tutorialStateRef.current && (() => {
+                const step = tutorialStateRef.current.steps[tutorialStateRef.current.currentStep]
+                if (!step) return null
+                return (
+                  <div className="mt-3 rounded-lg border border-blue-500/40 bg-gradient-to-r from-blue-950/80 to-slate-900/90 backdrop-blur-sm p-4 shadow-lg shadow-blue-900/20 animate-in fade-in slide-in-from-bottom-2 duration-300 tutorial-spotlight">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 text-2xl">{step.emoji}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <h3 className="text-sm font-bold text-blue-300">{step.title}</h3>
+                          <span className="text-[10px] text-blue-400/50 font-mono shrink-0">
+                            {tutorialStateRef.current.currentStep + 1}/{tutorialStateRef.current.steps.length}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300 leading-relaxed">{step.description}</p>
+                        {step.action && (
+                          <p className="text-[10px] text-blue-400/70 mt-1.5 flex items-center gap-1">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                            {step.action === 'move_up' && 'Press ↑ or W to try it!'}
+                            {step.action === 'eat_word' && 'Move your snake to the glowing word!'}
+                          </p>
+                        )}
+                        {!step.action && (
+                          <button
+                            onClick={advanceTutorial}
+                            className="mt-2 inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white active:scale-95 transition-all"
+                          >
+                            Next <ChevronRight className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {/* Step progress dots */}
+                    <div className="flex items-center gap-1.5 mt-3">
+                      {tutorialStateRef.current.steps.map((s, i) => (
+                        <div
+                          key={s.id}
+                          className={`h-1 rounded-full transition-all duration-300 tutorial-step-progress ${
+                            i < tutorialStateRef.current.currentStep
+                              ? 'w-4 bg-blue-500'
+                              : i === tutorialStateRef.current.currentStep
+                              ? 'w-4 bg-blue-400 animate-pulse'
+                              : 'w-2 bg-slate-700'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* Start / Daily buttons - side by side on larger screens */}
               <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
@@ -2973,6 +3640,14 @@ export default function SnakeGame() {
                     <Button onClick={() => resetGame()} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 active:scale-95 transition-transform">
                       <Play className="h-4 w-4 mr-1" /> Start Game
                     </Button>
+                    {!tutorialCompleted && (
+                      <Button
+                        onClick={startTutorial}
+                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/30 active:scale-95 transition-transform"
+                      >
+                        <GraduationCap className="h-4 w-4 mr-1" /> Tutorial
+                      </Button>
+                    )}
                     <Button
                       onClick={handleDailyChallenge}
                       className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-900/30 active:scale-95 transition-transform"
@@ -3015,6 +3690,14 @@ export default function SnakeGame() {
                     >
                       <Settings className="h-4 w-4 mr-1" /> Settings
                     </Button>
+                    {tutorialCompleted && (
+                      <button
+                        onClick={() => { handleTutorialReset(); startTutorial() }}
+                        className="text-[10px] text-blue-400/70 hover:text-blue-400 transition-colors underline underline-offset-2"
+                      >
+                        Replay Tutorial
+                      </button>
+                    )}
                   </>
                 )}
                 {uiState.gameStarted && !uiState.gameOver && (
@@ -3092,12 +3775,12 @@ export default function SnakeGame() {
                 <div className="grid grid-cols-3 gap-1.5 w-36">
                   <div />
                   <button
-                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('UP'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    onTouchStart={(e) => { e.preventDefault(); pushDirection('UP') }}
                     className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
                   >↑</button>
                   <div />
                   <button
-                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('LEFT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    onTouchStart={(e) => { e.preventDefault(); pushDirection('LEFT') }}
                     className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
                   >←</button>
                   <button
@@ -3105,12 +3788,12 @@ export default function SnakeGame() {
                     className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-400 text-[10px] select-none transition-transform"
                   >⏸</button>
                   <button
-                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('RIGHT'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    onTouchStart={(e) => { e.preventDefault(); pushDirection('RIGHT') }}
                     className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
                   >→</button>
                   <div />
                   <button
-                    onTouchStart={(e) => { e.preventDefault(); directionQueueRef.current.push('DOWN'); if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2) }}
+                    onTouchStart={(e) => { e.preventDefault(); pushDirection('DOWN') }}
                     className="glass-dpad h-12 rounded-xl flex items-center justify-center text-slate-300 text-lg select-none transition-transform"
                   >↓</button>
                   <div />
@@ -3197,7 +3880,7 @@ export default function SnakeGame() {
                 <div className="text-xs">
                   <span className="text-amber-300 font-bold">×{uiState.comboMultiplier.toFixed(1)} Combo</span>
                   {uiState.lastEatenCategory && (
-                    <span className="text-amber-400/60 ml-1">({uiState.comboCount}× {getCategoryInfo(uiState.lastEatenCategory).label})</span>
+                    <span className="text-amber-400/60 ml-1">({uiState.comboCount}× {getCategoryInfo(uiState.lastEatenCategory)?.label ?? PACK_CATEGORY_INFO[uiState.lastEatenCategory]?.label ?? uiState.lastEatenCategory})</span>
                   )}
                 </div>
               </div>
@@ -3214,6 +3897,34 @@ export default function SnakeGame() {
                       style={{ borderColor: `${config.color}40`, backgroundColor: `${config.color}15`, color: config.color }}>
                       <span>{config.emoji}</span>
                       <span className="font-medium">{config.label}</span>
+                      {remaining > 0 && <span className="opacity-70">{remaining}s</span>}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Active easter egg effects indicator */}
+            {activeEasterEggs.length > 0 && uiState.gameStarted && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {activeEasterEggs.map((ee) => {
+                  const effectColors: Record<string, { bg: string; border: string; text: string }> = {
+                    rainbow_snake: { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.4)', text: '#a855f7' },
+                    giant_food: { bg: 'rgba(245,158,11,0.15)', border: 'rgba(245,158,11,0.4)', text: '#f59e0b' },
+                    reverse_controls: { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.4)', text: '#ef4444' },
+                    slow_mo: { bg: 'rgba(56,189,248,0.15)', border: 'rgba(56,189,248,0.4)', text: '#38bdf8' },
+                    speed_boost: { bg: 'rgba(34,197,94,0.15)', border: 'rgba(34,197,94,0.4)', text: '#22c55e' },
+                    confetti_burst: { bg: 'rgba(236,72,153,0.15)', border: 'rgba(236,72,153,0.4)', text: '#ec4899' },
+                    extra_life: { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.4)', text: '#fbbf24' },
+                    color_explosion: { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.4)', text: '#a855f7' },
+                  }
+                  const colors = effectColors[ee.effect] ?? effectColors.rainbow_snake
+                  const remaining = ee.expiresAt > 0 ? Math.max(0, Math.ceil((ee.expiresAt - Date.now()) / 1000)) : 0
+                  return (
+                    <div key={ee.id} className="flex items-center gap-1 px-2 py-1 rounded-md text-xs border animate-pulse easter-egg-reveal"
+                      style={{ borderColor: colors.border, backgroundColor: colors.bg, color: colors.text }}>
+                      <span>🥚</span>
+                      <span className="font-medium">{ee.name}</span>
                       {remaining > 0 && <span className="opacity-70">{remaining}s</span>}
                     </div>
                   )
@@ -3269,8 +3980,9 @@ export default function SnakeGame() {
                   <div className="space-y-1 pr-2 custom-scrollbar">
                     {wordList.map(({ word, count }, idx) => {
                       const entry = getWordEntry(word)
-                      const catColor = entry ? CATEGORY_COLORS[entry.category] : '#94a3b8'
-                      const catInfo = entry ? getCategoryInfo(entry.category) : null
+                      const packWord = getPackWordEntry(word)
+                      const catColor = entry ? CATEGORY_COLORS[entry.category] : packWord ? (PACK_CATEGORY_INFO[packWord.category]?.color ?? '#94a3b8') : '#94a3b8'
+                      const catInfo = entry ? getCategoryInfo(entry.category) : packWord ? getPackCategoryInfo(packWord.category) : null
                       const wordDef = getWordDefinition(word)
                       const isNew = idx === 0 && newWordKey > 0
                       return (
@@ -3296,7 +4008,7 @@ export default function SnakeGame() {
                                   const rarity = entry ? getRarityForPoints(entry.points) : 'common'
                                   const rConf = RARITY_CONFIG[rarity]
                                   return rarity !== 'common' ? (
-                                    <span className="text-[8px] opacity-70" style={{ color: rConf.color }}>{rConf.emoji}</span>
+                                    <span className={`text-[8px] ${rarity === 'legendary' ? 'rainbow-text-flow font-bold opacity-100' : 'opacity-70'}`} style={{ color: rarity !== 'legendary' ? rConf.color : undefined }}>{rConf.emoji} {rarity === 'legendary' ? 'LEGENDARY' : ''}</span>
                                   ) : null
                                 })()}
                               </span>
@@ -3399,7 +4111,7 @@ export default function SnakeGame() {
       {/* Achievement toast with rotating sparkle */}
       {uiState.lastAchievement && (
         <div className="fixed top-20 right-4 z-[90] animate-in slide-in-from-right-5 fade-in duration-500">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-900/90 border border-amber-600/50 shadow-xl shadow-amber-900/30 backdrop-blur-sm">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-900/90 border border-amber-600/50 shadow-xl shadow-amber-900/30 backdrop-blur-sm egg-badge-shimmer">
             <span className="text-2xl">{uiState.lastAchievement.emoji}</span>
             <div>
               <p className="text-amber-300 text-sm font-bold">
@@ -3430,6 +4142,22 @@ export default function SnakeGame() {
               <p className="text-yellow-400/80 text-xs">{uiState.lastMilestone.description}</p>
             </div>
             <Sparkles className="h-5 w-5 text-yellow-400 sparkle-spin" />
+          </div>
+        </div>
+      )}
+
+      {/* Word Pack Unlocked toast */}
+      {wordPackToast && (
+        <div className="fixed top-52 right-4 z-[92] animate-in slide-in-from-right-5 fade-in duration-500">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-900/90 border border-emerald-600/50 shadow-xl shadow-emerald-900/30 backdrop-blur-sm pack-unlock-burst">
+            <span className="text-2xl">{wordPackToast.emoji}</span>
+            <div>
+              <p className="text-emerald-300 text-sm font-bold">
+                New Word Pack Unlocked!
+              </p>
+              <p className="text-emerald-400/80 text-xs">{wordPackToast.name} — {wordPackToast.description}</p>
+            </div>
+            <Package className="h-4 w-4 text-emerald-500 sparkle-spin" />
           </div>
         </div>
       )}

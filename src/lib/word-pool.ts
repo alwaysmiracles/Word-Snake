@@ -63,6 +63,9 @@ const WORD_ENTRIES: WordEntry[] = [
   { word: 'glacier', category: 'nature', points: 14 },
   { word: 'aurora', category: 'nature', points: 12 },
   { word: 'storm', category: 'nature', points: 10 },
+  { word: 'nature', category: 'nature', points: 10 },
+  { word: 'serenity', category: 'nature', points: 14 },
+  { word: 'blossom', category: 'nature', points: 12 },
   // Emotions
   { word: 'joy', category: 'emotion', points: 6 },
   { word: 'hope', category: 'emotion', points: 8 },
@@ -75,6 +78,7 @@ const WORD_ENTRIES: WordEntry[] = [
   { word: 'fury', category: 'emotion', points: 8 },
   { word: 'grace', category: 'emotion', points: 10 },
   { word: 'pride', category: 'emotion', points: 10 },
+  { word: 'valor', category: 'emotion', points: 14 },
   { word: 'faith', category: 'emotion', points: 10 },
   { word: 'love', category: 'emotion', points: 8 },
   { word: 'zeal', category: 'emotion', points: 8 },
@@ -96,6 +100,7 @@ const WORD_ENTRIES: WordEntry[] = [
   { word: 'smoke', category: 'element', points: 10 },
   { word: 'cloud', category: 'element', points: 10 },
   { word: 'tide', category: 'element', points: 8 },
+  { word: 'lightning', category: 'element', points: 14 },
   { word: 'dew', category: 'element', points: 6 },
   // Time
   { word: 'dawn', category: 'time', points: 8 },
