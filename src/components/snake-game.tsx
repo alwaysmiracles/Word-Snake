@@ -149,6 +149,10 @@ import { lookupWord, getWordOfTheDay, discoverRandomWord, searchDictionary, getD
 import { quickExport as wireQuickExport, getExportHistory as wireGetExportHistory, previewExport, generateShareableText as wireGenShareText, generateSessionReport, generateAchievementReport, getExportSummary } from '@/lib/stats-export-wire'
 import { getShareableReplays, getReplayLeaderboard, generateShareText, getShareHistory, validateShareCode } from '@/lib/replay-sharing-wire'
 import { createPoem, getPoemHistory, getFavorites as getPoemFavorites, getPoemStats, getWordCloud, getStyleTemplates, getDailyPoemChallenge, isFavorite as isPoemFavorite } from '@/lib/poem-studio-wire'
+import { getMatchHistory as pvpGetHistory, getWinStats, getPlayerProfileSummary, calculateEloRating, setupPvPMatch, getHeadToHead, getPvPLeaderboard, getRematchOption, getPvPTips } from '@/lib/pvp-enhancement-wire'
+import { getSeasonCalendar, getActiveSeason, browseAllSeasons, activateSeason, getInstalledPacks, getSeasonProgress, getSeasonRewards, getSeasonCountdown } from '@/lib/seasonal-content-wire'
+import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, validateWordList, exportAsWordPack as cwExportPack, getWordQueue, getModificationHistory, getRecommendations } from '@/lib/custom-words-manager-wire'
+import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
 import {
   Play,
   RotateCcw,
@@ -901,6 +905,11 @@ export default function SnakeGame() {
   const minigamePlayWireRef = useRef<MinigamePlayWire>(createMinigamePlayWire(minigameLauncherRef.current))
   const masteryPanelWireRef = useRef<MasteryPanelWire>(createMasteryPanelWire(masteryPanelRef.current, masteryTrackerRef.current))
   // Round 45: XP Progression is standalone functions (no ref needed)
+  // Round 47: PvP, Seasonal, Custom Words, Accessibility panel states
+  const [showPvPPanel, setShowPvPPanel] = useState(false)
+  const [showSeasonalPanel, setShowSeasonalPanel] = useState(false)
+  const [showCustomWordsPanel, setShowCustomWordsPanel] = useState(false)
+  const [showAccessibilityPanel, setShowAccessibilityPanel] = useState(false)
   // Round 46: Dictionary, Stats Export, Replay Sharing, Poem Studio panel states
   const [showDictionaryPanel, setShowDictionaryPanel] = useState(false)
   const [showStatsExportPanel, setShowStatsExportPanel] = useState(false)
