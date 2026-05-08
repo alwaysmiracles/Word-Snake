@@ -78,6 +78,10 @@ import { createInitialSfxConfig, saveSfxConfig, loadSfxConfig, getSfxVolume, set
 import { generateWordBookCanvas, downloadWordBookImage, exportWordBook, calculateExportStats, DEFAULT_EXPORT_CONFIG, type WordBookExportConfig } from '@/lib/word-book-export'
 import { generateAchievementShowcaseCanvas, downloadAchievementShowcase, shareAchievementShowcase, calculateShowcaseStats, DEFAULT_SHOWCASE_CONFIG, type AchievementShowcaseConfig } from '@/lib/achievement-showcase'
 import { saveSession, getSessions, getLastNSessions, calculateTrends, compareSessions, generateComparisonText, getPerformanceColor, type GameSession, type ComparisonSummary, STATS_STORAGE_KEY } from '@/lib/stats-compare-enhanced'
+import { generateShareCode, parseShareCode, copyShareCodeToClipboard, downloadReplayFile, readReplayFile, formatReplaySummary, type SharedReplayData } from '@/lib/replay-sharing'
+import { createWordPack, addWordToPack, removeWordFromPack, saveWordPack, loadWordPacks, deleteWordPack, exportPackAsJSON, importPackFromJSON, validateWord, PACK_COLORS, PACK_EMOJIS, type CustomWordPack, type CustomWord, MAX_WORDS_PER_PACK, MAX_PACKS } from '@/lib/word-pack-creator'
+import { generateStatsCharts, downloadChartImage, drawLineChart, drawBarChart, drawPieChart, DEFAULT_CHART_CONFIG, CHART_COLORS, type ChartDataPoint } from '@/lib/stats-charts'
+import { formatPowerUpTime, getPowerUpUrgency, getPowerUpProgressBarWidth, calculateOverlayPosition, drawPowerUpOverlay, POWERUP_OVERLAY_THEMES, OVERLAY_HEIGHT, OVERLAY_MIN_WIDTH, type ActivePowerUpOverlay, type PowerUpOverlayLayout } from '@/lib/powerup-overlay'
 import {
   Play,
   RotateCcw,
@@ -507,6 +511,8 @@ export default function SnakeGame() {
       layoutMetricsRef.current = calculateLayout(deviceInfo, responsiveConfig)
       // Load SFX volume config
       setSfxConfig(loadSfxConfig())
+      // Load custom word packs
+      setCustomWordPacks(loadWordPacks())
       // Load stats comparison from recent sessions
       const recentSessions = getLastNSessions(10)
       if (recentSessions.length >= 2) {
@@ -621,6 +627,12 @@ export default function SnakeGame() {
   // SFX volume control state
   const [sfxConfig, setSfxConfig] = useState<SfxVolumeConfig>(createInitialSfxConfig())
   const [showSfxPanel, setShowSfxPanel] = useState(false)
+  // Custom word packs
+  const [customWordPacks, setCustomWordPacks] = useState<CustomWordPack[]>([])
+  const [showPackCreator, setShowPackCreator] = useState(false)
+  const [editingPack, setEditingPack] = useState<CustomWordPack | null>(null)
+  // Power-up overlay layout
+  const powerUpOverlayLayout = useRef<PowerUpOverlayLayout>('horizontal')
   // Stats comparison state
   const [comparisonSummary, setComparisonSummary] = useState<ComparisonSummary | null>(null)
   // Event feed persistence
@@ -6701,6 +6713,175 @@ export default function SnakeGame() {
                     className="px-2 py-1 text-[8px] rounded-full border border-cyan-700/30 bg-cyan-900/30 text-cyan-300 hover:bg-cyan-800/40 transition-all active:scale-90 export-stats-btn"
                   >
                     📊 Copy Stats
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Custom Word Pack Creator */}
+            {mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-rose-900/15 to-pink-900/10 border border-rose-700/20 pack-creator-panel">
+                <div className="flex items-center justify-between mb-1.5 cursor-pointer" onClick={() => setShowPackCreator(!showPackCreator)}>
+                  <div className="flex items-center gap-1.5">
+                    <Package className="h-3 w-3 text-rose-400" />
+                    <span className="text-[10px] text-slate-400 font-medium">Custom Packs</span>
+                    {customWordPacks.length > 0 && (
+                      <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-rose-900/50 text-rose-400 border border-rose-700/30 pack-count-badge">
+                        {customWordPacks.length}/{MAX_PACKS}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] text-rose-400">{showPackCreator ? '▲' : '▼'}</span>
+                </div>
+                {showPackCreator && (
+                  <div className="space-y-2 mt-2 pack-creator-expanded">
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => {
+                          const newPack = createWordPack('My Pack', PACK_EMOJIS[customWordPacks.length % PACK_EMOJIS.length], 'A custom word collection')
+                          saveWordPack(newPack)
+                          setCustomWordPacks(loadWordPacks())
+                          setEditingPack(newPack)
+                          if (canHaptic()) hapticFeedback('selection')
+                        }}
+                        className="px-2 py-1 text-[8px] rounded-full border border-rose-700/30 bg-rose-900/30 text-rose-300 hover:bg-rose-800/40 transition-all active:scale-90 pack-create-btn"
+                        disabled={customWordPacks.length >= MAX_PACKS}
+                      >
+                        + New Pack
+                      </button>
+                      <button
+                        onClick={() => {
+                          const input = document.createElement('input')
+                          input.type = 'file'
+                          input.accept = '.json'
+                          input.onchange = async (e) => {
+                            const file = (e.target as HTMLInputElement).files?.[0]
+                            if (!file) return
+                            const text = await file.text()
+                            const imported = importPackFromJSON(text)
+                            if (imported) {
+                              saveWordPack(imported)
+                              setCustomWordPacks(loadWordPacks())
+                              if (canHaptic()) hapticFeedback('success')
+                            }
+                          }
+                          input.click()
+                        }}
+                        className="px-2 py-1 text-[8px] rounded-full border border-slate-700/30 bg-slate-800/40 text-slate-400 hover:text-slate-200 transition-all active:scale-90 pack-import-btn"
+                      >
+                        📥 Import
+                      </button>
+                    </div>
+                    {customWordPacks.map(pack => (
+                      <div key={pack.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-slate-700/30 bg-slate-800/20 pack-item">
+                        <span className="text-xs">{pack.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-slate-300 font-medium truncate">{pack.name}</div>
+                          <div className="text-[8px] text-slate-500">{pack.words.length} words · played {pack.playCount}x</div>
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => {
+                              const json = exportPackAsJSON(pack)
+                              if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                                navigator.clipboard.writeText(json)
+                              }
+                              if (canHaptic()) hapticFeedback('selection')
+                            }}
+                            className="text-[8px] px-1 py-0.5 rounded bg-slate-700/40 text-slate-400 hover:text-slate-200 transition-colors"
+                            title="Export as JSON"
+                          >📤</button>
+                          <button
+                            onClick={() => {
+                              deleteWordPack(pack.id)
+                              setCustomWordPacks(loadWordPacks())
+                              if (editingPack?.id === pack.id) setEditingPack(null)
+                              if (canHaptic()) hapticFeedback('warning')
+                            }}
+                            className="text-[8px] px-1 py-0.5 rounded bg-red-900/40 text-red-400 hover:text-red-300 transition-colors"
+                            title="Delete pack"
+                          >🗑️</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Stats Charts */}
+            {mounted && comparisonSummary && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-indigo-900/15 to-violet-900/10 border border-indigo-700/20 stats-charts-panel">
+                <div className="flex items-center justify-between mb-1.5 cursor-pointer">
+                  <div className="flex items-center gap-1.5">
+                    <BarChart3 className="h-3 w-3 text-indigo-400" />
+                    <span className="text-[10px] text-slate-400 font-medium">Charts</span>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const charts = generateStatsCharts()
+                        downloadChartImage(charts.scoreChart, 'word-snake-score-trend.png')
+                        await new Promise(r => setTimeout(r, 200))
+                        downloadChartImage(charts.wordsChart, 'word-snake-words-per-game.png')
+                        await new Promise(r => setTimeout(r, 200))
+                        downloadChartImage(charts.categoryChart, 'word-snake-category-dist.png')
+                        if (canHaptic()) hapticFeedback('success')
+                      } catch { /* ignore if no data */ }
+                    }}
+                    className="text-[8px] px-2 py-0.5 rounded-full border border-indigo-700/30 bg-indigo-900/30 text-indigo-300 hover:bg-indigo-800/40 transition-all active:scale-90 charts-download-btn"
+                  >
+                    📥 Download Charts
+                  </button>
+                </div>
+                <div className="text-[8px] text-slate-500 text-center">
+                  {comparisonSummary.overallStats.totalGames} games tracked · Score trend, Words/game, Category distribution
+                </div>
+              </div>
+            )}
+
+            {/* Replay Share */}
+            {mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-teal-900/15 to-emerald-900/10 border border-teal-700/20 replay-share-panel">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Film className="h-3 w-3 text-teal-400" />
+                    <span className="text-[10px] text-slate-400 font-medium">Replay Share</span>
+                  </div>
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  <button
+                    onClick={async () => {
+                      const replays = getReplays()
+                      if (replays.length === 0) return
+                      const latest = replays[0]
+                      const code = generateShareCode(latest)
+                      const ok = await copyShareCodeToClipboard(code)
+                      if (ok && canHaptic()) hapticFeedback('success')
+                    }}
+                    className="px-2 py-1 text-[8px] rounded-full border border-teal-700/30 bg-teal-900/30 text-teal-300 hover:bg-teal-800/40 transition-all active:scale-90 replay-copy-btn"
+                  >
+                    📋 Copy Replay Code
+                  </button>
+                  <button
+                    onClick={() => {
+                      const input = document.createElement('input')
+                      input.type = 'text'
+                      input.placeholder = 'Paste WSNAKE-1-... code'
+                      input.className = 'sr-only'
+                      const code = prompt('Paste replay code:')
+                      if (!code) return
+                      const parsed = parseShareCode(code)
+                      if (parsed) {
+                        // Could start playback - for now just show summary
+                        if (canHaptic()) hapticFeedback('success')
+                      } else {
+                        if (canHaptic()) hapticFeedback('error')
+                      }
+                    }}
+                    className="px-2 py-1 text-[8px] rounded-full border border-teal-700/30 bg-teal-900/30 text-teal-300 hover:bg-teal-800/40 transition-all active:scale-90 replay-import-btn"
+                  >
+                    📥 Import Code
                   </button>
                 </div>
               </div>

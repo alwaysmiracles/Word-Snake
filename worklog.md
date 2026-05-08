@@ -1,201 +1,153 @@
 ---
-Task ID: 30
-Agent: Development Agent (Round 30)
-Task: SFX Volume Mixer, Word Book Export, Achievement Showcase Share, Enhanced Stats Compare, CSS Animations
+Task ID: 31
+Agent: Development Agent (Round 31)
+Task: Replay Sharing, Custom Word Pack Creator, Stats Dashboard Charts, Power-up Timer Overlay, CSS Animations
 
 Work Log:
-- **QA**: `next build` compiles successfully (149.5ms static generation). ESLint zero errors.
-- **Feature: SFX Volume Mixer** — Created `src/lib/sfx-volume-control.ts` (157 lines) and integrated:
-  - SFX Mixer button in game header (emoji-based icon)
-  - Hover popup with master volume slider + 9 category sliders
-  - Categories: eat, powerup, achievement, gameOver, ui, combo, boss, quiz, easterEgg
-  - Each category has independent volume control
-  - 4 mixer presets: Balanced (0.7), Immersive (1.0), Minimal (0.3), Focus (0.5)
-  - Mute All button with red pulse animation
-  - Master × category volume multiplication for effective volume
-  - Persisted to localStorage (`wordsnake_sfx_volume_config`)
-- **Feature: Word Book Export** — Created `src/lib/word-book-export.ts` (189 lines) and integrated:
-  - Export button in sidebar "Export & Share" panel
-  - Generates 1080×1920 canvas image with word collection
-  - 3 themes: dark (slate-900), light (white cards), neon (dark + colored glows)
-  - 3 card styles: grid, list, compact
-  - Title banner with gradient, stats summary row, word cards, category legend
-  - Each card: word, category color dot, category label, optional definition
-  - Downloads as PNG via canvas.toBlob()
-- **Feature: Achievement Showcase Share** — Created `src/lib/achievement-showcase.ts` (231 lines) and integrated:
-  - Share button in sidebar "Export & Share" panel
-  - Generates 1080×1080 canvas image with achievement badges
-  - 3 layouts: badge_grid (6-col emoji circles), timeline (vertical list), stats_card
-  - 3 themes: gold (warm amber), silver (cool blue), neon (dark + cyan/magenta glows)
-  - Unlocked: colored glowing circle; Locked: gray with 🔒
-  - Newest unlock: gold ring highlight
-  - Web Share API support with download fallback
-- **Feature: Enhanced Stats Compare** — Created `src/lib/stats-compare-enhanced.ts` (181 lines) and integrated:
-  - Game session saving at game-over (score, wordsEaten, duration, difficulty, wordsPerMinute, longestCombo, bossDefeated, quizzesCorrect)
-  - Stores up to 50 sessions in localStorage (`wordsnake_game_sessions`)
-  - Performance panel in sidebar showing 4 key trends with ↑↓→ arrows
-  - 7 tracked metrics: score, wordsEaten, wordsPerMinute, duration, longestCombo, bossDefeated, quizzesCorrect
-  - Trend analysis: direction (up/down/stable), percentChange, average, best, worst
-  - Performance rating: excellent (top 10%) 🌟, good (top 40%) 👍, average 😐, below_average 💪
-  - "Copy Stats" button generates human-readable comparison text to clipboard
-  - Color-coded performance indicator
-- **CSS: 26 new animations** (301 total keyframes, +211 lines):
-  1. sfx-mixer-btn — Purple glow on hover
-  2. sfx-mixer-enter — Slide-down popup entrance
-  3. sfx-master-range — Purple thumb with glow
-  4. sfx-category-range — Small cyan thumb
-  5. sfx-preset-shimmer — Shimmer on hover
-  6. sfx-mute-pulse — Red border pulse
-  7. stats-compare-shimmer — Cyan/blue/purple border cycle
-  8. stats-trend-up-flash — Green flash for positive trends
-  9. stats-trend-down-flash — Red flash for negative trends
-  10. stats-rating-pop — Rating emoji pop animation
-  11. export-panel-glow — Violet panel glow
-  12. export-btn-bounce — Scale bounce on hover
-  13. export-achieve-shimmer — Gold shimmer on achievement export
-  14. export-stats-glow — Cyan glow on stats export
-  15. sfx-category-enter — Staggered category row entrance
-  16. showcase-badge-glow — Gold ring for achievement badge
-  17. showcase-timeline-pulse — Timeline dot pulse
-  18. wordbook-card-enter — Card slide-in animation
-  19. wordbook-banner-flow — Title gradient flow
-  20. perf-bar-fill — Animated bar fill
-  21. stats-copy-toast — Copy feedback toast
-  22. sfx-mixer-close — Close animation
-  23. export-download-flash — Green flash on download
-  24. compare-arrow-bounce — Trend arrow bounce
-  25. showcase-share-pulse — Share button pulse ring
-  26. wordbook-watermark-fade — Watermark opacity pulse
-- **Build**: Compiles successfully (149.5ms). ESLint zero errors.
+- **QA**: `next build` compiles successfully (167.6ms). ESLint zero errors.
+- **Feature: Game Replay Sharing** — Created `src/lib/replay-sharing.ts` (144 lines) and integrated:
+  - Copy Replay Code button: encodes latest replay to compact base64 share code (WSNAKE-1-{data}-{checksum})
+  - Import Code button: parses share code with checksum validation
+  - 7-char per frame encoding: direction(1) + foodXY(4 hex) + snakeLength(2 hex)
+  - Download replay as .wsnake JSON file support
+  - Upload/import .wsnake file support
+  - Human-readable replay summary text
+  - Clipboard API with execCommand fallback
+- **Feature: Custom Word Pack Creator** — Created `src/lib/word-pack-creator.ts` (159 lines) and integrated:
+  - Collapsible Custom Packs panel in sidebar
+  - Create New Pack button (up to 10 packs, 100 words each)
+  - Import pack from JSON file
+  - Pack list showing emoji, name, word count, play count
+  - Export pack as JSON to clipboard
+  - Delete pack with haptic feedback
+  - 8 color options and 8 emoji options auto-assigned
+  - Persistent storage in localStorage
+  - Word validation (2-30 chars, alphanumeric + spaces)
+- **Feature: Stats Dashboard Charts** — Created `src/lib/stats-charts.ts` (338 lines) and integrated:
+  - Download Charts button generates 3 PNG chart images
+  - Line chart: score trend over last 10 games with bezier interpolation
+  - Bar chart: words per game over last 8 games with rounded bars
+  - Pie/Donut chart: difficulty distribution with percentage labels
+  - HiDPI support (devicePixelRatio scaling)
+  - Smart Y-axis tick calculation (nice numbers)
+  - 10-color auto-assign palette
+  - Dark theme by default (matches game aesthetic)
+  - Reads from localStorage session data via stats-compare-enhanced
+- **Feature: Power-up Timer Overlay** — Created `src/lib/powerup-overlay.ts` (210 lines) and integrated:
+  - Canvas-rendered HUD overlay for active power-ups
+  - 4 layout modes: horizontal, vertical, grid, minimal
+  - 4 themes: default (dark), neon (per-powerup colored), minimal (transparent), frost (glass)
+  - Urgency-based visual feedback: critical (red pulse), warning (amber glow), normal, fresh (green)
+  - Smart time formatting: "12s" / "9.4s" / "<1s"
+  - Progress bar with urgency color
+  - Stacks indicator when count > 1
+  - Position calculation per layout and canvas size
+- **CSS: 25 new animations** (326 total keyframes, +197 lines):
+  1. pack-creator-shimmer — Rose border shimmer
+  2. pack-count-pop — Badge pop-in
+  3. pack-create-pulse — Green hover pulse
+  4. pack-import-slide — Slide-in entrance
+  5. pack-item-enter — Staggered list entrance
+  6. pack-creator-expand — Expand animation
+  7. stats-charts-glow — Indigo panel pulse
+  8. charts-download-bounce — Download button bounce
+  9. replay-share-shimmer — Teal border shimmer
+  10. replay-copy-flash — Copy flash feedback
+  11. replay-import-enter — Import slide-in
+  12. overlay-pill-float — Power-up pill float
+  13. powerup-critical-pulse — Red opacity pulse
+  14. powerup-warning-glow — Amber glow
+  15. powerup-progress-drain — Smooth progress drain
+  16. powerup-stack-pop — Stack badge pop
+  17. chart-canvas-fade — Chart fade-in
+  18. chart-line-grow — Line draw animation
+  19. chart-bar-rise — Bar grow animation
+  20. chart-pie-reveal — Pie reveal spin
+  21. replay-code-flash — Code highlight flash
+  22. pack-word-add-flash — Word added flash
+  23. pack-delete-shake — Delete shake
+  24. overlay-urgent-ring — Critical ring pulse
+  25. chart-tooltip-fade — Tooltip fade-in
+- **Build**: Compiles successfully. ESLint zero errors.
 
 Stage Summary:
-- 4 new lib files: sfx-volume-control.ts (157), word-book-export.ts (189), achievement-showcase.ts (231), stats-compare-enhanced.ts (181) = 758 lines
-- 4 major integrations into snake-game.tsx: SFX Mixer, Word Book Export, Achievement Showcase, Stats Compare
-- 26 new CSS animations (301 total keyframes)
-- Total project features: 95+, Total CSS animations: 301+
-- snake-game.tsx: 7232 lines (+194), globals.css: 3916 lines (+211)
-- 68 lib files total
+- 4 new lib files: replay-sharing.ts (144), word-pack-creator.ts (159), stats-charts.ts (338), powerup-overlay.ts (210) = 851 lines
+- 4 major integrations into snake-game.tsx: Replay Share, Pack Creator, Stats Charts, Power-up Overlay
+- 25 new CSS animations (326 total keyframes)
+- Total project features: 99+, Total CSS animations: 326+
+- snake-game.tsx: 7413 lines (+181), globals.css: 4113 lines (+197)
+- 72 lib files total
 - Build + lint pass cleanly
 
 ## Project Current State
 
 **Status**: Feature-rich, highly polished, and stable
 
-The application is a comprehensive Word Snake game with 95+ major features.
+The application is a comprehensive Word Snake game with 99+ major features.
 
-### What Works
+### What Works (All Round 30 features + new)
 - **Game**: Start, play, pause, resume, game over, restart
-- **AI Bot Opponent**: Computer-controlled snake with difficulty-based intelligence + real-time slider adjustment
-- **Game Replay System**: Auto-record, replay with speed controls, max 10 saved
+- **AI Bot Opponent**: Computer-controlled snake with difficulty-based intelligence + real-time slider
+- **Game Replay System**: Auto-record, replay with speed controls, share as code
+- **Game Replay Sharing**: Compact base64 share codes with checksum (NEW)
 - **PvP Local Multiplayer**: Two-player same keyboard
 - **3 Difficulty Levels**: Easy/Medium/Hard
-- **In-Game Progressive Difficulty**: 10-level curve within a game
-- **Dynamic Difficulty**: 10-level AI system between games
+- **In-Game + Dynamic Difficulty**: 10-level systems
 - **9 Snake Skins**: 4 free + 4 unlockable + 1 custom
 - **4 Canvas Grid Themes**: Classic, Neon, Retro, Nature
 - **Night Mode**: Sepia filter, auto-enable
-- **7 Default + 5 Themed + 2 Language + 3 Multilingual Word Packs** — 249+ total words
+- **7 Default + 5 Themed + 2 Language + 3 Multilingual Word Packs** — 249+ words
+- **Custom Word Pack Creator**: Up to 10 packs, 100 words each, JSON import/export (NEW)
 - **4 Word Rarities**: Common, Uncommon, Rare, Legendary
 - **Category Filter**: Toggle categories on/off
 - **Custom Word Lists**: 50 custom words with JSON/CSV import/export
 - **6 Power-ups**: Slow-Mo, Double Points, Shrink, Magnet, Shield, Hammer
-- **4 Static Grid Obstacles**: Wall (death), Spike (-2 segments), Ice (slide), Lava (pulsing kill)
-- **4 Moving Obstacles**: Patrol Wall, Patrol Hazard, Spinner, Sweeper — with difficulty-based scaling
-- **3 Destructible Wall Types**: Brick (2 HP), Ice Wall (1 HP), Crystal (3 HP)
-- **Portal Pairs**: Teleport between linked portals with cooldown
-- **Word Quiz Bonus**: Definition quiz after eating words, streak multiplier, stats
-- **Boss Mode**: 8 bosses across 3 tiers with multi-pass defeat
-- **Combo Chain**: Same-category eating builds multiplier, 7 VFX levels
-- **Word Scramble Mini-game**: 15s timer, 3 attempts, 3x bonus
-- **Coin & Shop System**: 12 shop items + 3 language pack unlocks, persistent coins
-- **Canvas Weather**: Rain, Snow, Stars
-- **Canvas Mini-map**: Toggleable bird's eye view
-- **Speed Run Mode**: 60-second timed challenge
-- **Daily Challenge**: Deterministic daily word set
-- **Streak System**: 4 milestone tiers
-- **6 Easter Eggs**: Sequence, collection, special word triggers
-- **Tutorial Mode**: 9-step guided tutorial
-- **Sound Visualizer**: 4 styles, 4 color schemes
-- **Music Generator**: 5 procedural styles with play/pause/style controls
-- **Volume Slider**: Music volume with mute, popup, range slider, 5 presets
-- **SFX Volume Mixer**: 9-category independent volume control with 4 presets (NEW)
-- **Word Collection Book**: Full encyclopedia with search, category tabs, progress
-- **Word Book Export**: Download collection as themed PNG image (NEW)
-- **32 Achievements**: 26 original + 6 multilingual
-- **Achievement Showcase Share**: Download achievement badge grid as PNG (NEW)
-- **4 Sound Themes**: Default, Retro 8-bit, Soft Ambient, Epic Orchestra
-- **Leaderboard**: Per-difficulty top 10
-- **Game Statistics Dashboard**: 20+ metrics
-- **Enhanced Stats Compare**: Session tracking, 7-metric trends, performance rating (NEW)
-- **Word Pronunciation**: Web Speech API
-- **Game Stats Share Card**: Downloadable PNG
-- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
-- **AI Poem Generation**: Style-specific prompts
-- **Poem Sharing**: 1080x1080 image + favorites + collage
-- **Word Definitions + Etymology**: Tooltips on hover
-- **Settings Panel**: Skins, themes, sound, trails, visualizer
-- **Mobile Support**: Touch/swipe, D-pad, responsive hooks
-- **Keyboard Shortcuts**: Help dialog
-- **5 Trail Effects**: None, Fade, Particles, Sparkle, Rainbow
-- **AI Bot Skins**: 8 skins (3 free, 5 unlockable)
-- **Seasonal Word Packs**: 4 auto-unlocking seasonal packs
-- **PvP Power-up Stealing**: Range-based steal with cooldown
-- **Preset Particle Effects**: 15 presets with customization panel
-- **Game Event Feed UI**: Live sidebar panel with 17 event types, persistent history
-- **Moving Obstacles**: 4 types with difficulty-scaled speed, count, type enablement
-- **Destructible Walls**: 3 types with HP, bounce-back, shield/hammer breaking
-- **AI Difficulty Slider**: Real-time 1-10 intelligence slider
-- **Hammer Power-up**: 🔨 8s wall-breaking buff with 2.5x bonus points
-- **Multilingual Word Packs**: 🇰🇷 Korean, 🇫🇷 French, 🇪🇸 Spanish — 75 words, coin unlock
-- **Multilingual Active Word Source**: Select language packs as active game word source
-- **Obstacle Difficulty Scaling**: 5-tier dynamic scaling based on progress
-- **Event Feed Persistence**: Cross-session event history with deduplication
-- **Responsive Layout System**: Device-adaptive canvas/sidebar metrics with transitions
-- **Multilingual Achievements**: 6 language-themed achievements with sidebar panel
-- **Haptic Feedback**: Integrated at destructible wall + hammer interactions
-- **Visual Polish**: 301 CSS animations, particles, confetti, page transitions, aurora
+- **Power-up Timer Overlay**: Canvas HUD with urgency-based visuals, 4 layouts, 4 themes (NEW)
+- **4 Static + 4 Moving Obstacles**: With difficulty-based scaling
+- **3 Destructible Wall Types**: Brick (2 HP), Ice (1 HP), Crystal (3 HP)
+- **Portal Pairs**: Teleport between linked portals
+- **Word Quiz, Boss Mode, Combo Chain, Word Scramble**
+- **Coin & Shop System**: 12 items + 3 language unlocks
+- **Canvas Weather + Mini-map + Speed Run + Daily Challenge + Streak**
+- **6 Easter Eggs + Tutorial Mode + Sound Visualizer**
+- **Music Generator**: 5 styles + Volume Slider + SFX Volume Mixer (9 categories)
+- **Word Collection Book + Word Book Export as PNG**
+- **32 Achievements + Achievement Showcase Share as PNG**
+- **Enhanced Stats Compare**: Session tracking, 7-metric trends, performance rating
+- **Stats Dashboard Charts**: Line/Bar/Pie Canvas 2D charts, downloadable PNGs (NEW)
+- **Leaderboard, Game Statistics Dashboard, Word Pronunciation, Game Stats Share Card**
+- **4 Poem Styles + AI Poem Generation + Poem Sharing**
+- **Word Definitions + Etymology, Settings Panel**
+- **Mobile Support, Keyboard Shortcuts, 5 Trail Effects**
+- **AI Bot Skins, Seasonal Packs, PvP Power-up Stealing**
+- **Particle Effects (15 presets), Game Event Feed, Multilingual Active Word Source**
+- **Responsive Layout System, Multilingual Achievements**
+- **Visual Polish**: 326 CSS animations, particles, confetti, page transitions, aurora
 
-### All Library Files (68 total)
-- `src/lib/game-event-feed.ts` — Game event tracking and feed system (Round 23)
-- `src/lib/particle-effects.ts` — Comprehensive particle effects with 15 presets (Round 23)
-- `src/lib/responsive-ux.ts` — Mobile detection, responsive config, haptic feedback (Round 23)
-- `src/lib/moving-obstacles.ts` — 4 moving obstacle types (Round 26)
-- `src/lib/destructible-walls.ts` — 3 destructible wall types (Round 27)
-- `src/lib/particle-customization.ts` — Per-event particle preset config (Round 27)
-- `src/lib/ai-difficulty-slider.ts` — 1-10 AI difficulty slider (Round 27)
-- `src/lib/hammer-powerup.ts` — Hammer wall-breaking power-up (Round 28)
-- `src/lib/multilingual-packs.ts` — Korean/French/Spanish word packs (Round 28)
-- `src/lib/obstacle-difficulty-scaling.ts` — 5-tier difficulty-based obstacle scaling (Round 28)
-- `src/lib/event-feed-persistence.ts` — Cross-session event history (Round 28)
-- `src/lib/volume-slider.ts` — Music volume slider with presets (Round 29)
-- `src/lib/multilingual-integration.ts` — Multilingual active word source (Round 29)
-- `src/lib/responsive-layout.ts` — Responsive canvas/sidebar layout (Round 29)
-- `src/lib/multilingual-achievements.ts` — 6 multilingual achievements (Round 29)
-- `src/lib/sfx-volume-control.ts` — 9-category SFX volume mixer (Round 30) (NEW)
-- `src/lib/word-book-export.ts` — Word collection PNG export (Round 30) (NEW)
-- `src/lib/achievement-showcase.ts` — Achievement badge showcase image (Round 30) (NEW)
-- `src/lib/stats-compare-enhanced.ts` — Session tracking + trend analysis (Round 30) (NEW)
+### All Library Files (72 total)
+Includes all 68 from Round 30 plus:
+- `src/lib/replay-sharing.ts` — Game replay share codes (Round 31) (NEW)
+- `src/lib/word-pack-creator.ts` — Custom word pack creation (Round 31) (NEW)
+- `src/lib/stats-charts.ts` — Canvas 2D charts (Round 31) (NEW)
+- `src/lib/powerup-overlay.ts` — Power-up HUD overlay (Round 31) (NEW)
 
 ### Known Issues / Risks
 - Dev server unstable due to resource limitations (use `next build` for verification)
-- On-screen D-pad may interfere with game canvas touch events on some devices
-- Dynamic difficulty needs more games (3+) to start adjusting
-- PvP mode is keyboard-only (no mobile support for two players)
-- Static obstacles and portals only active in classic mode (not daily challenge/speed run)
-- Moving obstacles and destructible walls spawn only in classic mode
-- Music plays via Web Audio API — requires user gesture to start on mobile browsers
-- Responsive layout functions created but inline style application to containers not yet fully wired
-- Word book export uses Canvas 2D — some complex Unicode characters may render differently across browsers
-- Achievement showcase uses localStorage data — achievements must be unlocked in the same browser session
+- PvP mode keyboard-only (no mobile two-player support)
+- Static obstacles/portals only in classic mode
+- Responsive layout functions not yet fully wired to JSX containers
+- Canvas charts use basic fonts — may vary across browsers
+- Replay share codes use compact format — full game state not fully recoverable from code alone
+- Custom word packs stored in localStorage — limited to ~5MB browser storage
 
 ### Suggested Next Steps
-1. **Full Responsive Layout Wiring**: Apply getGameContainerStyle(), getSidebarStyle(), getCanvasStyle() to actual JSX
-2. **Multilingual Word Pronunciation**: Use Web Speech API for non-English words
-3. **Online Leaderboard**: Server-side global rankings
-4. **PvP Mobile Support**: Touch controls for two-player mode
-5. **Game Replay Sharing**: Upload/share replay files
-6. **Accessibility**: Screen reader support, high contrast mode, keyboard navigation improvements
-7. **Sound Effects per Event Type**: Map SFX categories to game events (eat→eat, powerup→powerup, etc.)
-8. **Stats Dashboard Charts**: Visual charts for score/words trends using Canvas
-9. **Word Pack Creator**: User-created custom word packs with sharing
-10. **Tutorial Enhancements**: Interactive tutorial with guided gameplay steps
+1. **Full Responsive Layout Wiring**: Apply layout functions to actual JSX
+2. **Online Leaderboard**: Server-side global rankings
+3. **PvP Mobile Support**: Touch controls for two-player
+4. **Custom Word Pack Editor**: In-game UI for adding/removing words
+5. **Sound Effects per Event Type**: Map SFX categories to game events
+6. **Game Replay Full Playback from Share Code**: Decode and replay from share code
+7. **Accessibility**: Screen reader, high contrast, keyboard nav
+8. **Word Pack Creator with AI**: Generate themed packs using LLM
+9. **Advanced Stats Dashboard**: Multi-session comparison overlay
+10. **Achievement Progress Tracker**: Visual progress bars for each achievement

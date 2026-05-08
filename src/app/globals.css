@@ -3914,3 +3914,200 @@
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.5; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Round 31 — Replay Sharing, Custom Word Pack Creator,
+              Stats Dashboard Charts, Power-up Timer Overlay (25 animations)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. pack-creator-panel — Rose shimmer border */
+@keyframes pack-creator-shimmer {
+  0%, 100% { border-color: rgba(244, 63, 94, 0.2); }
+  50% { border-color: rgba(236, 72, 153, 0.3); }
+}
+.pack-creator-panel {
+  animation: pack-creator-shimmer 4s ease-in-out infinite;
+}
+
+/* 2. pack-count-badge — Pop animation */
+@keyframes pack-count-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pack-count-badge {
+  animation: pack-count-pop 0.3s ease-out;
+}
+
+/* 3. pack-create-btn — Green pulse */
+@keyframes pack-create-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+  50% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.25); }
+}
+.pack-create-btn:hover {
+  animation: pack-create-pulse 1.2s ease-in-out infinite;
+}
+
+/* 4. pack-import-btn — Slide-in */
+@keyframes pack-import-slide {
+  0% { opacity: 0; transform: translateX(-6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.pack-import-btn {
+  animation: pack-import-slide 0.3s ease-out;
+}
+
+/* 5. pack-item — Staggered entrance */
+@keyframes pack-item-enter {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.pack-item {
+  animation: pack-item-enter 0.25s ease-out both;
+}
+.pack-item:nth-child(1) { animation-delay: 0s; }
+.pack-item:nth-child(2) { animation-delay: 0.05s; }
+.pack-item:nth-child(3) { animation-delay: 0.1s; }
+.pack-item:nth-child(4) { animation-delay: 0.15s; }
+.pack-item:nth-child(5) { animation-delay: 0.2s; }
+
+/* 6. pack-creator-expanded — Expand */
+@keyframes pack-creator-expand {
+  0% { opacity: 0; max-height: 0; }
+  100% { opacity: 1; max-height: 400px; }
+}
+.pack-creator-expanded {
+  animation: pack-creator-expand 0.3s ease-out;
+}
+
+/* 7. stats-charts-panel — Indigo pulse */
+@keyframes stats-charts-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(99, 102, 241, 0); }
+  50% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.12); }
+}
+.stats-charts-panel {
+  animation: stats-charts-glow 3s ease-in-out infinite;
+}
+
+/* 8. charts-download-btn — Download arrow bounce */
+@keyframes charts-download-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+.charts-download-btn:hover {
+  animation: charts-download-bounce 0.5s ease-in-out infinite;
+}
+
+/* 9. replay-share-panel — Teal glow */
+@keyframes replay-share-shimmer {
+  0%, 100% { border-color: rgba(20, 184, 166, 0.2); }
+  50% { border-color: rgba(16, 185, 129, 0.35); }
+}
+.replay-share-panel {
+  animation: replay-share-shimmer 3.5s ease-in-out infinite;
+}
+
+/* 10. replay-copy-btn — Copy flash */
+@keyframes replay-copy-flash {
+  0% { background-color: rgba(20, 184, 166, 0.3); }
+  100% { background-color: transparent; }
+}
+.replay-copy-btn:active {
+  animation: replay-copy-flash 0.3s ease-out;
+}
+
+/* 11. replay-import-btn — Slide-in */
+@keyframes replay-import-enter {
+  0% { opacity: 0; transform: translateX(6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.replay-import-btn {
+  animation: replay-import-enter 0.3s ease-out;
+}
+
+/* 12. powerup-overlay-pill — Float animation */
+@keyframes overlay-pill-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* 13. powerup-timer-critical — Red pulse */
+@keyframes powerup-critical-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* 14. powerup-timer-warning — Amber glow */
+@keyframes powerup-warning-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+}
+
+/* 15. powerup-progress-fill — Smooth drain */
+@keyframes powerup-progress-drain {
+  0% { width: var(--start-width, 100%); }
+  100% { width: var(--end-width, 0%); }
+}
+
+/* 16. powerup-stack-badge — Pop */
+@keyframes powerup-stack-pop {
+  0% { transform: scale(0.7); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* 17. chart-canvas-enter — Fade in */
+@keyframes chart-canvas-fade {
+  0% { opacity: 0; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* 18. chart-line-draw — Line draw animation */
+@keyframes chart-line-grow {
+  0% { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* 19. chart-bar-rise — Bar grow animation */
+@keyframes chart-bar-rise {
+  0% { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+
+/* 20. chart-pie-spin — Pie reveal spin */
+@keyframes chart-pie-reveal {
+  0% { transform: rotate(-90deg); opacity: 0; }
+  100% { transform: rotate(0deg); opacity: 1; }
+}
+
+/* 21. replay-code-highlight — Code flash on copy */
+@keyframes replay-code-flash {
+  0% { background-color: rgba(20, 184, 166, 0.4); color: #fff; }
+  100% { background-color: transparent; color: inherit; }
+}
+
+/* 22. pack-word-add — Word added flash */
+@keyframes pack-word-add-flash {
+  0% { background-color: rgba(34, 197, 94, 0.3); }
+  100% { background-color: transparent; }
+}
+
+/* 23. pack-delete-confirm — Red shake */
+@keyframes pack-delete-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* 24. overlay-urgent-ring — Critical urgency ring */
+@keyframes overlay-urgent-ring {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* 25. stats-chart-tooltip — Tooltip fade */
+@keyframes chart-tooltip-fade {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
