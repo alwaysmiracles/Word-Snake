@@ -110,6 +110,10 @@ import { createGameModeEngine, applyModeRules, updateModeTimer, handleCollisionF
 import { createXPScoringWire, awardXP, addMultiplier, removeMultiplier, updateMultipliers as updateXPMultipliers, getSessionStats, resetSessionStats, getXPProgress, formatXP, getXPBreakdown, activateDoubleXP, activateStreakBonus, activateDifficultyBonus, type XPScoringWire, type XPProgress } from '@/lib/xp-scoring-wire'
 import { createScoreLiveWire, recordWordEaten, recordPowerUpBonus, recordComboEvent, updateTimeEfficiency, getMiniSummary, resetForNewGame, getChartJSData, type ScoreLiveWire } from '@/lib/score-live-wire'
 import { createNotifEventWire, onAchievementUnlocked, onComboMilestone, onPowerUpCollected, onLevelUp, onStreakMilestone, onDailyChallengeComplete, onNewWordDiscovered, onBossDefeated, onXPBonus, onGameComplete, getActiveNotifications, dismissAll, updateCooldowns, toggleSetting as toggleNotifSetting, getSettings, getNotifStats, type NotifEventWire } from '@/lib/notif-event-wire'
+import { syncDailyChallengeResult, isTodaySynced, getSyncState, getWeeklySummary, getStreakWithSync, type DailyChallengeSync } from '@/lib/daily-challenge-sync'
+import { getDashboardOverview, getQuickStats, getDashboardExportData, getWordStats, getScoreStats, getAchievementSummary, getPersonalBests, getComparisonWithAverage, formatDashboardNumber, type DashboardPeriod, type OverviewStats, type QuickStat } from '@/lib/game-stats-dashboard'
+import { createAlbum, updateAlbum, getCollectionCompletion, getRarestWords, getMostPlayedWords, checkAlbumAchievements, getAlbumShareData, type CollectionAlbum } from '@/lib/word-collection-album'
+import { createBattlePass, addBattlePassXP, claimReward, getTierProgress, getSeasonTimeRemaining, getPassSummary, unlockPremium, advanceSeason, isActive as isBattlePassActive, TIER_XP_CONFIG, SEASON_TEMPLATES, type BattlePassSeason, type BattlePassReward } from '@/lib/battle-pass'
 import {
   Play,
   RotateCcw,
@@ -818,6 +822,14 @@ export default function SnakeGame() {
   const [showModeEngine, setShowModeEngine] = useState(false)
   const [showXPPanel, setShowXPPanel] = useState(false)
   const [showNotifSettings, setShowNotifSettings] = useState(false)
+  // Round 38: New feature states
+  const battlePassRef = useRef<BattlePassSeason>(createBattlePass())
+  const [battlePassSummary, setBattlePassSummary] = useState(() => getPassSummary(battlePassRef.current))
+  const [showBattlePass, setShowBattlePass] = useState(false)
+  const [showStatsDashboard, setShowStatsDashboard] = useState(false)
+  const [dashboardPeriod, setDashboardPeriod] = useState<DashboardPeriod>('all')
+  const [showCollectionAlbum, setShowCollectionAlbum] = useState(false)
+  const collectionAlbumRef = useRef<CollectionAlbum>(createAlbum())
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -3908,6 +3920,16 @@ export default function SnakeGame() {
         recordModeSession(modeEngineRef.current, gs.score, gs.elapsedTime)
         setModeDisplayInfo(getModeDisplayInfo(modeEngineRef.current))
 
+        // Round 38: Daily challenge sync + Battle Pass XP
+        if (gs.isDailyChallenge) {
+          syncDailyChallengeResult(gs.score, gs.wordsEaten, gs.elapsedTime, !gs.gameOver || gs.isDailyChallenge)
+          onDailyChallengeComplete(notifEventWireRef.current, gs.score)
+        }
+        const bpResult = addBattlePassXP(battlePassRef.current, gameEndXP.xpAwarded)
+        if (bpResult.tierUp) {
+          setBattlePassSummary(getPassSummary(battlePassRef.current))
+        }
+
         // Check achievements
         try {
           const wordList = Object.entries(useWordStore.getState().collectedWords)
@@ -6591,6 +6613,33 @@ export default function SnakeGame() {
                     >
                       🔔 Alerts
                     </Button>
+                    {/* Round 38: Battle Pass Button */}
+                    <Button
+                      onClick={() => { setShowBattlePass(!showBattlePass); setBattlePassSummary(getPassSummary(battlePassRef.current)) }}
+                      variant="outline"
+                      className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform bp-btn"
+                      title="Battle Pass"
+                    >
+                      🏆 Battle Pass
+                    </Button>
+                    {/* Round 38: Stats Dashboard Button */}
+                    <Button
+                      onClick={() => { setShowStatsDashboard(!showStatsDashboard) }}
+                      variant="outline"
+                      className="border-sky-700/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform dashboard-btn"
+                      title="Stats Dashboard"
+                    >
+                      📈 Dashboard
+                    </Button>
+                    {/* Round 38: Collection Album Button */}
+                    <Button
+                      onClick={() => { setShowCollectionAlbum(!showCollectionAlbum); collectionAlbumRef.current = updateAlbum(collectionAlbumRef.current) }}
+                      variant="outline"
+                      className="border-orange-700/50 text-orange-400 hover:bg-orange-900/20 active:scale-95 transition-transform album-btn"
+                      title="Word Collection Album"
+                    >
+                      📖 Album
+                    </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
@@ -8218,7 +8267,145 @@ export default function SnakeGame() {
               )
             })()}
 
-            {/* Active easter egg effects indicator */}
+            {/* Round 38: Battle Pass Panel */}
+            {showBattlePass && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-emerald-900/20 to-green-900/15 border border-emerald-700/25 bp-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">{battlePassSummary.emoji}</span>
+                    <span className="text-[10px] text-emerald-300 font-bold">{battlePassSummary.season}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-900/40 text-emerald-300">Tier {battlePassSummary.currentTier}/{battlePassSummary.totalTiers}</span>
+                    {!battlePassSummary.isPremium && (
+                      <button onClick={() => { unlockPremium(battlePassRef.current); setBattlePassSummary(getPassSummary(battlePassRef.current)) }} className="text-[7px] px-1.5 py-0.5 rounded bg-amber-900/40 text-amber-300 hover:bg-amber-900/60 transition-colors">⭐ Premium</button>
+                    )}
+                  </div>
+                </div>
+                <div className="mb-2">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[7px] text-slate-500">Tier Progress</span>
+                    <span className="text-[7px] text-emerald-400 font-bold">{battlePassSummary.completionPercent.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all bp-tier-fill" style={{ width: `${battlePassSummary.completionPercent}%` }} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  <div className="text-center p-1 rounded bg-emerald-900/20 bp-stat-cell">
+                    <div className="text-[7px] text-slate-500">Tier</div>
+                    <div className="text-[10px] text-emerald-300 font-bold">{battlePassSummary.currentTier}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-emerald-900/20 bp-stat-cell">
+                    <div className="text-[7px] text-slate-500">Rewards</div>
+                    <div className="text-[10px] text-emerald-300 font-bold">{battlePassSummary.unclaimedRewards}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-emerald-900/20 bp-stat-cell">
+                    <div className="text-[7px] text-slate-500">Time Left</div>
+                    <div className="text-[10px] text-emerald-300 font-bold">{getSeasonTimeRemaining(battlePassRef.current).days}d</div>
+                  </div>
+                </div>
+                {/* Next 5 reward tiers */}
+                <div className="flex gap-0.5 mb-1">
+                  {Array.from({ length: Math.min(5, battlePassSummary.totalTiers - battlePassSummary.currentTier) }, (_, i) => {
+                    const tier = battlePassSummary.currentTier + i + 1
+                    const preview = battlePassRef.current.isPremium ? getRewardPreview(battlePassRef.current, tier, true) : getRewardPreview(battlePassRef.current, tier, false)
+                    return (
+                      <div key={tier} className="flex-1 text-center py-0.5 rounded bg-emerald-900/15 bp-reward-cell">
+                        <div className="text-[8px]">{preview?.emoji || '?'}</div>
+                        <div className="text-[6px] text-slate-500">T{tier}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Round 38: Stats Dashboard Panel */}
+            {showStatsDashboard && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-sky-900/20 to-blue-900/15 border border-sky-700/25 dashboard-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📈</span>
+                    <span className="text-[10px] text-sky-300 font-bold">Stats Dashboard</span>
+                  </div>
+                  <div className="flex gap-0.5">
+                    {(['all', 'week', 'month'] as DashboardPeriod[]).map(p => (
+                      <button key={p} onClick={() => setDashboardPeriod(p)} className={`text-[7px] px-1 py-0.5 rounded transition-colors ${dashboardPeriod === p ? 'bg-sky-900/40 text-sky-300' : 'text-slate-500 hover:text-slate-300'}`}>
+                        {p === 'all' ? 'All' : p === 'week' ? '7d' : '30d'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  {getQuickStats().map((stat, i) => (
+                    <div key={i} className="text-center p-1 rounded bg-sky-900/20 dashboard-stat-cell">
+                      <div className="text-[8px]">{stat.icon}</div>
+                      <div className="text-[10px] text-sky-300 font-bold">{stat.value}</div>
+                      <div className="text-[6px] text-slate-500">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-[7px] text-slate-500">{dashboardPeriod === 'all' ? 'Lifetime' : dashboardPeriod === 'week' ? 'Last 7 days' : 'Last 30 days'} statistics</div>
+              </div>
+            )}
+
+            {/* Round 38: Collection Album Panel */}
+            {showCollectionAlbum && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-orange-900/20 to-amber-900/15 border border-orange-700/25 album-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📖</span>
+                    <span className="text-[10px] text-orange-300 font-bold">Word Album</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-orange-900/40 text-orange-300">{collectionAlbumRef.current.totalCollected}/{collectionAlbumRef.current.totalAvailable}</span>
+                </div>
+                <div className="mb-2">
+                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all album-progress-fill" style={{ width: `${collectionAlbumRef.current.completionPercent}%` }} />
+                  </div>
+                  <div className="text-[6px] text-slate-500 text-right mt-0.5">{collectionAlbumRef.current.completionPercent.toFixed(1)}% collected</div>
+                </div>
+                <div className="grid grid-cols-4 gap-1 mb-2">
+                  {(() => {
+                    const comp = getCollectionCompletion(collectionAlbumRef.current)
+                    return [
+                      { label: 'Complete', value: comp.completed, color: 'text-green-400' },
+                      { label: 'Near 80%', value: comp.nearlyComplete, color: 'text-yellow-400' },
+                      { label: 'In Progress', value: comp.inProgress, color: 'text-orange-400' },
+                      { label: 'Not Started', value: comp.notStarted, color: 'text-slate-500' },
+                    ].map((item, i) => (
+                      <div key={i} className="text-center p-1 rounded bg-orange-900/20 album-stat-cell">
+                        <div className="text-[7px] text-slate-500">{item.label}</div>
+                        <div className={`text-[10px] font-bold ${item.color}`}>{item.value}</div>
+                      </div>
+                    ))
+                  })()}
+                </div>
+                {/* Rarest words */}
+                {(() => {
+                  const rarest = getRarestWords(collectionAlbumRef.current, 3)
+                  return rarest.length > 0 ? (
+                    <div className="flex gap-1 mb-1">
+                      {rarest.map((w, i) => (
+                        <div key={i} className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-purple-900/20 album-rare-word">
+                          <span className="text-[8px]">{i === 0 ? '💎' : i === 1 ? '🔮' : '⭐'}</span>
+                          <span className="text-[7px] text-purple-300">{w.word}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null
+                })()}
+                {/* Album achievements */}
+                {(() => {
+                  const achievements = checkAlbumAchievements(collectionAlbumRef.current)
+                  const unlocked = achievements.filter(a => a.isUnlocked)
+                  return (
+                    <div className="text-[7px] text-slate-500">Album Achievements: {unlocked.length}/{achievements.length}</div>
+                  )
+                })()}
+              </div>
+            )}
             {activeEasterEggs.length > 0 && uiState.gameStarted && (
               <div className="mb-3 flex flex-wrap gap-1.5">
                 {activeEasterEggs.map((ee) => {

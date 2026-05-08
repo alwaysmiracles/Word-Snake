@@ -1,4 +1,97 @@
 ---
+Task ID: 38
+Agent: Development Agent (Round 38)
+Task: Daily Challenge Sync, Game Stats Dashboard, Word Collection Album, Battle Pass, CSS Animations
+
+Work Log:
+- **QA**: `next build` compiles successfully. ESLint zero errors/warnings.
+- **Feature: Daily Challenge Sync** — Created `src/lib/daily-challenge-sync.ts` (296 lines) and integrated:
+  - Bridges daily-challenge.ts and daily-calendar.ts systems
+  - `syncDailyChallengeResult()` writes to both systems on daily challenge completion
+  - Star rating system: 0-3 stars based on score vs target (participation, ≥50%, ≥100%)
+  - `getStreakWithSync()` combines calendar + challenge streaks for accuracy
+  - `getWeeklySummary()` / `getMonthlySummary()` aggregated stats
+  - `getChallengeCompletionTrend()` for trend analysis
+  - `getCalendarWithChallengeData()` enriches calendar with challenge results
+  - Sync state persisted to `ws_daily_sync`
+  - Wired: called on game end when isDailyChallenge, plus onDailyChallengeComplete notification
+- **Feature: Game Stats Dashboard** — Created `src/lib/game-stats-dashboard.ts` (386 lines) and integrated:
+  - Period-filtered stats: today/week/month/all
+  - `getDashboardOverview()`: 12 core metrics (games, score, streak, category, etc.)
+  - `getWordStats()`: mastery breakdown, weak/strong words, category distribution
+  - `getScoreStats()`: median, trend, D-SS rating distribution
+  - `getTrendData()`: daily scores/words/games arrays with rolling window
+  - `getAchievementSummary()`: unlock stats by category
+  - `getQuickStats()`: 6 compact metrics with trend arrows (↑↓→)
+  - `getPersonalBests()`: 8 personal best records
+  - `getComparisonWithAverage()`: compare against baseline metrics
+  - `formatDashboardNumber()`: smart formatting (1.2K, 3.5M)
+  - UI panel with period switcher (All/7d/30d), 6-stat grid
+- **Feature: Word Collection Album** — Created `src/lib/word-collection-album.ts` (344 lines) and integrated:
+  - Scans word-pool entries + Zustand collected words to build album
+  - Per-category progress with completion percentages
+  - `getCollectionCompletion()`: completed/nearlyComplete/inProgress/notStarted counts
+  - `getRarestWords()`: N rarest collected words by rarity
+  - `getMostPlayedWords()`: N most-eaten words
+  - `getUncollectedWords()`: words not yet collected, filterable by category
+  - 8 album achievements: First Steps, Collector, Bookworm, Completionist, Master Collector, Legendary, World Traveler, Scholar
+  - `getAlbumShareData()`: text-formatted share card
+  - `getCollectionTimeline()`: daily collection counts
+  - UI panel with progress bar, 4-stat grid, rarest words display, achievement count
+- **Feature: Battle Pass** — Created `src/lib/battle-pass.ts` (400 lines) and integrated:
+  - 25-tier season pass with escalating XP curve (100→4500)
+  - 5 season templates: Spring Blossom 🌸, Summer Blaze ☀️, Autumn Harvest 🍂, Winter Frost ❄️, Mystic Legends ✨
+  - Free + Premium reward tracks (50 total rewards per season)
+  - `addBattlePassXP()`: auto tier-up with unlock detection
+  - `claimReward()` / `claimAllRewards()` with premium gating
+  - `getTierProgress()`: detailed progress info
+  - `getSeasonTimeRemaining()`: countdown to season end
+  - `unlockPremium()` toggle for free premium
+  - `advanceSeason()`: season rotation with archiving
+  - Wired: game end XP feeds into battle pass, tier-up updates UI
+  - UI panel: season info, tier progress bar, 3-stat grid, next 5 reward previews, premium button
+- **CSS: 25 new animations** (524 total keyframes, +103 lines):
+  1. bp-panel-in — Battle pass panel slide-in
+  2. bp-tier-fill — Tier progress bar fill
+  3. bp-stat-cell-pulse — BP stat cell staggered emerald pulse
+  4. bp-reward-cell-hover — Reward cell hover glow
+  5. bp-tier-up-burst — Tier up celebration burst
+  6. bp-premium-shine — Premium badge shine sweep
+  7. dashboard-panel-in — Dashboard panel slide-in
+  8. dashboard-stat-cell-reveal — Stat cell staggered reveal (6 delays)
+  9. dashboard-trend-arrow — Trend arrow bounce
+  10. dashboard-period-switch — Period tab switch flash
+  11. album-panel-in — Album panel slide-in
+  12. album-progress-fill — Album progress bar fill
+  13. album-stat-cell-glow — Album stat cell warm glow
+  14. album-rare-word-shimmer — Rare word shimmer border
+  15. album-category-complete — Category complete celebration
+  16. r38-btn-entrance — Staggered button entrance (3 buttons, 80ms delay)
+  17. sync-badge-pulse — Daily sync badge pulse
+  18. challenge-complete-star — Star rating pop with rotation
+  19. collection-counter — Collection count increment flash
+  20. season-timer-tick — Season timer countdown pulse
+  21. reward-claim-flash — Reward claim scale flash
+  22. stats-value-update — Stats value update slide
+  23. album-word-card-in — Word card entrance scale
+  24. tier-milestone-glow — Milestone tier inset glow
+  25. dashboard-export-btn-hover — Export button hover glow
+- **Build**: Compiles successfully. ESLint zero errors.
+
+Stage Summary:
+- 4 new lib files: daily-challenge-sync.ts (296), game-stats-dashboard.ts (386), word-collection-album.ts (344), battle-pass.ts (400) = 1426 lines
+- 4 major features integrated into snake-game.tsx: Daily Challenge Sync, Stats Dashboard, Word Album, Battle Pass
+- 3 new sidebar buttons: 🏆 Battle Pass, 📈 Dashboard, 📖 Album
+- 3 new sidebar panels: Battle Pass (with tier rewards), Stats Dashboard (with period switcher), Word Album (with collection progress)
+- Daily challenge sync wired to game end + notification
+- Battle Pass XP wired to game end XP awards
+- 25 new CSS animations (524 total keyframes)
+- Total project features: 127+, Total CSS animations: 524+
+- snake-game.tsx: 8957 lines (+187), globals.css: 5113 lines (+103)
+- 104 lib files total (+4)
+- Build + lint pass cleanly
+
+---
 Task ID: 37
 Agent: Development Agent (Round 37)
 Task: Game Mode Engine, XP Scoring Wire, Score Live Wire, Notification Event Wire, CSS Animations
@@ -176,16 +269,20 @@ Stage Summary:
 
 **Status**: Feature-rich, highly polished, and stable
 
-The application is a comprehensive Word Snake game with 123+ major features.
+The application is a comprehensive Word Snake game with 127+ major features.
 
-### What Works (All Previous + Round 37 New)
+### What Works (All Previous + Round 38 New)
 - **Game**: Start, play, pause, resume, game over, restart
 - **8 Game Modes**: Classic, Timed, Practice, Zen, Challenge, PvP, Blitz, Marathon
-- **Game Mode Engine**: Mode-specific rules applied to game loop (score ×, speed, obstacles, timer) (NEW R37)
+- **Game Mode Engine**: Mode-specific rules applied to game loop (score ×, speed, obstacles, timer)
 - **24 Avatars + 12 Titles + XP Level System**: Full player profile
-- **XP Scoring Wire**: 14 XP event types with multiplier system, level-up detection (NEW R37)
-- **Score Breakdown + Score Live Wire**: Per-word analysis, live recording, time efficiency, D-SS rating (NEW R37 wiring)
-- **Notification Event Wire**: Event-driven notifications with cooldowns, settings, live toasts (NEW R37)
+- **XP Scoring Wire**: 14 XP event types with multiplier system, level-up detection
+- **Score Breakdown + Score Live Wire**: Per-word analysis, live recording, time efficiency, D-SS rating
+- **Notification Event Wire**: Event-driven notifications with cooldowns, settings, live toasts
+- **Battle Pass**: 25-tier season pass with 5 seasons, free/premium tracks, reward claiming (NEW R38)
+- **Word Collection Album**: Category-based collection tracking, 8 achievements, rarest words, share (NEW R38)
+- **Game Stats Dashboard**: Period-filtered stats, trends, personal bests, comparison (NEW R38)
+- **Daily Challenge Sync**: Calendar + challenge systems synced with star ratings (NEW R38)
 - **Notification Manager**: 8 priority types, auto-dismiss, history tracking
 - **Practice Mode**: Vocabulary learning without game over
 - **Game Speed Configuration**: 6 profiles, slider, FPS display
@@ -199,20 +296,20 @@ The application is a comprehensive Word Snake game with 123+ major features.
 - **9 Snake Skins + 4 Grid Themes + Night Mode**
 - **24+ Word Packs + AI Generator + Custom Creator**
 - **Game State Save/Load**: 8 slots with thumbnails
-- **32 Achievements + Progress Tracker + Showcase**
+- **32+ Achievements + Progress Tracker + Showcase**
 - **Coin & Shop**, **6 Power-ups + Obstacles + Walls + Portals**
 - **Canvas Weather + Mini-map + Speed Run + Daily Challenge + Streak**
 - **Music Generator + SFX Mixer + 37 SFX sounds**
 - **Game Event Hooks**: 38 events, event bus, history, analytics
 - **Accessibility Manager**: Reduce motion, high contrast, TTS, color blind
-- **Visual Polish**: 499 CSS animations, particles, confetti, aurora
+- **Visual Polish**: 524 CSS animations, particles, confetti, aurora
 
-### All Library Files (100 total)
-Includes all 96 from Round 36 plus:
-- `src/lib/game-mode-engine.ts` — Game mode rules engine (Round 37) (NEW)
-- `src/lib/xp-scoring-wire.ts` — XP scoring wire (Round 37) (NEW)
-- `src/lib/score-live-wire.ts` — Score live wire (Round 37) (NEW)
-- `src/lib/notif-event-wire.ts` — Notification event wire (Round 37) (NEW)
+### All Library Files (104 total)
+Includes all 100 from Round 37 plus:
+- `src/lib/daily-challenge-sync.ts` — Daily challenge + calendar sync (Round 38) (NEW)
+- `src/lib/game-stats-dashboard.ts` — Stats dashboard (Round 38) (NEW)
+- `src/lib/word-collection-album.ts` — Word collection album (Round 38) (NEW)
+- `src/lib/battle-pass.ts` — Battle pass / season pass (Round 38) (NEW)
 
 ### Known Issues / Risks
 - Dev server unstable due to resource limitations (use `next build` for verification)
@@ -224,22 +321,24 @@ Includes all 96 from Round 36 plus:
 - SFX auto-triggering only wired for 3 events — remaining need manual wiring
 - Practice mode collision bypass via game-mode-engine created but not yet called in main game loop collision handler
 - Speed config slider visual only — not wired to actual game tick interval
-- Calendar data independent from daily challenge system — sync needed
 - Sound preset apply only updates music volume — SFX category volumes not wired yet
 - Word mastery encounters only tracked if recordEncounter() called in game logic
 - Game mode engine timer not yet called in the main game timer interval
 - Score live wire only wired for P1 — P2 eat not yet connected
-- Notification event wire not yet wired for power-ups, boss defeat, daily challenge, streak milestones
+- Notification event wire not yet wired for power-ups, boss defeat, streak milestones (daily challenge now wired)
 - Frame interval modifier from game-mode-engine not applied to requestAnimationFrame timing
+- Battle Pass rewards are visual-only — no actual item granting
+- Collection Album achievements not connected to notification wire
+- Stats Dashboard data only updates on panel open, not real-time
 
 ### Suggested Next Steps
 1. **Deep-wire Mode Engine Timer**: Call updateModeTimer() in the main timer interval
 2. **Apply Frame Interval Modifier**: Wire getFrameIntervalModifier() to requestAnimationFrame timing
 3. **Wire Practice Mode Collision**: Call handleCollisionForMode() in main game loop collision handler
 4. **Wire P2 Score Live Wire**: Connect recordWordEaten() for P2 eat events
-5. **Wire Remaining Notifications**: Connect onPowerUpCollected, onBossDefeated, onDailyChallengeComplete, onStreakMilestone
+5. **Wire Remaining Notifications**: Connect onPowerUpCollected, onBossDefeated, onStreakMilestone
 6. **Wire Speed Config to Game Loop**: Apply getFrameInterval() to actual tick timing
-7. **Sync Calendar with Daily Challenge**: Auto-record daily challenge results
-8. **Expand Word Sentences DB**: Add sentences for all 249+ game words
-9. **Wire Remaining SFX Events**: Add triggerGameEvent() calls for all remaining game events
+7. **Wire Battle Pass Rewards**: Connect claimReward() to actual item granting (coins, skins, etc.)
+8. **Wire Album Achievements to Notification Wire**: Send notifications on album achievement unlock
+9. **Expand Word Sentences DB**: Add sentences for all 249+ game words
 10. **Online Leaderboard**: Server-side global rankings
