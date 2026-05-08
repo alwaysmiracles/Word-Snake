@@ -5279,3 +5279,83 @@
 
 /* 25. minigame-daily-glow — Daily minigame suggestion glow */
 @keyframes minigame-daily-glow { 0%,100%{background-color:rgba(234,179,8,0.1);} 50%{background-color:rgba(234,179,8,0.25);} }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Round 41: 25 New CSS Animations (599 total)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. ghost-trail-fade — Ghost mode trail afterimage fade-out */
+@keyframes ghost-trail-fade { 0%{opacity:0.45;filter:blur(1px);} 100%{opacity:0;filter:blur(3px);transform:scale(0.7);} }
+
+/* 2. ghost-head-glow-pulse — Ghost mode head cyan glow pulse */
+@keyframes ghost-head-glow-pulse { 0%,100%{box-shadow:0 0 8px 2px rgba(34,211,238,0.3);} 50%{box-shadow:0 0 18px 6px rgba(34,211,238,0.6);} }
+
+/* 3. magnet-ring-pulse — Magnet range indicator pulsing ring */
+@keyframes magnet-ring-pulse { 0%,100%{transform:scale(1);opacity:0.4;} 50%{transform:scale(1.08);opacity:0.7;} }
+
+/* 4. magnet-ring-rotate — Magnet range ring dash rotation */
+@keyframes magnet-ring-rotate { 0%{stroke-dashoffset:0;} 100%{stroke-dashoffset:40;} }
+
+/* 5. bomb-expansion — Word bomb expanding shockwave ring */
+@keyframes bomb-expansion { 0%{transform:scale(0.2);opacity:1;border-width:4px;} 100%{transform:scale(2.5);opacity:0;border-width:1px;} }
+
+/* 6. bomb-particle-fly — Word bomb particle flying outward */
+@keyframes bomb-particle-fly { 0%{transform:translate(0,0) scale(1);opacity:1;} 100%{transform:translate(var(--bx,30px),var(--by,-20px)) scale(0);opacity:0;} }
+
+/* 7. bomb-center-flash — Word bomb center white flash */
+@keyframes bomb-center-flash { 0%{transform:scale(0.5);opacity:1;background:white;} 100%{transform:scale(2);opacity:0;background:#fbbf24;} }
+
+/* 8. freeze-overlay-shimmer — Freeze effect frost shimmer */
+@keyframes freeze-overlay-shimmer { 0%{background-position:0% 0%;} 100%{background-position:200% 200%;} }
+
+/* 9. freeze-sparkle — Freeze sparkle dot twinkle */
+@keyframes freeze-sparkle { 0%,100%{opacity:0;transform:scale(0.5);} 50%{opacity:1;transform:scale(1.2);} }
+
+/* 10. freeze-crystal-rotate — Ice crystal slow rotation */
+@keyframes freeze-crystal-rotate { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+
+/* 11. speed-boost-line — Speed boost motion line streak */
+@keyframes speed-boost-line { 0%{transform:translateX(0);opacity:0.7;} 100%{transform:translateX(-120px);opacity:0;} }
+
+/* 12. shield-bubble-breathe — Shield bubble breathing animation */
+@keyframes shield-bubble-breathe { 0%,100%{transform:scale(1);opacity:0.35;} 50%{transform:scale(1.06);opacity:0.55;} }
+
+/* 13. shield-glint — Shield bubble highlight glint arc */
+@keyframes shield-glint { 0%{transform:rotate(-30deg) translateX(4px);opacity:0;} 50%{opacity:0.8;} 100%{transform:rotate(30deg) translateX(-4px);opacity:0;} }
+
+/* 14. score-mult-bob — Score multiplier floating indicator bob */
+@keyframes score-mult-bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+
+/* 15. score-mult-glow — Score multiplier value glow ring */
+@keyframes score-mult-glow { 0%,100%{text-shadow:0 0 6px rgba(251,191,36,0.4);} 50%{text-shadow:0 0 14px rgba(251,191,36,0.8);} }
+
+/* 16. mode-timer-progress-fill — Mode timer progress bar fill animation */
+@keyframes mode-timer-progress-fill { 0%{width:100%;background:#22d3ee;} 50%{background:#fbbf24;} 100%{width:0%;background:#ef4444;} }
+
+/* 17. timer-warning-flash — Timer warning critical flash */
+@keyframes timer-warning-flash { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* 18. timer-critical-pulse — Timer critical urgency pulse */
+@keyframes timer-critical-pulse { 0%{transform:scale(1);color:#fca5a5;} 50%{transform:scale(1.15);color:#ef4444;} 100%{transform:scale(1);color:#fca5a5;} }
+
+/* 19. download-img-btn-press — Download image button press effect */
+@keyframes download-img-btn-press { 0%{transform:scale(1);} 50%{transform:scale(0.92);background-color:rgba(244,63,94,0.2);} 100%{transform:scale(1);} }
+
+/* 20. canvas-share-generating — Canvas share generating spinner */
+@keyframes canvas-share-generating { 0%{opacity:0.5;filter:blur(1px);} 50%{opacity:1;filter:blur(0);} 100%{opacity:0.5;filter:blur(1px);} }
+
+/* 21. sfx-trigger-flash — SFX trigger indicator flash */
+@keyframes sfx-trigger-flash { 0%{background-color:rgba(168,85,247,0.4);transform:scale(1.1);} 100%{background-color:transparent;transform:scale(1);} }
+
+/* 22. sfx-volume-bar — SFX volume level bar animation */
+@keyframes sfx-volume-bar { 0%,100%{height:4px;background:#818cf8;} 50%{height:14px;background:#c084fc;} }
+
+/* 23. r41-btn-entrance — Staggered Round 41 button entrance */
+@keyframes r41-btn-entrance { 0%{opacity:0;transform:translateY(8px) scale(0.9);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 24. timer-bar-shimmer — Timer progress bar shimmer sweep */
+@keyframes timer-bar-shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+/* 25. mode-timer-hud-in — Mode timer HUD slide-in from top */
+@keyframes mode-timer-hud-in { 0%{opacity:0;transform:translateY(-12px);} 100%{opacity:1;transform:translateY(0);} }
+

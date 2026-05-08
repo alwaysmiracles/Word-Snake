@@ -122,6 +122,11 @@ import { createGameWiringHub, type GameWiringHub } from '@/lib/game-wiring-hub'
 import { createCanvasShareRenderer, type CanvasShareRenderer } from '@/lib/canvas-share-renderer'
 import { createMinigameLauncher, type MinigameLauncher, type MinigameType } from '@/lib/minigame-launcher'
 import { createEventLogPanel, createGameStartEntries, createWordEatEntries, createPowerUpEntries, createDeathEntries, createAchievementEntries, createComboEntries, createModeStartEntries, type EventLogPanel } from '@/lib/event-log-panel'
+// Round 41: Power-up canvas effects, Mode timer wire, Canvas share connector, SFX completion wire
+import { createPowerUpVisualState, updatePowerUpVisuals, drawPowerUpEffects, drawFreezeOnObstacle, getGhostSnakeAlpha, drawGhostHeadGlow, recordGhostPosition, triggerBombExplosion, type PowerUpVisualState } from '@/lib/powerup-canvas-effects'
+import { createModeTimerWire, shouldTick as shouldModeTick, type ModeTimerWire, type TimerDisplayData } from '@/lib/mode-timer-wire'
+import { createCanvasShareConnector, buildGameResultData, buildStreakData, buildCollectionData, buildBattlePassData, type CanvasShareConnector } from '@/lib/canvas-share-connector'
+import { createSfxCompletionWire, type SfxCompletionWire } from '@/lib/sfx-completion-wire'
 import {
   Play,
   RotateCcw,
@@ -830,6 +835,8 @@ export default function SnakeGame() {
   const [showModeEngine, setShowModeEngine] = useState(false)
   const [showXPPanel, setShowXPPanel] = useState(false)
   const [showNotifSettings, setShowNotifSettings] = useState(false)
+  // Round 41: Mode timer wire
+  const [modeTimerDisplay, setModeTimerDisplay] = useState<TimerDisplayData>({ remaining: 0, formatted: '00:00', progress: 0, warningLevel: 'none', isActive: false, isPaused: false, timeLimit: null })
   // Round 38: New feature states
   const battlePassRef = useRef<BattlePassSeason>(createBattlePass())
   const [battlePassSummary, setBattlePassSummary] = useState(() => getPassSummary(battlePassRef.current))
@@ -850,6 +857,11 @@ export default function SnakeGame() {
   const canvasShareRef = useRef<CanvasShareRenderer>(createCanvasShareRenderer())
   const minigameLauncherRef = useRef<MinigameLauncher>(createMinigameLauncher())
   const eventLogPanelRef = useRef<EventLogPanel>(createEventLogPanel())
+  // Round 41: Power-up canvas effects, Mode timer wire, Canvas share connector, SFX completion wire
+  const powerUpVisualsRef = useRef<PowerUpVisualState>(createPowerUpVisualState())
+  const modeTimerWireRef = useRef<ModeTimerWire>(createModeTimerWire(modeEngineRef.current))
+  const canvasShareConnectorRef = useRef<CanvasShareConnector>(createCanvasShareConnector())
+  const sfxCompletionWireRef = useRef<SfxCompletionWire>(createSfxCompletionWire())
   const [showEventLog, setShowEventLog] = useState(false)
   const [showMinigames, setShowMinigames] = useState(false)
   const [eventLogEntries, setEventLogEntries] = useState<Array<{id:string;type:string;level:string;message:string;emoji:string;color:string;timestamp:number}>>([])
@@ -2463,6 +2475,36 @@ export default function SnakeGame() {
     // Draw destructible walls
     if (destructibleWallsRef.current.length > 0) {
       drawDestructibleWalls(ctx, destructibleWallsRef.current, CELL_SIZE, Date.now() / 1000)
+      // Round 41: Draw freeze effect on destructible walls when freeze active
+      const effectResult = powerUpEffectWireRef.current.applyEffects({} as any, 0.016)
+      if (effectResult.freezeObstacles) {
+        for (const wall of destructibleWallsRef.current) {
+          drawFreezeOnObstacle(ctx, wall.position.x * CELL_SIZE, wall.position.y * CELL_SIZE, CELL_SIZE, Date.now())
+        }
+      }
+    }
+
+    // Round 41: Draw power-up canvas effects (ghost, magnet, bomb, shield, speed boost, score multiplier)
+    {
+      const pvs = powerUpVisualsRef.current
+      const effectResult = powerUpEffectWireRef.current.applyEffects({} as any, 0.016)
+      pvs.ghostMode = effectResult.ghostMode
+      pvs.magnetRange = effectResult.magnetRange
+      pvs.freezeActive = effectResult.freezeObstacles
+      pvs.speedBoostActive = effectResult.movementSpeedMod < 1
+      pvs.shieldActive = effectResult.shouldSkipCollision
+      pvs.scoreMultiplierActive = effectResult.scoreMod > 1
+      pvs.scoreMultiplierValue = effectResult.scoreMod
+      updatePowerUpVisuals(pvs, 0.016, snake.length > 0 ? snake[0] : { x: 0, y: 0 })
+      // Ghost trail: record current head position
+      if (pvs.ghostMode && snake.length > 0) {
+        recordGhostPosition(pvs, snake[0].x, snake[0].y)
+      }
+      drawPowerUpEffects(ctx, pvs, CELL_SIZE)
+      // Ghost head glow
+      if (pvs.ghostMode && snake.length > 0) {
+        drawGhostHeadGlow(ctx, snake[0].x * CELL_SIZE + CELL_SIZE / 2, snake[0].y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE)
+      }
     }
 
     // Draw hammer power-up pickup on grid
@@ -3486,6 +3528,30 @@ export default function SnakeGame() {
       // Also track metrics for the timing display
       const timingMetrics = tc.getMetrics()
 
+      // Round 41: Mode timer wire — tick timed mode countdown
+      if (shouldModeTick(modeEngineRef.current)) {
+        const modeTimerResult = modeTimerWireRef.current.tick(200) // tick interval matches timerIntervalRef
+        setModeTimerDisplay(modeTimerResult.display)
+        // SFX timer warning
+        if (modeTimerResult.display.warningLevel === 'critical') {
+          sfxCompletionWireRef.current.onTimerWarning(modeTimerResult.display.remaining)
+        } else if (modeTimerResult.display.warningLevel === 'warning' && Math.floor(modeTimerResult.display.remaining) === 10) {
+          sfxCompletionWireRef.current.onTimerWarning(modeTimerResult.display.remaining)
+        }
+        if (modeTimerResult.expired) {
+          // Time's up — end game with bonus
+          const completionResult = modeTimerWireRef.current.getCompletionResult(gs.score)
+          if (completionResult) {
+            gs.score += completionResult.timeBonus
+            spawnFloatingText(`⏰ +${completionResult.timeBonus} Time Bonus!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40, '#fbbf24')
+          }
+          handleDeath()
+          draw()
+          animFrameRef.current = requestAnimationFrame(gameLoop)
+          return
+        }
+      }
+
       if (!timingMod) {
         draw()
         animFrameRef.current = requestAnimationFrame(gameLoop)
@@ -3672,6 +3738,8 @@ export default function SnakeGame() {
             spawnFloatingText(wordFood.word, wx, wy - 22, catColor)
             spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 10)
             playSound(playEatSound)
+            // Round 41: SFX — word eat (context-aware by combo)
+            sfxCompletionWireRef.current.onWordEat(gs.comboCount || 0)
             // Round 37: Score Live Wire
             recordWordEaten(scoreLiveWireRef.current, {
               word: wordFood.word,
@@ -3694,6 +3762,8 @@ export default function SnakeGame() {
             if (xpResult.levelUp) {
               setXPProgress(getXPProgress(xpWireRef.current))
               onLevelUp(notifEventWireRef.current, xpResult.newLevel || calculateLevel(loadProfile().xp).level)
+              // Round 41: SFX — level up
+              sfxCompletionWireRef.current.onLevelUp(xpResult.newLevel || calculateLevel(loadProfile().xp).level)
             }
             if (isNewWord) {
               onNewWordDiscovered(notifEventWireRef.current, wordFood.word)
@@ -3702,6 +3772,8 @@ export default function SnakeGame() {
             if (gs.comboCount > 1 && gs.comboCount % 5 === 0) {
               onComboMilestone(notifEventWireRef.current, gs.comboCount)
               recordComboEvent(scoreLiveWireRef.current, gs.comboCount)
+              // Round 41: SFX — combo milestone
+              sfxCompletionWireRef.current.onComboMilestone(gs.comboCount)
             }
             // Round 39: Event bus — word eat + score change + snake grow
             eventBusWireRef.current.onWordEat(wordFood.word, points, gs.comboCount || 0, { mode: gs.isDailyChallenge ? 'daily' : 'classic' })
@@ -3802,6 +3874,8 @@ export default function SnakeGame() {
             // Round 39: Event bus + power-up effect wire
             wireOnPowerUpCollect(pu.type, config.emoji)
             powerUpEffectWireRef.current.onPowerUpCollected(pu.type, gs)
+            // Round 41: SFX — power-up collect (context-aware by type)
+            sfxCompletionWireRef.current.onPowerUpCollect(pu.type)
             // Round 40: Event log — power-up collected
             eventLogPanelRef.current.addEntries(createPowerUpEntries(pu.type, config.emoji))
             gs.powerUp = null
@@ -3925,6 +3999,9 @@ export default function SnakeGame() {
 
       const handleDeath = () => {
         gs.gameOver = true
+        // Round 41: Reset mode timer wire on death
+        modeTimerWireRef.current.reset()
+        setModeTimerDisplay({ remaining: 0, formatted: '00:00', progress: 0, warningLevel: 'none', isActive: false, isPaused: false, timeLimit: null })
         // Stop replay recording and save
         if (isRecording()) {
           try {
@@ -4161,8 +4238,13 @@ export default function SnakeGame() {
           else if (head.y < 0) head.y = GRID_HEIGHT - 1
           else if (head.y >= GRID_HEIGHT) head.y = 0
           spawnFloatingText('🛡️', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
+          // Round 41: SFX — shield break on wall
+          sfxCompletionWireRef.current.onShieldBreak()
         } else {
+          // Round 41: SFX — wall collision
+          sfxCompletionWireRef.current.onCollision('wall')
           handleDeath()
+          sfxCompletionWireRef.current.onGameOver()
           draw()
           animFrameRef.current = requestAnimationFrame(gameLoop)
           return
@@ -4175,6 +4257,8 @@ export default function SnakeGame() {
           gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
           spawnFloatingText('🛡️', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
           // Let it pass through — the head overlaps one body segment for one frame
+          // Round 41: SFX — shield break on self
+          sfxCompletionWireRef.current.onShieldBreak()
         } else if (gs.extraLifeAvailable) {
           // Silver milestone: extra life — remove 3 tail segments instead of dying
           gs.extraLifeAvailable = false
@@ -4190,9 +4274,14 @@ export default function SnakeGame() {
           const practiceResult = wiringHubRef.current.handlePracticeCollision(gs, modeEngineRef.current)
           if (practiceResult.survived) {
             spawnFloatingText('🔄 Practice Reset', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 20, '#a78bfa')
+            // Round 41: SFX — practice mode collision (soft)
+            sfxCompletionWireRef.current.onCollision('self')
             // Reset snake position but don't end game
           } else {
+            // Round 41: SFX — self collision death
+            sfxCompletionWireRef.current.onCollision('self')
             handleDeath()
+            sfxCompletionWireRef.current.onGameOver()
             draw()
             animFrameRef.current = requestAnimationFrame(gameLoop)
             return
@@ -4228,7 +4317,10 @@ export default function SnakeGame() {
               spawnFloatingText('\u{1F6E1}\uFE0F', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
               spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#60a5fa', 8)
             } else {
+              // Round 41: SFX — obstacle collision death
+              sfxCompletionWireRef.current.onCollision('obstacle')
               handleDeath()
+              sfxCompletionWireRef.current.onGameOver()
               draw()
               animFrameRef.current = requestAnimationFrame(gameLoop)
               return
@@ -4239,7 +4331,9 @@ export default function SnakeGame() {
             gs.snake.splice(gs.snake.length - segmentsToRemove)
             spawnFloatingText('\u{1F53A} -' + segmentsToRemove, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#ef4444')
             spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#ef4444', 8)
-            if (gs.snake.length <= 1) { handleDeath(); draw(); animFrameRef.current = requestAnimationFrame(gameLoop); return }
+            // Round 41: SFX — spike damage
+            sfxCompletionWireRef.current.onCollision('obstacle')
+            if (gs.snake.length <= 1) { handleDeath(); sfxCompletionWireRef.current.onGameOver(); draw(); animFrameRef.current = requestAnimationFrame(gameLoop); return }
           } else if (obsCollision.type === 'ice') {
             // Ice = slide one extra cell
             iceSlideQueuedRef.current = true
@@ -8594,6 +8688,41 @@ export default function SnakeGame() {
                     📊 Events
                   </button>
                 </div>
+                {/* Round 41: Canvas Share — Download Image buttons */}
+                <div className="mt-2 grid grid-cols-2 gap-1.5">
+                  <button onClick={() => {
+                    const gs = gameStateRef.current
+                    const data = buildGameResultData({ score: gs.score, wordsEaten: gs.wordsEaten, combo: gs.comboCount, mode: gs.isDailyChallenge ? 'Daily Challenge' : 'Classic', rating: gs.score >= 10000 ? 'SS' : gs.score >= 5000 ? 'S' : gs.score >= 2000 ? 'A' : gs.score >= 800 ? 'B' : 'C', time: Math.floor(gs.elapsedTime / 1000) })
+                    canvasShareConnectorRef.current.generateAndDownloadGameResult(canvasShareRef.current, data)
+                    toast({ title: 'Image Downloaded!', description: 'Game result card saved as PNG', variant: 'default' })
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-rose-700/30 border border-rose-600/40 text-rose-300 hover:bg-rose-600/30 active:scale-95 transition-all download-img-btn">
+                    🎴 Result PNG
+                  </button>
+                  <button onClick={() => {
+                    const streak = getStreak()
+                    const data = buildStreakData({ currentStreak: streak.currentStreak, bestStreak: streak.bestStreak, totalDays: streak.totalDays })
+                    canvasShareConnectorRef.current.generateAndDownloadStreak(canvasShareRef.current, data)
+                    toast({ title: 'Image Downloaded!', description: 'Streak card saved as PNG', variant: 'default' })
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-amber-700/30 border border-amber-600/40 text-amber-300 hover:bg-amber-600/30 active:scale-95 transition-all download-img-btn">
+                    🔥 Streak PNG
+                  </button>
+                  <button onClick={() => {
+                    const completion = getCollectionCompletion(collectionAlbumRef.current)
+                    const data = buildCollectionData({ completed: completion.completed, total: completion.completed + completion.nearlyComplete + completion.inProgress + completion.notStarted, rarestWord: getRarestWords(collectionAlbumRef.current, 1)[0]?.word || 'N/A', categories: ['general'] })
+                    canvasShareConnectorRef.current.generateAndDownloadCollection(canvasShareRef.current, data)
+                    toast({ title: 'Image Downloaded!', description: 'Collection card saved as PNG', variant: 'default' })
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-teal-700/30 border border-teal-600/40 text-teal-300 hover:bg-teal-600/30 active:scale-95 transition-all download-img-btn">
+                    📖 Album PNG
+                  </button>
+                  <button onClick={() => {
+                    const summary = getPassSummary(battlePassRef.current)
+                    const data = buildBattlePassData({ seasonName: summary.seasonName || 'Spring Blossom', currentTier: summary.currentTier || 1, maxTier: summary.maxTier || 25, xpProgress: summary.xpProgress || 0 })
+                    canvasShareConnectorRef.current.generateAndDownloadBattlePass(canvasShareRef.current, data)
+                    toast({ title: 'Image Downloaded!', description: 'Battle Pass card saved as PNG', variant: 'default' })
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-indigo-700/30 border border-indigo-600/40 text-indigo-300 hover:bg-indigo-600/30 active:scale-95 transition-all download-img-btn">
+                    🏆 BP PNG
+                  </button>
+                </div>
               </div>
             )}
             {/* Round 40: Event Log Panel */}
@@ -9094,7 +9223,22 @@ export default function SnakeGame() {
               <span>{modeDisplayInfo.modeEmoji}</span>
               <span>{modeDisplayInfo.modeName}</span>
             </span>
-            {modeDisplayInfo.timeDisplay && (
+            {/* Round 41: Mode timer wire display */}
+            {modeTimerDisplay.isActive && (
+              <>
+                <div className="w-px h-4 bg-slate-700/50" />
+                <span className={`text-xs font-mono font-bold ${modeTimerDisplay.warningLevel === 'critical' ? 'text-red-400 animate-pulse' : modeTimerDisplay.warningLevel === 'warning' ? 'text-amber-400' : 'text-white'}`}>
+                  {modeTimerDisplay.formatted}
+                </span>
+                <div className="w-16 h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${modeTimerDisplay.warningLevel === 'critical' ? 'bg-red-500' : modeTimerDisplay.warningLevel === 'warning' ? 'bg-amber-500' : 'bg-cyan-400'}`}
+                    style={{ width: `${modeTimerDisplay.progress}%` }}
+                  />
+                </div>
+              </>
+            )}
+            {!modeTimerDisplay.isActive && modeDisplayInfo.timeDisplay && (
               <>
                 <div className="w-px h-4 bg-slate-700/50" />
                 <span className="text-white text-xs font-mono">{modeDisplayInfo.timeDisplay}</span>

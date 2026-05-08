@@ -1,4 +1,108 @@
 ---
+Task ID: 41
+Agent: Development Agent (Round 41)
+Task: Power-Up Canvas Effects, Mode Timer Wire, Canvas Share Connector, SFX Completion Wire, CSS Animations
+
+Work Log:
+- **QA**: `next build` compiles successfully. ESLint zero errors/warnings.
+- **Feature: Power-Up Canvas Effects** — Created `src/lib/powerup-canvas-effects.ts` (570 lines) and integrated:
+  - 7 visual effects drawn on the game canvas based on active power-up state
+  - Ghost Mode: transparent afterimages at past positions that fade with age, cyan head glow, `getGhostSnakeAlpha()` returns 0.35
+  - Magnet Range Ring: pulsing purple/magenta dashed ring (±2 cell pulse), radial gradient glow, animated dash offset
+  - Word Bomb Explosion: expanding orange shockwave ring with ease-out, center white→yellow flash, 18 flying particles with gravity & drag
+  - Freeze Effect: full-canvas breathing frost tint, per-obstacle light blue overlay, 5 sparkle dots, 6 rotating ice crystal prongs
+  - Speed Boost Lines: 6 horizontal streaking lines alternating white/yellow, animated right-to-left
+  - Shield Bubble: translucent blue radial gradient bubble with breathing, edge ring, white glint arc
+  - Score Multiplier Float: bobbing gold "×N" pill label with shadow glow near snake head
+  - Integrated: draw function reads `powerUpEffectWireRef` state each frame, updates visual state, draws all effects
+  - Freeze overlay also drawn on destructible walls when freeze active
+  - `recordGhostPosition()` tracks ghost trail; `triggerBombExplosion()` available for word bomb detonation
+- **Feature: Mode Timer Wire** — Created `src/lib/mode-timer-wire.ts` (424 lines) and integrated:
+  - Bridges game-mode-engine timer into the main game tick loop
+  - `tick(elapsedMs)` with independent time tracking, delta-based with 500ms cap
+  - Timer display data: remaining seconds, formatted MM:SS, progress %, warning level
+  - Warning system: ≤10s → warning, ≤5s → critical (red pulse in HUD)
+  - Timer expiry → game end with time bonus (remaining × 10 pts)
+  - Pause/resume support with anti-drift delta reset
+  - Bonus time: adds seconds to timer, clamped at 150% of base limit
+  - Supports timed (60s), blitz (30s), marathon (300s) modes
+  - HUD overlay: real-time countdown with color-coded progress bar, critical flash
+  - `modeTimerDisplay` state synced to UI via `setModeTimerDisplay()`
+  - Reset on game death to clean state
+- **Feature: Canvas Share Connector** — Created `src/lib/canvas-share-connector.ts` (731 lines) and integrated:
+  - Bridges social-share.ts (ASCII cards) with canvas-share-renderer.ts (PNG images)
+  - 5 card data builders: `buildGameResultData()`, `buildStreakData()`, `buildCollectionData()`, `buildBattlePassData()`, `buildAchievementData()`
+  - 5 one-click `generateAndDownload*()` methods: render PNG via CanvasShareRenderer, trigger browser download
+  - `generateAllCards()` + `downloadAllCards()` with 350ms stagger to prevent browser suppression
+  - `getPreviewDataURL()` for img src in UI
+  - Rarity normalisation: maps bronze/silver/gold/mythic to renderer's enum
+  - Stats tracking: totalGenerated, totalDownloaded, byType breakdown
+  - 4 new buttons in social share panel: 🎴 Result PNG, 🔥 Streak PNG, 📖 Album PNG, 🏆 BP PNG
+  - Each button collects live data, renders canvas card, downloads as PNG, shows toast confirmation
+- **Feature: SFX Completion Wire** — Created `src/lib/sfx-completion-wire.ts` (755 lines) and integrated:
+  - 19 `on*` methods covering all game events
+  - Context-aware sound routing: collision type (wall/self/obstacle), boss tier, combo count, achievement rarity, timer urgency
+  - Volume tiers: ambient (0.3), standard (0.6), important (0.8), critical (1.0)
+  - Cooldown management: rapid (100ms), ambient (500ms), oneshot (0ms)
+  - Wired at: wall collision, self collision, obstacle collision, bot collision, word eat, power-up collect, level up, combo milestone, timer warning, shield break, game over
+  - Statistics tracking with localStorage persistence (`ws_sfx_completion_wire`)
+- **Deep Wiring Completed (this round)**:
+  - ✅ Ghost mode visual trail on canvas
+  - ✅ Magnet range ring visual on canvas
+  - ✅ Shield bubble visual on canvas
+  - ✅ Speed boost lines visual on canvas
+  - ✅ Score multiplier indicator visual on canvas
+  - ✅ Freeze overlay on destructible walls on canvas
+  - ✅ Mode timer countdown → game loop (timed/blitz/marathon)
+  - ✅ Mode timer HUD with progress bar
+  - ✅ Canvas share download buttons → social share panel
+  - ✅ SFX collision sounds (wall/self/obstacle)
+  - ✅ SFX level up, combo milestone, word eat
+  - ✅ SFX power-up collect (context-aware)
+  - ✅ SFX shield break, game over
+  - ✅ SFX timer warning (10s/5s)
+- **CSS: 25 new animations** (599 total keyframes, +80 lines):
+  1. ghost-trail-fade — Ghost mode trail afterimage fade-out
+  2. ghost-head-glow-pulse — Ghost mode head cyan glow pulse
+  3. magnet-ring-pulse — Magnet range indicator pulsing ring
+  4. magnet-ring-rotate — Magnet range ring dash rotation
+  5. bomb-expansion — Word bomb expanding shockwave ring
+  6. bomb-particle-fly — Word bomb particle flying outward
+  7. bomb-center-flash — Word bomb center white flash
+  8. freeze-overlay-shimmer — Freeze effect frost shimmer
+  9. freeze-sparkle — Freeze sparkle dot twinkle
+  10. freeze-crystal-rotate — Ice crystal slow rotation
+  11. speed-boost-line — Speed boost motion line streak
+  12. shield-bubble-breathe — Shield bubble breathing animation
+  13. shield-glint — Shield bubble highlight glint arc
+  14. score-mult-bob — Score multiplier floating indicator bob
+  15. score-mult-glow — Score multiplier value glow ring
+  16. mode-timer-progress-fill — Mode timer progress bar fill
+  17. timer-warning-flash — Timer warning critical flash
+  18. timer-critical-pulse — Timer critical urgency pulse
+  19. download-img-btn-press — Download image button press effect
+  20. canvas-share-generating — Canvas share generating spinner
+  21. sfx-trigger-flash — SFX trigger indicator flash
+  22. sfx-volume-bar — SFX volume level bar animation
+  23. r41-btn-entrance — Staggered Round 41 button entrance
+  24. timer-bar-shimmer — Timer progress bar shimmer sweep
+  25. mode-timer-hud-in — Mode timer HUD slide-in from top
+- **Build**: Compiles successfully. ESLint zero errors.
+
+Stage Summary:
+- 4 new lib files: powerup-canvas-effects.ts (570), mode-timer-wire.ts (424), canvas-share-connector.ts (731), sfx-completion-wire.ts (755) = 2480 lines
+- 4 major integrations into snake-game.tsx: Canvas Effects, Mode Timer, Share Connector, SFX Wire
+- 4 new download buttons in social share panel (Result/Streak/Album/BP PNG)
+- Mode timer HUD overlay with progress bar, color-coded warnings
+- SFX wired at 8 game event points (collision, death, eat, powerup, level up, combo, timer, shield)
+- 7 power-up visual effects rendered on canvas
+- 25 new CSS animations (599 total keyframes)
+- Total project features: 139+, Total CSS animations: 599+
+- snake-game.tsx: 9352 lines (+144), globals.css: 5361 lines (+80)
+- 116 lib files total (+4)
+- Build + lint pass cleanly
+
+---
 Task ID: 40
 Agent: Development Agent (Round 40)
 Task: Game Wiring Hub, Canvas Share Renderer, Minigame Launcher, Event Log Panel, CSS Animations
@@ -450,12 +554,13 @@ Stage Summary:
 
 **Status**: Feature-rich, highly polished, and stable
 
-The application is a comprehensive Word Snake game with 135+ major features.
+The application is a comprehensive Word Snake game with 139+ major features.
 
-### What Works (All Previous + Round 40 New)
+### What Works (All Previous + Round 41 New)
 - **Game**: Start, play, pause, resume, game over, restart
 - **8 Game Modes**: Classic, Timed, Practice, Zen, Challenge, PvP, Blitz, Marathon
 - **Game Mode Engine**: Mode-specific rules applied to game loop (score ×, speed, obstacles, timer)
+- **Mode Timer Wire**: Live countdown for timed/blitz/marathon modes with HUD progress bar (NEW R41)
 - **24 Avatars + 12 Titles + XP Level System**: Full player profile
 - **XP Scoring Wire**: 14 XP event types with multiplier system, level-up detection
 - **Score Breakdown + Score Live Wire**: Per-word analysis, live recording, time efficiency, D-SS rating (P1 + P2 WIRED)
@@ -466,12 +571,15 @@ The application is a comprehensive Word Snake game with 135+ major features.
 - **Daily Challenge Sync**: Calendar + challenge systems synced with star ratings
 - **Game Loop Timing Wire**: Accumulator-based fixed timestep, speed config + mode modifier integration
 - **Game Event Bus Wire**: 25 structured event types emitted throughout lifecycle, throttling, analytics
-- **Power-Up Effect Wire**: 10 power-up effects with cumulative modifiers (SPEED + SCORE NOW WIRED)
+- **Power-Up Effect Wire**: 10 power-up effects with cumulative modifiers (SPEED + SCORE + VISUALS NOW WIRED)
+- **Power-Up Canvas Effects**: 7 visual effects (ghost trail, magnet ring, bomb explosion, freeze, speed lines, shield bubble, score multiplier) (NEW R41)
 - **Social Share**: 6 ASCII art card types, Twitter/Web Share API, clipboard, share history
-- **Game Wiring Hub**: Central coordination for all remaining wiring (NEW R40)
-- **Canvas Share Renderer**: 5 canvas-rendered share card types for high-quality image export (NEW R40)
-- **Mini-Game Launcher**: 3 mini-game modes with scoring, leaderboards, daily rotation (NEW R40)
-- **Event Log Panel**: Real-time scrollable event log with color-coded entries (NEW R40)
+- **Canvas Share Connector**: 4 PNG download buttons in share panel (Result/Streak/Album/BP) (NEW R41)
+- **SFX Completion Wire**: 19 game events wired to context-aware sounds with cooldown management (NEW R41)
+- **Game Wiring Hub**: Central coordination for all remaining wiring
+- **Canvas Share Renderer**: 5 canvas-rendered share card types for high-quality image export
+- **Mini-Game Launcher**: 3 mini-game modes with scoring, leaderboards, daily rotation
+- **Event Log Panel**: Real-time scrollable event log with color-coded entries
 - **Notification Manager**: 8 priority types, auto-dismiss, history tracking
 - **Practice Mode**: Vocabulary learning without game over (COLLISION BYPASS NOW WIRED)
 - **Game Speed Configuration**: 6 profiles, slider, FPS display (WIRED to game loop timing)
@@ -491,14 +599,14 @@ The application is a comprehensive Word Snake game with 135+ major features.
 - **Music Generator + SFX Mixer + 37 SFX sounds**
 - **Game Event Hooks**: 38 events, event bus, history, analytics (WIRED)
 - **Accessibility Manager**: Reduce motion, high contrast, TTS, color blind
-- **Visual Polish**: 574 CSS animations, particles, confetti, aurora
+- **Visual Polish**: 599 CSS animations, particles, confetti, aurora
 
-### All Library Files (111 total)
-Includes all 107 from Round 39 plus:
-- `src/lib/game-wiring-hub.ts` — Central wiring coordination (Round 40) (NEW)
-- `src/lib/canvas-share-renderer.ts` — Canvas share card renderer (Round 40) (NEW)
-- `src/lib/minigame-launcher.ts` — Mini-game launcher (Round 40) (NEW)
-- `src/lib/event-log-panel.ts` — Event log panel (Round 40) (NEW)
+### All Library Files (116 total)
+Includes all 112 from Round 40 plus:
+- `src/lib/powerup-canvas-effects.ts` — Power-up canvas visual effects (Round 41) (NEW)
+- `src/lib/mode-timer-wire.ts` — Mode timer countdown wire (Round 41) (NEW)
+- `src/lib/canvas-share-connector.ts` — Canvas share download connector (Round 41) (NEW)
+- `src/lib/sfx-completion-wire.ts` — SFX completion wire (Round 41) (NEW)
 
 ### Known Issues / Risks
 - Dev server unstable due to resource limitations (use `next build` for verification)
@@ -507,29 +615,26 @@ Includes all 107 from Round 39 plus:
 - Static obstacles/portals only in classic mode
 - Responsive layout hooks not yet fully applied to canvas size calculations
 - AI word packs are deterministic (no LLM API call) — ready but not connected
-- SFX auto-triggering only wired for 3 events — remaining need manual wiring
 - Sound preset apply only updates music volume — SFX category volumes not wired yet
 - Word mastery encounters only tracked if recordEncounter() called in game logic
-- Game mode engine timer not yet called in the main game timer interval
 - Notification event wire not yet wired for boss defeat, streak milestones
 - Battle Pass rewards are visual-only — no actual item granting
 - Collection Album achievements not connected to notification wire
 - Stats Dashboard data only updates on panel open, not real-time
 - Event bus wire only emits for game start, end, word eat, score change, snake grow, power-up collect/expire — remaining events need wiring via wireAllEvents()
-- Social share cards ASCII text only — canvas renderer created but not yet connected to UI buttons
 - Mini-game launcher provides data/config but actual mini-game gameplay loops not yet implemented in the main game
-- Canvas share renderer created but download buttons not yet in the social share panel UI
 - Ghost mode from effect wire (pass through walls) not yet applied to collision checks
 - Word bomb from effect wire (3×3 area clear) not yet connected to canvas drawing
+- SFX completion wire routes events through limited sound functions — variety constrained by available sound API
 
 ### Suggested Next Steps
 1. **Implement Mini-Game Gameplay Loops**: Integrate scramble_blitz/boss_rush/quiz_marathon into the main game loop with canvas overlays
-2. **Connect Canvas Share to Social Share Panel**: Add "Download Image" button using canvasShareRef
-3. **Wire Ghost Mode Effect**: Apply ghostMode from effect wire to wall/self collision checks
-4. **Wire Word Bomb Effect**: Connect detonateBomb() to canvas area clearing on word eat
-5. **Wire Mode Engine Timer**: Call updateModeTimer() in the main timer interval for timed/blitz modes
-6. **Wire Remaining Notifications**: Connect onBossDefeated, onStreakMilestone
-7. **Wire Battle Pass Rewards**: Connect claimReward() to actual item granting (coins, skins, etc.)
-8. **Wire Album Achievements to Notification Wire**: Send notifications on album achievement unlock
-9. **Real-Time Dashboard Updates**: Push data to dashboard on game events instead of panel-open refresh
-10. **Mobile Touch Improvements**: Better swipe controls, haptic feedback for all interactions
+2. **Wire Ghost Mode Collision Bypass**: Apply ghostMode from effect wire to wall/self collision checks in game loop
+3. **Wire Word Bomb Canvas Effect**: Connect detonateBomb() to canvas area clearing on word eat
+4. **Wire Remaining Notifications**: Connect onBossDefeated, onStreakMilestone, onAlbumAchievement
+5. **Wire Battle Pass Rewards**: Connect claimReward() to actual item granting (coins, skins, etc.)
+6. **Wire Album Achievements to Notification Wire**: Send notifications on album achievement unlock
+7. **Real-Time Dashboard Updates**: Push data to dashboard on game events instead of panel-open refresh
+8. **SFX Volume Categories**: Wire SFX category volumes to the sound preset system
+9. **Mobile Touch Improvements**: Better swipe controls, haptic feedback for all interactions
+10. **Live Word Mastery Tracking**: Call recordEncounter() in game logic for mastery progression
