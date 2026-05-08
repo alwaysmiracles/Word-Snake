@@ -57,6 +57,11 @@ import { canStealPowerUp, executeSteal, createPvpPowerUpState, getStealDrawInfo,
 import { createEventFeed, addEvent, getRecentEvents, clearEvents, type GameEventFeed, type GameEvent, EVENT_STYLES } from '@/lib/game-event-feed'
 import { spawnEffect, updateParticles, drawParticles as drawPresetParticles, type ParticleEffect as PresetParticle, PRESET_EFFECTS } from '@/lib/particle-effects'
 import { spawnMovingObstacles, updateMovingObstacles, checkMovingObstacleCollision, drawMovingObstacles, serializeMovingObstacles, deserializeMovingObstacles, resetMovingObstacleIds, type MovingObstacle } from '@/lib/moving-obstacles'
+import { spawnDestructibleWalls, hitDestructibleWall, drawDestructibleWalls, serializeDestructibleWalls, deserializeDestructibleWalls, resetDestructibleWallIds, getDestructibleWallAt, DESTRUCTIBLE_WALL_CONFIG, type DestructibleWall, type WallType } from '@/lib/destructible-walls'
+import { createDefaultCustomization, getSavedParticleCustomization, saveParticleCustomization, getParticlePresetForEvent, PRESET_CATEGORIES, DEFAULT_EVENT_PRESETS, type ParticleCustomization, type ParticleEventType, type ParticlePresetName } from '@/lib/particle-customization'
+import { createAiDifficultySlider, getDifficultyColor, getDifficultyLabel, AI_DIFFICULTY_LEVELS, type AiDifficultySlider, type AiDifficultyLevel } from '@/lib/ai-difficulty-slider'
+import { useResponsiveConfig, hapticFeedback, canHaptic, preventPinchZoom, type ResponsiveConfig, type DeviceInfo, useDeviceInfo } from '@/lib/responsive-ux'
+import { getMusicEngine, MUSIC_STYLES, type MusicEngine, type MusicStyle, type MusicStatus, getSavedMusicConfig, saveMusicConfig } from '@/lib/music-generator'
 import { shouldSpawnScramble, generateScramble, checkScrambleAnswer, getScrambleResult, isScrambleExpired, SCRAMBLE_TIME_LIMIT, type WordScramble } from '@/lib/word-scramble'
 import { getCoinBalance, addCoins, getShopItems, purchaseItem, hasItem, consumeItem, formatCoins, SHOP_ITEMS, COIN_REWARD, type CoinBalance, type ShopItem } from '@/lib/coin-shop'
 import { checkExtraAchievements, getExtraAchievementProgress, getExtraAchievementsUnlocked, EXTRA_ACHIEVEMENTS, type ExtraAchievement } from '@/lib/achievements-extra'
@@ -93,6 +98,10 @@ import {
   X,
   Eye,
   BarChart3,
+  Music,
+  Music4,
+  SlidersHorizontal,
+  Hammer,
 } from 'lucide-react'
 
 // Game constants
@@ -451,6 +460,20 @@ export default function SnakeGame() {
       setUnlockedPackIds(unlocked)
       // Load high contrast accessibility config
       setHighContrast(getHighContrastConfig())
+      // Load particle customization
+      particleCustomRef.current = getSavedParticleCustomization()
+      // Initialize music engine
+      if (!musicEngineRef.current) {
+        musicEngineRef.current = getMusicEngine()
+      }
+      const mConfig = musicEngineRef.current.getConfig()
+      setMusicStyle(mConfig.style)
+      setMusicVolume(mConfig.volume)
+      // Initialize AI difficulty slider
+      if (!aiDiffSliderRef.current) {
+        aiDiffSliderRef.current = createAiDifficultySlider(5, 4)
+      }
+      setAiDiffLevel(aiDiffSliderRef.current.getLevel())
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -519,7 +542,23 @@ export default function SnakeGame() {
   const eventFeedRef = useRef<GameEventFeed>(createEventFeed(50))
   const [eventFeedUpdate, setEventFeedUpdate] = useState(0) // trigger re-renders for event feed
   const movingObstaclesRef = useRef<MovingObstacle[]>([])
+  const destructibleWallsRef = useRef<DestructibleWall[]>([])
   const [showEventFeed, setShowEventFeed] = useState(true)
+  // Particle customization state
+  const particleCustomRef = useRef<ParticleCustomization>(createDefaultCustomization())
+  // AI difficulty slider
+  const aiDiffSliderRef = useRef<AiDifficultySlider | null>(null)
+  const [aiDiffLevel, setAiDiffLevel] = useState(5)
+  // Music engine state
+  const musicEngineRef = useRef<MusicEngine | null>(null)
+  const [musicStatus, setMusicStatus] = useState<MusicStatus>('stopped')
+  const [musicStyle, setMusicStyle] = useState<MusicStyle>('ambient')
+  const [musicVolume, setMusicVolume] = useState(0.15)
+  // Responsive UX
+  const responsiveConfig = useResponsiveConfig()
+  const deviceInfo = useDeviceInfo()
+  // Show particle customization panel
+  const [showParticlePanel, setShowParticlePanel] = useState(false)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -880,6 +919,8 @@ export default function SnakeGame() {
     clearEvents(eventFeedRef.current)
     resetMovingObstacleIds()
     movingObstaclesRef.current = []
+    resetDestructibleWallIds()
+    destructibleWallsRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     setActiveEasterEggs([])
@@ -951,6 +992,8 @@ export default function SnakeGame() {
     clearEvents(eventFeedRef.current)
     resetMovingObstacleIds()
     movingObstaclesRef.current = []
+    resetDestructibleWallIds()
+    destructibleWallsRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     setActiveEasterEggs([])
@@ -2097,6 +2140,11 @@ export default function SnakeGame() {
       drawMovingObstacles(ctx, movingObstaclesRef.current, CELL_SIZE, Date.now() / 1000)
     }
 
+    // Draw destructible walls
+    if (destructibleWallsRef.current.length > 0) {
+      drawDestructibleWalls(ctx, destructibleWallsRef.current, CELL_SIZE, Date.now() / 1000)
+    }
+
     // Draw easter egg confetti particles
     const eeParticles = easterEggParticlesRef.current
     for (let i = eeParticles.length - 1; i >= 0; i--) {
@@ -2825,6 +2873,10 @@ export default function SnakeGame() {
     clearEvents(eventFeedRef.current)
     resetMovingObstacleIds()
     movingObstaclesRef.current = []
+    resetDestructibleWallIds()
+    destructibleWallsRef.current = []
+    resetDestructibleWallIds()
+    destructibleWallsRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     resetVisualizer()
@@ -3687,11 +3739,62 @@ export default function SnakeGame() {
             const shieldIdx = gs.activePowerUps.findIndex(p => p.type === 'shield')
             if (shieldIdx >= 0) gs.activePowerUps.splice(shieldIdx, 1)
             spawnFloatingText('Shield blocked!', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#60a5fa')
+            emitPresetParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, 'shield_block')
           } else {
             handleDeath()
             draw()
             animFrameRef.current = requestAnimationFrame(gameLoop)
             return
+          }
+        }
+      }
+
+      // Check destructible wall collision
+      if (destructibleWallsRef.current.length > 0) {
+        const hitWall = getDestructibleWallAt(head.x, head.y, destructibleWallsRef.current)
+        if (hitWall) {
+          const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+          if (hasShield) {
+            // Shield breaks through destructible walls
+            const destroyed = hitDestructibleWall(hitWall)
+            if (destroyed) {
+              destructibleWallsRef.current = destructibleWallsRef.current.filter(w => w.id !== hitWall.id)
+              const pts = DESTRUCTIBLE_WALL_CONFIG[hitWall.type].points
+              gs.score += pts
+              addCoins(1)
+              spawnFloatingText(`${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].emoji} +${pts}`, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, DESTRUCTIBLE_WALL_CONFIG[hitWall.type].glowColor)
+              emitPresetParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, 'burst')
+              emitEvent('obstacle_hit', `Destroyed ${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].label}! +${pts}`, DESTRUCTIBLE_WALL_CONFIG[hitWall.type].emoji, DESTRUCTIBLE_WALL_CONFIG[hitWall.type].glowColor)
+              if (canHaptic()) hapticFeedback('medium')
+            } else {
+              spawnFloatingText(`${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].emoji} Hit!`, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#f59e0b')
+              if (canHaptic()) hapticFeedback('light')
+            }
+            // Shield absorbs the hit, remove it
+            const shieldIdx = gs.activePowerUps.findIndex(p => p.type === 'shield')
+            if (shieldIdx >= 0) gs.activePowerUps.splice(shieldIdx, 1)
+          } else {
+            // No shield — wall damages but doesn't kill; snake bounces back
+            const destroyed = hitDestructibleWall(hitWall)
+            if (destroyed) {
+              destructibleWallsRef.current = destructibleWallsRef.current.filter(w => w.id !== hitWall.id)
+              const pts = DESTRUCTIBLE_WALL_CONFIG[hitWall.type].points
+              gs.score += pts
+              addCoins(1)
+              spawnFloatingText(`${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].emoji} Smashed! +${pts}`, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, DESTRUCTIBLE_WALL_CONFIG[hitWall.type].glowColor)
+              emitPresetParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, 'burst')
+              emitEvent('obstacle_hit', `Smashed ${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].label}! +${pts}`, DESTRUCTIBLE_WALL_CONFIG[hitWall.type].emoji, DESTRUCTIBLE_WALL_CONFIG[hitWall.type].glowColor)
+              if (canHaptic()) hapticFeedback('success')
+            } else {
+              // Bounce back — undo the move
+              gs.snake.shift()
+              const prev = gs.direction
+              const opposite: Record<Direction, Direction> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' }
+              gs.direction = opposite[prev]
+              spawnFloatingText(`${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].emoji} Blocked!`, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, '#ef4444')
+              if (canHaptic()) hapticFeedback('warning')
+              gs.score = Math.max(0, gs.score - 2)
+            }
           }
         }
       }
@@ -4114,6 +4217,16 @@ export default function SnakeGame() {
           if (movingObstaclesRef.current.length > 0) {
             movingObstaclesRef.current = updateMovingObstacles(movingObstaclesRef.current, 1/60, Date.now() / 1000)
           }
+          // Spawn destructible walls (after eating 12 words, max 5 walls)
+          if (gs.wordsEaten >= 12 && destructibleWallsRef.current.length < 5 && Math.random() < 0.002) {
+            const existing = [...gs.obstacles, ...movingObstaclesRef.current.map(m => ({ x: Math.round(m.cx), y: Math.round(m.cy) })), ...destructibleWallsRef.current]
+            const newWalls = spawnDestructibleWalls(1, GRID_WIDTH, GRID_HEIGHT, gs.snake, existing)
+            destructibleWallsRef.current.push(...newWalls)
+            if (newWalls.length > 0) {
+              const wType = newWalls[0].type
+              emitEvent('obstacle_hit', `${DESTRUCTIBLE_WALL_CONFIG[wType].label} appeared!`, DESTRUCTIBLE_WALL_CONFIG[wType].emoji, DESTRUCTIBLE_WALL_CONFIG[wType].glowColor)
+            }
+          }
           // Spawn portal pairs
           if (shouldSpawnPortal(gs.wordsEaten)) {
             const maxPairs = getMaxPortalPairs(gs.wordsEaten)
@@ -4458,6 +4571,8 @@ export default function SnakeGame() {
     clearEvents(eventFeedRef.current)
     resetMovingObstacleIds()
     movingObstaclesRef.current = []
+    resetDestructibleWallIds()
+    destructibleWallsRef.current = []
     collectedWordsRef.current = new Set()
     setLeaderboardRank(0)
     gs.isDailyChallenge = false
@@ -4893,6 +5008,43 @@ export default function SnakeGame() {
                   >
                     <Moon className="h-3.5 w-3.5" />
                   </Button>
+                  {/* Music control */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-7 w-7 p-0 header-btn-press music-btn-glow ${musicStatus !== 'stopped' ? 'text-green-400' : 'text-slate-500'}`}
+                    onClick={() => {
+                      const engine = musicEngineRef.current || getMusicEngine()
+                      musicEngineRef.current = engine
+                      if (musicStatus === 'playing') {
+                        engine.pause()
+                        setMusicStatus('paused')
+                      } else {
+                        engine.play()
+                        setMusicStatus('playing')
+                      }
+                    }}
+                    title={musicStatus === 'playing' ? 'Pause music' : musicStatus === 'paused' ? 'Resume music' : 'Play music'}
+                  >
+                    {musicStatus === 'playing' ? <Music className="h-3.5 w-3.5" /> : <Music4 className="h-3.5 w-3.5" />}
+                  </Button>
+                  {/* Music style selector */}
+                  <select
+                    className="h-7 bg-slate-800/80 border border-slate-700/50 rounded text-[10px] text-slate-300 px-1 cursor-pointer header-btn-press focus:outline-none focus:ring-1 focus:ring-green-500/50 music-style-select"
+                    value={musicStyle}
+                    onChange={(e) => {
+                      const style = e.target.value as MusicStyle
+                      setMusicStyle(style)
+                      const engine = musicEngineRef.current || getMusicEngine()
+                      musicEngineRef.current = engine
+                      engine.setStyle(style)
+                    }}
+                    title="Music style"
+                  >
+                    {Object.entries(MUSIC_STYLES).map(([key, val]) => (
+                      <option key={key} value={key}>{val.emoji} {val.label}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </CardHeader>
@@ -4911,6 +5063,35 @@ export default function SnakeGame() {
                     {dynDiff.emoji} {dynDiff.description}
                   </span>
                   <span className="text-[9px] text-slate-600">Lv.{dynDiff.level}</span>
+                </div>
+              )}
+              {/* AI Difficulty Slider (when AI bot is active) */}
+              {aiBotActive && mounted && (
+                <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-slate-800/50 to-slate-800/30 border border-slate-600/30 ai-difficulty-panel">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <SlidersHorizontal className="h-3 w-3 text-slate-400" />
+                    <span className="text-[10px] text-slate-400 font-medium">Bot Intelligence</span>
+                    <span className="text-[9px] font-bold ml-auto" style={{ color: getDifficultyColor(aiDiffLevel) }}>
+                      {getDifficultyLabel(aiDiffLevel)} ({Math.round(aiDiffLevel)})
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1" max="10" step="0.5"
+                    value={aiDiffLevel}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value)
+                      setAiDiffLevel(val)
+                      if (aiDiffSliderRef.current) aiDiffSliderRef.current.setLevel(val)
+                    }}
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer ai-diff-slider"
+                    style={{
+                      background: `linear-gradient(to right, ${getDifficultyColor(1)}, ${getDifficultyColor(5)}, ${getDifficultyColor(10)})`,
+                    }}
+                  />
+                  <div className="flex justify-between mt-1 text-[8px] text-slate-600">
+                    <span>Beginner</span><span>Grandmaster</span>
+                  </div>
                 </div>
               )}
               {/* Difficulty selector with colored dots */}
@@ -5843,6 +6024,66 @@ export default function SnakeGame() {
                     style={{ borderColor: 'rgba(168,85,247,0.4)', backgroundColor: 'rgba(168,85,247,0.15)', color: '#a855f7' }}>
                     <span>🌀</span>
                     <span className="font-medium">{uiState.portalCount} Portal{uiState.portalCount !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Particle Customization Panel */}
+            {mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-purple-900/20 to-slate-800/20 border border-purple-700/20 particle-custom-panel">
+                <div className="flex items-center justify-between mb-1.5 cursor-pointer" onClick={() => setShowParticlePanel(!showParticlePanel)}>
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="h-3 w-3 text-purple-400" />
+                    <span className="text-[10px] text-slate-400 font-medium">Particle FX</span>
+                  </div>
+                  <span className="text-[9px] text-purple-400">{showParticlePanel ? '▲' : '▼'}</span>
+                </div>
+                {showParticlePanel && (
+                  <div className="space-y-2 mt-2 particle-panel-expanded">
+                    {/* Size multiplier */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-slate-500 w-10">Size</span>
+                      <input type="range" min="0.5" max="2" step="0.1" value={particleCustomRef.current.sizeMultiplier}
+                        onChange={(e) => {
+                          particleCustomRef.current.sizeMultiplier = parseFloat(e.target.value)
+                          saveParticleCustomization(particleCustomRef.current)
+                        }}
+                        className="flex-1 h-1 rounded-full appearance-none cursor-pointer particle-size-slider"
+                      />
+                      <span className="text-[9px] text-slate-400 w-6 text-right">{particleCustomRef.current.sizeMultiplier.toFixed(1)}x</span>
+                    </div>
+                    {/* Opacity */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-slate-500 w-10">Opacity</span>
+                      <input type="range" min="0.3" max="1" step="0.1" value={particleCustomRef.current.opacity}
+                        onChange={(e) => {
+                          particleCustomRef.current.opacity = parseFloat(e.target.value)
+                          saveParticleCustomization(particleCustomRef.current)
+                        }}
+                        className="flex-1 h-1 rounded-full appearance-none cursor-pointer particle-opacity-slider"
+                      />
+                      <span className="text-[9px] text-slate-400 w-6 text-right">{Math.round(particleCustomRef.current.opacity * 100)}%</span>
+                    </div>
+                    {/* Per-event toggles */}
+                    <div className="flex flex-wrap gap-1">
+                      {(Object.entries(DEFAULT_EVENT_PRESETS) as [ParticleEventType, ParticlePresetName][]).map(([evt, preset]) => (
+                        <button key={evt}
+                          className={`text-[8px] px-1.5 py-0.5 rounded border transition-colors particle-event-toggle ${
+                            particleCustomRef.current.enabledEvents[evt] !== false
+                              ? 'bg-purple-900/30 border-purple-700/40 text-purple-300'
+                              : 'bg-slate-800/30 border-slate-700/30 text-slate-600'
+                          }`}
+                          onClick={() => {
+                            const newVal = particleCustomRef.current.enabledEvents[evt] === false
+                            particleCustomRef.current.enabledEvents[evt] = newVal
+                            saveParticleCustomization(particleCustomRef.current)
+                          }}
+                        >
+                          {evt.replace(/_/g, ' ')}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
