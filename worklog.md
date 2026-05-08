@@ -1686,3 +1686,155 @@ The application is a comprehensive Word Snake game with 37+ major features.
 8. **Canvas Grid Theme Preview**: Animated preview of grid themes on start screen (similar to skin preview)
 9. **Sound Visualizer**: Audio waveform visualization during sound effects
 10. **Snake Trail Customization**: Choose different trail effects (particles, fade, sparkle)
+---
+Task ID: 13
+Agent: Review Agent (cron Round 13)
+Task: Security audit, QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **Security Audit**: Comprehensive code security review:
+  - No API key leaks found in source code (LLM API uses `z-ai-web-dev-sdk` which reads config from server-side `/etc/.z-ai-config`)
+  - `.env` file NOT tracked in git (removed in commit `9a53270`, `.gitignore` properly excludes `.env*`)
+  - `.env` git history contained only a placeholder `DEEPSEEK_API_KEY=your_deepseek_api_key_here` (not a real key)
+  - No hardcoded secrets, no XSS risks (`dangerouslySetInnerHTML`/`innerHTML` not used), no code injection (`eval()`/`new Function()` not used)
+  - No CORS misconfiguration, no exposed sensitive endpoints
+  - `.gitignore` properly excludes: `.env*`, `*.db`, `db/`, `.z-ai-config`, `node_modules`, `.next/`, `*.log`, `skills/`
+  - 549 tracked files, zero sensitive files in git
+  - **Recommendation**: Consider using `git filter-branch` or BFG to clean the `.env` placeholder from git history if pushing to a public repo
+- **QA with agent-browser**: Tested page load, game start/pause, navigation to poem page — all features working correctly, no JS errors, no console errors
+- **No bugs found during QA** — app loads cleanly, ESLint passes with zero errors
+- **Bug Fix: Duplicate imports** — Removed duplicate import blocks for `SettingsPanel`, `GameOverStats`, `isSpeechSupported`, `pronounceWord`, `getSpeedRunDuration`, `getSpeedRunBest`, `saveSpeedRunResult` in snake-game.tsx (partially added by previous round)
+- **Feature: Speed Run Mode**:
+  - Created `src/lib/speed-run.ts` with `SpeedRunResult` and `SpeedRunBest` interfaces
+  - 60-second timed challenge: countdown timer, auto game-over when time expires
+  - Tracks max combo, power-ups collected, longest snake during run
+  - Saves results to localStorage (key: `word-snake-speed-run-best`), keeps best scores and run history (last 20 runs)
+  - Canvas HUD: bold timer display centered at top, pulses red when ≤10s remaining
+  - UI header: rose-colored speed run timer with urgent pulse animation when low
+  - "Speed Run" button (rose-600) on start screen, best score display below buttons
+  - Timer countdown logic integrated into timer interval (200ms tick, calculates remaining from elapsed time)
+  - Speed run game-over saves result and updates best score display
+- **Feature: Word Pronunciation**:
+  - Created `src/lib/word-pronunciation.ts` using Web Speech API (`speechSynthesis`)
+  - `pronounceWord(word, rate)`: Speaks word with preferred English voice, configurable rate
+  - `pronounceWordSlow(word)`: Slower pronunciation for learning (rate 0.6)
+  - `stopSpeech()`: Cancel ongoing speech
+  - `isSpeechSupported()`: Feature detection for `speechSynthesis`
+  - Pronunciation button (Volume1 icon) added to each word in both Game and Poem sidebars
+  - Button appears on hover with smooth opacity transition, hover effect with scale + glow
+- **Feature: Settings Panel**:
+  - Created `src/components/settings-panel.tsx` — centralized settings dialog using Radix UI Dialog
+  - Consolidates all customization options: Snake Skin (8 skins), Canvas Theme (4 themes), Sound Theme (4 themes), Trail Effect (5 types)
+  - Each setting shown as a section with emoji header and description
+  - Visual mini-previews for grid themes (SVG-based rendering of grid patterns)
+  - Skin preview with gradient color swatch
+  - Sound theme preview on selection (plays short arpeggio)
+  - Trail effect selection with colored glow matching trail type
+  - "Settings" button (gear icon) on start screen
+  - Responsive layout, smooth animations (ripple on theme change, bounce on skin change, wave pulse on sound theme)
+- **Feature: Game Over Stats Component**:
+  - Created `src/components/game-over-stats.tsx` — enhanced game over statistics display
+  - Performance Rating: 5-tier system (Beginner → Legendary) based on score, combo, power-ups, high score
+  - Core Stats Grid: 6 stat cards (Score, Words, Time, Max Combo, Longest Snake, Power-ups) with icons and animations
+  - Category Breakdown: Progress bars showing word distribution across categories with colored dots
+  - Game Info Row: Badges for difficulty, weather, daily challenge, streak, leaderboard rank
+  - All stat cards use `number-pop` animation, `stat-breathe-enhanced` background
+  - Category bars have smooth CSS transitions for width changes
+- **Feature: Words by Category Tracking**:
+  - Added `wordsByCategory` field to GameState and uiState
+  - Tracks which categories words were eaten from during each game session
+  - Data available for game over stats and future analytics
+- **Visual Polish — Round 13**:
+  - Added 9 new CSS animations to `globals.css`:
+    - `speedrun-urgent`: Red pulse for low-time speed run timer (0.6s loop)
+    - `speedrun-badge-glow`: Rose glow on speed run indicator (2s loop)
+    - `settings-gear-spin`: Gear icon 90° rotation on hover (0.3s one-shot)
+    - `pronounce-ripple`: Cyan concentric circle ripple on pronunciation click (0.4s one-shot)
+    - `stats-card-enter`: Fade-in + slide-up for stat cards (0.4s one-shot)
+    - `countdown-flash`: Background flash on each timer tick (1s loop)
+    - `category-bar-fill`: Smooth cubic-bezier width transition for category bars
+    - `rating-glow`: Brightness pulse for performance rating (3s loop)
+    - `pronounce-btn`: Scale + drop-shadow glow on hover
+- **Modified Files**:
+  - `src/components/snake-game.tsx`: Speed run integration, settings dialog, pronunciation, wordsByCategory tracking, new UI buttons
+  - `src/components/make-poem.tsx`: Pronunciation button on word list items
+  - `src/app/globals.css`: 9 new CSS animations
+- **New Files**:
+  - `src/lib/speed-run.ts`: Speed run mode logic and persistence
+  - `src/lib/word-pronunciation.ts`: Web Speech API pronunciation
+  - `src/components/settings-panel.tsx`: Centralized settings dialog
+  - `src/components/game-over-stats.tsx`: Enhanced game over statistics
+- **Post-implementation QA**: Verified all features compile and render correctly via agent-browser
+- ESLint passes with zero errors
+- Dev server compiles successfully
+
+Stage Summary:
+- Security audit: No API key leaks found, `.env` properly excluded from git
+- No bugs found in QA
+- 5 major new features (Speed Run Mode, Word Pronunciation, Settings Panel, Game Over Stats, Words by Category Tracking)
+- 9 new CSS animations
+- All code passes ESLint
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 42+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **3 Difficulty Levels**: Easy/Medium/Hard with different speeds
+- **8 Snake Skins**: Classic, Ocean, Fire Wyrm, Royal, Frost, Shadow, Rainbow, Golden with unique patterns + animated preview
+- **4 Canvas Grid Themes**: Classic, Neon (cyberpunk), Retro (CRT scanlines), Nature (organic)
+- **8 Word Categories**: Nature, Emotion, Element, Time, Creature, Quality, Object, Action
+- **4 Word Rarities**: Common, Uncommon (×1.5), Rare (×2.5), Legendary (×5) with special visual effects
+- **Category Filter**: Toggle categories on/off in game (persists via localStorage)
+- **Custom Word Lists**: Add up to 50 custom words with category and auto-points
+- **Custom Word Import/Export**: JSON and CSV formats with validation
+- **5 Power-ups**: Slow-Mo, Double Points, Shrink, Magnet, Shield
+- **Combo Chain**: Same-category consecutive eating builds score multiplier
+- **Canvas Weather with Gameplay Effects**: Rain, Snow, Stars, Clear
+- **Canvas Mini-map**: Bird's eye view (toggleable)
+- **Speed Run Mode**: 60-second timed challenge with best score tracking
+- **Daily Challenge**: Deterministic daily word set, target score, completion tracking
+- **Streak System**: Consecutive day tracking with 4 milestone tiers and score multipliers
+- **Achievement Milestones**: 4 tiers (Bronze/Silver/Gold/Platinum) with gameplay bonuses
+- **Sound Effects**: Web Audio API with 4 sound themes (Default, Retro 8-bit, Soft Ambient, Epic Orchestra)
+- **Persistent High Score + Leaderboard**: Per-difficulty top 10 scores
+- **Game Statistics Dashboard**: 20+ tracked metrics across 4 categories
+- **Word Pronunciation**: Speak collected words using Web Speech API
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Automatic used-word removal, style-specific prompts
+- **Poem Sharing**: Generate 1080×1080 shareable social image, Web Share API
+- **Poem Favorites**: Mark/unmark poems as favorites, persistent collection (max 20)
+- **Achievement Gallery**: Full modal with progress bars, milestone rewards
+- **Achievement Queue**: Multiple achievements shown in sequence with cascading toasts
+- **11 Achievements**: Toast notifications, canvas floating text, gallery modal
+- **Word Definitions + Etymology**: Tooltips on hover showing definition, example, and word origin
+- **Settings Panel**: Centralized dialog for skins, themes, sound, trails
+- **Game Over Stats**: Performance rating, category breakdown, detailed stats
+- **Mobile Support**: Touch/swipe controls, glass-morphism D-pad
+- **Keyboard Shortcuts**: Help dialog with all keyboard controls
+- **5 Snake Trail Effects**: None, Fade, Particles, Sparkle, Rainbow
+- **Visual Polish**: 63+ CSS animations, particles, confetti, page transitions, aurora background, shimmer effects, glow rings, combo fire flicker, rarity effects, weather particles
+- **Copy/Download/Share Poem**: Copy to clipboard, download as PNG, share via Web Share API
+
+### Known Issues / Risks
+- `.env` placeholder exists in early git history (low risk — not a real key)
+- Poem download PNG doesn't wrap long lines well
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Confetti canvas doesn't resize on window resize
+- Shield power-up wrapping behavior might be unexpected
+- Turbopack cache can become stale — may need .next cache clearing after large changes
+
+### Suggested Next Steps
+1. **Multi-language Support**: Word sets in other languages (Chinese, Japanese, etc.)
+2. **Game Replay**: Record and replay game sessions
+3. **Accessibility**: Screen reader support, high contrast mode
+4. **Online Leaderboard**: Server-side leaderboard with global rankings
+5. **Poem Collage**: Combine multiple poems into a collage image
+6. **Sound Visualizer**: Audio waveform visualization during sound effects
+7. **Canvas Grid Theme Preview**: Animated preview of grid themes on start screen (similar to skin preview)
+8. **Word Etymology Enhancement**: More accurate etymology entries
+9. **Difficulty Curve**: Dynamic difficulty that adjusts based on player skill
+10. **Night Mode**: Special dark theme with reduced blue light for evening play

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
 import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getWordEntryIncludingCustom, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
-import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound } from '@/lib/sounds'
+import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound, setSoundTheme, playThemePreviewSound } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import { checkMilestones, getActiveMilestoneBonuses, MILESTONE_CONFIG, type MilestoneConfig } from '@/lib/achievement-milestones'
@@ -24,6 +24,13 @@ import { POWERUP_CONFIG, getRandomPowerUpType, POWERUP_SPAWN_CHANCE, POWERUP_DES
 import { trackGameEnd, trackWordEaten, trackPowerUpCollected, trackCombo, trackDailyPlayed } from '@/lib/game-stats'
 import { getSnakeSkin, getAllSkins, getSavedSkin, saveSnakeSkin, type SnakeSkin } from '@/lib/snake-skins'
 import { getGridTheme, getAllGridThemes, getSavedGridTheme, saveGridTheme, type GridThemeId } from '@/lib/grid-themes'
+import { getSavedSoundTheme, getAllSoundThemes, saveSoundTheme, type SoundThemeId } from '@/lib/sound-themes'
+import { getSavedTrail, getAllTrails, saveTrail, type SnakeTrailType, spawnTrailParticles, drawTrail, updateTrailParticles, type TrailParticle } from '@/lib/snake-trails'
+import KeyboardShortcutsDialog from '@/components/keyboard-shortcuts-dialog'
+import SettingsPanel from '@/components/settings-panel'
+import GameOverStats from '@/components/game-over-stats'
+import { isSpeechSupported, pronounceWord } from '@/lib/word-pronunciation'
+import { getSpeedRunDuration, getSpeedRunBest, saveSpeedRunResult, type SpeedRunResult } from '@/lib/speed-run'
 import {
   Play,
   RotateCcw,
@@ -39,6 +46,9 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
+  Settings,
+  Gauge,
+  Volume1,
 } from 'lucide-react'
 
 // Game constants
@@ -123,6 +133,12 @@ interface GameState {
   gridTheme: GridThemeId
   extraLifeAvailable: boolean
   lastMilestone: { name: string; emoji: string; description: string } | null
+  isSpeedRun: boolean
+  speedRunTimeLeft: number // seconds remaining
+  speedRunMaxCombo: number
+  speedRunPowerUpsCollected: number
+  speedRunLongestSnake: number
+  wordsByCategory: Record<string, number>
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -179,6 +195,82 @@ function saveActiveCategories(categories: Set<WordCategory>) {
   } catch { /* ignore */ }
 }
 
+// Draw a tiny preview of a grid theme on a small canvas
+function drawThemePreview(canvas: HTMLCanvasElement, theme: { bgColor: string; gridColor: string; gridType: string; scanlines?: boolean; borderColor: string }) {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const w = canvas.width
+  const h = canvas.height
+
+  ctx.fillStyle = theme.bgColor
+  ctx.fillRect(0, 0, w, h)
+
+  // Draw simplified grid pattern
+  const step = 4
+  ctx.fillStyle = theme.gridColor
+
+  if (theme.gridType === 'dots') {
+    for (let x = 0; x < w; x += step) {
+      for (let y = 0; y < h; y += step) {
+        ctx.globalAlpha = 0.4
+        ctx.beginPath()
+        ctx.arc(x, y, 0.5, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+  } else if (theme.gridType === 'lines') {
+    ctx.strokeStyle = theme.gridColor
+    ctx.globalAlpha = 0.2
+    ctx.lineWidth = 0.5
+    for (let x = 0; x < w; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
+    }
+    for (let y = 0; y < h; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke()
+    }
+  } else if (theme.gridType === 'crosshatch') {
+    ctx.strokeStyle = theme.gridColor
+    ctx.globalAlpha = 0.12
+    ctx.lineWidth = 0.5
+    for (let x = 0; x < w; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
+    }
+    for (let y = 0; y < h; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke()
+    }
+    ctx.globalAlpha = 0.06
+    for (let d = -h; d < w + h; d += 4) {
+      ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d - h, h); ctx.stroke()
+    }
+  } else if (theme.gridType === 'organic') {
+    for (let x = 0; x < w; x += step) {
+      for (let y = 0; y < h; y += step) {
+        const hash = ((x * 7919 + y * 104729 + 42) % 100) / 100
+        ctx.globalAlpha = 0.2 + hash * 0.3
+        ctx.beginPath()
+        ctx.arc(x, y, 0.5 + hash, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+  }
+  ctx.globalAlpha = 1
+
+  // Border
+  ctx.strokeStyle = theme.borderColor
+  ctx.lineWidth = 1
+  ctx.globalAlpha = 0.5
+  ctx.strokeRect(0.5, 0.5, w - 1, h - 1)
+  ctx.globalAlpha = 1
+
+  // Scanlines for retro theme
+  if (theme.scanlines) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'
+    for (let y = 0; y < h; y += 2) {
+      ctx.fillRect(0, y, w, 1)
+    }
+  }
+}
+
 
 export default function SnakeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -197,6 +289,17 @@ export default function SnakeGame() {
 
   // Custom words dialog
   const [showCustomWords, setShowCustomWords] = useState(false)
+
+  // Keyboard shortcuts dialog
+  const [showShortcuts, setShowShortcuts] = useState(false)
+
+  // Sound theme state
+  const [activeSoundTheme, setActiveSoundTheme] = useState<SoundThemeId>('default')
+  const [soundWavePulse, setSoundWavePulse] = useState(false)
+
+  // Trail state
+  const [activeTrail, setActiveTrail] = useState<SnakeTrailType>('none')
+  const trailParticlesRef = useRef<TrailParticle[]>([])
 
   // Daily challenge state (lazy init to avoid hydration mismatch)
   const [dailyInfo, setDailyInfo] = useState<{
@@ -245,6 +348,16 @@ export default function SnakeGame() {
           updateUI()
         }
       } catch { /* ignore */ }
+      // Load saved sound theme
+      const savedSoundTheme = getSavedSoundTheme()
+      setSoundTheme(savedSoundTheme)
+      setActiveSoundTheme(savedSoundTheme)
+      // Load saved trail
+      const savedTrail = getSavedTrail()
+      setActiveTrail(savedTrail)
+      // Load speed run best
+      const srBest = getSpeedRunBest()
+      setSpeedRunBest({ bestScore: srBest.bestScore, totalRuns: srBest.totalRuns })
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -286,6 +399,12 @@ export default function SnakeGame() {
     gridTheme: 'classic' as GridThemeId,
     extraLifeAvailable: false,
     lastMilestone: null,
+    isSpeedRun: false,
+    speedRunTimeLeft: 60,
+    speedRunMaxCombo: 0,
+    speedRunPowerUpsCollected: 0,
+    speedRunLongestSnake: 0,
+    wordsByCategory: {},
   })
 
   const lastRenderRef = useRef(0)
@@ -329,6 +448,12 @@ export default function SnakeGame() {
     gridTheme: 'classic' as GridThemeId,
     extraLifeAvailable: false,
     lastMilestone: null as { name: string; emoji: string; description: string } | null,
+    isSpeedRun: false,
+    speedRunTimeLeft: 60,
+    speedRunMaxCombo: 0,
+    speedRunPowerUpsCollected: 0,
+    speedRunLongestSnake: 0,
+    wordsByCategory: {} as Record<string, number>,
   })
 
   // Skin state
@@ -336,6 +461,12 @@ export default function SnakeGame() {
 
   // Grid theme state
   const [activeGridTheme, setActiveGridTheme] = useState<GridThemeId>('classic')
+
+  // Settings dialog
+  const [showSettings, setShowSettings] = useState(false)
+
+  // Speed run state
+  const [speedRunBest, setSpeedRunBest] = useState<{ bestScore: number; totalRuns: number }>({ bestScore: 0, totalRuns: 0 })
 
   // Track word additions for entrance animation - key increments trigger re-render with animation
   const [newWordKey, setNewWordKey] = useState(0)
@@ -377,6 +508,12 @@ export default function SnakeGame() {
       gridTheme: gs.gridTheme,
       extraLifeAvailable: gs.extraLifeAvailable,
       lastMilestone: gs.lastMilestone,
+      isSpeedRun: gs.isSpeedRun,
+      speedRunTimeLeft: gs.speedRunTimeLeft,
+      speedRunMaxCombo: gs.speedRunMaxCombo,
+      speedRunPowerUpsCollected: gs.speedRunPowerUpsCollected,
+      speedRunLongestSnake: gs.speedRunLongestSnake,
+      wordsByCategory: gs.wordsByCategory,
     })
   }, [])
 
@@ -693,6 +830,9 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
+    // Draw custom trail effects
+    drawTrail(ctx, activeTrail, snake, trailParticlesRef.current, CELL_SIZE, gs.isDailyChallenge ? '#f59e0b' : getSnakeSkin(gs.activeSkin).headColor, Date.now())
+
     // Draw snake
     const skin = getSnakeSkin(gs.activeSkin)
     snake.forEach((segment, index) => {
@@ -847,6 +987,12 @@ export default function SnakeGame() {
           }
         }
       } catch { /* ignore */ }
+
+      // Spawn trail particles
+      const skin = getSnakeSkin(gs.activeSkin)
+      spawnTrailParticles(activeTrail, trailParticlesRef.current, snake, CELL_SIZE, gs.isDailyChallenge ? '#f59e0b' : skin.headColor, Date.now())
+      // Update trail particles
+      updateTrailParticles(trailParticlesRef.current, 0.016)
     }
 
     // Draw word food with category-based coloring
@@ -1036,6 +1182,19 @@ export default function SnakeGame() {
         ctx.fillText(`${config.emoji} ${remaining > 0 ? remaining + 's' : '✓'}`, x + 4, hudY + 4)
       })
       ctx.textAlign = 'start'
+    }
+
+    // Speed Run Timer on canvas
+    if (gs.isSpeedRun && gameStarted && !gameOver) {
+      const timerColor = gs.speedRunTimeLeft <= 10 ? '#ef4444' : '#fb7185'
+      const pulse = gs.speedRunTimeLeft <= 10 ? 0.7 + Math.sin(Date.now() / 200) * 0.3 : 1
+      ctx.globalAlpha = pulse
+      ctx.fillStyle = timerColor
+      ctx.font = 'bold 16px monospace'
+      ctx.textAlign = 'center'
+      ctx.fillText(`⏱ ${gs.speedRunTimeLeft}s`, CANVAS_WIDTH / 2, 18)
+      ctx.textAlign = 'start'
+      ctx.globalAlpha = 1
     }
 
     // Mini-map (only during active gameplay)
@@ -1496,7 +1655,7 @@ export default function SnakeGame() {
     }
   }, [streakInfo, leaderboardRank])
 
-  const resetGame = useCallback((isDaily: boolean = false) => {
+  const resetGame = useCallback((isDaily: boolean = false, isSpeedRun: boolean = false) => {
     const gs = gameStateRef.current
     const diff = gs.difficulty
     const settings = DIFFICULTY_SETTINGS[diff]
@@ -1568,6 +1727,21 @@ export default function SnakeGame() {
     gs.weather = weathers[Math.floor(Math.random() * weathers.length)]
     weatherParticlesRef.current = []
 
+    // Speed run and words-by-category reset
+    gs.speedRunMaxCombo = 0
+    gs.speedRunPowerUpsCollected = 0
+    gs.speedRunLongestSnake = gs.snake.length
+    gs.wordsByCategory = {}
+
+    // If speed run, set timer
+    if (isSpeedRun) {
+      gs.isSpeedRun = true
+      gs.speedRunTimeLeft = getSpeedRunDuration()
+    } else {
+      gs.isSpeedRun = false
+      gs.speedRunTimeLeft = getSpeedRunDuration()
+    }
+
     spawnWord()
     playSound(playStartSound)
 
@@ -1590,6 +1764,30 @@ export default function SnakeGame() {
       const gs = gameStateRef.current
       if (gs.gameStarted && !gs.gameOver && !gs.paused) {
         gs.elapsedTime = Date.now() - gs.startTime
+        // Speed run countdown (decrement every second using elapsed time)
+        if (gs.isSpeedRun) {
+          const elapsed = Math.floor(gs.elapsedTime / 1000)
+          gs.speedRunTimeLeft = Math.max(0, getSpeedRunDuration() - elapsed)
+          if (gs.speedRunTimeLeft <= 0) {
+            // Time's up — trigger game over
+            gs.gameOver = true
+            // Save speed run result
+            const result: SpeedRunResult = {
+              score: gs.score,
+              wordsEaten: gs.wordsEaten,
+              maxCombo: gs.speedRunMaxCombo,
+              powerUpsCollected: gs.speedRunPowerUpsCollected,
+              longestSnake: gs.speedRunLongestSnake,
+              difficulty: gs.difficulty,
+              date: new Date().toISOString(),
+              survived: true,
+            }
+            const best = saveSpeedRunResult(result)
+            setSpeedRunBest({ bestScore: best.bestScore, totalRuns: best.totalRuns })
+            playSound(playGameOverSound)
+            trackGameEnd(gs.score, gs.wordsEaten, gs.difficulty, gs.elapsedTime, false)
+          }
+        }
         updateUI()
       }
     }
@@ -1597,7 +1795,7 @@ export default function SnakeGame() {
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current)
     }
-  }, [updateUI])
+  }, [updateUI, playSound])
 
   // Game loop
   useEffect(() => {
@@ -1832,6 +2030,16 @@ export default function SnakeGame() {
           gs.wordsEaten += 1
           gs.wordFood = null
 
+          // Track words by category
+          if (!gs.wordsByCategory[wordFood.category]) gs.wordsByCategory[wordFood.category] = 0
+          gs.wordsByCategory[wordFood.category] += 1
+
+          // Track speed run stats
+          if (gs.isSpeedRun) {
+            gs.speedRunMaxCombo = Math.max(gs.speedRunMaxCombo, gs.comboMultiplier)
+            gs.speedRunLongestSnake = Math.max(gs.speedRunLongestSnake, gs.snake.length)
+          }
+
           // Track word eaten for stats
           trackWordEaten(wordFood.category, wordFood.rarity)
           trackCombo(gs.comboCount)
@@ -1968,6 +2176,7 @@ export default function SnakeGame() {
           playSound(playPowerUpSound)
           gs.powerUp = null
           trackPowerUpCollected()
+          if (gs.isSpeedRun) gs.speedRunPowerUpsCollected += 1
         }
       }
 
@@ -2004,6 +2213,57 @@ export default function SnakeGame() {
         return
       }
       if (e.key === 'Escape') { gs.paused = !gs.paused; playSound(playPauseSound); updateUI(); return }
+      if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault()
+        if (gs.gameOver) resetGame(gs.isDailyChallenge)
+        else if (!gs.gameStarted) resetGame()
+        return
+      }
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault()
+        gs.soundEnabled = !gs.soundEnabled
+        updateUI()
+        return
+      }
+      if (e.key === 's' || e.key === 'S') {
+        e.preventDefault()
+        if (!gs.gameStarted) resetGame()
+        return
+      }
+      if (e.key === 'd' || e.key === 'D') {
+        e.preventDefault()
+        if (!gs.gameStarted) { resetGame(true) }
+        return
+      }
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        gs.showMiniMap = !gs.showMiniMap
+        try { localStorage.setItem('word-snake-minimap', String(gs.showMiniMap)) } catch { /* ignore */ }
+        updateUI()
+        return
+      }
+      if (e.key === '?' || e.key === '/') {
+        e.preventDefault()
+        setShowShortcuts(prev => !prev)
+        return
+      }
+      if (e.key === 'g' || e.key === 'G') {
+        e.preventDefault()
+        const themes = getAllGridThemes()
+        const currentIdx = themes.findIndex(t => t.id === gs.gridTheme)
+        const nextIdx = (currentIdx + 1) % themes.length
+        const nextTheme = themes[nextIdx]
+        gs.gridTheme = nextTheme.id
+        saveGridTheme(nextTheme.id)
+        setActiveGridTheme(nextTheme.id)
+        setThemeSwitchRipple(true)
+        setTimeout(() => setThemeSwitchRipple(false), 500)
+        updateUI()
+        return
+      }
+      if (e.key === '1') { e.preventDefault(); if (!gs.gameStarted || gs.gameOver) changeDifficulty('easy'); return }
+      if (e.key === '2') { e.preventDefault(); if (!gs.gameStarted || gs.gameOver) changeDifficulty('medium'); return }
+      if (e.key === '3') { e.preventDefault(); if (!gs.gameStarted || gs.gameOver) changeDifficulty('hard'); return }
       if (!gs.gameStarted || gs.gameOver || gs.paused) return
 
       const keyToDir: Record<string, Direction> = {
@@ -2209,6 +2469,13 @@ export default function SnakeGame() {
                       <span className="font-mono">{formatTime(uiState.elapsedTime)}</span>
                     </div>
                   )}
+                  {/* Speed Run Timer */}
+                  {uiState.gameStarted && !uiState.gameOver && uiState.isSpeedRun && (
+                    <div className={`flex items-center gap-1.5 text-xs font-bold ${uiState.speedRunTimeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-rose-400'}`}>
+                      <Gauge className="h-3 w-3" />
+                      <span className="font-mono">{uiState.speedRunTimeLeft}s</span>
+                    </div>
+                  )}
                   {/* Weather badge pill */}
                   {uiState.gameStarted && !uiState.gameOver && (
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${WEATHER_CONFIG[uiState.weather].badgeBg} text-slate-300 border border-slate-600/30 ${uiState.weather === 'rain' ? 'weather-badge-rain' : uiState.weather === 'snow' ? 'weather-badge-snow' : uiState.weather === 'stars' ? 'weather-badge-stars' : ''}`}>
@@ -2243,7 +2510,16 @@ export default function SnakeGame() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-slate-400 hover:text-slate-200 active:scale-95 transition-transform"
+                    className="h-7 w-7 p-0 text-slate-400 hover:text-slate-200 header-btn-press"
+                    onClick={() => setShowShortcuts(true)}
+                    title="Keyboard shortcuts"
+                  >
+                    <span className="text-sm font-bold">?</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 text-slate-400 hover:text-slate-200 header-btn-press"
                     onClick={toggleSound}
                     title={uiState.soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
                   >
@@ -2252,7 +2528,7 @@ export default function SnakeGame() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`h-7 w-7 p-0 active:scale-95 transition-transform ${uiState.showMiniMap ? 'text-slate-200' : 'text-slate-500'}`}
+                    className={`h-7 w-7 p-0 header-btn-press ${uiState.showMiniMap ? 'text-slate-200' : 'text-slate-500'}`}
                     onClick={toggleMiniMap}
                     title={uiState.showMiniMap ? 'Hide mini-map' : 'Show mini-map'}
                   >
@@ -2346,6 +2622,42 @@ export default function SnakeGame() {
                 </div>
               )}
 
+              {/* Trail Selector */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-slate-500 font-medium">✨ Trail</span>
+                    <span className="text-[10px] text-slate-600">— {getAllTrails().find(t => t.id === activeTrail)?.description ?? 'No trail'}</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                    {getAllTrails().map((tr) => (
+                      <button
+                        key={tr.id}
+                        onClick={() => {
+                          setActiveTrail(tr.id)
+                          saveTrail(tr.id)
+                          trailParticlesRef.current = []
+                          playSound(playClickSound)
+                        }}
+                        className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border-2 active:scale-95 ${
+                          activeTrail === tr.id
+                            ? 'border-white scale-110 shadow-lg trail-option-glow'
+                            : 'border-slate-700/50 hover:border-slate-500/60'
+                        }`}
+                        style={
+                          activeTrail === tr.id
+                            ? { '--trail-glow-color': tr.glowColor } as React.CSSProperties
+                            : undefined
+                        }
+                        title={`${tr.name}: ${tr.description}`}
+                      >
+                        {tr.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Skin Selector */}
               {(!uiState.gameStarted || uiState.gameOver) && (
                 <div className="mb-3">
@@ -2383,7 +2695,7 @@ export default function SnakeGame() {
                 </div>
               )}
 
-              {/* Grid Theme Selector */}
+              {/* Grid Theme Selector with Preview Canvases */}
               {(!uiState.gameStarted || uiState.gameOver) && (
                 <div className="mb-3">
                   <div className="flex items-center gap-2 mb-1.5">
@@ -2392,28 +2704,73 @@ export default function SnakeGame() {
                   </div>
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
                     {getAllGridThemes().map((t) => (
+                      <div key={t.id} className="shrink-0">
+                        <button
+                          onClick={() => {
+                            setActiveGridTheme(t.id)
+                            gameStateRef.current.gridTheme = t.id
+                            saveGridTheme(t.id)
+                            setThemeSwitchRipple(true)
+                            setTimeout(() => setThemeSwitchRipple(false), 500)
+                            updateUI()
+                          }}
+                          className={`w-[72px] rounded-lg flex flex-col items-center p-1.5 gap-1 transition-all duration-200 border-2 active:scale-95 ${
+                            activeGridTheme === t.id
+                              ? 'border-white scale-105 shadow-lg grid-theme-badge-glow'
+                              : 'border-slate-700/50 hover:border-slate-500/60'
+                          } ${themeSwitchRipple && activeGridTheme === t.id ? 'theme-switch-ripple' : ''}`}
+                          style={{
+                            backgroundColor: t.bgColor + 'cc',
+                          }}
+                          title={`${t.name}: ${t.description}`}
+                        >
+                          <span className="text-lg">{t.emoji}</span>
+                          <canvas
+                            ref={(el) => {
+                              if (el) drawThemePreview(el, t)
+                            }}
+                            width={56}
+                            height={28}
+                            className="rounded theme-preview-shine"
+                            style={{ imageRendering: 'pixelated' }}
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Sound Theme Selector */}
+              {(!uiState.gameStarted || uiState.gameOver) && (
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-slate-500 font-medium">🔊 Sound</span>
+                    <span className="text-[10px] text-slate-600">— {getAllSoundThemes().find(s => s.id === activeSoundTheme)?.description ?? 'Default'}</span>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                    {getAllSoundThemes().map((st) => (
                       <button
-                        key={t.id}
+                        key={st.id}
                         onClick={() => {
-                          setActiveGridTheme(t.id)
-                          gameStateRef.current.gridTheme = t.id
-                          saveGridTheme(t.id)
-                          setThemeSwitchRipple(true)
-                          setTimeout(() => setThemeSwitchRipple(false), 500)
-                          updateUI()
+                          setActiveSoundTheme(st.id)
+                          setSoundTheme(st.id)
+                          saveSoundTheme(st.id)
+                          playThemePreviewSound(st.id)
+                          setSoundWavePulse(true)
+                          setTimeout(() => setSoundWavePulse(false), 600)
                         }}
                         className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-all duration-200 border-2 active:scale-95 ${
-                          activeGridTheme === t.id
-                            ? 'border-white scale-110 shadow-lg grid-theme-badge-glow'
+                          activeSoundTheme === st.id
+                            ? 'border-white scale-110 shadow-lg'
                             : 'border-slate-700/50 hover:border-slate-500/60'
-                        } ${themeSwitchRipple && activeGridTheme === t.id ? 'theme-switch-ripple' : ''}`}
+                        } ${soundWavePulse && activeSoundTheme === st.id ? 'sound-wave-pulse' : ''}`}
                         style={{
-                          backgroundColor: t.bgColor + 'cc',
-                          boxShadow: activeGridTheme === t.id ? `0 0 12px ${t.gridColor}40` : undefined,
+                          backgroundColor: 'rgba(30, 41, 59, 0.6)',
                         }}
-                        title={`${t.name}: ${t.description}`}
+                        title={`${st.name}: ${st.description}`}
                       >
-                        {t.emoji}
+                        {st.emoji}
                       </button>
                     ))}
                   </div>
@@ -2460,6 +2817,20 @@ export default function SnakeGame() {
                       className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform"
                     >
                       ✏️ Words{getCustomWordCount() > 0 && <span className="ml-1 text-[10px] opacity-70">({getCustomWordCount()})</span>}
+                    </Button>
+                    <Button
+                      onClick={() => resetGame(false, true)}
+                      className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
+                      title="60-second timed challenge"
+                    >
+                      <Gauge className="h-4 w-4 mr-1" /> Speed Run
+                    </Button>
+                    <Button
+                      onClick={() => setShowSettings(true)}
+                      variant="outline"
+                      className="border-slate-600/50 text-slate-300 hover:bg-slate-800/50 active:scale-95 transition-transform"
+                    >
+                      <Settings className="h-4 w-4 mr-1" /> Settings
                     </Button>
                   </>
                 )}
@@ -2721,6 +3092,16 @@ export default function SnakeGame() {
                                 })()}
                               </span>
                               <div className="flex items-center gap-1.5">
+                                {/* Pronunciation button */}
+                                {isSpeechSupported() && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); pronounceWord(word) }}
+                                    className="opacity-0 group-hover:opacity-50 hover:!opacity-100 transition-opacity duration-200 text-slate-400 hover:text-cyan-400"
+                                    title="Pronounce word"
+                                  >
+                                    <Volume1 className="h-3 w-3" />
+                                  </button>
+                                )}
                                 {entry && (
                                   <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">
                                     {entry.points}pt{entry.points !== 1 ? 's' : ''}
@@ -2841,6 +3222,29 @@ export default function SnakeGame() {
             </div>
             <Sparkles className="h-5 w-5 text-yellow-400 sparkle-spin" />
           </div>
+        </div>
+      )}
+
+      {/* Settings Panel Modal */}
+      <SettingsPanel
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        currentSkin={activeSkin}
+        onSkinChange={(skin) => { gameStateRef.current.activeSkin = skin.id; setActiveSkin(skin); saveSnakeSkin(skin.id) }}
+        currentGridTheme={activeGridTheme}
+        onGridThemeChange={(theme) => { gameStateRef.current.gridTheme = theme; setActiveGridTheme(theme); saveGridTheme(theme) }}
+        currentSoundTheme={activeSoundTheme}
+        onSoundThemeChange={(theme) => { setSoundTheme(theme); setActiveSoundTheme(theme); saveSoundTheme(theme) }}
+        currentTrail={activeTrail}
+        onTrailChange={(trail) => { setActiveTrail(trail); saveTrail(trail) }}
+      />
+
+      {/* Speed Run best score display */}
+      {mounted && speedRunBest.totalRuns > 0 && !uiState.gameStarted && (
+        <div className="text-center mt-1">
+          <span className="text-[10px] text-rose-400/60">
+            Speed Run Best: {speedRunBest.bestScore} pts ({speedRunBest.totalRuns} runs)
+          </span>
         </div>
       )}
     </div>

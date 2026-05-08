@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useWordStore } from '@/lib/word-store'
 import { getWordEntry, CATEGORY_COLORS, getCategoryInfo, type WordCategory } from '@/lib/word-pool'
 import { playPoemSound } from '@/lib/sounds'
+import { isSpeechSupported, pronounceWord } from '@/lib/word-pronunciation'
 import { checkAchievements, getUnlockedAchievements, ACHIEVEMENTS, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import AchievementGallery from '@/components/achievement-gallery'
@@ -37,6 +38,7 @@ import {
   Heart,
   Star,
   Share,
+  Volume1,
 } from 'lucide-react'
 
 type PoemStyle = 'free_verse' | 'haiku' | 'limerick' | 'sonnet'
@@ -779,6 +781,15 @@ export default function MakePoem() {
                                 )}
                               </span>
                               <div className="flex items-center gap-1.5">
+                                {isSpeechSupported() && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); pronounceWord(word) }}
+                                    className="opacity-0 group-hover:opacity-50 hover:!opacity-100 transition-opacity duration-200 text-slate-400 hover:text-cyan-400 pronounce-btn"
+                                    title="Pronounce word"
+                                  >
+                                    <Volume1 className="h-3 w-3" />
+                                  </button>
+                                )}
                                 {entry && <span className="text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors">{entry.points}pt{entry.points !== 1 ? 's' : ''}</span>}
                                 {count > 1 && <Badge variant="secondary" className="bg-amber-800/40 text-amber-300 text-xs h-5 min-w-[20px] flex items-center justify-center">×{count}</Badge>}
                               </div>
