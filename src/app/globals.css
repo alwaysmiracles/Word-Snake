@@ -1554,3 +1554,236 @@
   100% { transform: scale(1); }
 }
 .replay-speed-change { animation: replay-speed-change 0.3s ease-out; }
+
+/* ===== Round 19: New Animations ===== */
+
+/* 1. word-card-reveal — Card entrance animation for Word Book component */
+@keyframes word-card-reveal-kf {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.word-card-reveal {
+  animation: word-card-reveal-kf 0.4s ease-out both;
+}
+
+/* 2. word-card-hover — Hover state for word cards (class-based for JSX combining) */
+.word-card-hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 12px rgba(168, 85, 247, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* 3. progress-bar-fill — Animated progress bar fill with shimmer overlay */
+.progress-bar-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.2) 60%,
+    transparent 100%
+  );
+  animation: progress-bar-fill-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes progress-bar-fill-shimmer {
+  0% { left: -100%; }
+  100% { left: 250%; }
+}
+
+/* 4. shimmer-text — Text shimmer effect for premium/rare elements */
+@keyframes shimmer-text-kf {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 40%,
+    rgba(255, 255, 255, 0.2) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: shimmer-text-kf 2s linear infinite;
+}
+
+/* 5. bot-glow-pulse — Glow pulse for the AI bot opponent */
+@keyframes bot-glow-pulse-kf {
+  0% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(249, 115, 22, 0.7); }
+  100% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.4); }
+}
+
+.bot-glow-pulse {
+  animation: bot-glow-pulse-kf 1.5s ease-in-out infinite;
+}
+
+/* 6. score-bump — Score counter bump animation */
+@keyframes score-bump-kf {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.score-bump {
+  animation: score-bump-kf 0.2s ease-out;
+}
+
+/* 7. slide-in-right — Slide in from right */
+@keyframes slide-in-right-kf {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slide-in-right-kf 0.3s ease-out;
+}
+
+/* 8. slide-in-left — Slide in from left */
+@keyframes slide-in-left-kf {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-left {
+  animation: slide-in-left-kf 0.3s ease-out;
+}
+
+/* 9. fade-scale-in — Generic fade + scale entrance */
+@keyframes fade-scale-in-kf {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-scale-in {
+  animation: fade-scale-in-kf 0.35s ease-out;
+}
+
+/* 10. glass-card — Glassmorphism card effect */
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.05);
+}
+
+/* 11. neon-border — Animated neon border effect using rotating conic-gradient */
+@keyframes neon-border-rotate {
+  from { --neon-angle: 0deg; }
+  to { --neon-angle: 360deg; }
+}
+
+@property --neon-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.neon-border {
+  position: relative;
+  border-radius: inherit;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--neon-angle, 0deg),
+    #06b6d4 0%,
+    #a855f7 33%,
+    #3b82f6 66%,
+    #06b6d4 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: neon-border-rotate 4s linear infinite;
+  pointer-events: none;
+}
+
+/* 12. text-glow-cyan — Cyan text glow */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
+}
+
+/* 13. text-glow-amber — Amber text glow */
+.text-glow-amber {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* 14. bounce-in — Bouncy entrance animation */
+@keyframes bounce-in-kf {
+  0% { transform: scale(0); }
+  30% { transform: scale(1.1); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.bounce-in {
+  animation: bounce-in-kf 0.5s ease-out;
+}
+
+/* 15. rotate-in — Rotate + fade entrance */
+@keyframes rotate-in-kf {
+  from {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.rotate-in {
+  animation: rotate-in-kf 0.4s ease-out;
+}

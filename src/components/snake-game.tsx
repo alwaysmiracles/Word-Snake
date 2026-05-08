@@ -41,6 +41,8 @@ import { downloadShareCard, type ShareCardData } from '@/lib/share-card'
 import { WORD_PACKS, getActivePack, setActivePack, isPackUnlocked, getWordsFromPack, getPackWordEntry, getPackCategoryInfo, checkPackUnlocks, type WordPack, PACK_CATEGORY_INFO } from '@/lib/word-packs'
 import { isTutorialCompleted, markTutorialCompleted, saveTutorialProgress, resetTutorial as resetTutorialData, createTutorialState, type TutorialState } from '@/lib/tutorial'
 import { createPvPState, P2_COLORS, type PvPState } from '@/lib/pvp-mode'
+import { createAiBot, calculateAiBotMove, updateAiBot, checkAiBotCollision, getAiBotDrawInfo, type AiBotState } from '@/lib/ai-bot'
+import WordBook from '@/components/word-book'
 import { startRecording, recordFrame, stopRecording, isRecording, getReplays, deleteReplay, getReplay, startPlayback, stopPlayback, isPlaybackActive, getPlaybackState, advancePlayback, setPlaybackSpeed, setPlaybackPlaying, getPlaybackProgress, seekPlayback, formatDuration, formatDate, clearAllReplays, type GameReplay, type ReplayFrame } from '@/lib/game-replay'
 import {
   Play,
@@ -68,6 +70,7 @@ import {
   Package,
   Film,
   Trash2,
+  Bot,
   SkipForward,
   SkipBack,
   X,
@@ -470,6 +473,9 @@ export default function SnakeGame() {
   const p2DirectionQueueRef = useRef<Direction[]>([])
   const collectedWordsRef = useRef<Set<string>>(new Set())
   const pvpRef = useRef<PvPState | null>(null)
+  const aiBotRef = useRef<AiBotState | null>(null)
+  const [showWordBook, setShowWordBook] = useState(false)
+  const [aiBotActive, setAiBotActive] = useState(false)
   const floatingTextsRef = useRef<FloatingText[]>([])
   const particlesRef = useRef<Particle[]>([])
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
@@ -807,6 +813,74 @@ export default function SnakeGame() {
     prevInGameDiffLevelRef.current = 0
     // Initialize PvP state
     pvpRef.current = createPvPState()
+    spawnWord()
+    playSound(playStartSound)
+    try {
+      const games = parseInt(localStorage.getItem('word-snake-games') ?? '0', 10) + 1
+      localStorage.setItem('word-snake-games', String(games))
+    } catch { /* ignore */ }
+    updateUI()
+  }, [spawnWord, updateUI, playSound])
+
+  const startAiBot = useCallback(() => {
+    const gs = gameStateRef.current
+    const diff = gs.difficulty
+    const settings = DIFFICULTY_SETTINGS[diff]
+    gs.snake = [
+      { x: 5, y: 12 },
+      { x: 4, y: 12 },
+      { x: 3, y: 12 },
+    ]
+    gs.direction = 'RIGHT'
+    gs.gameOver = false
+    gs.paused = false
+    gs.score = 0
+    gs.speed = settings.speed
+    gs.wordsEaten = 0
+    gs.gameStarted = true
+    gs.wordFood = null
+    gs.startTime = Date.now()
+    gs.elapsedTime = 0
+    directionQueueRef.current = []
+    p2DirectionQueueRef.current = []
+    floatingTextsRef.current = []
+    particlesRef.current = []
+    collectedWordsRef.current = new Set()
+    easterEggParticlesRef.current = []
+    setActiveEasterEggs([])
+    resetEasterEggForNewGame()
+    setLeaderboardRank(0)
+    gs.isDailyChallenge = false
+    gs.dailyChallengeWords = []
+    gs.dailyWordsCollected = []
+    gs.dailyTargetScore = 0
+    gs.streakMultiplier = 1
+    gs.powerUp = null
+    gs.activePowerUps = []
+    gs.comboCount = 0
+    gs.lastEatenCategory = null
+    gs.comboMultiplier = 1
+    achievementQueue.clear()
+    try { startRecording() } catch { /* ignore */ }
+    gs.lastAchievement = null
+    if (toastTimerRef.current) { clearTimeout(toastTimerRef.current); toastTimerRef.current = null }
+    if (milestoneToastTimerRef.current) { clearTimeout(milestoneToastTimerRef.current); milestoneToastTimerRef.current = null }
+    gs.lastMilestone = null
+    gs.extraLifeAvailable = false
+    weatherParticlesRef.current = []
+    gs.isSpeedRun = false
+    gs.speedRunTimeLeft = getSpeedRunDuration()
+    gs.speedRunMaxCombo = 0
+    gs.speedRunPowerUpsCollected = 0
+    gs.speedRunLongestSnake = gs.snake.length
+    gs.wordsByCategory = {}
+    gs.inGameDifficulty = null
+    prevInGameDiffLevelRef.current = 0
+    // Clear PvP state
+    pvpRef.current = null
+    // Initialize AI bot state
+    aiBotRef.current = createAiBot(diff)
+    setAiBotActive(true)
     spawnWord()
     playSound(playStartSound)
     try {
@@ -1254,6 +1328,75 @@ export default function SnakeGame() {
         }
       })
     }
+
+    // ===== AI Bot: Draw Bot Snake =====
+    const aiBotDraw = aiBotRef.current
+    if (aiBotDraw && aiBotDraw.snake.length > 0) {
+      const botColors = getAiBotDrawInfo()
+      // Bot body trail glow
+      ctx.globalAlpha = 0.04
+      ctx.fillStyle = botColors.glowColor
+      for (const seg of aiBotDraw.snake) {
+        ctx.beginPath()
+        ctx.arc(seg.x * CELL_SIZE + CELL_SIZE / 2, seg.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE * 0.8, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+
+      aiBotDraw.snake.forEach((segment, index) => {
+        const ratio = 1 - index / aiBotDraw.snake.length
+        if (index === 0) {
+          // Bot Head
+          ctx.shadowColor = botColors.glowColor
+          ctx.shadowBlur = 12
+          ctx.fillStyle = botColors.headColor
+          ctx.beginPath()
+          ctx.roundRect(segment.x * CELL_SIZE + 1, segment.y * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2, 5)
+          ctx.fill()
+          ctx.shadowBlur = 0
+
+          // Bot Eyes
+          const eyeSize = 2.5
+          const cx = segment.x * CELL_SIZE + CELL_SIZE / 2
+          const cy = segment.y * CELL_SIZE + CELL_SIZE / 2
+          let eye1x: number, eye1y: number, eye2x: number, eye2y: number
+          if (aiBotDraw.direction === 'RIGHT') { eye1x = cx + 4; eye1y = cy - 3.5; eye2x = cx + 4; eye2y = cy + 3.5 }
+          else if (aiBotDraw.direction === 'LEFT') { eye1x = cx - 4; eye1y = cy - 3.5; eye2x = cx - 4; eye2y = cy + 3.5 }
+          else if (aiBotDraw.direction === 'UP') { eye1x = cx - 3.5; eye1y = cy - 4; eye2x = cx + 3.5; eye2y = cy - 4 }
+          else { eye1x = cx - 3.5; eye1y = cy + 4; eye2x = cx + 3.5; eye2y = cy + 4 }
+          ctx.fillStyle = botColors.eyeWhiteColor
+          ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
+          ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
+          ctx.fillStyle = botColors.eyePupilColor
+          ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize, 0, Math.PI * 2); ctx.fill()
+          ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize, 0, Math.PI * 2); ctx.fill()
+
+          // Bot label near head
+          ctx.globalAlpha = 0.5
+          ctx.fillStyle = '#f97316'
+          ctx.font = 'bold 8px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'bottom'
+          ctx.fillText('🤖', cx, segment.y * CELL_SIZE - 2)
+          ctx.textAlign = 'start'
+          ctx.textBaseline = 'alphabetic'
+          ctx.globalAlpha = 1
+        } else {
+          // Bot Body - gradient from orange-400 to orange-700
+          const startRgb = hexToRgb(botColors.bodyStartColor)
+          const endRgb = hexToRgb(botColors.bodyEndColor)
+          const alpha = 0.6 + ratio * 0.4
+          const r = Math.floor(startRgb.r + (endRgb.r - startRgb.r) * ratio)
+          const g = Math.floor(startRgb.g + (endRgb.g - startRgb.g) * ratio)
+          const b = Math.floor(startRgb.b + (endRgb.b - startRgb.b) * ratio)
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+          ctx.beginPath()
+          ctx.roundRect(segment.x * CELL_SIZE + 2, segment.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4, 3)
+          ctx.fill()
+        }
+      })
+    }
+    // ===== END AI Bot Drawing =====
 
     // Platinum milestone: golden sparkle particle trail behind snake head
     if (gameStarted && !gameOver && !paused && snake.length > 0) {
@@ -1757,6 +1900,66 @@ export default function SnakeGame() {
       }
     }
 
+    // AI Bot Score HUD (top center)
+    if (aiBotDraw && gameStarted) {
+      const hudY = gameOver ? 10 : 10
+      const barW = 220
+      const barH = 22
+      const barX = (CANVAS_WIDTH - barW) / 2
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+      ctx.beginPath()
+      ctx.roundRect(barX, hudY, barW, barH, 6)
+      ctx.fill()
+
+      // Player score (green)
+      ctx.fillStyle = '#4ade80'
+      ctx.font = 'bold 11px sans-serif'
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(`You: ${gs.score}`, barX + 10, hudY + barH / 2)
+
+      // Divider
+      ctx.fillStyle = '#475569'
+      ctx.fillText('|', CANVAS_WIDTH / 2 - 4, hudY + barH / 2)
+
+      // Bot score (orange)
+      ctx.fillStyle = aiBotDraw.alive ? '#f97316' : '#64748b'
+      ctx.textAlign = 'right'
+      ctx.fillText(`🤖 Bot: ${aiBotDraw.score}`, barX + barW - 10, hudY + barH / 2)
+
+      ctx.textAlign = 'start'
+      ctx.textBaseline = 'alphabetic'
+
+      // Bot words collected list (right side of canvas)
+      if (!gameOver) {
+        const wordsListX = CANVAS_WIDTH - 8
+        const wordsListY = 40
+        ctx.fillStyle = 'rgba(249, 115, 22, 0.12)'
+        ctx.beginPath()
+        ctx.roundRect(wordsListX - 100, wordsListY - 12, 108, Math.min(aiBotDraw.wordsEaten.length * 14 + 18, 120), 4)
+        ctx.fill()
+        ctx.fillStyle = '#f97316'
+        ctx.font = 'bold 8px sans-serif'
+        ctx.textAlign = 'right'
+        ctx.textBaseline = 'top'
+        ctx.fillText('🤖 Bot Words', wordsListX, wordsListY - 10)
+        const maxShow = 7
+        const recentWords = aiBotDraw.wordsEaten.slice(-maxShow)
+        ctx.font = '9px monospace'
+        ctx.fillStyle = '#94a3b8'
+        recentWords.forEach((w, i) => {
+          ctx.fillText(w, wordsListX, wordsListY + 4 + i * 14)
+        })
+        if (aiBotDraw.wordsEaten.length > maxShow) {
+          ctx.fillStyle = '#475569'
+          ctx.fillText(`+${aiBotDraw.wordsEaten.length - maxShow} more`, wordsListX, wordsListY + 4 + maxShow * 14)
+        }
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+      }
+    }
+
     // Scanlines overlay (retro CRT effect)
     if (gridTheme.scanlines) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'
@@ -1889,6 +2092,65 @@ export default function SnakeGame() {
         ctx.fillStyle = '#64748b'
         ctx.font = '14px sans-serif'
         ctx.fillText(`P1 ate ${gs.wordsEaten} words  •  P2 ate ${pvpDraw.player2WordsEaten.length} words  •  ${formatTime(gs.elapsedTime)}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 30)
+
+        // Bottom line
+        ctx.strokeStyle = lineGrad
+        ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 + 60); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 + 60); ctx.stroke()
+
+        const alpha = 0.5 + Math.sin(Date.now() / 500) * 0.3
+        ctx.fillStyle = `rgba(148, 163, 184, ${alpha})`; ctx.font = '14px sans-serif'
+        ctx.fillText('Press Space or click to return to menu', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 85)
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+      } else if (aiBotDraw) {
+        // AI Bot game over overlay — compare scores
+        const goBg = hexToRgb(gridTheme.bgColor)
+        ctx.fillStyle = `rgba(${goBg.r}, ${goBg.g}, ${goBg.b}, 0.88)`
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+        let titleText: string
+        let titleColor: string
+        let subtitleEmoji: string
+        if (gs.score > aiBotDraw.score) {
+          titleText = 'You Win!'
+          titleColor = '#4ade80'
+          subtitleEmoji = '🏆'
+        } else if (gs.score < aiBotDraw.score) {
+          titleText = 'AI Bot Wins!'
+          titleColor = '#f97316'
+          subtitleEmoji = '🤖'
+        } else {
+          titleText = "It's a Tie!"
+          titleColor = '#fbbf24'
+          subtitleEmoji = '🤝'
+        }
+
+        // Decorative line
+        const lineGrad = ctx.createLinearGradient(CANVAS_WIDTH * 0.2, 0, CANVAS_WIDTH * 0.8, 0)
+        lineGrad.addColorStop(0, 'rgba(148, 163, 184, 0)')
+        lineGrad.addColorStop(0.5, titleColor + '99')
+        lineGrad.addColorStop(1, 'rgba(148, 163, 184, 0)')
+        ctx.strokeStyle = lineGrad; ctx.lineWidth = 1
+        ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 - 90); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 - 90); ctx.stroke()
+
+        // Title
+        ctx.fillStyle = titleColor
+        ctx.font = 'bold 36px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(`${subtitleEmoji} ${titleText} ${subtitleEmoji}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50)
+
+        // Score summary
+        ctx.font = '18px sans-serif'
+        ctx.fillStyle = '#4ade80'
+        ctx.fillText(`You: ${gs.score} pts`, CANVAS_WIDTH / 2 - 90, CANVAS_HEIGHT / 2)
+        ctx.fillStyle = '#f97316'
+        ctx.fillText(`🤖 Bot: ${aiBotDraw.score} pts`, CANVAS_WIDTH / 2 + 90, CANVAS_HEIGHT / 2)
+
+        // Words eaten
+        ctx.fillStyle = '#64748b'
+        ctx.font = '14px sans-serif'
+        ctx.fillText(`You ate ${gs.wordsEaten} words  •  Bot ate ${aiBotDraw.wordsEaten.length} words  •  ${formatTime(gs.elapsedTime)}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 30)
 
         // Bottom line
         ctx.strokeStyle = lineGrad
@@ -2287,6 +2549,9 @@ export default function SnakeGame() {
     setLeaderboardRank(0)
     // Clear PvP state (PvP mode is session-only, not persisted)
     pvpRef.current = null
+    // Clear AI bot state
+    aiBotRef.current = null
+    setAiBotActive(false)
 
     // Daily challenge setup
     if (isDaily) {
@@ -2793,6 +3058,56 @@ export default function SnakeGame() {
         case 'RIGHT': head.x += 1; break
       }
 
+      // ===== AI BOT MOVEMENT =====
+      const aiBot = aiBotRef.current
+      if (aiBot && aiBot.alive && gs.gameStarted && !gs.gameOver) {
+        // Build obstacles set from player snake + bot snake
+        const obstacles = new Set<string>()
+        for (const seg of gs.snake) obstacles.add(`${seg.x},${seg.y}`)
+        for (const seg of aiBot.snake) obstacles.add(`${seg.x},${seg.y}`)
+
+        // Calculate AI bot direction
+        const botDir = calculateAiBotMove(
+          aiBot,
+          gs.wordFood?.position ?? null,
+          gs.snake,
+          obstacles,
+        )
+
+        // Update AI bot position
+        const botResult = updateAiBot(
+          aiBot,
+          botDir,
+          gs.wordFood?.position ?? null,
+          gs.wordFood?.word,
+        )
+
+        // Check AI bot collision (wall, self, player body)
+        const botAlive = checkAiBotCollision(aiBot, gs.snake)
+
+        if (!botAlive) {
+          // Bot died — show floating text and particles
+          const bhx = aiBot.snake[0].x * CELL_SIZE + CELL_SIZE / 2
+          const bhy = aiBot.snake[0].y * CELL_SIZE + CELL_SIZE / 2
+          spawnParticles(bhx, bhy, '#f97316', 20)
+          spawnFloatingText('🤖 Bot Down!', bhx, bhy - 20, '#f97316')
+        } else if (botResult.ateFood) {
+          // Bot ate the food — clear it so player can't eat it too
+          const bwx = aiBot.snake[0].x * CELL_SIZE + CELL_SIZE / 2
+          const bwy = aiBot.snake[0].y * CELL_SIZE
+          spawnFloatingText('🤖 +10', bwx, bwy, '#f97316')
+          if (botResult.word) {
+            spawnFloatingText(botResult.word, bwx, bwy - 22, '#fdba74')
+            addWord(botResult.word)
+            collectedWordsRef.current.add(botResult.word)
+          }
+          spawnParticles(bwx, bwy + CELL_SIZE / 2, '#f97316', 10)
+          gs.wordFood = null
+          spawnWord()
+        }
+      }
+      // ===== END AI BOT MOVEMENT =====
+
       const handleDeath = () => {
         gs.gameOver = true
         // Stop replay recording and save
@@ -2949,6 +3264,17 @@ export default function SnakeGame() {
           spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#fbbf24', 20)
           // Let it pass through — the head overlaps one body segment for one frame
         } else {
+          handleDeath()
+          draw()
+          animFrameRef.current = requestAnimationFrame(gameLoop)
+          return
+        }
+      }
+
+      // Player collides with AI bot body
+      if (aiBot && aiBot.alive && aiBot.snake.some((s) => s.x === head.x && s.y === head.y)) {
+        const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+        if (!hasShield) {
           handleDeath()
           draw()
           animFrameRef.current = requestAnimationFrame(gameLoop)
@@ -3443,7 +3769,7 @@ export default function SnakeGame() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [resetGame, updateUI, playSound, startPvP])
+  }, [resetGame, updateUI, playSound, startPvP, startAiBot])
 
   // Touch controls - also prevent page scroll
   useEffect(() => {
@@ -4390,6 +4716,13 @@ export default function SnakeGame() {
                     >
                       ⚔️ PvP Battle
                     </Button>
+                    <Button
+                      onClick={() => { playSound(playClickSound); startAiBot() }}
+                      className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-900/30 active:scale-95 transition-transform"
+                      title="Challenge an AI-controlled bot opponent"
+                    >
+                      <Bot className="h-4 w-4 mr-1" /> vs AI Bot 🤖
+                    </Button>
                     {!tutorialCompleted && (
                       <Button
                         onClick={startTutorial}
@@ -4425,6 +4758,14 @@ export default function SnakeGame() {
                       className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform"
                     >
                       ✏️ Words{getCustomWordCount() > 0 && <span className="ml-1 text-[10px] opacity-70">({getCustomWordCount()})</span>}
+                    </Button>
+                    <Button
+                      onClick={() => setShowWordBook(true)}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform"
+                      title="View your word collection"
+                    >
+                      📖 Word Book
                     </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
@@ -5081,6 +5422,9 @@ export default function SnakeGame() {
           </div>
         </div>
       )}
+
+      {/* Word Book Overlay */}
+      <WordBook isOpen={showWordBook} onClose={() => setShowWordBook(false)} />
     </div>
   )
 }
