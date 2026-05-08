@@ -114,6 +114,10 @@ import { syncDailyChallengeResult, isTodaySynced, getSyncState, getWeeklySummary
 import { getDashboardOverview, getQuickStats, getDashboardExportData, getWordStats, getScoreStats, getAchievementSummary, getPersonalBests, getComparisonWithAverage, formatDashboardNumber, type DashboardPeriod, type OverviewStats, type QuickStat } from '@/lib/game-stats-dashboard'
 import { createAlbum, updateAlbum, getCollectionCompletion, getRarestWords, getMostPlayedWords, checkAlbumAchievements, getAlbumShareData, type CollectionAlbum } from '@/lib/word-collection-album'
 import { createBattlePass, addBattlePassXP, claimReward, getTierProgress, getSeasonTimeRemaining, getPassSummary, unlockPremium, advanceSeason, isActive as isBattlePassActive, TIER_XP_CONFIG, SEASON_TEMPLATES, type BattlePassSeason, type BattlePassReward } from '@/lib/battle-pass'
+import { createTimingController, type TimingController } from '@/lib/game-loop-timing-wire'
+import { createEventBusWire, wireOnPowerUpExpire, wireOnPowerUpCollect, type EventBusWire } from '@/lib/game-event-bus-wire'
+import { createPowerUpEffectWire, EFFECT_CONFIG, type PowerUpEffectWire, type EffectResult } from '@/lib/powerup-effect-wire'
+import { createSocialShare, type SocialShare, type ShareType } from '@/lib/social-share'
 import {
   Play,
   RotateCcw,
@@ -830,6 +834,13 @@ export default function SnakeGame() {
   const [dashboardPeriod, setDashboardPeriod] = useState<DashboardPeriod>('all')
   const [showCollectionAlbum, setShowCollectionAlbum] = useState(false)
   const collectionAlbumRef = useRef<CollectionAlbum>(createAlbum())
+  // Round 39: Timing controller, Event bus wire, Power-up effect wire, Social share
+  const timingControllerRef = useRef<TimingController>(createTimingController())
+  const eventBusWireRef = useRef<EventBusWire>(createEventBusWire())
+  const powerUpEffectWireRef = useRef<PowerUpEffectWire>(createPowerUpEffectWire())
+  const socialShareRef = useRef<SocialShare>(createSocialShare())
+  const [showSocialShare, setShowSocialShare] = useState(false)
+  const [shareCardText, setShareCardText] = useState('')
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -3321,6 +3332,10 @@ export default function SnakeGame() {
     spawnWord()
     playSound(playStartSound)
 
+    // Round 39: Event bus — game start
+    eventBusWireRef.current.onGameStart({ mode: isSpeedRun ? 'speed_run' : isDaily ? 'daily_challenge' : 'classic', difficulty: gs.difficulty })
+    if (isDaily) eventBusWireRef.current.onDailyChallengeStart(gs.dailyChallengeWords, gs.dailyTargetScore)
+
     // Track games played & update streak
     try {
       const games = parseInt(localStorage.getItem('word-snake-games') ?? '0', 10) + 1
@@ -3410,7 +3425,12 @@ export default function SnakeGame() {
 
       // Expire active power-ups
       const now = Date.now()
+      const expiredBefore = gs.activePowerUps.length
       gs.activePowerUps = gs.activePowerUps.filter(pu => pu.expiresAt === 0 || pu.expiresAt > now)
+      // Round 39: Event bus — power-up expired
+      if (gs.activePowerUps.length < expiredBefore) {
+        wireOnPowerUpExpire('expired')
+      }
 
       // Expire easter egg effects
       expireEasterEggEffects()
@@ -3420,7 +3440,8 @@ export default function SnakeGame() {
         gs.powerUp = null
       }
 
-      // Speed modifiers: base_speed → weather_modifier → slow_mo_modifier → in-game_difficulty
+      // Speed modifiers: Round 39 timing controller integration
+      // Combines speedConfig + game mode frame interval + weather + power-ups + difficulty
       let effectiveSpeed = gs.speed
       const weatherConf = WEATHER_CONFIG[gs.weather]
       if (weatherConf.speedMultiplier > 1) {
@@ -3441,8 +3462,14 @@ export default function SnakeGame() {
       if (gs.inGameDifficulty) {
         effectiveSpeed = Math.floor(effectiveSpeed / gs.inGameDifficulty.speedMultiplier)
       }
+      // Round 39: Apply speed config slider + mode engine frame interval modifier
+      const tc = timingControllerRef.current
+      tc.updateTiming(speedConfig, modeEngineRef.current)
+      const timingMod = tc.shouldTick(effectiveSpeed)
+      // Also track metrics for the timing display
+      const timingMetrics = tc.getMetrics()
 
-      if (timestamp - lastRenderRef.current < effectiveSpeed) {
+      if (!timingMod) {
         draw()
         animFrameRef.current = requestAnimationFrame(gameLoop)
         return
@@ -3657,6 +3684,10 @@ export default function SnakeGame() {
               onComboMilestone(notifEventWireRef.current, gs.comboCount)
               recordComboEvent(scoreLiveWireRef.current, gs.comboCount)
             }
+            // Round 39: Event bus — word eat + score change + snake grow
+            eventBusWireRef.current.onWordEat(wordFood.word, points, gs.comboCount || 0, { mode: gs.isDailyChallenge ? 'daily' : 'classic' })
+            eventBusWireRef.current.onScoreChange(gs.score - points, gs.score, 'word_eat')
+            eventBusWireRef.current.onSnakeGrow(gs.snake.length)
           } else if (isNear(p2Head.x, p2Head.y)) {
             // P2 eats food?
             const entry = getWordEntryIncludingCustom(wordFood.word)
@@ -3733,6 +3764,9 @@ export default function SnakeGame() {
             spawnFloatingText(config.emoji, px, py - 10, config.color)
             spawnParticles(px, py, config.color, 12)
             playSound(playPowerUpSound)
+            // Round 39: Event bus + power-up effect wire
+            wireOnPowerUpCollect(pu.type, config.emoji)
+            powerUpEffectWireRef.current.onPowerUpCollected(pu.type, gs)
             gs.powerUp = null
           }
         }
@@ -3909,6 +3943,10 @@ export default function SnakeGame() {
         // Record for dynamic difficulty
         recordGamePerformance(gs.score, gs.wordsEaten, gs.elapsedTime, gs.difficulty)
         setDynDiff(getDifficultyAdjustment())
+
+        // Round 39: Event bus — game end
+        eventBusWireRef.current.onGameEnd({ score: gs.score, wordsEaten: gs.wordsEaten, time: gs.elapsedTime, mode: gs.isDailyChallenge ? 'daily' : 'classic', difficulty: gs.difficulty })
+        if (gs.isDailyChallenge) eventBusWireRef.current.onDailyChallengeEnd({ completed: gs.score >= gs.dailyTargetScore, score: gs.score })
 
         // Round 37: Game end wires
         const gameEndXP = awardXP(xpWireRef.current, 'gameComplete', { score: gs.score, wordsEaten: gs.wordsEaten, timeElapsed: gs.elapsedTime })
@@ -6640,6 +6678,28 @@ export default function SnakeGame() {
                     >
                       📖 Album
                     </Button>
+                    {/* Round 39: Social Share Button */}
+                    <Button
+                      onClick={() => {
+                        const gs = gameStateRef.current
+                        const ss = socialShareRef.current
+                        const card = ss.generateShareCard('game_result' as ShareType, {
+                          score: gs.score,
+                          wordsEaten: gs.wordsEaten,
+                          combo: gs.comboCount,
+                          mode: gs.isDailyChallenge ? 'Daily Challenge' : gs.isSpeedRun ? 'Speed Run' : 'Classic',
+                          rating: gs.score >= 10000 ? 'SS' : gs.score >= 5000 ? 'S' : gs.score >= 2500 ? 'A' : gs.score >= 1000 ? 'B' : gs.score >= 500 ? 'C' : 'D',
+                          time: gs.elapsedTime,
+                        })
+                        setShareCardText(card)
+                        setShowSocialShare(!showSocialShare)
+                      }}
+                      variant="outline"
+                      className="border-pink-700/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform share-btn"
+                      title="Social Share"
+                    >
+                      📤 Share
+                    </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
@@ -8404,6 +8464,67 @@ export default function SnakeGame() {
                     <div className="text-[7px] text-slate-500">Album Achievements: {unlocked.length}/{achievements.length}</div>
                   )
                 })()}
+              </div>
+            )}
+            {/* Round 39: Social Share Panel */}
+            {showSocialShare && mounted && (
+              <div className="mb-3 px-3 py-2.5 rounded-lg bg-gradient-to-br from-pink-950/30 to-purple-950/20 border border-pink-700/30 share-panel-in">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-base">📤</span>
+                  <span className="text-pink-300 text-xs font-bold">Share Results</span>
+                  <button onClick={() => setShowSocialShare(false)} className="ml-auto text-pink-500 hover:text-pink-300 text-xs">✕</button>
+                </div>
+                <pre className="text-[7px] text-pink-200/80 bg-black/30 rounded-md p-2 overflow-x-auto whitespace-pre mb-2 font-mono leading-relaxed max-h-40 share-card-display">
+                  {shareCardText || 'Play a game to generate a share card!'}
+                </pre>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button onClick={async () => {
+                    const ok = await socialShareRef.current.copyToClipboard(shareCardText)
+                    if (ok) toast({ title: 'Copied!', description: 'Share card copied to clipboard', variant: 'default' })
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-pink-700/30 border border-pink-600/40 text-pink-300 hover:bg-pink-600/30 active:scale-95 transition-all share-copy-btn">
+                    📋 Copy
+                  </button>
+                  <button onClick={() => {
+                    const gs = gameStateRef.current
+                    const text = socialShareRef.current.generateShareText('game_result', {
+                      score: gs.score, wordsEaten: gs.wordsEaten, combo: gs.comboCount,
+                      mode: gs.isDailyChallenge ? 'Daily' : 'Classic',
+                      rating: gs.score >= 10000 ? 'SS' : gs.score >= 5000 ? 'S' : 'A',
+                      time: gs.elapsedTime,
+                    })
+                    socialShareRef.current.shareToTwitter(text)
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-sky-700/30 border border-sky-600/40 text-sky-300 hover:bg-sky-600/30 active:scale-95 transition-all share-twitter-btn">
+                    🐦 Tweet
+                  </button>
+                  <button onClick={async () => {
+                    await socialShareRef.current.shareToGeneric(shareCardText)
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-emerald-700/30 border border-emerald-600/40 text-emerald-300 hover:bg-emerald-600/30 active:scale-95 transition-all share-generic-btn">
+                    📤 Share
+                  </button>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-1.5">
+                  <button onClick={() => {
+                    const streak = getStreak()
+                    const card = socialShareRef.current.generateShareCard('streak' as ShareType, { currentStreak: streak.currentStreak, bestStreak: streak.bestStreak, totalDays: streak.totalDays })
+                    setShareCardText(card)
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-amber-700/30 border border-amber-600/40 text-amber-300 hover:bg-amber-600/30 active:scale-95 transition-all share-streak-btn">
+                    🔥 Streak
+                  </button>
+                  <button onClick={() => {
+                    const completion = getCollectionCompletion(collectionAlbumRef.current)
+                    const card = socialShareRef.current.generateShareCard('collection' as ShareType, { completed: completion.completed, total: completion.completed + completion.nearlyComplete + completion.inProgress + completion.notStarted, rarestWord: getRarestWords(collectionAlbumRef.current, 1)[0]?.word || 'N/A' })
+                    setShareCardText(card)
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-orange-700/30 border border-orange-600/40 text-orange-300 hover:bg-orange-600/30 active:scale-95 transition-all share-collection-btn">
+                    📖 Album
+                  </button>
+                  <button onClick={() => {
+                    const summary = eventBusWireRef.current.getEventSummary()
+                    const card = `╔════════════════════╗\n║  📊 EVENT STATS    ║\n╠════════════════════╣\n║  Total: ${summary.totalEmitted.toString().padStart(6)}     ║\n║  Types: ${Object.keys(summary.byType).length.toString().padStart(5)}      ║\n╚════════════════════╝`
+                    setShareCardText(card)
+                  }} className="text-[9px] px-2 py-1.5 rounded-md bg-violet-700/30 border border-violet-600/40 text-violet-300 hover:bg-violet-600/30 active:scale-95 transition-all share-stats-btn">
+                    📊 Events
+                  </button>
+                </div>
               </div>
             )}
             {activeEasterEggs.length > 0 && uiState.gameStarted && (

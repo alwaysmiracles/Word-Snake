@@ -5111,3 +5111,85 @@
 
 /* 25. dashboard-export-btn-hover — Export button hover effect */
 @keyframes dashboard-export-btn-hover { 0%,100%{box-shadow:0 0 0 rgba(56,189,248,0);} 50%{box-shadow:0 0 10px rgba(56,189,248,0.25);} }
+
+/* ═══════════════════════════════════════════════════════════════
+   Round 39 — Deep Wiring & Social Share CSS Animations (25 new)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. share-panel-in — Social share panel slide-in from right */
+@keyframes share-panel-in { 0%{opacity:0;transform:translateX(20px);} 100%{opacity:1;transform:translateX(0);} }
+.share-panel-in { animation: share-panel-in 0.3s ease-out; }
+
+/* 2. share-card-display — Share card text fade-in with subtle glow */
+@keyframes share-card-display { 0%{opacity:0;filter:brightness(0.6);} 100%{opacity:1;filter:brightness(1);} }
+.share-card-display { animation: share-card-display 0.5s ease-out 0.1s both; }
+
+/* 3. share-copy-btn — Copy button click flash */
+@keyframes share-copy-btn { 0%,100%{background-color:rgba(190,24,93,0.3);} 50%{background-color:rgba(190,24,93,0.5);} }
+
+/* 4. share-twitter-btn — Twitter button hover glow */
+@keyframes share-twitter-btn { 0%,100%{box-shadow:0 0 0 rgba(56,189,248,0);} 50%{box-shadow:0 0 8px rgba(56,189,248,0.3);} }
+
+/* 5. share-generic-btn — Generic share button pulse */
+@keyframes share-generic-btn { 0%,100%{transform:scale(1);} 50%{transform:scale(1.03);} }
+
+/* 6. share-streak-btn — Streak card button warm glow */
+@keyframes share-streak-btn { 0%,100%{box-shadow:0 0 0 rgba(245,158,11,0);} 50%{box-shadow:0 0 8px rgba(245,158,11,0.25);} }
+
+/* 7. share-collection-btn — Album collection button shimmer */
+@keyframes share-collection-btn { 0%{background-position:-200% center;} 100%{background-position:200% center;} }
+
+/* 8. share-stats-btn — Stats button border pulse */
+@keyframes share-stats-btn { 0%,100%{border-color:rgba(139,92,246,0.4);} 50%{border-color:rgba(139,92,246,0.8);} }
+
+/* 9. share-btn — Main share sidebar button entrance */
+@keyframes share-btn { 0%{opacity:0;transform:scale(0.8);} 100%{opacity:1;transform:scale(1);} }
+.share-btn { animation: share-btn 0.25s ease-out 0.16s both; }
+
+/* 10. timing-metric-flash — Timing metric value update flash */
+@keyframes timing-metric-flash { 0%{color:#4ade80;text-shadow:0 0 6px rgba(74,222,128,0.4);} 100%{color:inherit;text-shadow:none;} }
+
+/* 11. event-bus-pulse — Event bus activity indicator pulse */
+@keyframes event-bus-pulse { 0%,100%{opacity:0.3;transform:scale(0.9);} 50%{opacity:1;transform:scale(1.1);} }
+
+/* 12. event-emitted-flash — Event emitted flash indicator */
+@keyframes event-emitted-flash { 0%{background-color:rgba(168,85,247,0.4);transform:scale(1.1);} 100%{background-color:rgba(168,85,247,0);transform:scale(1);} }
+
+/* 13. powerup-wire-connected — Power-up wire connected indicator */
+@keyframes powerup-wire-connected { 0%{border-color:rgba(251,191,36,0);} 50%{border-color:rgba(251,191,36,0.6);} 100%{border-color:rgba(251,191,36,0.2);} }
+
+/* 14. effect-stack-pop — Stacked power-up effect pop-in */
+@keyframes effect-stack-pop { 0%{transform:scale(0) rotate(-10deg);opacity:0;} 70%{transform:scale(1.1) rotate(2deg);opacity:1;} 100%{transform:scale(1) rotate(0);opacity:1;} }
+
+/* 15. magnet-range-ring — Magnet effect range ring expansion */
+@keyframes magnet-range-ring { 0%{box-shadow:0 0 0 0 rgba(168,85,247,0.3);} 100%{box-shadow:0 0 0 12px rgba(168,85,247,0);} }
+
+/* 16. shield-break-flash — Shield break bright flash */
+@keyframes shield-break-flash { 0%{background-color:rgba(56,189,248,0.6);} 30%{background-color:rgba(56,189,248,0);} 100%{background-color:transparent;} }
+
+/* 17. ghost-mode-trail — Ghost mode transparent trail */
+@keyframes ghost-mode-trail { 0%,100%{opacity:0.7;} 50%{opacity:0.3;} }
+
+/* 18. score-multiplier-pop — Score multiplier pop animation */
+@keyframes score-multiplier-pop { 0%{transform:scale(1);} 40%{transform:scale(1.4);color:#fbbf24;} 100%{transform:scale(1);} }
+
+/* 19. bomb-detonate-ring — Word bomb detonate expanding ring */
+@keyframes bomb-detonate-ring { 0%{transform:scale(0);opacity:1;border-color:rgba(239,68,68,0.8);} 100%{transform:scale(3);opacity:0;border-color:rgba(239,68,68,0);} }
+
+/* 20. speed-boost-lines — Speed boost motion lines */
+@keyframes speed-boost-lines { 0%{background-position:0 0;} 100%{background-position:20px 0;} }
+
+/* 21. r39-btn-entrance — Staggered Round 39 button entrance (4 buttons) */
+@keyframes r39-btn-entrance { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 22. timing-accuracy-glow — Timing accuracy indicator glow */
+@keyframes timing-accuracy-glow { 0%,100%{box-shadow:0 0 4px rgba(74,222,128,0.3);} 50%{box-shadow:0 0 12px rgba(74,222,128,0.6);} }
+
+/* 23. event-log-slide — Event log entry slide in */
+@keyframes event-log-slide { 0%{opacity:0;transform:translateX(-10px);max-height:0;} 100%{opacity:1;transform:translateX(0);max-height:40px;} }
+
+/* 24. fps-counter-update — FPS counter digit flip */
+@keyframes fps-counter-update { 0%{transform:translateY(-4px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+
+/* 25. turbo-mode-glow — Turbo mode activation glow */
+@keyframes turbo-mode-glow { 0%,100%{box-shadow:0 0 5px rgba(251,146,60,0.3),inset 0 0 5px rgba(251,146,60,0.1);} 50%{box-shadow:0 0 15px rgba(251,146,60,0.5),inset 0 0 10px rgba(251,146,60,0.2);} }
