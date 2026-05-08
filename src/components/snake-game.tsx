@@ -150,9 +150,14 @@ import { quickExport as wireQuickExport, getExportHistory as wireGetExportHistor
 import { getShareableReplays, getReplayLeaderboard, generateShareText, getShareHistory, validateShareCode } from '@/lib/replay-sharing-wire'
 import { createPoem, getPoemHistory, getFavorites as getPoemFavorites, getPoemStats, getWordCloud, getStyleTemplates, getDailyPoemChallenge, isFavorite as isPoemFavorite } from '@/lib/poem-studio-wire'
 import { getMatchHistory as pvpGetHistory, getWinStats, getPlayerProfileSummary, calculateEloRating, setupPvPMatch, getHeadToHead, getPvPLeaderboard, getRematchOption, getPvPTips } from '@/lib/pvp-enhancement-wire'
-import { getSeasonCalendar, getActiveSeason, browseAllSeasons, activateSeason, getInstalledPacks, getSeasonProgress, getSeasonRewards, getSeasonCountdown } from '@/lib/seasonal-content-wire'
+import { getSeasonCalendar, getActiveSeason, browseAllSeasons, activateSeason, getInstalledPacks, getSeasonProgress, getSeasonRewards, getSeasonCountdown as scGetSeasonCountdown } from '@/lib/seasonal-content-wire'
 import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, validateWordList, exportAsWordPack as cwExportPack, getWordQueue, getModificationHistory, getRecommendations } from '@/lib/custom-words-manager-wire'
-import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
+import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme as atGetGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
+// Round 47: Game Settings Wire, Player Stats Compare Wire, Challenge Mode Wire, Word Art Gallery Wire
+import { getSettings as gsGetSettings, updateSetting as gsUpdateSetting, getPresets, applyPreset as gsApplyPreset, getSettingsOverview, getActivePresetName, getSettingsCompletion, getGameplaySettings, getAudioSettings, getVisualSettings, getControlSettings, updateSettingsGroup, validateSettings, getSettingConstraints, exportSettings as gsExportSettings, importSettings as gsImportSettings, getMostChangedSettings, getOptimalSettings, getPerformanceBasedRecommendation, getBeginnerFriendlySettings, createCustomPreset, deleteCustomPreset, resetAllSettings } from '@/lib/game-settings-wire'
+import { getPeriodStats, comparePeriods, getTrend, getTrendSummary, getCurrentStreak as pscGetCurrentStreak, getLongestStreak as pscGetLongestStreak, getConsistencyScore, getSkillRating, getSkillTier, getSkillProgress, getWeakMetrics, getImprovementAreas, getStrengths, getDailyScores, getScoreDistribution, getCategoryPerformance, getComparisonOverview, getInsights, getWeeklyReport, getPeakHours, getPersonalBests as pscGetPersonalBests } from '@/lib/player-stats-compare-wire'
+import { getChallengeTemplates, startChallenge, getActiveChallenge, cancelChallenge, completeChallenge, getProgress as getChallengeProgress, isChallengeActive, getChallengeModifier, getChallengeHistory, getChallengeStats, getDailyChallenge as cmGetDailyChallenge, getDailyChallengeProgress, getDailyChallengeStreak, getDailyRewardBonus, getChallengeOverview, getAvailableChallenges, getRecommendedChallenges, getChallengeCard, calculateReward, createCustomChallenge, getChallengeLeaderboard } from '@/lib/challenge-mode-wire'
+import { generateWordArt, getGallery, getRecentArt, getGalleryStats, toggleFavorite as artToggleFavorite, getFavorites as artGetFavorites, getTopRated, getArtByStyle, generateWordCloud, generateTypoArt, getGalleryOverview, getArtCard, getArtThemes, getFrameStyles, createAlbum as artCreateAlbum, getAlbums, deleteGalleryItem, rateArt, getGalleryCount, checkMilestones as artCheckMilestones, getAutoArtSuggestion, getShareableArt } from '@/lib/word-art-gallery-wire'
 import {
   Play,
   RotateCcw,
@@ -190,6 +195,9 @@ import {
   SlidersHorizontal,
   Hammer,
   Globe,
+  Target,
+  Palette,
+  TrendingUp,
 } from 'lucide-react'
 
 // Game constants
@@ -915,6 +923,11 @@ export default function SnakeGame() {
   const [showStatsExportPanel, setShowStatsExportPanel] = useState(false)
   const [showReplaySharePanel, setShowReplaySharePanel] = useState(false)
   const [showPoemStudioPanel, setShowPoemStudioPanel] = useState(false)
+  // Round 47: Game Settings, Player Stats Compare, Challenge Mode, Word Art Gallery panel states
+  const [showGameSettingsPanel, setShowGameSettingsPanel] = useState(false)
+  const [showStatsComparePanel, setShowStatsComparePanel] = useState(false)
+  const [showChallengePanel, setShowChallengePanel] = useState(false)
+  const [showArtGalleryPanel, setShowArtGalleryPanel] = useState(false)
   // Round 45: XP Progression, Replay Analyzer, Battle Pass, Achievement Showcase panel states
   const [showXPDetailPanel, setShowXPDetailPanel] = useState(false)
   const [showReplayPanel, setShowReplayPanel] = useState(false)
@@ -7795,6 +7808,42 @@ export default function SnakeGame() {
                     >
                       🎮 Mini-Games
                     </Button>
+                    {/* Round 47: Game Settings Button */}
+                    <Button
+                      onClick={() => setShowGameSettingsPanel(!showGameSettingsPanel)}
+                      variant="outline"
+                      className="border-slate-500/50 text-slate-300 hover:bg-slate-800/40 active:scale-95 transition-transform game-settings-btn"
+                      title="Game Settings"
+                    >
+                      ⚙️ Settings
+                    </Button>
+                    {/* Round 47: Player Stats Compare Button */}
+                    <Button
+                      onClick={() => setShowStatsComparePanel(!showStatsComparePanel)}
+                      variant="outline"
+                      className="border-cyan-600/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform stats-compare-btn"
+                      title="Stats Compare"
+                    >
+                      📊 Stats Compare
+                    </Button>
+                    {/* Round 47: Challenge Mode Button */}
+                    <Button
+                      onClick={() => setShowChallengePanel(!showChallengePanel)}
+                      variant="outline"
+                      className="border-rose-600/50 text-rose-400 hover:bg-rose-900/20 active:scale-95 transition-transform challenge-mode-btn"
+                      title="Challenge Mode"
+                    >
+                      🎯 Challenges
+                    </Button>
+                    {/* Round 47: Word Art Gallery Button */}
+                    <Button
+                      onClick={() => setShowArtGalleryPanel(!showArtGalleryPanel)}
+                      variant="outline"
+                      className="border-fuchsia-600/50 text-fuchsia-400 hover:bg-fuchsia-900/20 active:scale-95 transition-transform art-gallery-btn"
+                      title="Word Art Gallery"
+                    >
+                      🖼️ Art Gallery
+                    </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
@@ -10408,6 +10457,423 @@ export default function SnakeGame() {
           </div>
         </div>
       )}
+
+      {/* Round 47: Game Settings Panel */}
+      {showGameSettingsPanel && mounted && (() => {
+        const overview = getSettingsOverview()
+        const completion = getSettingsCompletion()
+        const activePreset = getActivePresetName()
+        const presets = getPresets()
+        const mostChanged = getMostChangedSettings()
+        const gameplay = getGameplaySettings()
+        const audio = getAudioSettings()
+        const visual = getVisualSettings()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGameSettingsPanel(false)}>
+            <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-[520px] max-h-[85vh] overflow-y-auto p-5 game-settings-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-slate-200 text-lg font-bold">⚙️ Game Settings</span>
+                <button onClick={() => setShowGameSettingsPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Settings Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2.5 text-center r47-settings-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{completion.modifiedCount}</div>
+                  <div className="text-slate-500 text-[10px]">Modified</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2.5 text-center r47-settings-stat">
+                  <div className="text-cyan-400 text-lg font-bold">{activePreset || 'Custom'}</div>
+                  <div className="text-slate-500 text-[10px]">Active Preset</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2.5 text-center r47-settings-stat">
+                  <div className="text-amber-400 text-lg font-bold">{completion.percentage}%</div>
+                  <div className="text-slate-500 text-[10px]">Customized</div>
+                </div>
+              </div>
+              {/* Presets */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Presets</span>
+                <div className="grid grid-cols-3 gap-1.5 mt-2">
+                  {presets.slice(0, 6).map(p => (
+                    <button key={p.name} onClick={() => { gsApplyPreset(p.name); toast({ title: `Applied ${p.name}`, description: p.description || '' }) }}
+                      className={`px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95 r47-preset-item ${activePreset === p.name ? 'bg-emerald-700 text-emerald-100 ring-1 ring-emerald-500' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Gameplay Settings */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎮 Gameplay</span>
+                <div className="space-y-1.5 mt-1.5">
+                  {Object.entries(gameplay as Record<string, unknown>).slice(0, 5).map(([k, v]) => (
+                    <div key={k} className="flex justify-between items-center bg-slate-800/60 rounded-lg px-2.5 py-1.5 r47-setting-row">
+                      <span className="text-slate-400 text-[11px]">{String(k).replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <span className="text-slate-200 text-[11px] font-mono">{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Audio Settings */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔊 Audio</span>
+                <div className="space-y-1.5 mt-1.5">
+                  {Object.entries(audio as Record<string, unknown>).slice(0, 4).map(([k, v]) => (
+                    <div key={k} className="flex justify-between items-center bg-slate-800/60 rounded-lg px-2.5 py-1.5 r47-setting-row">
+                      <span className="text-slate-400 text-[11px]">{String(k).replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <span className="text-slate-200 text-[11px] font-mono">{typeof v === 'number' ? `${Math.round(v * 100)}%` : String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Visual Settings */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎨 Visual</span>
+                <div className="space-y-1.5 mt-1.5">
+                  {Object.entries(visual as Record<string, unknown>).slice(0, 5).map(([k, v]) => (
+                    <div key={k} className="flex justify-between items-center bg-slate-800/60 rounded-lg px-2.5 py-1.5 r47-setting-row">
+                      <span className="text-slate-400 text-[11px]">{String(k).replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <span className="text-slate-200 text-[11px] font-mono">{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Most Changed */}
+              {mostChanged.length > 0 && (
+                <div className="mb-3">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📊 Most Changed</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {mostChanged.slice(0, 5).map(m => (
+                      <span key={m.key} className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded-full r47-changed-badge">{String(m.key).replace(/([A-Z])/g, ' $1').trim()} <span className="text-amber-400">({m.count}x)</span></span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Action Buttons */}
+              <div className="flex gap-2 mt-4">
+                <button onClick={() => { const data = gsExportSettings('json'); navigator.clipboard.writeText(data); toast({ title: 'Settings exported!', description: 'Copied to clipboard' }) }}
+                  className="flex-1 bg-cyan-700 hover:bg-cyan-600 text-white text-xs py-2 rounded-lg transition-all active:scale-95 r47-action-btn">
+                  📋 Export
+                </button>
+                <button onClick={() => { resetAllSettings(); toast({ title: 'Settings reset!', description: 'All settings restored to defaults' }) }}
+                  className="flex-1 bg-rose-700 hover:bg-rose-600 text-white text-xs py-2 rounded-lg transition-all active:scale-95 r47-action-btn">
+                  🔄 Reset All
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 47: Player Stats Compare Panel */}
+      {showStatsComparePanel && mounted && (() => {
+        const overview = getComparisonOverview()
+        const thisWeek = getPeriodStats('thisWeek')
+        const lastWeek = getPeriodStats('lastWeek')
+        const comparison = comparePeriods('thisWeek', 'lastWeek')
+        const skillRating = calculateSkillRating()
+        const skillTier = getSkillTier()
+        const skillProgress = getSkillProgress()
+        const insights = getInsights(5)
+        const strengths = getStrengths()
+        const weaknesses = getWeakMetrics()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStatsComparePanel(false)}>
+            <div className="bg-slate-900 border border-cyan-800/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 stats-compare-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-cyan-300 text-lg font-bold">📊 Stats Compare</span>
+                <button onClick={() => setShowStatsComparePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Skill Tier */}
+              <div className="bg-gradient-to-r from-slate-800 to-slate-800/50 rounded-xl p-3 mb-4 r47-skill-card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-slate-400 text-[10px] uppercase tracking-wider">Skill Rating</div>
+                    <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">{skillRating}</div>
+                    <div className="text-slate-300 text-xs">{skillTier}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-slate-500 text-[10px]">Next: {skillTier.nextTier || 'MAX'}</div>
+                    <div className="text-emerald-400 text-sm font-bold">{skillProgress.progress}%</div>
+                    <div className="w-24 h-1.5 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all r47-skill-bar" style={{ width: `${skillProgress.progress}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* This Week vs Last Week */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2.5 r47-period-card">
+                  <div className="text-cyan-400 text-[10px] uppercase font-semibold">This Week</div>
+                  <div className="text-white text-lg font-bold">{thisWeek.gamesPlayed}</div>
+                  <div className="text-slate-400 text-[10px]">games • avg {thisWeek.avgScore}</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2.5 r47-period-card">
+                  <div className="text-slate-400 text-[10px] uppercase font-semibold">Last Week</div>
+                  <div className="text-white text-lg font-bold">{lastWeek.gamesPlayed}</div>
+                  <div className="text-slate-400 text-[10px]">games • avg {lastWeek.avgScore}</div>
+                </div>
+              </div>
+              {/* Comparison Changes */}
+              {comparison.changes && comparison.changes.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Weekly Changes</span>
+                  <div className="space-y-1 mt-1.5">
+                    {comparison.changes.slice(0, 6).map((c: { metric: string; change: number; label: string }, i: number) => (
+                      <div key={i} className="flex justify-between items-center bg-slate-800/60 rounded-lg px-2.5 py-1.5 r47-compare-row">
+                        <span className="text-slate-400 text-[11px]">{c.metric}</span>
+                        <span className={`text-[11px] font-bold ${c.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {c.change >= 0 ? '↑' : '↓'} {Math.abs(c.change).toFixed(1)}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Strengths & Weaknesses */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <span className="text-emerald-400 text-[10px] uppercase font-semibold">💪 Strengths</span>
+                  <div className="space-y-1 mt-1">
+                    {strengths.slice(0, 3).map((s: string, i: number) => (
+                      <div key={i} className="bg-emerald-900/20 text-emerald-300 text-[10px] px-2 py-1 rounded r47-strength-item">{s}</div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-rose-400 text-[10px] uppercase font-semibold">⚠️ Weaknesses</span>
+                  <div className="space-y-1 mt-1">
+                    {weaknesses.slice(0, 3).map((w: string, i: number) => (
+                      <div key={i} className="bg-rose-900/20 text-rose-300 text-[10px] px-2 py-1 rounded r47-weakness-item">{w}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Insights */}
+              <div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">💡 Insights</span>
+                <div className="space-y-1.5 mt-1.5">
+                  {insights.slice(0, 4).map((insight: string, i: number) => (
+                    <div key={i} className="bg-slate-800/60 text-slate-300 text-[11px] px-2.5 py-1.5 rounded-lg r47-insight-item">{insight}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 47: Challenge Mode Panel */}
+      {showChallengePanel && mounted && (() => {
+        const overview = getChallengeOverview()
+        const templates = getChallengeTemplates()
+        const daily = cmGetDailyChallenge()
+        const dailyProgress = getDailyChallengeProgress()
+        const dailyStreak = getDailyChallengeStreak()
+        const dailyBonus = getDailyRewardBonus()
+        const stats = getChallengeStats()
+        const recommended = getRecommendedChallenges()
+        const active = getActiveChallenge()
+        const available = getAvailableChallenges()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowChallengePanel(false)}>
+            <div className="bg-slate-900 border border-rose-800/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 challenge-mode-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-rose-300 text-lg font-bold">🎯 Challenges</span>
+                <button onClick={() => setShowChallengePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Active Challenge */}
+              {active && (
+                <div className="bg-gradient-to-r from-rose-900/40 to-amber-900/30 rounded-xl p-3 mb-4 border border-rose-700/30 r47-active-challenge">
+                  <div className="text-amber-400 text-[10px] uppercase tracking-wider font-bold">⚡ Active Challenge</div>
+                  <div className="text-white font-bold text-sm mt-1">{active.name}</div>
+                  <div className="text-slate-300 text-[11px] mt-0.5">{active.description}</div>
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-rose-500 to-amber-500 rounded-full transition-all r47-challenge-progress-bar" style={{ width: `${Math.min(100, getChallengeProgress(active.id).percentage)}%` }} />
+                    </div>
+                    <span className="text-rose-300 text-[11px] font-bold">{getChallengeProgress(active.id).percentage}%</span>
+                  </div>
+                </div>
+              )}
+              {/* Daily Challenge */}
+              <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 rounded-xl p-3 mb-4 border border-purple-700/30 r47-daily-challenge">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-purple-400 text-[10px] uppercase tracking-wider font-bold">📅 Daily Challenge</div>
+                    <div className="text-white font-bold text-sm mt-1">{daily.name}</div>
+                    <div className="text-slate-300 text-[11px]">{daily.description}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-amber-400 text-xs font-bold">{dailyBonus}x bonus</div>
+                    <div className="text-slate-400 text-[10px]">🔥 {dailyStreak} day streak</div>
+                  </div>
+                </div>
+                <button onClick={() => { if (!active) { startChallenge(daily.id); toast({ title: `Started: ${daily.name}`, description: daily.description }) } else { toast({ title: 'Challenge already active', description: 'Complete or cancel the current challenge first' }) } }}
+                  className={`w-full mt-2 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 ${active ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500'} r47-start-btn`}>
+                  {active ? 'Challenge in Progress' : 'Start Daily Challenge'}
+                </button>
+              </div>
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-challenge-stat">
+                  <div className="text-rose-400 text-lg font-bold">{stats.totalAttempted}</div>
+                  <div className="text-slate-500 text-[9px]">Attempted</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-challenge-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{stats.totalCompleted}</div>
+                  <div className="text-slate-500 text-[9px]">Completed</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-challenge-stat">
+                  <div className="text-amber-400 text-lg font-bold">{stats.completionRate}%</div>
+                  <div className="text-slate-500 text-[9px]">Rate</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-challenge-stat">
+                  <div className="text-purple-400 text-lg font-bold">{stats.challengeStreak || 0}</div>
+                  <div className="text-slate-500 text-[9px]">Streak</div>
+                </div>
+              </div>
+              {/* Challenge List */}
+              <div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Available Challenges</span>
+                <div className="space-y-1.5 mt-2 max-h-[240px] overflow-y-auto">
+                  {available.slice(0, 8).map(t => {
+                    const card = getChallengeCard(t.id)
+                    return (
+                      <div key={t.id} className="bg-slate-800/60 rounded-lg px-3 py-2 flex items-center justify-between r47-challenge-card">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm">{t.icon}</span>
+                            <span className="text-slate-200 text-[12px] font-semibold">{t.name}</span>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${t.difficulty === 'easy' ? 'bg-emerald-900/50 text-emerald-300' : t.difficulty === 'medium' ? 'bg-amber-900/50 text-amber-300' : t.difficulty === 'hard' ? 'bg-rose-900/50 text-rose-300' : 'bg-purple-900/50 text-purple-300'}`}>{t.difficulty}</span>
+                          </div>
+                          <div className="text-slate-500 text-[10px] mt-0.5">{t.description}</div>
+                        </div>
+                        <button onClick={() => { if (!active) { startChallenge(t.id); toast({ title: `Started: ${t.name}` }) } }}
+                          className={`ml-2 px-2 py-1 rounded text-[10px] font-bold transition-all active:scale-95 ${card.completed ? 'bg-emerald-800 text-emerald-300' : 'bg-rose-700 text-white hover:bg-rose-600'} r47-challenge-start`}>
+                          {card.completed ? '✓ Done' : 'Start'}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 47: Word Art Gallery Panel */}
+      {showArtGalleryPanel && mounted && (() => {
+        const overview = getGalleryOverview()
+        const recent = getRecentArt(8)
+        const stats = getGalleryStats()
+        const favorites = artGetFavorites()
+        const themes = getArtThemes()
+        const frames = getFrameStyles()
+        const suggestion = getAutoArtSuggestion()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowArtGalleryPanel(false)}>
+            <div className="bg-slate-900 border border-fuchsia-800/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 art-gallery-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-fuchsia-300 text-lg font-bold">🖼️ Word Art Gallery</span>
+                <button onClick={() => setShowArtGalleryPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Gallery Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-art-stat">
+                  <div className="text-fuchsia-400 text-lg font-bold">{stats.totalItems}</div>
+                  <div className="text-slate-500 text-[9px]">Art Pieces</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-art-stat">
+                  <div className="text-amber-400 text-lg font-bold">{favorites.length}</div>
+                  <div className="text-slate-500 text-[9px]">Favorites</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-art-stat">
+                  <div className="text-cyan-400 text-lg font-bold">{Object.keys(stats.byStyle || {}).length}</div>
+                  <div className="text-slate-500 text-[9px]">Styles</div>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-2 text-center r47-art-stat">
+                  <div className="text-emerald-400 text-lg font-bold">{Object.keys(stats.byCategory || {}).length}</div>
+                  <div className="text-slate-500 text-[9px]">Categories</div>
+                </div>
+              </div>
+              {/* Quick Generate */}
+              <div className="bg-gradient-to-r from-fuchsia-900/20 to-purple-900/20 rounded-xl p-3 mb-4 border border-fuchsia-700/20 r47-quick-gen">
+                <div className="text-fuchsia-400 text-[10px] uppercase tracking-wider font-bold">✨ Quick Generate</div>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {['wave', 'grid', 'rainbow', 'neon', 'banner', 'tower', 'pixel', 'minimal'].map(style => (
+                    <button key={style} onClick={() => {
+                      const words = ['snake', 'word', 'game', 'score', 'combo', 'speed', 'level', 'power']
+                      const art = generateWordArt(words, style)
+                      if (art) toast({ title: `${style} art generated!`, description: 'Check the gallery' })
+                    }}
+                      className="px-2 py-1 bg-slate-800 hover:bg-fuchsia-800/40 text-fuchsia-300 text-[10px] rounded-lg transition-all active:scale-95 r47-gen-style">
+                      {style}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Auto Suggestion */}
+              {suggestion && (
+                <div className="bg-slate-800/50 rounded-lg p-2.5 mb-4 r47-suggestion">
+                  <div className="text-amber-400 text-[10px] uppercase font-bold">💡 Suggestion</div>
+                  <div className="text-slate-300 text-[11px] mt-0.5">{suggestion.suggestion || suggestion}</div>
+                </div>
+              )}
+              {/* Recent Art */}
+              <div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Recent Art</span>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {recent.slice(0, 6).map((item: { id: string; title?: string; style: string; content: string; createdAt: number }, i: number) => (
+                    <div key={item.id || i} className="bg-slate-800 rounded-lg p-2.5 r47-art-item">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-slate-200 text-[11px] font-semibold truncate">{item.title || item.style}</span>
+                        <span className="text-fuchsia-400 text-[9px] bg-fuchsia-900/30 px-1.5 py-0.5 rounded">{item.style}</span>
+                      </div>
+                      <pre className="text-[8px] text-slate-400 font-mono whitespace-pre-wrap break-all max-h-20 overflow-hidden bg-black/30 rounded p-1.5">{(item.content || '').substring(0, 120)}</pre>
+                      <div className="flex gap-1 mt-1.5">
+                        <button onClick={() => artToggleFavorite(item.id)}
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 hover:bg-amber-700/30 hover:text-amber-300 transition-all r47-art-fav">
+                          ♡ Favorite
+                        </button>
+                        <button onClick={() => { deleteGalleryItem(item.id); toast({ title: 'Art deleted' }) }}
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 hover:bg-rose-700/30 hover:text-rose-300 transition-all r47-art-del">
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {recent.length === 0 && (
+                    <div className="col-span-2 text-center py-8 text-slate-500 text-sm r47-empty-gallery">
+                      No art yet. Generate your first piece above!
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Themes & Frames */}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div>
+                  <span className="text-slate-400 text-[10px] uppercase font-semibold">🎨 Themes</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {themes.slice(0, 6).map(t => (
+                      <span key={t.id} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 r47-theme-badge">{t.name}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-[10px] uppercase font-semibold">🖼️ Frames</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {frames.slice(0, 5).map(f => (
+                      <span key={f.id} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 r47-frame-badge">{f.name}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

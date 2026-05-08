@@ -5878,3 +5878,127 @@
 
 /* 25. r46-dict-phonetic-wave — Phonetic pronunciation wave indicator */
 @keyframes r46-dict-phonetic-wave { 0%,100%{height:4px;} 50%{height:12px;} }
+
+/* ===== Round 47 CSS Animations (25 new keyframes) ===== */
+
+/* 1. r47-settings-stat — Settings stat cell entrance */
+@keyframes r47-settings-stat { 0%{opacity:0;transform:scale(0.8);} 100%{opacity:1;transform:scale(1);} }
+
+/* 2. r47-preset-item — Preset item hover glow */
+@keyframes r47-preset-item { 0%{box-shadow:0 0 0 rgba(16,185,129,0);} 100%{box-shadow:0 0 12px rgba(16,185,129,0.3);} }
+
+/* 3. r47-setting-row — Setting row slide in from left */
+@keyframes r47-setting-row { 0%{opacity:0;transform:translateX(-10px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 4. r47-changed-badge — Changed badge subtle pulse */
+@keyframes r47-changed-badge { 0%,100%{background-color:rgba(30,41,59,1);} 50%{background-color:rgba(30,41,59,0.6);} }
+
+/* 5. r47-action-btn — Action button press effect */
+@keyframes r47-action-btn { 0%{transform:scale(1);} 50%{transform:scale(0.95);} 100%{transform:scale(1);} }
+
+/* 6. r47-skill-card — Skill rating card entrance */
+@keyframes r47-skill-card { 0%{opacity:0;transform:translateY(-8px) scale(0.98);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 7. r47-skill-bar — Skill progress bar shimmer fill */
+@keyframes r47-skill-bar { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+/* 8. r47-period-card — Period comparison card entrance */
+@keyframes r47-period-card { 0%{opacity:0;transform:translateY(6px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 9. r47-compare-row — Comparison row hover highlight */
+@keyframes r47-compare-row { 0%{background-color:rgba(30,41,59,0.6);} 100%{background-color:rgba(30,41,59,0.8);} }
+
+/* 10. r47-strength-item — Strength item entrance */
+@keyframes r47-strength-item { 0%{opacity:0;transform:translateX(-6px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 11. r47-weakness-item — Weakness item warning pulse */
+@keyframes r47-weakness-item { 0%,100%{border-left:2px solid transparent;} 50%{border-left:2px solid #f87171;} }
+
+/* 12. r47-insight-item — Insight item fade in */
+@keyframes r47-insight-item { 0%{opacity:0;transform:translateY(4px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 13. r47-active-challenge — Active challenge card glow pulse */
+@keyframes r47-active-challenge { 0%,100%{box-shadow:0 0 0 rgba(244,63,94,0);} 50%{box-shadow:0 0 16px rgba(244,63,94,0.2);} }
+
+/* 14. r47-challenge-progress-bar — Challenge progress bar glow sweep */
+@keyframes r47-challenge-progress-bar { 0%{filter:brightness(1);} 50%{filter:brightness(1.3);} 100%{filter:brightness(1);} }
+
+/* 15. r47-daily-challenge — Daily challenge card border shimmer */
+@keyframes r47-daily-challenge { 0%{border-color:rgba(126,34,206,0.3);} 50%{border-color:rgba(126,34,206,0.6);} 100%{border-color:rgba(126,34,206,0.3);} }
+
+/* 16. r47-challenge-stat — Challenge stat cell pop */
+@keyframes r47-challenge-stat { 0%{opacity:0;transform:scale(0.7);} 60%{transform:scale(1.05);} 100%{opacity:1;transform:scale(1);} }
+
+/* 17. r47-challenge-card — Challenge list item hover lift */
+@keyframes r47-challenge-card { 0%{transform:translateY(0);box-shadow:none;} 100%{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.3);} }
+
+/* 18. r47-start-btn — Start challenge button glow */
+@keyframes r47-start-btn { 0%,100%{box-shadow:0 0 0 rgba(147,51,234,0);} 50%{box-shadow:0 0 12px rgba(147,51,234,0.4);} }
+
+/* 19. r47-art-stat — Art gallery stat cell entrance */
+@keyframes r47-art-stat { 0%{opacity:0;transform:scale(0.85);} 100%{opacity:1;transform:scale(1);} }
+
+/* 20. r47-quick-gen — Quick generate section glow border */
+@keyframes r47-quick-gen { 0%{border-color:rgba(217,70,239,0.2);} 50%{border-color:rgba(217,70,239,0.5);} 100%{border-color:rgba(217,70,239,0.2);} }
+
+/* 21. r47-gen-style — Generate style button hover effect */
+@keyframes r47-gen-style { 0%{background-color:rgba(30,41,59,1);transform:scale(1);} 100%{background-color:rgba(192,38,211,0.2);transform:scale(1.05);} }
+
+/* 22. r47-suggestion — Suggestion card subtle slide */
+@keyframes r47-suggestion { 0%{opacity:0;transform:translateX(-8px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 23. r47-art-item — Art gallery item entrance */
+@keyframes r47-art-item { 0%{opacity:0;transform:translateY(8px) scale(0.95);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 24. r47-theme-badge — Theme badge entrance */
+@keyframes r47-theme-badge { 0%{opacity:0;transform:scale(0.8);} 100%{opacity:1;transform:scale(1);} }
+
+/* 25. r47-frame-badge — Frame badge entrance */
+@keyframes r47-frame-badge { 0%{opacity:0;transform:scale(0.8);} 100%{opacity:1;transform:scale(1);} }
+
+/* Round 47: Apply animations to panel elements */
+.game-settings-panel { animation: r47-settings-stat 0.3s ease-out; }
+.game-settings-panel .r47-settings-stat { animation: r47-settings-stat 0.4s ease-out both; }
+.game-settings-panel .r47-settings-stat:nth-child(1) { animation-delay: 0.05s; }
+.game-settings-panel .r47-settings-stat:nth-child(2) { animation-delay: 0.1s; }
+.game-settings-panel .r47-settings-stat:nth-child(3) { animation-delay: 0.15s; }
+.game-settings-panel .r47-preset-item:hover { animation: r47-preset-item 0.3s ease-out; }
+.game-settings-panel .r47-setting-row { animation: r47-setting-row 0.3s ease-out both; }
+.game-settings-panel .r47-changed-badge { animation: r47-changed-badge 2s ease-in-out infinite; }
+.game-settings-panel .r47-action-btn:active { animation: r47-action-btn 0.15s ease-out; }
+
+.stats-compare-panel { animation: r47-skill-card 0.3s ease-out; }
+.stats-compare-panel .r47-skill-card { animation: r47-skill-card 0.4s ease-out both; }
+.stats-compare-panel .r47-skill-bar { background-size: 200% 100%; animation: r47-skill-bar 2s linear infinite; background-image: linear-gradient(90deg, #06b6d4, #3b82f6, #06b6d4); }
+.stats-compare-panel .r47-period-card { animation: r47-period-card 0.4s ease-out both; }
+.stats-compare-panel .r47-period-card:nth-child(1) { animation-delay: 0.05s; }
+.stats-compare-panel .r47-period-card:nth-child(2) { animation-delay: 0.1s; }
+.stats-compare-panel .r47-compare-row:hover { animation: r47-compare-row 0.2s ease-out; }
+.stats-compare-panel .r47-strength-item { animation: r47-strength-item 0.3s ease-out both; }
+.stats-compare-panel .r47-weakness-item { animation: r47-weakness-item 2s ease-in-out infinite; }
+.stats-compare-panel .r47-insight-item { animation: r47-insight-item 0.3s ease-out both; }
+
+.challenge-mode-panel { animation: r47-challenge-card 0.3s ease-out; }
+.challenge-mode-panel .r47-active-challenge { animation: r47-active-challenge 2s ease-in-out infinite; }
+.challenge-mode-panel .r47-challenge-progress-bar { animation: r47-challenge-progress-bar 1.5s ease-in-out infinite; }
+.challenge-mode-panel .r47-daily-challenge { animation: r47-daily-challenge 3s ease-in-out infinite; }
+.challenge-mode-panel .r47-challenge-stat { animation: r47-challenge-stat 0.4s ease-out both; }
+.challenge-mode-panel .r47-challenge-stat:nth-child(1) { animation-delay: 0.05s; }
+.challenge-mode-panel .r47-challenge-stat:nth-child(2) { animation-delay: 0.1s; }
+.challenge-mode-panel .r47-challenge-stat:nth-child(3) { animation-delay: 0.15s; }
+.challenge-mode-panel .r47-challenge-stat:nth-child(4) { animation-delay: 0.2s; }
+.challenge-mode-panel .r47-challenge-card:hover { animation: r47-challenge-card 0.2s ease-out; }
+.challenge-mode-panel .r47-start-btn { animation: r47-start-btn 2s ease-in-out infinite; }
+
+.art-gallery-panel { animation: r47-art-item 0.3s ease-out; }
+.art-gallery-panel .r47-art-stat { animation: r47-art-stat 0.4s ease-out both; }
+.art-gallery-panel .r47-art-stat:nth-child(1) { animation-delay: 0.05s; }
+.art-gallery-panel .r47-art-stat:nth-child(2) { animation-delay: 0.1s; }
+.art-gallery-panel .r47-art-stat:nth-child(3) { animation-delay: 0.15s; }
+.art-gallery-panel .r47-art-stat:nth-child(4) { animation-delay: 0.2s; }
+.art-gallery-panel .r47-quick-gen { animation: r47-quick-gen 3s ease-in-out infinite; }
+.art-gallery-panel .r47-gen-style:hover { animation: r47-gen-style 0.2s ease-out; }
+.art-gallery-panel .r47-suggestion { animation: r47-suggestion 0.3s ease-out both; }
+.art-gallery-panel .r47-art-item { animation: r47-art-item 0.3s ease-out both; }
+.art-gallery-panel .r47-theme-badge { animation: r47-theme-badge 0.3s ease-out both; }
+.art-gallery-panel .r47-frame-badge { animation: r47-frame-badge 0.3s ease-out both; }
