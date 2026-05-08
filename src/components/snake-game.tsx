@@ -118,6 +118,10 @@ import { createTimingController, type TimingController } from '@/lib/game-loop-t
 import { createEventBusWire, wireOnPowerUpExpire, wireOnPowerUpCollect, type EventBusWire } from '@/lib/game-event-bus-wire'
 import { createPowerUpEffectWire, EFFECT_CONFIG, type PowerUpEffectWire, type EffectResult } from '@/lib/powerup-effect-wire'
 import { createSocialShare, type SocialShare, type ShareType } from '@/lib/social-share'
+import { createGameWiringHub, type GameWiringHub } from '@/lib/game-wiring-hub'
+import { createCanvasShareRenderer, type CanvasShareRenderer } from '@/lib/canvas-share-renderer'
+import { createMinigameLauncher, type MinigameLauncher, type MinigameType } from '@/lib/minigame-launcher'
+import { createEventLogPanel, createGameStartEntries, createWordEatEntries, createPowerUpEntries, createDeathEntries, createAchievementEntries, createComboEntries, createModeStartEntries, type EventLogPanel } from '@/lib/event-log-panel'
 import {
   Play,
   RotateCcw,
@@ -841,6 +845,14 @@ export default function SnakeGame() {
   const socialShareRef = useRef<SocialShare>(createSocialShare())
   const [showSocialShare, setShowSocialShare] = useState(false)
   const [shareCardText, setShareCardText] = useState('')
+  // Round 40: Wiring hub, Canvas share renderer, Minigame launcher, Event log panel
+  const wiringHubRef = useRef<GameWiringHub>(createGameWiringHub())
+  const canvasShareRef = useRef<CanvasShareRenderer>(createCanvasShareRenderer())
+  const minigameLauncherRef = useRef<MinigameLauncher>(createMinigameLauncher())
+  const eventLogPanelRef = useRef<EventLogPanel>(createEventLogPanel())
+  const [showEventLog, setShowEventLog] = useState(false)
+  const [showMinigames, setShowMinigames] = useState(false)
+  const [eventLogEntries, setEventLogEntries] = useState<Array<{id:string;type:string;level:string;message:string;emoji:string;color:string;timestamp:number}>>([])
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -3335,6 +3347,9 @@ export default function SnakeGame() {
     // Round 39: Event bus — game start
     eventBusWireRef.current.onGameStart({ mode: isSpeedRun ? 'speed_run' : isDaily ? 'daily_challenge' : 'classic', difficulty: gs.difficulty })
     if (isDaily) eventBusWireRef.current.onDailyChallengeStart(gs.dailyChallengeWords, gs.dailyTargetScore)
+    // Round 40: Event log — game start
+    eventLogPanelRef.current.addEntries(createGameStartEntries({ mode: isSpeedRun ? 'speed_run' : isDaily ? 'daily_challenge' : 'classic', difficulty: gs.difficulty }))
+    setEventLogEntries(eventLogPanelRef.current.getRecentEntries(20))
 
     // Track games played & update streak
     try {
@@ -3462,10 +3477,12 @@ export default function SnakeGame() {
       if (gs.inGameDifficulty) {
         effectiveSpeed = Math.floor(effectiveSpeed / gs.inGameDifficulty.speedMultiplier)
       }
+      // Round 40: Apply power-up effect wire modifiers to speed
+      const effectSpeed = wiringHubRef.current.applyPowerUpEffectsToSpeed(effectiveSpeed, powerUpEffectWireRef.current)
       // Round 39: Apply speed config slider + mode engine frame interval modifier
       const tc = timingControllerRef.current
       tc.updateTiming(speedConfig, modeEngineRef.current)
-      const timingMod = tc.shouldTick(effectiveSpeed)
+      const timingMod = tc.shouldTick(effectSpeed)
       // Also track metrics for the timing display
       const timingMetrics = tc.getMetrics()
 
@@ -3644,6 +3661,8 @@ export default function SnakeGame() {
             // Apply mode score multiplier (Round 37)
             const modeMult = getModeScoreMultiplier(modeEngineRef.current)
             points = Math.floor(points * modeMult)
+            // Round 40: Apply power-up effect wire score modifier
+            points = wiringHubRef.current.applyPowerUpEffectsToScore(points, powerUpEffectWireRef.current)
             gs.score += points
             gs.wordsEaten += 1
             whoAte = 'p1'
@@ -3688,6 +3707,11 @@ export default function SnakeGame() {
             eventBusWireRef.current.onWordEat(wordFood.word, points, gs.comboCount || 0, { mode: gs.isDailyChallenge ? 'daily' : 'classic' })
             eventBusWireRef.current.onScoreChange(gs.score - points, gs.score, 'word_eat')
             eventBusWireRef.current.onSnakeGrow(gs.snake.length)
+            // Round 40: Event log — word eat
+            eventLogPanelRef.current.addEntries(createWordEatEntries(wordFood.word, points, gs.comboCount || 0))
+            if (gs.comboCount > 2 && gs.comboCount % 3 === 0) {
+              eventLogPanelRef.current.addEntries(createComboEntries(gs.comboCount))
+            }
           } else if (isNear(p2Head.x, p2Head.y)) {
             // P2 eats food?
             const entry = getWordEntryIncludingCustom(wordFood.word)
@@ -3708,6 +3732,17 @@ export default function SnakeGame() {
             spawnFloatingText(wordFood.word, wx, wy - 22, '#22d3ee')
             spawnParticles(wx, wy + CELL_SIZE / 2, '#06b6d4', 10)
             playSound(playEatSound)
+            // Round 40: Wire P2 score live wire
+            wiringHubRef.current.wireP2ScoreLive({
+              word: wordFood.word,
+              basePoints: entry ? entry.points : wordFood.word.length * 10,
+              combo: 0,
+              activePowerUps: pvp.player2ActivePowerUps.map(p => p.type),
+              difficulty: gs.difficulty || 'medium',
+              rarity: wordFood.rarity || 'common',
+              category: wordFood.category || 'general',
+              timeElapsed: gs.elapsedTime || 0,
+            }, scoreLiveWireRef.current)
           }
 
           // Remove tail for non-eaters; eater keeps tail (grows)
@@ -3767,6 +3802,8 @@ export default function SnakeGame() {
             // Round 39: Event bus + power-up effect wire
             wireOnPowerUpCollect(pu.type, config.emoji)
             powerUpEffectWireRef.current.onPowerUpCollected(pu.type, gs)
+            // Round 40: Event log — power-up collected
+            eventLogPanelRef.current.addEntries(createPowerUpEntries(pu.type, config.emoji))
             gs.powerUp = null
           }
         }
@@ -3947,6 +3984,9 @@ export default function SnakeGame() {
         // Round 39: Event bus — game end
         eventBusWireRef.current.onGameEnd({ score: gs.score, wordsEaten: gs.wordsEaten, time: gs.elapsedTime, mode: gs.isDailyChallenge ? 'daily' : 'classic', difficulty: gs.difficulty })
         if (gs.isDailyChallenge) eventBusWireRef.current.onDailyChallengeEnd({ completed: gs.score >= gs.dailyTargetScore, score: gs.score })
+        // Round 40: Event log — game end + death
+        eventLogPanelRef.current.addEntries(createDeathEntries(gs.score, gs.wordsEaten))
+        setEventLogEntries(eventLogPanelRef.current.getRecentEntries(20))
 
         // Round 37: Game end wires
         const gameEndXP = awardXP(xpWireRef.current, 'gameComplete', { score: gs.score, wordsEaten: gs.wordsEaten, timeElapsed: gs.elapsedTime })
@@ -4146,10 +4186,17 @@ export default function SnakeGame() {
           spawnParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, '#fbbf24', 20)
           // Let it pass through — the head overlaps one body segment for one frame
         } else {
-          handleDeath()
-          draw()
-          animFrameRef.current = requestAnimationFrame(gameLoop)
-          return
+          // Round 40: Practice mode collision bypass
+          const practiceResult = wiringHubRef.current.handlePracticeCollision(gs, modeEngineRef.current)
+          if (practiceResult.survived) {
+            spawnFloatingText('🔄 Practice Reset', head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 20, '#a78bfa')
+            // Reset snake position but don't end game
+          } else {
+            handleDeath()
+            draw()
+            animFrameRef.current = requestAnimationFrame(gameLoop)
+            return
+          }
         }
       }
 
@@ -4157,10 +4204,14 @@ export default function SnakeGame() {
       if (aiBot && aiBot.alive && aiBot.snake.some((s) => s.x === head.x && s.y === head.y)) {
         const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
         if (!hasShield) {
-          handleDeath()
-          draw()
-          animFrameRef.current = requestAnimationFrame(gameLoop)
-          return
+          // Round 40: Practice mode also applies to bot collision
+          const practiceResult2 = wiringHubRef.current.handlePracticeCollision(gs, modeEngineRef.current)
+          if (!practiceResult2.survived) {
+            handleDeath()
+            draw()
+            animFrameRef.current = requestAnimationFrame(gameLoop)
+            return
+          }
         }
       }
 
@@ -6700,6 +6751,24 @@ export default function SnakeGame() {
                     >
                       📤 Share
                     </Button>
+                    {/* Round 40: Event Log Button */}
+                    <Button
+                      onClick={() => { setShowEventLog(!showEventLog); setEventLogEntries(eventLogPanelRef.current.getRecentEntries(20)) }}
+                      variant="outline"
+                      className="border-indigo-700/50 text-indigo-400 hover:bg-indigo-900/20 active:scale-95 transition-transform event-log-btn"
+                      title="Event Log"
+                    >
+                      📋 Event Log
+                    </Button>
+                    {/* Round 40: Minigames Button */}
+                    <Button
+                      onClick={() => setShowMinigames(!showMinigames)}
+                      variant="outline"
+                      className="border-yellow-700/50 text-yellow-400 hover:bg-yellow-900/20 active:scale-95 transition-transform minigames-btn"
+                      title="Mini-Games"
+                    >
+                      🎮 Mini-Games
+                    </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
@@ -8524,6 +8593,67 @@ export default function SnakeGame() {
                   }} className="text-[9px] px-2 py-1.5 rounded-md bg-violet-700/30 border border-violet-600/40 text-violet-300 hover:bg-violet-600/30 active:scale-95 transition-all share-stats-btn">
                     📊 Events
                   </button>
+                </div>
+              </div>
+            )}
+            {/* Round 40: Event Log Panel */}
+            {showEventLog && mounted && (
+              <div className="mb-3 px-3 py-2.5 rounded-lg bg-gradient-to-br from-indigo-950/30 to-slate-950/20 border border-indigo-700/30 event-log-panel-in">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-base">📋</span>
+                  <span className="text-indigo-300 text-xs font-bold">Event Log</span>
+                  <button onClick={() => { eventLogPanelRef.current.clearEntries(); setEventLogEntries([]) }} className="ml-auto text-indigo-500 hover:text-indigo-300 text-[9px]">Clear</button>
+                  <button onClick={() => setShowEventLog(false)} className="text-indigo-500 hover:text-indigo-300 text-xs">✕</button>
+                </div>
+                <div className="max-h-32 overflow-y-auto space-y-0.5 scrollbar-thin">
+                  {eventLogEntries.length === 0 ? (
+                    <div className="text-[8px] text-slate-500 text-center py-2">No events yet — start a game!</div>
+                  ) : (
+                    eventLogEntries.map((entry) => (
+                      <div key={entry.id} className="flex items-start gap-1.5 px-2 py-1 rounded text-[7px] event-log-entry" style={{ backgroundColor: `${entry.color}15`, borderLeft: `2px solid ${entry.color}40` }}>
+                        <span className="shrink-0 mt-px">{entry.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <span style={{ color: entry.color }} className="font-medium">{entry.message}</span>
+                        </div>
+                        <span className="text-slate-600 shrink-0 tabular-nums">{new Date(entry.timestamp).toLocaleTimeString('en', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="mt-1.5 text-[7px] text-slate-600 text-right">{eventLogEntries.length} events</div>
+              </div>
+            )}
+            {/* Round 40: Minigames Panel */}
+            {showMinigames && mounted && (
+              <div className="mb-3 px-3 py-2.5 rounded-lg bg-gradient-to-br from-yellow-950/30 to-orange-950/20 border border-yellow-700/30 minigames-panel-in">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-base">🎮</span>
+                  <span className="text-yellow-300 text-xs font-bold">Mini-Games</span>
+                  <button onClick={() => setShowMinigames(false)} className="ml-auto text-yellow-500 hover:text-yellow-300 text-xs">✕</button>
+                </div>
+                <div className="space-y-1.5">
+                  {(() => {
+                    const games = minigameLauncherRef.current.getAllMinigames()
+                    return games.map((mg) => (
+                      <div key={mg.type} className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-black/20 border border-yellow-800/20 minigame-card">
+                        <div className="text-lg minigame-icon">{mg.type === 'scramble_blitz' ? '🔤' : mg.type === 'boss_rush' ? '👹' : '🧠'}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[9px] text-yellow-200 font-bold">{mg.config.name}</div>
+                          <div className="text-[7px] text-slate-400 truncate">{mg.config.description}</div>
+                          <div className="flex gap-2 mt-0.5">
+                            <span className="text-[7px] text-emerald-400">Best: {mg.bestScore}</span>
+                            <span className="text-[7px] text-slate-500">Played: {mg.timesPlayed}</span>
+                          </div>
+                        </div>
+                        <div className="text-[7px] px-1.5 py-0.5 rounded bg-yellow-800/30 text-yellow-400 border border-yellow-700/30 minigame-time-badge">
+                          {mg.config.timeLimit}s
+                        </div>
+                      </div>
+                    ))
+                  })()}
+                </div>
+                <div className="mt-2 text-[7px] text-slate-600 text-center">
+                  Daily: <span className="text-yellow-500">{minigameLauncherRef.current.getDailyChallenge().type.replace('_', ' ')}</span>
                 </div>
               </div>
             )}

@@ -5193,3 +5193,89 @@
 
 /* 25. turbo-mode-glow — Turbo mode activation glow */
 @keyframes turbo-mode-glow { 0%,100%{box-shadow:0 0 5px rgba(251,146,60,0.3),inset 0 0 5px rgba(251,146,60,0.1);} 50%{box-shadow:0 0 15px rgba(251,146,60,0.5),inset 0 0 10px rgba(251,146,60,0.2);} }
+
+/* ═══════════════════════════════════════════════════════════════
+   Round 40 — Wiring Hub + Canvas Share + Minigames + Event Log CSS Animations (25 new)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. event-log-panel-in — Event log panel slide-in from left */
+@keyframes event-log-panel-in { 0%{opacity:0;transform:translateX(-16px);} 100%{opacity:1;transform:translateX(0);} }
+.event-log-panel-in { animation: event-log-panel-in 0.3s ease-out; }
+
+/* 2. event-log-entry — Event log entry slide + fade-in */
+@keyframes event-log-entry { 0%{opacity:0;transform:translateX(-8px) scaleY(0.8);} 100%{opacity:1;transform:translateX(0) scaleY(1);} }
+.event-log-entry { animation: event-log-entry 0.2s ease-out both; }
+
+/* 3. event-log-btn — Event log button entrance */
+@keyframes event-log-btn { 0%{opacity:0;transform:scale(0.85);} 100%{opacity:1;transform:scale(1);} }
+.event-log-btn { animation: event-log-btn 0.25s ease-out 0.08s both; }
+
+/* 4. minigames-panel-in — Minigames panel slide-in from bottom */
+@keyframes minigames-panel-in { 0%{opacity:0;transform:translateY(12px);} 100%{opacity:1;transform:translateY(0);} }
+.minigames-panel-in { animation: minigames-panel-in 0.3s ease-out; }
+
+/* 5. minigames-btn — Minigames button entrance */
+@keyframes minigames-btn { 0%{opacity:0;transform:scale(0.85);} 100%{opacity:1;transform:scale(1);} }
+.minigames-btn { animation: minigames-btn 0.25s ease-out 0.16s both; }
+
+/* 6. minigame-card — Minigame card hover lift */
+@keyframes minigame-card { 0%{opacity:0;transform:translateY(6px);} 100%{opacity:1;transform:translateY(0);} }
+.minigame-card { animation: minigame-card 0.2s ease-out both; }
+
+/* 7. minigame-icon — Minigame icon bounce on hover */
+@keyframes minigame-icon { 0%,100%{transform:scale(1);} 50%{transform:scale(1.2) rotate(5deg);} }
+
+/* 8. minigame-time-badge — Time badge pulse */
+@keyframes minigame-time-badge { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+
+/* 9. wiring-hub-connected — Wiring status connected indicator */
+@keyframes wiring-hub-connected { 0%{background-color:rgba(74,222,128,0);} 50%{background-color:rgba(74,222,128,0.3);} 100%{background-color:rgba(74,222,128,0.1);} }
+
+/* 10. effect-modifier-flash — Effect modifier value change flash */
+@keyframes effect-modifier-flash { 0%{color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.4);} 100%{color:inherit;text-shadow:none;} }
+
+/* 11. practice-reset-bounce — Practice mode reset bounce */
+@keyframes practice-reset-bounce { 0%{transform:scale(0.5);opacity:0;} 60%{transform:scale(1.2);opacity:1;} 100%{transform:scale(1);opacity:1;} }
+
+/* 12. p2-score-tick — P2 score increment slide */
+@keyframes p2-score-tick { 0%{transform:translateY(-4px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+
+/* 13. canvas-share-preview — Canvas share card image fade-in */
+@keyframes canvas-share-preview { 0%{opacity:0;transform:scale(0.95);filter:blur(2px);} 100%{opacity:1;transform:scale(1);filter:blur(0);} }
+.canvas-share-preview { animation: canvas-share-preview 0.4s ease-out; }
+
+/* 14. download-btn-pop — Download button pop on click */
+@keyframes download-btn-pop { 0%{transform:scale(1);} 40%{transform:scale(0.9);} 100%{transform:scale(1);} }
+
+/* 15. r40-btn-entrance — Staggered Round 40 button entrance (4 buttons) */
+@keyframes r40-btn-entrance { 0%{opacity:0;transform:translateY(8px) scale(0.9);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 16. score-modifier-indicator — Score modifier active glow ring */
+@keyframes score-modifier-indicator { 0%,100%{box-shadow:0 0 4px rgba(251,191,36,0.2);} 50%{box-shadow:0 0 12px rgba(251,191,36,0.5);} }
+
+/* 17. speed-modifier-indicator — Speed modifier active glow ring */
+@keyframes speed-modifier-indicator { 0%,100%{box-shadow:0 0 4px rgba(34,197,94,0.2);} 50%{box-shadow:0 0 12px rgba(34,197,94,0.5);} }
+
+/* 18. log-level-info — Info level entry subtle pulse */
+@keyframes log-level-info { 0%,100%{border-left-color:rgba(148,163,184,0.3);} 50%{border-left-color:rgba(148,163,184,0.6);} }
+
+/* 19. log-level-success — Success level entry green pulse */
+@keyframes log-level-success { 0%,100%{border-left-color:rgba(74,222,128,0.3);} 50%{border-left-color:rgba(74,222,128,0.8);} }
+
+/* 20. log-level-warning — Warning level entry amber pulse */
+@keyframes log-level-warning { 0%,100%{border-left-color:rgba(251,191,36,0.3);} 50%{border-left-color:rgba(251,191,36,0.8);} }
+
+/* 21. log-level-error — Error level entry red pulse */
+@keyframes log-level-error { 0%,100%{border-left-color:rgba(239,68,68,0.4);} 50%{border-left-color:rgba(239,68,68,0.9);} }
+
+/* 22. log-level-special — Special level entry purple pulse */
+@keyframes log-level-special { 0%,100%{border-left-color:rgba(168,85,247,0.4);} 50%{border-left-color:rgba(168,85,247,0.9);} }
+
+/* 23. wiring-status-dot — Wiring status indicator dot pulse */
+@keyframes wiring-status-dot { 0%,100%{transform:scale(1);opacity:0.6;} 50%{transform:scale(1.3);opacity:1;} }
+
+/* 24. event-count-badge — Event count badge update pop */
+@keyframes event-count-badge { 0%{transform:scale(0.8);color:#a78bfa;} 100%{transform:scale(1);color:inherit;} }
+
+/* 25. minigame-daily-glow — Daily minigame suggestion glow */
+@keyframes minigame-daily-glow { 0%,100%{background-color:rgba(234,179,8,0.1);} 50%{background-color:rgba(234,179,8,0.25);} }
