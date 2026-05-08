@@ -3386,6 +3386,10 @@ export default function SnakeGame() {
             const catColor = CATEGORY_COLORS[wordFood.category] ?? '#f59e0b'
             addWord(wordFood.word)
             collectedWordsRef.current.add(wordFood.word)
+            // Update multilingual progress if active
+            if (activeMultilingualPack) {
+              multilingualProgressRef.current[activeMultilingualPack] = getMultilingualPackProgress(activeMultilingualPack, collectedWordsRef.current)
+            }
             gs.score += points
             gs.wordsEaten += 1
             whoAte = 'p1'
@@ -3672,6 +3676,29 @@ export default function SnakeGame() {
                 enqueueAchievements([{ title: `New Skin Unlocked: ${skinUnlock.skinName}!`, description: `Select it in Settings`, emoji: skinUnlock.skinEmoji }])
               }
             }
+          }
+          // Check multilingual achievements
+          const allCollected = new Set(wordList.map(([w]) => w))
+          const multiCollection = getTotalMultilingualCollection(allCollected)
+          const multiStats: MultilingualAchievementStats = createMultilingualStats(stats, {
+            ko: multiCollection.korean,
+            fr: multiCollection.french,
+            es: multiCollection.spanish,
+            languagesUsed: [multiCollection.korean > 0, multiCollection.french > 0, multiCollection.spanish > 0].filter(Boolean).length,
+            packsUnlocked: getUnlockedMultilingualPackIds().length,
+            totalMultilingual: multiCollection.total,
+          })
+          const newMultiAch = checkMultiAchievements(multiStats)
+          if (newMultiAch.length > 0) {
+            const multiNotifs = newMultiAch.map(a => ({ title: a.title, description: a.description, emoji: a.emoji }))
+            enqueueAchievements(multiNotifs)
+            setMultilingualAchievementsUnlocked(prev => {
+              const updated = [...new Set([...prev, ...newMultiAch.map(a => a.id)])]
+              if (typeof window !== 'undefined') {
+                try { localStorage.setItem('wordsnake_multilingual_achievements', JSON.stringify(updated)) } catch { /* ignore */ }
+              }
+              return updated
+            })
           }
           // Also check milestones on game over
           const newlyUnlockedMilestones = checkMilestones()
@@ -5532,6 +5559,29 @@ export default function SnakeGame() {
                       </div>
                     )
                   })()}
+                  {/* Active multilingual pack indicator */}
+                  {activeMultilingualPack && mounted && (() => {
+                    const mPack = MULTILINGUAL_PACKS.find(p => p.id === activeMultilingualPack)
+                    if (!mPack) return null
+                    const progress = multilingualProgressRef.current[activeMultilingualPack]
+                    return (
+                      <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r border multi-source-indicator" style={{ backgroundImage: `linear-gradient(to right, ${mPack.color}12, transparent)`, borderColor: `${mPack.color}30` }}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{mPack.flag}</span>
+                          <span className="text-xs text-slate-300 font-medium">{mPack.nativeName} Mode</span>
+                          <span className="text-[10px] text-slate-500">{mPack.words.length} words</span>
+                          {progress && (
+                            <div className="ml-auto flex items-center gap-1.5">
+                              <div className="w-16 h-1 bg-slate-700 rounded-full overflow-hidden">
+                                <div className="h-full rounded-full multi-source-progress-fill" style={{ width: `${progress.percent}%`, background: mPack.color }} />
+                              </div>
+                              <span className="text-[9px] text-slate-500">{progress.collected}/{progress.total}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
 
@@ -6429,6 +6479,36 @@ export default function SnakeGame() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Multilingual Achievements */}
+            {mounted && multilingualPacks.filter(p => p.isUnlocked).length > 0 && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-emerald-900/15 to-teal-900/10 border border-emerald-700/20 multi-achieve-panel">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <span className="text-xs">🏆</span>
+                  <span className="text-[10px] text-slate-400 font-medium">Language Achievements</span>
+                  {multilingualAchievementsUnlocked.length > 0 && (
+                    <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-900/50 text-emerald-400 border border-emerald-700/30 multi-achieve-badge">
+                      {multilingualAchievementsUnlocked.length}/{MULTILINGUAL_ACHIEVEMENTS.length}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  {MULTILINGUAL_ACHIEVEMENTS.map(ach => {
+                    const isUnlocked = multilingualAchievementsUnlocked.includes(ach.id)
+                    return (
+                      <div key={ach.id} className={`flex items-center gap-2 px-2 py-1 rounded-md border transition-all duration-300 multi-achieve-item ${isUnlocked ? 'bg-emerald-900/20 border-emerald-700/30' : 'bg-slate-800/10 border-slate-700/20 opacity-50'}`}>
+                        <span className={`text-xs ${isUnlocked ? 'multi-achieve-unlocked-emoji' : ''}`}>{ach.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-[10px] font-medium ${isUnlocked ? 'text-emerald-300' : 'text-slate-500'}`}>{ach.title}</div>
+                          <div className="text-[8px] text-slate-600">{ach.description}</div>
+                        </div>
+                        {isUnlocked && <span className="text-[8px] text-emerald-400">✓</span>}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
 

@@ -3450,3 +3450,256 @@
   0% { opacity: 0; transform: translateX(-8px); }
   100% { opacity: 1; transform: translateX(0); }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   Round 29 — Volume Slider, Multilingual Source, Responsive Layout,
+              Multilingual Achievements (28 animations)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. volume-mute-btn — Soft press glow on hover */
+.volume-mute-btn {
+  transition: all 0.2s ease;
+}
+.volume-mute-btn:hover {
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4));
+}
+@keyframes volume-mute-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* 2. volume-slider-track — Gradient track glow */
+.volume-slider-track {
+  position: relative;
+}
+.volume-slider-track::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+  z-index: -1;
+  filter: blur(4px);
+}
+.volume-slider-track:hover::after {
+  opacity: 0.5;
+}
+
+/* 3. volume-slider-fill — Smooth color transition */
+.volume-slider-fill {
+  transition: width 0.15s ease, background-color 0.3s ease;
+}
+
+/* 4. volume-panel-popup — Slide-down entrance */
+@keyframes volume-panel-enter {
+  0% { opacity: 0; transform: translateY(-6px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.volume-panel-popup {
+  animation: volume-panel-enter 0.2s ease-out;
+}
+
+/* 5. volume-range-input — Custom range thumb */
+.volume-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  transition: box-shadow 0.2s;
+}
+.volume-range-input::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.7);
+}
+
+/* 6. volume-preset-btn — Shimmer on active */
+@keyframes volume-preset-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.volume-preset-btn {
+  background-size: 200% 100%;
+}
+.volume-preset-btn:hover {
+  animation: volume-preset-shimmer 1.5s linear infinite;
+}
+
+/* 7. multi-source-btn — Language pill glow on active */
+@keyframes multi-source-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--glow-color, rgba(59, 130, 246, 0.3)); }
+  50% { box-shadow: 0 0 16px var(--glow-color, rgba(59, 130, 246, 0.5)); }
+}
+
+/* 8. multi-source-indicator — Gradient border animation */
+@keyframes multi-source-border-flow {
+  0% { border-color: rgba(59, 130, 246, 0.3); }
+  33% { border-color: rgba(139, 92, 246, 0.3); }
+  66% { border-color: rgba(236, 72, 153, 0.3); }
+  100% { border-color: rgba(59, 130, 246, 0.3); }
+}
+.multi-source-indicator {
+  animation: multi-source-border-flow 4s ease-in-out infinite;
+}
+
+/* 9. multi-source-progress-fill — Progress bar shimmer */
+@keyframes multi-source-progress-shimmer {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+.multi-source-progress-fill {
+  animation: multi-source-progress-shimmer 2s ease-in-out infinite;
+}
+
+/* 10. multi-achieve-panel — Subtle green pulse */
+@keyframes multi-achieve-panel-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+  50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.15); }
+}
+.multi-achieve-panel {
+  animation: multi-achieve-panel-glow 3s ease-in-out infinite;
+}
+
+/* 11. multi-achieve-badge — Pop-in animation */
+@keyframes multi-achieve-badge-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.multi-achieve-badge {
+  animation: multi-achieve-badge-pop 0.3s ease-out;
+}
+
+/* 12. multi-achieve-item — Staggered entrance */
+@keyframes multi-achieve-item-enter {
+  0% { opacity: 0; transform: translateX(-10px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.multi-achieve-item {
+  animation: multi-achieve-item-enter 0.3s ease-out both;
+}
+.multi-achieve-item:nth-child(1) { animation-delay: 0s; }
+.multi-achieve-item:nth-child(2) { animation-delay: 0.05s; }
+.multi-achieve-item:nth-child(3) { animation-delay: 0.1s; }
+.multi-achieve-item:nth-child(4) { animation-delay: 0.15s; }
+.multi-achieve-item:nth-child(5) { animation-delay: 0.2s; }
+.multi-achieve-item:nth-child(6) { animation-delay: 0.25s; }
+
+/* 13. multi-achieve-unlocked-emoji — Celebration bounce */
+@keyframes multi-achieve-emoji-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-3px); }
+  60% { transform: translateY(-1px); }
+}
+.multi-achieve-unlocked-emoji {
+  display: inline-block;
+  animation: multi-achieve-emoji-bounce 0.6s ease-in-out infinite;
+}
+
+/* 14. layout-transition-smooth — Smooth resize */
+@keyframes layout-smooth-resize {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+.layout-transition-smooth {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 15. layout-transition-bounce — Bouncy resize */
+@keyframes layout-bounce-resize {
+  0% { transform: scale(0.98); opacity: 0.6; }
+  50% { transform: scale(1.005); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.layout-transition-bounce {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 16. layout-transition-fade — Fade resize */
+@keyframes layout-fade-resize {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.layout-transition-fade {
+  transition: all 0.35s ease-in-out;
+}
+
+/* 17. volume-icon-rotate — Subtle rotation on mute toggle */
+@keyframes volume-icon-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 18. multi-source-select-pulse — Pulse when switching language */
+@keyframes multi-source-select-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* 19. volume-track-glow-left — Green glow for low volume */
+@keyframes volume-glow-low {
+  0%, 100% { box-shadow: 0 0 4px rgba(34, 197, 94, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+}
+
+/* 20. volume-track-glow-mid — Yellow glow for medium volume */
+@keyframes volume-glow-mid {
+  0%, 100% { box-shadow: 0 0 4px rgba(234, 179, 8, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(234, 179, 8, 0.5); }
+}
+
+/* 21. volume-track-glow-high — Red glow for high volume */
+@keyframes volume-glow-high {
+  0%, 100% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+}
+
+/* 22. multi-lang-flag-wave — Gentle wave for language flags */
+@keyframes multi-lang-flag-wave {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-3deg) scale(1.05); }
+  75% { transform: rotate(3deg) scale(1.05); }
+}
+
+/* 23. multi-achieve-unlock-flash — Green flash on new achievement */
+@keyframes multi-achieve-unlock-flash {
+  0% { background-color: rgba(16, 185, 129, 0.4); }
+  100% { background-color: rgba(16, 185, 129, 0.05); }
+}
+
+/* 24. responsive-sidebar-slide — Sidebar slide on mobile */
+@keyframes responsive-sidebar-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 25. responsive-canvas-scale — Canvas scale transition */
+@keyframes responsive-canvas-rescale {
+  0% { transform: scale(1.02); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 26. volume-preset-active-ring — Ring animation on active preset */
+@keyframes volume-preset-active-ring {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* 27. multi-source-switch — Cross-fade on language switch */
+@keyframes multi-source-crossfade {
+  0% { opacity: 0; transform: translateX(8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* 28. volume-panel-close — Slide-up close */
+@keyframes volume-panel-close {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-4px) scale(0.98); }
+}
