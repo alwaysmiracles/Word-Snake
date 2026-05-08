@@ -6581,3 +6581,174 @@
 .skilltree-panel .r52-action-btn { animation: r52-action-btn 0.2s ease-out; }
 .skilltree-panel .r52-action-btn:active { transform: scale(0.9); }
 
+/* ===== Round 53: Leaderboard, Soundboard, Mission System, Emote System Animations ===== */
+
+@keyframes r53-lb-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r53-podium-card {
+  0% { opacity: 0; transform: scale(0.9) translateY(-10px); }
+  60% { transform: scale(1.03) translateY(1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r53-podium-item {
+  0% { opacity: 0; transform: translateY(20px) scale(0.7); }
+  60% { transform: translateY(-5px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes r53-category-item {
+  0% { opacity: 0; transform: translateX(-10px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r53-mover-badge {
+  0% { opacity: 0; transform: scale(0.7); }
+  60% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r53-sound-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r53-instrument-item {
+  0% { opacity: 0; transform: scale(0.6) rotate(-10deg); }
+  60% { transform: scale(1.1) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes r53-piano-key {
+  0% { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
+  70% { transform: scaleY(1.08); transform-origin: bottom; }
+  100% { opacity: 1; transform: scaleY(1); transform-origin: bottom; }
+}
+@keyframes r53-effect-btn {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r53-beat-btn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r53-note-ripple {
+  0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.5); }
+  100% { box-shadow: 0 0 0 20px rgba(236, 72, 153, 0); }
+}
+@keyframes r53-mission-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r53-active-mission {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r53-mission-fill {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes r53-available-mission {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r53-chain-item {
+  0% { opacity: 0; transform: translateY(5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes r53-emote-stat {
+  0% { opacity: 0; transform: scale(0.5) translateY(8px); }
+  60% { transform: scale(1.08) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes r53-quick-emote {
+  0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+  60% { transform: scale(1.15) rotate(10deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes r53-emote-item {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes r53-pack-item {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes r53-pack-fill {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes r53-used-item {
+  0% { opacity: 0; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes r53-action-btn {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.93); }
+  100% { transform: scale(1); }
+}
+@keyframes r53-gold-shimmer {
+  0%, 100% { background-position: -100% 0; }
+  50% { background-position: 100% 0; }
+}
+@keyframes r53-rank-glow {
+  0%, 100% { text-shadow: 0 0 5px rgba(251, 191, 36, 0.3); }
+  50% { text-shadow: 0 0 15px rgba(251, 191, 36, 0.6); }
+}
+
+/* Round 53 animation bindings - Leaderboard */
+.leaderboard-panel .r53-lb-stat { animation: r53-lb-stat 0.35s ease-out both; }
+.leaderboard-panel .r53-lb-stat:nth-child(2) { animation-delay: 0.05s; }
+.leaderboard-panel .r53-lb-stat:nth-child(3) { animation-delay: 0.1s; }
+.leaderboard-panel .r53-lb-stat:nth-child(4) { animation-delay: 0.15s; }
+.leaderboard-panel .r53-podium-card { animation: r53-podium-card 0.5s ease-out both; animation-delay: 0.1s; }
+.leaderboard-panel .r53-podium-item { animation: r53-podium-item 0.4s ease-out both; }
+.leaderboard-panel .r53-category-item { animation: r53-category-item 0.25s ease-out both; }
+.leaderboard-panel .r53-mover-badge { animation: r53-mover-badge 0.3s ease-out both; }
+.leaderboard-panel .r53-action-btn { animation: r53-action-btn 0.2s ease-out; }
+.leaderboard-panel .r53-action-btn:active { transform: scale(0.9); }
+.leaderboard-panel .r53-gold-shimmer { animation: r53-gold-shimmer 3s ease-in-out infinite; background-size: 200% 100%; }
+.leaderboard-panel .r53-rank-glow { animation: r53-rank-glow 2s ease-in-out infinite; }
+
+/* Round 53 animation bindings - Soundboard */
+.soundboard-panel .r53-sound-stat { animation: r53-sound-stat 0.35s ease-out both; }
+.soundboard-panel .r53-sound-stat:nth-child(2) { animation-delay: 0.05s; }
+.soundboard-panel .r53-sound-stat:nth-child(3) { animation-delay: 0.1s; }
+.soundboard-panel .r53-sound-stat:nth-child(4) { animation-delay: 0.15s; }
+.soundboard-panel .r53-instrument-item { animation: r53-instrument-item 0.3s ease-out both; }
+.soundboard-panel .r53-piano-key { animation: r53-piano-key 0.3s ease-out both; }
+.soundboard-panel .r53-effect-btn { animation: r53-effect-btn 0.2s ease-out both; }
+.soundboard-panel .r53-beat-btn { animation: r53-beat-btn 0.3s ease-out both; }
+.soundboard-panel .r53-beat-btn:nth-child(2) { animation-delay: 0.05s; }
+.soundboard-panel .r53-beat-btn:nth-child(3) { animation-delay: 0.1s; }
+.soundboard-panel .r53-beat-btn:nth-child(4) { animation-delay: 0.15s; }
+.soundboard-panel .r53-note-ripple { animation: r53-note-ripple 0.5s ease-out; }
+.soundboard-panel .r53-action-btn { animation: r53-action-btn 0.2s ease-out; }
+.soundboard-panel .r53-action-btn:active { transform: scale(0.9); }
+
+/* Round 53 animation bindings - Mission System */
+.mission-panel .r53-mission-stat { animation: r53-mission-stat 0.35s ease-out both; }
+.mission-panel .r53-mission-stat:nth-child(2) { animation-delay: 0.05s; }
+.mission-panel .r53-mission-stat:nth-child(3) { animation-delay: 0.1s; }
+.mission-panel .r53-mission-stat:nth-child(4) { animation-delay: 0.15s; }
+.mission-panel .r53-active-mission { animation: r53-active-mission 0.3s ease-out both; }
+.mission-panel .r53-mission-fill { animation: r53-mission-fill 0.6s ease-out both; animation-delay: 0.2s; }
+.mission-panel .r53-available-mission { animation: r53-available-mission 0.25s ease-out both; }
+.mission-panel .r53-chain-item { animation: r53-chain-item 0.25s ease-out both; }
+.mission-panel .r53-action-btn { animation: r53-action-btn 0.2s ease-out; }
+.mission-panel .r53-action-btn:active { transform: scale(0.9); }
+
+/* Round 53 animation bindings - Emote System */
+.emote-panel .r53-emote-stat { animation: r53-emote-stat 0.35s ease-out both; }
+.emote-panel .r53-emote-stat:nth-child(2) { animation-delay: 0.05s; }
+.emote-panel .r53-emote-stat:nth-child(3) { animation-delay: 0.1s; }
+.emote-panel .r53-emote-stat:nth-child(4) { animation-delay: 0.15s; }
+.emote-panel .r53-quick-emote { animation: r53-quick-emote 0.35s ease-out both; }
+.emote-panel .r53-emote-item { animation: r53-emote-item 0.2s ease-out both; }
+.emote-panel .r53-pack-item { animation: r53-pack-item 0.3s ease-out both; }
+.emote-panel .r53-pack-fill { animation: r53-pack-fill 0.6s ease-out both; animation-delay: 0.2s; }
+.emote-panel .r53-used-item { animation: r53-used-item 0.25s ease-out both; }
+.emote-panel .r53-action-btn { animation: r53-action-btn 0.2s ease-out; }
+.emote-panel .r53-action-btn:active { transform: scale(0.9); }
+

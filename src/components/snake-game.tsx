@@ -177,6 +177,10 @@ import { initDailyRewards, checkDailyLogin, getLoginStreak, getLongestStreak, ge
 import { initWordConnect, generateGrid, findPossibleWords, isValidPath, submitWord, getGameStats, startNewGame, getCurrentGame, getHint as wcGetHint, getHintsRemaining, useHint, shuffleGrid, getDailyPuzzle as wcGetDailyPuzzle, getDailyStreak as wcGetDailyStreak, isDailyCompleted, getFoundWords, getUnfoundWords, getWordScore, getComboMultiplier, getTimeBonus, getHighScores as wcGetHighScores, getTotalGamesPlayed, getTotalWordsFound, getLongestWordFound, getAverageWordsPerGame, getBestScore as wcGetBestScore, getDifficultyStats, saveGameResult, getRecentGames, getWordFrequency, getConnectOverview, getGameCard, getFoundWordsList, getUnfoundWordsPreview, getDailyConnectCard, getStatsGrid as wcGetStatsGrid, getDifficultyButtons, getHighScoreList } from '@/lib/word-connect-wire'
 import { initProfileCard, getAvatarOptions, getCurrentAvatar, selectAvatar, unlockAvatar, getTitles, getCurrentTitle, selectTitle, earnTitle, getFrames, getCurrentFrame, selectFrame, unlockFrame, getBio as pcGetBio, setBio as pcSetBio, getMood as pcGetMood, setMood as pcSetMood, getStatus as pcGetStatus, setStatus as pcSetStatus, getFeaturedAchievements, setFeaturedAchievement, getProfileCompletion, getProfileCard as pcGetProfileCard, generateShareCode as pcGenShareCode, parseShareCode as pcParseShareCode, getProfileStats, getCollectionProgress as pcGetCollectionProgress, getRecentActivity, getLevelBadge, getJoinDate, getPlayTime, getRankBadge, getProfileOverview, getAvatarGrid, getTitleList, getFrameGallery, getProfileShareCard } from '@/lib/profile-card-wire'
 import { initSkillTree, getSkillTree, getBranches, getBranchSkills, getSkill, getSkillStatus, canUnlock, unlockSkill, upgradeSkill, getSkillPoints, addSkillPoints, spendSkillPoints, getTotalSpent, getActiveSkills, toggleActiveSkill, getActiveSlots, getActiveSlotsUsed, refundAll, refundBranch, getRespecCost, canRespec, getBuildPresets, saveBuildPreset, loadBuildPreset, deleteBuildPreset, getSkillEffects, getBonusScoreMultiplier, getBonusSpeed, getBonusLives, getSkillTreeStats, getSkillTreeOverview, getBranchCard, getSkillNode, getActiveBuildSummary, getRecommendations as stGetRecommendations, getMasteryProgress as stGetMasteryProgress } from '@/lib/skill-tree-wire'
+import { initLeaderboard, getLeaderboardData, getGlobalRankings, getPlayerRank, getPlayerBestRank, getTopPlayers, submitScore as lbSubmitScore, getRankChange, getLeaderboardStats, getCategories as lbGetCategories, searchPlayers as lbSearchPlayers, getPlayerProfile, getRankHistory, getRankTrend, getLeaderboardSummary, getLeaderboardCard, getLeaderboardRow, getLeaderboardTable, getMedalCount, getPercentile, getAverageRank, getDominantCategory, getNearbyPlayers, compareWithTarget, getWeeklyResetCountdown, getMonthlyResetCountdown, getActiveSeason as lbGetActiveSeason, getSeasonHistory as lbGetSeasonHistory, refreshMockData, getTopMovers, getLongestRanks, getLeaderboardOverview, getCategoryGrid, getPodiumData } from '@/lib/leaderboard-wire'
+import { initSoundBoard, playNote, getAvailableInstruments, getCurrentInstrument, selectInstrument, startRecording as sbStartRecording, stopRecording as sbStopRecording, playRecording, saveMelody, deleteMelody, getMelodyLibrary, getPresetMelodies, getMelodyStats, playSoundEffect, getSoundEffects, getSoundBoardStats, getMixerState, setChannelVolume, setMasterVolume as sbSetMasterVolume, getTempo, setTempo, getBeatPatterns, playBeat, stopAllSounds, getRecentMelodies, generateShareCode as sbGenShareCode, importMelody as sbImportMelody, getSoundBoardOverview, getInstrumentGrid, getPianoKeys, getEffectsGrid, getMelodyCard } from '@/lib/soundboard-wire'
+import { initMissionSystem, getMissions, getActiveMissions, getAvailableMissions, getCompletedMissions, acceptMission, cancelMission, updateMissionProgress, completeMission, claimMissionReward, getMissionProgress, getMissionRewards, getMissionsByCategory, getMissionsByDifficulty, getMissionChains, getChainProgress, getNextInChain, getMissionStats, getDailyMissions, getWeeklyMissions, getBonusObjectives, completeBonusObjective, getTotalRewardsEarned, getMissionSuccessRate, getMostCompletedCategory, getStreakData, getMissionHistory, refreshDailyMissions, getRecommendedMissions, getMissionOverview, getMissionCard, getCategoryProgress, getActiveMissionSlots, getRewardSummary, getMissionTimeline } from '@/lib/mission-system-wire'
+import { initEmoteSystem, getEmotes, getUnlockedEmotes, getLockedEmotes, unlockEmote, getEmote, getEmotesByCategory, getCategories as emoteGetCategories, playEmote, getQuickEmotes, setQuickEmote, getRecentEmotes, getEmoteHistory, getEmoteStats, getMostUsedEmotes, getLeastUsedEmotes, getFavoriteEmote, getEmoteAnimation, getEmotePack, getEmotePacks, getPackProgress, unlockPack, checkEmoteCombo, getActiveComboEffect, getEmoteUnlockProgress, getEmoteSystemOverview, getEmoteGrid, getEmoteCard, getEmoteStatsGrid, getQuickEmoteBar, suggestEmote } from '@/lib/emote-system-wire'
 import {
   Play,
   RotateCcw,
@@ -962,6 +966,11 @@ export default function SnakeGame() {
   const [showWordConnectPanel, setShowWordConnectPanel] = useState(false)
   const [showProfileCardPanel, setShowProfileCardPanel] = useState(false)
   const [showSkillTreePanel, setShowSkillTreePanel] = useState(false)
+  // Round 53: Leaderboard, Soundboard, Mission System, Emote System panel states
+  const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false)
+  const [showSoundboardPanel, setShowSoundboardPanel] = useState(false)
+  const [showMissionPanel, setShowMissionPanel] = useState(false)
+  const [showEmotePanel, setShowEmotePanel] = useState(false)
   // Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config panel states
   const [showTournamentPanel, setShowTournamentPanel] = useState(false)
   const [showPuzzlePanel, setShowPuzzlePanel] = useState(false)
@@ -7982,6 +7991,42 @@ export default function SnakeGame() {
                     >
                       🏪 Market
                     </Button>
+                    {/* Round 53: Leaderboard Button */}
+                    <Button
+                      onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
+                      variant="outline"
+                      className="border-rose-500/50 text-rose-400 hover:bg-rose-900/20 active:scale-95 transition-transform leaderboard-btn"
+                      title="Global Leaderboard"
+                    >
+                      🏆 Ranks
+                    </Button>
+                    {/* Round 53: Soundboard Button */}
+                    <Button
+                      onClick={() => setShowSoundboardPanel(!showSoundboardPanel)}
+                      variant="outline"
+                      className="border-pink-500/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform soundboard-btn"
+                      title="Musical Soundboard"
+                    >
+                      🎵 Sound
+                    </Button>
+                    {/* Round 53: Mission System Button */}
+                    <Button
+                      onClick={() => setShowMissionPanel(!showMissionPanel)}
+                      variant="outline"
+                      className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/20 active:scale-95 transition-transform mission-btn"
+                      title="Mission System"
+                    >
+                      📋 Missions
+                    </Button>
+                    {/* Round 53: Emote System Button */}
+                    <Button
+                      onClick={() => setShowEmotePanel(!showEmotePanel)}
+                      variant="outline"
+                      className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-900/20 active:scale-95 transition-transform emote-btn"
+                      title="Emote System"
+                    >
+                      😀 Emotes
+                    </Button>
                     {/* Round 52: Daily Rewards Button */}
                     <Button
                       onClick={() => setShowDailyRewardPanel(!showDailyRewardPanel)}
@@ -12757,6 +12802,401 @@ export default function SnakeGame() {
                 <button onClick={() => { if (canRespec()) { refundAll(); toast({ title: 'All points refunded!' }) } else { toast({ title: 'Cannot afford respec' }) } }}
                   className="flex-1 px-3 py-2 bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r52-action-btn">
                   🔄 Respec All
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 53: Leaderboard Panel */}
+      {showLeaderboardPanel && mounted && (() => {
+        const overview = getLeaderboardOverview()
+        const categories = lbGetCategories()
+        const podium = getPodiumData('overall_score')
+        const medals = getMedalCount()
+        const topMovers = getTopMovers('overall_score', 3)
+        const activeMissions = getActiveMissions()
+        const resetInfo = getWeeklyResetCountdown()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLeaderboardPanel(false)}>
+            <div className="bg-slate-900 border border-rose-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 leaderboard-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-rose-300 text-lg font-bold">🏆 Global Leaderboard</span>
+                <button onClick={() => setShowLeaderboardPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Rank', value: `#${getPlayerRank('overall_score')}`, color: 'text-rose-400' },
+                  { label: 'Gold', value: `${medals.gold}`, color: 'text-yellow-400' },
+                  { label: 'Silver', value: `${medals.silver}`, color: 'text-slate-300' },
+                  { label: 'Bronze', value: `${medals.bronze}`, color: 'text-amber-600' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r53-lb-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Podium */}
+              <div className="mb-4 p-3 bg-gradient-to-r from-rose-900/30 to-amber-900/30 border border-rose-700/30 rounded-lg r53-podium-card">
+                <span className="text-rose-300 text-xs font-semibold">🏅 Overall Score — Top 3</span>
+                <div className="flex items-end justify-center gap-3 mt-2">
+                  {podium && podium.map((p: { rank: number; name: string; avatar: string; score: number }, i: number) => (
+                    <div key={i} className="text-center r53-podium-item" style={{ animationDelay: `${i * 100}ms` }}>
+                      <div className={`text-lg ${p.rank === 1 ? 'text-3xl' : p.rank === 2 ? 'text-2xl' : 'text-xl'}`}>
+                        {p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : '🥉'}
+                      </div>
+                      <div className="text-2xl mt-1">{p.avatar}</div>
+                      <div className="text-[10px] text-white font-semibold mt-1">{p.name}</div>
+                      <div className="text-[9px] text-rose-400">{p.score.toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Category Grid */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📊 Categories</span>
+                <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                  {categories.slice(0, 10).map((c: { id: string; name: string; icon: string }, i: number) => {
+                    const rank = getPlayerRank(c.id)
+                    return (
+                      <div key={i} className="bg-slate-800 rounded-lg px-2.5 py-2 flex items-center justify-between r53-category-item cursor-pointer hover:bg-slate-700 transition-colors" style={{ animationDelay: `${i * 40}ms` }}>
+                        <span className="text-[10px] text-slate-300">{c.icon} {c.name}</span>
+                        <span className={`text-[9px] font-bold ${rank <= 3 ? 'text-yellow-400' : rank <= 10 ? 'text-emerald-400' : 'text-slate-500'}`}>#{rank}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {/* Top Movers */}
+              {topMovers.length > 0 && (
+                <div className="mb-3">
+                  <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔥 Top Movers</span>
+                  <div className="flex gap-1.5 mt-1.5">
+                    {topMovers.map((m: { name: string; change: number }, i: number) => (
+                      <span key={i} className={`text-[9px] px-2 py-0.5 rounded-full r53-mover-badge ${m.change > 0 ? 'bg-emerald-800/50 text-emerald-300' : 'bg-rose-800/50 text-rose-300'}`}>
+                        {m.name} {m.change > 0 ? '↑' : '↓'}{Math.abs(m.change)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Reset Info */}
+              <div className="mb-3 text-center">
+                <span className="text-[9px] text-slate-500">Weekly reset in {resetInfo} · Monthly in {getMonthlyResetCountdown()}</span>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { refreshMockData(); toast({ title: 'Leaderboard refreshed!' }) }}
+                  className="flex-1 px-3 py-2 bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  🔄 Refresh
+                </button>
+                <button onClick={() => { lbSubmitScore('overall_score', Math.floor(Math.random() * 50000) + 10000); toast({ title: 'Score submitted!' }) }}
+                  className="flex-1 px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  📤 Submit Score
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 53: Soundboard Panel */}
+      {showSoundboardPanel && mounted && (() => {
+        const overview = getSoundBoardOverview()
+        const instruments = getInstrumentGrid()
+        const effects = getEffectsGrid()
+        const pianoKeys = getPianoKeys()
+        const beats = getBeatPatterns()
+        const recentMelodies = getRecentMelodies(3)
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSoundboardPanel(false)}>
+            <div className="bg-slate-900 border border-pink-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 soundboard-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-pink-300 text-lg font-bold">🎵 Musical Soundboard</span>
+                <button onClick={() => setShowSoundboardPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Saved', value: getMelodyLibrary().length, color: 'text-pink-400' },
+                  { label: 'Effects', value: getSoundEffects().length, color: 'text-blue-400' },
+                  { label: 'Tempo', value: `${getTempo()}bpm`, color: 'text-emerald-400' },
+                  { label: 'Volume', value: `${Math.round((getMixerState().master || 0.7) * 100)}%`, color: 'text-amber-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r53-sound-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Instruments */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎸 Instruments</span>
+                <div className="grid grid-cols-6 gap-1.5 mt-1.5">
+                  {instruments.map((inst: { id: string; name: string; emoji: string; color: string }, i: number) => (
+                    <div key={i} onClick={() => { selectInstrument(inst.id); toast({ title: `${inst.emoji} ${inst.name}` }) }}
+                      className={`p-2 rounded-lg text-center cursor-pointer transition-all r53-instrument-item ${inst.id === getCurrentInstrument()?.id ? 'ring-2 ring-pink-400 bg-pink-900/30' : 'bg-slate-800 hover:bg-slate-700'}`}
+                      style={{ animationDelay: `${i * 40}ms` }}>
+                      <div className="text-lg">{inst.emoji}</div>
+                      <div className="text-[7px] text-slate-400 mt-0.5">{inst.name}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Piano Keys */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎹 Keys</span>
+                <div className="flex gap-0.5 mt-1.5 overflow-x-auto">
+                  {pianoKeys.slice(0, 14).map((k: { note: string; freq: number; isBlack: boolean }, i: number) => (
+                    <button key={i} onClick={() => { try { playNote(getCurrentInstrument()?.id || 'piano', k.note, 0.3) } catch(e) {} }}
+                      className={`flex-shrink-0 w-8 rounded-b-lg transition-all active:scale-95 r53-piano-key ${k.isBlack ? 'bg-slate-900 h-12 text-slate-400 border border-slate-700 z-10' : 'bg-white h-16 text-slate-800 border border-slate-300'}`}
+                      style={{ animationDelay: `${i * 20}ms` }}>
+                      <span className="text-[7px] font-mono">{k.note}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Sound Effects */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔊 Effects</span>
+                <div className="grid grid-cols-5 gap-1 mt-1.5">
+                  {effects.slice(0, 10).map((e: { id: string; name: string; icon: string }, i: number) => (
+                    <button key={i} onClick={() => { try { playSoundEffect(e.id) } catch(err) {} toast({ title: `${e.icon} ${e.name}` }) }}
+                      className="bg-slate-800 hover:bg-slate-700 rounded-lg p-1.5 text-center transition-all active:scale-90 r53-effect-btn" style={{ animationDelay: `${i * 30}ms` }}>
+                      <div className="text-sm">{e.icon}</div>
+                      <div className="text-[6px] text-slate-500 mt-0.5">{e.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Beat Patterns */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🥁 Beats</span>
+                <div className="grid grid-cols-4 gap-1.5 mt-1.5">
+                  {beats.slice(0, 4).map((b: { id: string; name: string; icon: string }, i: number) => (
+                    <button key={i} onClick={() => { try { playBeat(b.id) } catch(err) {} toast({ title: `${b.icon} ${b.name}` }) }}
+                      className="bg-slate-800 hover:bg-slate-700 rounded-lg px-2 py-1.5 text-center transition-all active:scale-95 r53-beat-btn" style={{ animationDelay: `${i * 60}ms` }}>
+                      <span className="text-sm">{b.icon}</span>
+                      <span className="text-[8px] text-slate-400 ml-1">{b.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { try { stopAllSounds() } catch(e) {} toast({ title: 'All sounds stopped' }) }}
+                  className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  ⏹ Stop All
+                </button>
+                <button onClick={() => { const v = getMixerState().master || 0.7; sbSetMasterVolume(v < 0.5 ? 1 : 0.3); toast({ title: 'Volume toggled' }) }}
+                  className="flex-1 px-3 py-2 bg-pink-700 hover:bg-pink-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  🔊 Toggle Vol
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 53: Mission System Panel */}
+      {showMissionPanel && mounted && (() => {
+        const overview = getMissionOverview()
+        const active = getActiveMissions()
+        const available = getAvailableMissions().slice(0, 6)
+        const chains = getMissionChains()
+        const catProgress = getCategoryProgress()
+        const streak = getStreakData()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMissionPanel(false)}>
+            <div className="bg-slate-900 border border-emerald-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 mission-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-emerald-300 text-lg font-bold">📋 Mission System</span>
+                <button onClick={() => setShowMissionPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Active', value: `${active.length}/5`, color: 'text-emerald-400' },
+                  { label: 'Done', value: getMissionStats().completed, color: 'text-blue-400' },
+                  { label: 'Streak', value: `${streak.current}🔥`, color: 'text-orange-400' },
+                  { label: 'Rate', value: `${Math.round(getMissionSuccessRate() * 100)}%`, color: 'text-violet-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r53-mission-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Active Missions */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">⚡ Active Missions</span>
+                <div className="mt-1.5 space-y-1.5">
+                  {active.slice(0, 5).map((m: { id: string; title: string; description: string; progress: number; target: number; difficulty: string; category: string; rewards: Array<{ type: string; amount: number }> }, i: number) => {
+                    const pct = Math.min(100, Math.round((m.progress / m.target) * 100))
+                    const diffColors: Record<string, string> = { Easy: 'text-slate-400', Medium: 'text-emerald-400', Hard: 'text-amber-400', Epic: 'text-violet-400', Legendary: 'text-yellow-400' }
+                    return (
+                      <div key={i} className="bg-slate-800 rounded-lg p-2.5 r53-active-mission" style={{ animationDelay: `${i * 80}ms` }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] text-white">{m.title}</span>
+                          <span className={`text-[8px] font-bold ${diffColors[m.difficulty] || 'text-slate-500'}`}>{m.difficulty}</span>
+                        </div>
+                        <div className="text-[8px] text-slate-500 mb-1.5">{m.description}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-slate-700 rounded-full h-1.5">
+                            <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-1.5 rounded-full r53-mission-fill" style={{ width: `${pct}%` }}></div>
+                          </div>
+                          <span className="text-[8px] text-slate-400">{pct}%</span>
+                        </div>
+                        <div className="flex gap-1 mt-1">
+                          {m.rewards?.slice(0, 3).map((r: { type: string; amount: number }, ri: number) => (
+                            <span key={ri} className="text-[7px] bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded">+{r.amount} {r.type}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                  {active.length === 0 && <div className="text-[10px] text-slate-600 text-center py-2">No active missions</div>}
+                </div>
+              </div>
+              {/* Available Missions */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📥 Available</span>
+                <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                  {available.slice(0, 6).map((m: { id: string; title: string; difficulty: string; rewards: Array<{ amount: number }> }, i: number) => (
+                    <button key={i} onClick={() => { acceptMission(m.id); toast({ title: `Mission accepted!` }) }}
+                      className="bg-slate-800 hover:bg-slate-700 rounded-lg px-2 py-1.5 text-left transition-all active:scale-95 r53-available-mission" style={{ animationDelay: `${i * 40}ms` }}>
+                      <div className="text-[9px] text-slate-300">{m.title}</div>
+                      <div className="text-[7px] text-slate-500">{m.difficulty} · +{m.rewards?.[0]?.amount || 0} coins</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Mission Chains */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🔗 Chains</span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {chains.slice(0, 5).map((c: { id: string; name: string; icon: string; progress: number }, i: number) => (
+                    <span key={i} className="text-[9px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-lg r53-chain-item" style={{ animationDelay: `${i * 60}ms` }}>
+                      {c.icon} {c.name} <span className="text-emerald-400">{c.progress}%</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { refreshDailyMissions(); toast({ title: 'Daily missions refreshed!' }) }}
+                  className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  🔄 Refresh Daily
+                </button>
+                <button onClick={() => { const recs = getRecommendedMissions(3); toast({ title: `${recs.length} missions recommended` }) }}
+                  className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  💡 Suggest
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 53: Emote System Panel */}
+      {showEmotePanel && mounted && (() => {
+        const overview = getEmoteSystemOverview()
+        const categories = emoteGetCategories()
+        const quickEmotes = getQuickEmotes()
+        const packs = getEmotePacks()
+        const mostUsed = getMostUsedEmotes(5)
+        const recent = getRecentEmotes(8)
+        const unlockPct = getEmoteUnlockProgress()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEmotePanel(false)}>
+            <div className="bg-slate-900 border border-cyan-700/50 rounded-xl shadow-2xl w-[540px] max-h-[85vh] overflow-y-auto p-5 emote-panel" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-cyan-300 text-lg font-bold">😀 Emote System</span>
+                <button onClick={() => setShowEmotePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Unlocked', value: `${unlockPct}%`, color: 'text-cyan-400' },
+                  { label: 'Total', value: getEmotes().length, color: 'text-violet-400' },
+                  { label: 'Packs', value: packs.length, color: 'text-amber-400' },
+                  { label: 'Combos', value: '3', color: 'text-emerald-400' },
+                ].map((s, i) => (
+                  <div key={i} className={`bg-slate-800 rounded-lg p-2 text-center r53-emote-stat`} style={{ animationDelay: `${i * 80}ms` }}>
+                    <div className={`text-base font-bold ${s.color}`}>{s.value}</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Quick Emote Bar */}
+              <div className="mb-4 p-2.5 bg-slate-800 rounded-lg">
+                <span className="text-slate-400 text-[9px] font-semibold uppercase tracking-wider">⚡ Quick Bar</span>
+                <div className="flex gap-2 mt-1.5">
+                  {quickEmotes.map((e: { id: string; emoji: string; name: string }, i: number) => (
+                    <div key={i} onClick={() => { playEmote(e.id); toast({ title: `${e.emoji} ${e.name}` }) }}
+                      className="flex-1 aspect-square bg-slate-700 hover:bg-slate-600 rounded-lg flex items-center justify-center text-2xl cursor-pointer transition-all active:scale-90 r53-quick-emote" style={{ animationDelay: `${i * 50}ms` }}>
+                      {e.emoji}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Category Emotes */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">🎭 Emotes by Category</span>
+                <div className="space-y-2 mt-1.5">
+                  {categories.slice(0, 6).map((cat: { id: string; name: string; icon: string; color: string }, ci: number) => {
+                    const emotesInCat = getEmotesByCategory(cat.id).slice(0, 8)
+                    return (
+                      <div key={ci}>
+                        <div className="text-[9px] font-semibold mb-1" style={{ color: cat.color }}>{cat.icon} {cat.name}</div>
+                        <div className="flex gap-1">
+                          {emotesInCat.map((e: { id: string; emoji: string; unlocked: boolean }, ei: number) => (
+                            <div key={ei} onClick={() => { if (e.unlocked) { playEmote(e.id); toast({ title: e.emoji }) } }}
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center text-base cursor-pointer transition-all r53-emote-item ${e.unlocked ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-900 opacity-30'}`}
+                              style={{ animationDelay: `${(ci * 8 + ei) * 20}ms` }}>
+                              {e.unlocked ? e.emoji : '🔒'}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {/* Emote Packs */}
+              <div className="mb-4">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📦 Packs</span>
+                <div className="grid grid-cols-3 gap-1.5 mt-1.5">
+                  {packs.map((p: { id: string; name: string; icon: string; progress: number; price: number }, i: number) => (
+                    <div key={i} className="bg-slate-800 rounded-lg p-2 text-center r53-pack-item" style={{ animationDelay: `${i * 60}ms` }}>
+                      <div className="text-lg">{p.icon}</div>
+                      <div className="text-[8px] text-slate-400">{p.name}</div>
+                      <div className="w-full bg-slate-700 rounded-full h-1 mt-1">
+                        <div className="bg-cyan-500 h-1 rounded-full r53-pack-fill" style={{ width: `${p.progress}%` }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Most Used */}
+              <div className="mb-3">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">📊 Most Used</span>
+                <div className="flex gap-1.5 mt-1.5">
+                  {mostUsed.map((e: { id: string; emoji: string; count: number }, i: number) => (
+                    <span key={i} className="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full r53-used-item" style={{ animationDelay: `${i * 40}ms` }}>
+                      {e.emoji} ×{e.count}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button onClick={() => { unlockEmote('random'); toast({ title: 'Random emote unlocked!' }) }}
+                  className="flex-1 px-3 py-2 bg-cyan-700 hover:bg-cyan-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  🎲 Random Unlock
+                </button>
+                <button onClick={() => { const combo = getActiveComboEffect(); toast({ title: combo ? `Combo: ${combo.name}` : 'No active combo' }) }}
+                  className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r53-action-btn">
+                  ✨ Check Combo
                 </button>
               </div>
             </div>
