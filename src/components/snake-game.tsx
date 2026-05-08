@@ -181,10 +181,14 @@ import { initLeaderboard, getLeaderboardData, getGlobalRankings, getPlayerRank, 
 import { initSoundBoard, playNote, getAvailableInstruments, getCurrentInstrument, selectInstrument, startRecording as sbStartRecording, stopRecording as sbStopRecording, playRecording, saveMelody, deleteMelody, getMelodyLibrary, getPresetMelodies, getMelodyStats, playSoundEffect, getSoundEffects, getSoundBoardStats, getMixerState, setChannelVolume, setMasterVolume as sbSetMasterVolume, getTempo, setTempo, getBeatPatterns, playBeat, stopAllSounds, getRecentMelodies, generateShareCode as sbGenShareCode, importMelody as sbImportMelody, getSoundBoardOverview, getInstrumentGrid, getPianoKeys, getEffectsGrid, getMelodyCard } from '@/lib/soundboard-wire'
 import { initMissionSystem, getMissions, getActiveMissions, getAvailableMissions, getCompletedMissions, acceptMission, cancelMission, updateMissionProgress, completeMission, claimMissionReward, getMissionProgress, getMissionRewards, getMissionsByCategory, getMissionsByDifficulty, getMissionChains, getChainProgress, getNextInChain, getMissionStats, getDailyMissions, getWeeklyMissions, getBonusObjectives, completeBonusObjective, getTotalRewardsEarned, getMissionSuccessRate, getMostCompletedCategory, getStreakData, getMissionHistory, refreshDailyMissions, getRecommendedMissions, getMissionOverview, getMissionCard, getCategoryProgress, getActiveMissionSlots, getRewardSummary, getMissionTimeline } from '@/lib/mission-system-wire'
 import { initEmoteSystem, getEmotes, getUnlockedEmotes, getLockedEmotes, unlockEmote, getEmote, getEmotesByCategory, getCategories as emoteGetCategories, playEmote, getQuickEmotes, setQuickEmote, getRecentEmotes, getEmoteHistory, getEmoteStats, getMostUsedEmotes, getLeastUsedEmotes, getFavoriteEmote, getEmoteAnimation, getEmotePack, getEmotePacks, getPackProgress, unlockPack, checkEmoteCombo, getActiveComboEffect, getEmoteUnlockProgress, getEmoteSystemOverview, getEmoteGrid, getEmoteCard, getEmoteStatsGrid, getQuickEmoteBar, suggestEmote } from '@/lib/emote-system-wire'
-import { initWordAnalytics, getWordPerformanceData, getWordStats as waGetWordStats, getWordFrequency as waGetWordFrequency, getWordLengthDistribution, getDifficultyBreakdown, getCategoryPerformance as waGetCategoryPerformance, getTimeBasedTrends, getLearningCurve, getVocabularyGrowth, getWordPatterns, getWeakWords, getStrongWords, getWordInsights, getAverageWordLength, getLongestStreak as waGetLongestStreak, getWordAccuracy, getCommonMistakes, getImprovementAreas as waGetImprovementAreas, getWordTimeline, getWeeklyReport as waGetWeeklyReport, getMonthlyReport, getAnalyticsOverview, getPerformanceCard, getGrowthChart, getWordCloud as waGetWordCloud, getDistributionGrid, getInsightCard, getTrendChart, getWeaknessCard, getSummaryCard as waGetSummaryCard } from '@/lib/word-analytics-wire'
-import { initColorStudio, getPalettes, getCurrentPalette, selectPalette, createPalette, deletePalette, exportPalette, importPalette, getPaletteHistory, getRandomPalette, getSimilarPalettes, getColorStats, getMostUsedPalette, getPalettePreview, getActiveColorMode, setColorMode, getGradients, createGradient, getGradientPreview, getThemeColors, applyPalette as csApplyPalette, getColorOverview, getPaletteGrid, getPaletteCard, getGradientCard, getColorStatsGrid, getMoodPalettes, suggestPalette, saveCustomColor, getCustomColors, getComplementaryColor, getShade, getTint, hexToRgb, rgbToHex } from '@/lib/color-studio-wire'
+import { initWordAnalytics, getWordPerformanceData, waGetWordStats, getWordFrequency as waGetWordFrequency, getWordLengthDistribution, getDifficultyBreakdown, getCategoryPerformance as waGetCategoryPerformance, getTimeBasedTrends, getLearningCurve, getVocabularyGrowth, getWordPatterns, getWeakWords, getStrongWords, getWordInsights, getAverageWordLength, getLongestStreak as waGetLongestStreak, getWordAccuracy, getCommonMistakes, getImprovementAreas as waGetImprovementAreas, getWordTimeline, getWeeklyReport as waGetWeeklyReport, getMonthlyReport, getAnalyticsOverview, getPerformanceCard, getGrowthChart, getWordCloud as waGetWordCloud, getDistributionGrid, getInsightCard, getTrendChart, getWeaknessCard, getSummaryCard as waGetSummaryCard } from '@/lib/word-analytics-wire'
+import { initColorStudio, getPalettes, getCurrentPalette, selectPalette, createPalette, deletePalette, exportPalette, importPalette, getPaletteHistory, getRandomPalette, getSimilarPalettes, getColorStats, getMostUsedPalette, getPalettePreview, getActiveColorMode, setColorMode, getGradients, createGradient, getGradientPreview, getThemeColors, applyPalette as csApplyPalette, getColorOverview, getPaletteGrid, getPaletteCard, getGradientCard, getColorStatsGrid, getMoodPalettes, suggestPalette, saveCustomColor, getCustomColors, getComplementaryColor, getShade, getTint, hexToRgb as csHexToRgb, rgbToHex as csRgbToHex } from '@/lib/color-studio-wire'
 import { initAvatarCustomizer, getParts, getPartOptions, getCurrentAvatarData, setPart, getRandomizeAvatar, getPresetAvatars, applyPreset as avApplyPreset, saveOutfit, loadOutfit, deleteOutfit, getOutfits, generateShareCode as avGenShareCode, importAvatarCode, getAvatarStats, getMostUsedPart, getAvatarHistory, getAvatarOverview, getAvatarCard, getPartGrid, getActiveSlot, getAvatarPreview, getColorForPart, setColorForPart, getColors, unlockPart, isPartUnlocked, getUnlockProgress, getFullAvatar, resetAvatar, getPartCounts, getRarityForPart, getAvatarGallery, getCollectionProgress as avGetCollectionProgress, suggestAvatar, getAvatarBanner } from '@/lib/avatar-customizer-wire'
 import { initTeamSystem, getTeams, createTeam, joinTeam, leaveTeam, disbandTeam, getMyTeam, getTeamMembers, addMember, removeMember, setMemberRole, getTeamStats, getTeamLeaderboard, getTeamRank, getTeamChat, sendTeamMessage, getTeamActivity, getTeamAchievements, getTeamAchievementProgress, getTeamOverview, getTeamCard, getMemberGrid, getTeamComparison, getTeamInvites, acceptInvite, declineInvite, getTeamSettings, updateTeamName, updateTeamAvatar, getTeamBanner as tmGetTeamBanner, getTeamRoster, getTeamPerformance, getTeamGoals, getTeamMilestones, getRecommendedTeams } from '@/lib/team-system-wire'
+import { doInitBingoSystem as initBingoSystem, doGenerateCard as generateCard, doShuffleCard as shuffleCard, doMarkWord as markWord, doCheckBingo as checkBingo, doUnmarkWord as unmarkWord, doGetAutoMarkHint as autoMarkHint, doStartGame as startGame, doEndGame as endGame, doResetGame as resetGame, getBingoOverview, getBingoCard, getPatternGrid, getActiveGameCard, getDailyBingoCard, getStatsGrid as bgGetStatsGrid, getHistoryList, getAchievementGrid as bgGetAchievementGrid, getSuggestedWords, getWordFrequency as bgGetWordFrequency, getDifficultyLabel as bgGetDifficultyLabel, calculateScore, formatGameTime, isGameActive, getPatternProgressMap, getRemainingCellCount } from '@/lib/word-bingo-wire'
+import { getMapData, getViewportBounds, getZoomLevels, setZoom, zoomIn, zoomOut, pan, centerOn, centerOnSnake, fitToContent, addMarker, removeMarker, updateMarker, getMarkerCount, addWaypoint, removeWaypoint, getNextWaypoint, getWaypointRoute, clearWaypoints, updateSnakePosition, getSnakeTrail, getSnakeHeatmap, revealCell, getRevealedPercentage, setRevealRadius, addBookmark, removeBookmark, getVisitedHeatmap, getOptimalPath, getMiniMapOverview, getMapGrid, getStatsGrid as mmGetStatsGrid, getZoneOverlay, getMinimapSettings } from '@/lib/mini-map-wire'
+import { gatherMaterial, spendMaterial, getMaterialById, getMaterialsByRarity, unlockRecipe, getAvailableRecipes, canCraft as pfCanCraft, queueCraft, removeFromQueue, reorderQueue, processQueue, getQueueStatus, getEstimatedCompletion, combinePowerUp, usePowerUp as pfActivatePowerUp, equipPowerUp, unequipPowerUp, getEquippedEffects, getActiveBuffs, generateDailyDeals, purchaseDeal, getDealTimer, activateBlueprint, getBlueprintProgress, getFactoryOverview, getMaterialGrid, getRecipeGrid, getProductionQueueUI, getEquippedSlots, getCombinePreview, getBlueprintGallery, getRarityDistribution as pfGetRarityDistribution, getFactoryLevelCard, getXPToNextLevel } from '@/lib/powerup-factory-wire'
+import { initDailyFortune, crackCookie, getFortuneEffect, generateLuckyNumbers, generateLuckyWords, getLuckyBonus, selectZodiacSign, getTodayReading, getHoroscopeCompatibility, getWisdomInsight, shareWisdom, drawDailyTarot, castRunes, checkFortuneStreak, getAllZodiacSigns, getAllTarotCards, getAllRunes, getFortuneHistory, getFortuneOverview, getFortuneCookieCard, getLuckyDisplay, getHoroscopeCard, getWisdomCard, getTarotSpread, getRuneCasting, getFortuneScoreCard, getStreakCard as dfGetStreakCard, getAchievementGrid as dfGetAchievementGrid, getHistoryTimeline, getCollectionProgress as dfGetCollectionProgress, getMoodIndicator, getShareCode, resetFortuneData } from '@/lib/daily-fortune-wire'
 import {
   Play,
   RotateCcw,
@@ -980,6 +984,11 @@ export default function SnakeGame() {
   const [showColorStudioPanel, setShowColorStudioPanel] = useState(false)
   const [showAvatarCustomPanel, setShowAvatarCustomPanel] = useState(false)
   const [showTeamPanel, setShowTeamPanel] = useState(false)
+  // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
+  const [showBingoPanel, setShowBingoPanel] = useState(false)
+  const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
+  const [showFactoryPanel, setShowFactoryPanel] = useState(false)
+  const [showFortunePanel, setShowFortunePanel] = useState(false)
   // Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config panel states
   const [showTournamentPanel, setShowTournamentPanel] = useState(false)
   const [showPuzzlePanel, setShowPuzzlePanel] = useState(false)
@@ -8036,6 +8045,42 @@ export default function SnakeGame() {
                     >
                       👥 Team
                     </Button>
+                    {/* Round 55: Word Bingo Button */}
+                    <Button
+                      onClick={() => setShowBingoPanel(!showBingoPanel)}
+                      variant="outline"
+                      className="border-amber-500/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform bingo-btn"
+                      title="Word Bingo"
+                    >
+                      🎲 Bingo
+                    </Button>
+                    {/* Round 55: Mini Map Button */}
+                    <Button
+                      onClick={() => setShowMiniMapPanel(!showMiniMapPanel)}
+                      variant="outline"
+                      className="border-lime-500/50 text-lime-400 hover:bg-lime-900/20 active:scale-95 transition-transform minimap-btn"
+                      title="Mini Map"
+                    >
+                      🗺️ Map
+                    </Button>
+                    {/* Round 55: Power-Up Factory Button */}
+                    <Button
+                      onClick={() => setShowFactoryPanel(!showFactoryPanel)}
+                      variant="outline"
+                      className="border-fuchsia-500/50 text-fuchsia-400 hover:bg-fuchsia-900/20 active:scale-95 transition-transform factory-btn"
+                      title="Power-Up Factory"
+                    >
+                      ⚡ Factory
+                    </Button>
+                    {/* Round 55: Daily Fortune Button */}
+                    <Button
+                      onClick={() => setShowFortunePanel(!showFortunePanel)}
+                      variant="outline"
+                      className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-900/20 active:scale-95 transition-transform fortune-btn"
+                      title="Daily Fortune"
+                    >
+                      🔮 Fortune
+                    </Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -13522,9 +13567,335 @@ export default function SnakeGame() {
               )}
               <div className="flex gap-2">
                 {!myTeam && <button onClick={() => { createTeam('Team-' + Math.random().toString(36).slice(2, 8)); toast({ title: 'Team created!' }) }} className="flex-1 px-3 py-2 bg-teal-700 hover:bg-teal-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">➕ Create Team</button>}
-                <button onClick={() => { const teams = getTeams(); if (teams.length > 0) { joinTeam(teams[0].id); toast({ title: 'Joined!' }) } else { toast({ title: 'No teams available' }) }} className="flex-1 px-3 py-2 bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">🔍 Find Team</button>
+                <button onClick={() => { const teams = getTeams(); if (teams.length > 0) { joinTeam(teams[0].id); toast({ title: 'Joined!' }) } else { toast({ title: 'No teams available' }) }}} className="flex-1 px-3 py-2 bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">🔍 Find Team</button>
                 {myTeam && <button onClick={() => { sendTeamMessage('Go team! 💪'); toast({ title: 'Message sent!' }) }} className="flex-1 px-3 py-2 bg-violet-700 hover:bg-violet-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r54-action-btn">💬 Chat</button>}
               </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 55: Word Bingo Panel */}
+      {showBingoPanel && mounted && (() => {
+        const overview = getBingoOverview()
+        const activeGame = isGameActive()
+        const stats = bgGetStatsGrid()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBingoPanel(false)}>
+            <div className="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-amber-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-amber-400 font-bold text-sm flex items-center gap-2">🎲 Word Bingo</h2>
+                <button onClick={() => setShowBingoPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {stats.map((s: { label: string; value: string; color: string }, i: number) => (
+                  <div key={i} className="bg-slate-800/80 rounded-lg p-2 text-center r55-bingo-stat" style={{ animationDelay: `${i * 60}ms` }}>
+                    <div className="text-[9px] text-slate-400 uppercase tracking-wider">{s.label}</div>
+                    <div className="text-sm font-bold" style={{ color: s.color }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              {!activeGame && (
+                <div className="mb-3 p-3 bg-slate-800 rounded-lg text-center">
+                  <div className="text-2xl mb-1">🎰</div>
+                  <div className="text-slate-300 text-xs mb-2">Start a new Bingo game!</div>
+                  <div className="flex gap-2 justify-center">
+                    <button onClick={() => { generateCard('Easy'); startGame(); toast({ title: 'Easy Bingo started!' }) }} className="px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">Easy</button>
+                    <button onClick={() => { generateCard('Medium'); startGame(); toast({ title: 'Medium Bingo started!' }) }} className="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">Medium</button>
+                    <button onClick={() => { generateCard('Hard'); startGame(); toast({ title: 'Hard Bingo started!' }) }} className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">Hard</button>
+                  </div>
+                </div>
+              )}
+              {activeGame && (() => {
+                const card = getActiveGameCard()
+                const patterns = getPatternGrid()
+                const remaining = getRemainingCellCount()
+                return (
+                  <>
+                    <div className="mb-3 text-center">
+                      <span className="text-[10px] text-amber-300 bg-amber-900/40 px-2 py-0.5 rounded-full">{remaining} cells remaining</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-1 mb-3">
+                      {card.cells.map((cell: { word: string; marked: boolean; isFree: boolean }, i: number) => (
+                        <button key={i} onClick={() => { if (!cell.marked && !cell.isFree) { markWord(cell.word); toast({ title: `Marked: ${cell.word}` }) } }} className={`aspect-square rounded-lg text-[8px] font-bold flex items-center justify-center transition-all r55-bingo-cell ${cell.isFree ? 'bg-amber-600 text-white' : cell.marked ? 'bg-amber-700/80 text-amber-100 scale-95' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`} style={{ animationDelay: `${i * 30}ms` }}>
+                          {cell.isFree ? '⭐' : cell.word}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mb-3">
+                      <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Bingo Patterns</div>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {patterns.slice(0, 6).map((p: { name: string; completed: boolean; progress: number; reward: string }, i: number) => (
+                          <div key={i} className={`rounded-lg p-1.5 text-center r55-pattern-item ${p.completed ? 'bg-amber-700/60 border border-amber-500/50' : 'bg-slate-800'}`} style={{ animationDelay: `${i * 50}ms` }}>
+                            <div className="text-[8px] text-slate-300">{p.name}</div>
+                            <div className="text-[7px] text-amber-400">{p.progress}%</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => { const hint = autoMarkHint(); if (hint) toast({ title: `Try: ${hint}` }) }} className="flex-1 px-3 py-2 bg-sky-700 hover:bg-sky-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">💡 Hint</button>
+                      <button onClick={() => { endGame(); toast({ title: 'Game ended!' }) }} className="flex-1 px-3 py-2 bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🛑 End</button>
+                    </div>
+                  </>
+                )
+              })()}
+              <div className="mt-3 p-2 bg-slate-800/60 rounded-lg">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Recent Games</div>
+                {getHistoryList().slice(0, 3).map((h: { score: string; pattern: string; time: string }, i: number) => (
+                  <div key={i} className="flex justify-between items-center py-1 border-b border-slate-700/50 last:border-0 r55-history-item" style={{ animationDelay: `${i * 40}ms` }}>
+                    <span className="text-[9px] text-slate-300">{h.pattern}</span>
+                    <span className="text-[9px] text-amber-400 font-semibold">{h.score}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 55: Mini Map Panel */}
+      {showMiniMapPanel && mounted && (() => {
+        const overview = getMiniMapOverview()
+        const mapData = getMapData()
+        const zoneData = getZoneOverlay()
+        const stats = mmGetStatsGrid()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMiniMapPanel(false)}>
+            <div className="bg-slate-900 border border-lime-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-lime-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lime-400 font-bold text-sm flex items-center gap-2">🗺️ Mini Map</h2>
+                <button onClick={() => setShowMiniMapPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {stats.map((s: { label: string; value: string; color: string }, i: number) => (
+                  <div key={i} className="bg-slate-800/80 rounded-lg p-2 text-center r55-map-stat" style={{ animationDelay: `${i * 60}ms` }}>
+                    <div className="text-[9px] text-slate-400 uppercase tracking-wider">{s.label}</div>
+                    <div className="text-sm font-bold" style={{ color: s.color }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Map View</div>
+                <div className="bg-slate-800 rounded-lg p-2 relative" style={{ minHeight: 140 }}>
+                  <div className="grid grid-cols-10 gap-px">
+                    {getMapGrid().slice(0, 100).map((cell: { x: number; y: number; zone: string; visited: boolean; revealed: boolean }, i: number) => (
+                      <div key={i} className={`aspect-square rounded-sm text-[5px] flex items-center justify-center r55-map-cell ${cell.revealed ? (cell.visited ? 'bg-lime-700/60' : 'bg-slate-600/60') : 'bg-slate-900/80'}`} style={{ animationDelay: `${i * 8}ms`, backgroundColor: cell.revealed && !cell.visited ? zoneData.find((z: { name: string }) => z.name === cell.zone)?.color || '#334155' : undefined }}>
+                        {cell.visited ? '●' : cell.revealed ? '○' : ''}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="absolute top-1 right-1 text-[8px] text-slate-500">Zoom: {mapData.zoomLevel}×</div>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Zones</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {zoneData.slice(0, 8).map((z: { name: string; emoji: string; color: string; multiplier: number; explored: number }, i: number) => (
+                    <div key={i} className="bg-slate-800 rounded-lg p-2 flex items-center gap-2 r55-zone-item" style={{ animationDelay: `${i * 50}ms` }}>
+                      <span className="text-sm">{z.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[9px] text-slate-300 truncate">{z.name}</div>
+                        <div className="text-[8px] text-lime-400">×{z.multiplier} · {z.explored}%</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Controls</div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  <button onClick={() => { zoomIn(); toast({ title: `Zoom: ${getMapData().zoomLevel}×` }) }} className="px-2 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🔍+</button>
+                  <button onClick={() => { zoomOut(); toast({ title: `Zoom: ${getMapData().zoomLevel}×` }) }} className="px-2 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🔍−</button>
+                  <button onClick={() => { centerOnSnake(); toast({ title: 'Centered on snake!' }) }} className="px-2 py-1.5 bg-lime-700 hover:bg-lime-600 text-white text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🎯</button>
+                  <button onClick={() => { fitToContent(); toast({ title: 'Fit to content!' }) }} className="px-2 py-1.5 bg-lime-700 hover:bg-lime-600 text-white text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">📐</button>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { addBookmark(Math.round(mapData.panX), Math.round(mapData.panY), 'Bookmark-' + Date.now().toString(36).slice(-4), '📍'); toast({ title: 'Bookmark added!' }) }} className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">📍 Mark</button>
+                <button onClick={() => { clearWaypoints(); toast({ title: 'Waypoints cleared!' }) }} className="flex-1 px-3 py-2 bg-rose-700 hover:bg-rose-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🗑️ Clear</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 55: Power-Up Factory Panel */}
+      {showFactoryPanel && mounted && (() => {
+        const overview = getFactoryOverview()
+        const materials = getMaterialGrid()
+        const recipes = getRecipeGrid()
+        const queue = getProductionQueueUI()
+        const levelCard = getFactoryLevelCard()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFactoryPanel(false)}>
+            <div className="bg-slate-900 border border-fuchsia-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-fuchsia-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-fuchsia-400 font-bold text-sm flex items-center gap-2">⚡ Power-Up Factory</h2>
+                <button onClick={() => setShowFactoryPanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r55-factory-stat">
+                  <div className="text-[8px] text-slate-400">Level</div>
+                  <div className="text-sm font-bold text-fuchsia-400">{levelCard.level}</div>
+                  <div className="w-full h-1 bg-slate-700 rounded-full mt-1"><div className="h-full bg-fuchsia-500 rounded-full" style={{ width: `${levelCard.xpPercent}%` }} /></div>
+                </div>
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r55-factory-stat">
+                  <div className="text-[8px] text-slate-400">Materials</div>
+                  <div className="text-sm font-bold text-emerald-400">{materials.length}</div>
+                </div>
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r55-factory-stat">
+                  <div className="text-[8px] text-slate-400">Recipes</div>
+                  <div className="text-sm font-bold text-amber-400">{recipes.filter((r: { unlocked: boolean }) => r.unlocked).length}</div>
+                </div>
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r55-factory-stat">
+                  <div className="text-[8px] text-slate-400">Queue</div>
+                  <div className="text-sm font-bold text-sky-400">{queue.length}</div>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Materials</div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {materials.slice(0, 8).map((m: { name: string; icon: string; quantity: number; rarity: string; color: string }, i: number) => (
+                    <div key={i} className="bg-slate-800 rounded-lg p-1.5 text-center r55-material-item" style={{ animationDelay: `${i * 40}ms` }}>
+                      <div className="text-base">{m.icon}</div>
+                      <div className="text-[7px] text-slate-300 truncate">{m.name}</div>
+                      <div className="text-[8px] font-bold" style={{ color: m.color }}>{m.quantity}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Recipes</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {recipes.slice(0, 6).map((r: { name: string; icon: string; rarity: string; color: string; unlocked: boolean; canCraft: boolean }, i: number) => (
+                    <button key={i} onClick={() => { if (r.unlocked && r.canCraft) { queueCraft(r.name); toast({ title: `Crafting: ${r.name}!` }) } else if (!r.unlocked) { toast({ title: 'Recipe locked!' }) } else { toast({ title: 'Not enough materials!' }) } }} className={`rounded-lg p-2 text-left transition-all r55-recipe-item ${r.unlocked && r.canCraft ? 'bg-fuchsia-900/30 hover:bg-fuchsia-800/40 border border-fuchsia-500/30' : 'bg-slate-800 opacity-60'}`} style={{ animationDelay: `${i * 50}ms` }}>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{r.icon}</span>
+                        <div className="min-w-0">
+                          <div className="text-[9px] font-semibold truncate" style={{ color: r.color }}>{r.name}</div>
+                          <div className="text-[7px] text-slate-400">{r.rarity}</div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {queue.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Production Queue</div>
+                  {queue.slice(0, 3).map((q: { name: string; icon: string; progress: number; eta: string }, i: number) => (
+                    <div key={i} className="mb-1.5 bg-slate-800 rounded-lg p-2 r55-queue-item" style={{ animationDelay: `${i * 60}ms` }}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[9px] text-slate-300">{q.icon} {q.name}</span>
+                        <span className="text-[8px] text-fuchsia-400">{q.eta}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-700 rounded-full"><div className="h-full bg-fuchsia-500 rounded-full transition-all r55-queue-fill" style={{ width: `${q.progress}%` }} /></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => { generateDailyDeals(); toast({ title: 'Daily deals refreshed!' }) }} className="flex-1 px-3 py-2 bg-fuchsia-700 hover:bg-fuchsia-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🛒 Deals</button>
+                <button onClick={() => { processQueue(); toast({ title: 'Queue processed!' }) }} className="flex-1 px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">⚙️ Process</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 55: Daily Fortune Panel */}
+      {showFortunePanel && mounted && (() => {
+        const overview = getFortuneOverview()
+        const mood = getMoodIndicator()
+        const lucky = getLuckyDisplay()
+        const scoreCard = getFortuneScoreCard()
+        const streak = dfGetStreakCard()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFortunePanel(false)}>
+            <div className="bg-slate-900 border border-yellow-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-yellow-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-yellow-400 font-bold text-sm flex items-center gap-2">🔮 Daily Fortune</h2>
+                <button onClick={() => setShowFortunePanel(false)} className="text-slate-400 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r55-fortune-stat">
+                  <div className="text-[9px] text-slate-400 uppercase tracking-wider">Mood</div>
+                  <div className="text-lg">{mood.emoji}</div>
+                  <div className="text-[9px] font-semibold" style={{ color: mood.color }}>{mood.label}</div>
+                </div>
+                <div className="bg-slate-800/80 rounded-lg p-2 text-center r55-fortune-stat">
+                  <div className="text-[9px] text-slate-400 uppercase tracking-wider">Luck Score</div>
+                  <div className="text-sm font-bold text-yellow-400">{scoreCard.score}/100</div>
+                  <div className="w-full h-1.5 bg-slate-700 rounded-full mt-1"><div className="h-full rounded-full transition-all r55-score-fill" style={{ width: `${scoreCard.score}%`, backgroundColor: scoreCard.color }} /></div>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Fortune Cookie</div>
+                <button onClick={() => { crackCookie(); toast({ title: 'Cookie cracked!' }) }} className="w-full p-3 bg-gradient-to-r from-yellow-900/40 to-amber-900/40 border border-yellow-500/30 rounded-xl text-center hover:border-yellow-400/50 transition-all r55-cookie-card">
+                  <div className="text-2xl mb-1">🍪</div>
+                  <div className="text-[10px] text-yellow-300 font-medium">Tap to crack your fortune cookie!</div>
+                </button>
+              </div>
+              {(() => {
+                const cookie = getFortuneCookieCard()
+                if (!cookie) return null
+                return (
+                  <div className="mb-3 p-3 bg-slate-800/80 rounded-xl border border-yellow-500/20 r55-fortune-reveal">
+                    <div className="text-[10px] font-semibold mb-1" style={{ color: cookie.color }}>{cookie.rarity}</div>
+                    <div className="text-xs text-slate-200 italic">"{cookie.message}"</div>
+                    {cookie.effect && <div className="text-[9px] text-yellow-400 mt-1">{cookie.effect}</div>}
+                  </div>
+                )
+              })()}
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Lucky Numbers & Words</div>
+                <div className="flex gap-1.5 mb-1.5 flex-wrap">
+                  {lucky.numbers.map((n: number, i: number) => (
+                    <span key={i} className="px-2 py-0.5 bg-yellow-900/40 text-yellow-300 text-[10px] font-bold rounded-full r55-lucky-num" style={{ animationDelay: `${i * 60}ms` }}>{n}</span>
+                  ))}
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {lucky.words.map((w: string, i: number) => (
+                    <span key={i} className="px-2 py-0.5 bg-amber-900/40 text-amber-300 text-[9px] font-medium rounded-full r55-lucky-word" style={{ animationDelay: `${i * 60}ms` }}>{w}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Streak</div>
+                <div className="bg-slate-800 rounded-lg p-2 flex items-center justify-between r55-streak-card">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🔥</span>
+                    <div>
+                      <div className="text-[10px] font-bold text-yellow-400">{streak.current} days</div>
+                      <div className="text-[8px] text-slate-400">Next milestone: {streak.nextMilestone}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[8px] text-slate-400">Record</div>
+                    <div className="text-[10px] font-bold text-amber-400">{streak.record}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Quick Actions</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button onClick={() => { drawDailyTarot(); toast({ title: 'Tarot drawn!' }) }} className="px-2 py-2 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🃏 Tarot</button>
+                  <button onClick={() => { castRunes(); toast({ title: 'Runes cast!' }) }} className="px-2 py-2 bg-indigo-900/40 hover:bg-indigo-800/50 text-indigo-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">🔮 Runes</button>
+                  <button onClick={() => { selectZodiacSign('Aries'); getTodayReading(); toast({ title: 'Reading ready!' }) }} className="px-2 py-2 bg-sky-900/40 hover:bg-sky-800/50 text-sky-300 text-[9px] font-semibold rounded-lg transition-all active:scale-95 r55-action-btn">⭐ Zodiac</button>
+                </div>
+              </div>
+              {(() => {
+                const horoscope = getHoroscopeCard()
+                if (!horoscope) return null
+                return (
+                  <div className="p-2 bg-slate-800/60 rounded-lg r55-horoscope-card">
+                    <div className="text-[10px] text-slate-400 font-semibold mb-1">{horoscope.sign} {horoscope.emoji}</div>
+                    <div className="grid grid-cols-4 gap-1 text-center">
+                      <div><div className="text-[7px] text-slate-400">Overall</div><div className="text-[10px]">{'⭐'.repeat(horoscope.overall)}</div></div>
+                      <div><div className="text-[7px] text-slate-400">Game</div><div className="text-[10px]">{'⭐'.repeat(horoscope.game)}</div></div>
+                      <div><div className="text-[7px] text-slate-400">Words</div><div className="text-[10px]">{'⭐'.repeat(horoscope.words)}</div></div>
+                      <div><div className="text-[7px] text-slate-400">Luck</div><div className="text-[10px]">{'⭐'.repeat(horoscope.luck)}</div></div>
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           </div>
         )

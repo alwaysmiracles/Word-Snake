@@ -6752,3 +6752,87 @@
 .emote-panel .r53-action-btn { animation: r53-action-btn 0.2s ease-out; }
 .emote-panel .r53-action-btn:active { transform: scale(0.9); }
 
+
+/* ===== Round 55: Bingo, Mini Map, Factory, Fortune CSS Animations (25 new) ===== */
+
+/* R55: Bingo stat cell entrance pop */
+@keyframes r55-bingo-stat { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Bingo cell flip entrance */
+@keyframes r55-bingo-cell { 0% { opacity: 0; transform: rotateY(90deg) scale(0.7); } 100% { opacity: 1; transform: rotateY(0deg) scale(1); } }
+/* R55: Pattern item slide in */
+@keyframes r55-pattern-item { 0% { opacity: 0; transform: translateX(-12px); } 100% { opacity: 1; transform: translateX(0); } }
+/* R55: History item slide in */
+@keyframes r55-history-item { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+/* R55: Cookie card pulse glow */
+@keyframes r55-cookie-card { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.3); } 50% { box-shadow: 0 0 16px 4px rgba(234, 179, 8, 0.15); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
+/* R55: Fortune reveal slide up */
+@keyframes r55-fortune-reveal { 0% { opacity: 0; transform: translateY(12px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+/* R55: Lucky number pop entrance */
+@keyframes r55-lucky-num { 0% { opacity: 0; transform: scale(0); } 70% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Lucky word fade slide */
+@keyframes r55-lucky-word { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+/* R55: Streak card slide in */
+@keyframes r55-streak-card { 0% { opacity: 0; transform: translateX(-16px); } 100% { opacity: 1; transform: translateX(0); } }
+/* R55: Score fill animated bar */
+@keyframes r55-score-fill { 0% { width: 0%; } 100% { width: var(--fill-width, 50%); } }
+/* R55: Horoscope card fade in */
+@keyframes r55-horoscope-card { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Map stat cell entrance pop */
+@keyframes r55-map-stat { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Map cell pulse entrance */
+@keyframes r55-map-cell { 0% { opacity: 0; transform: scale(0.3); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Zone item slide in */
+@keyframes r55-zone-item { 0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); } }
+/* R55: Factory stat cell entrance pop */
+@keyframes r55-factory-stat { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Material item bounce entrance */
+@keyframes r55-material-item { 0% { opacity: 0; transform: translateY(8px) scale(0.9); } 60% { transform: translateY(-2px) scale(1.02); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+/* R55: Recipe item slide in */
+@keyframes r55-recipe-item { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+/* R55: Queue item slide in */
+@keyframes r55-queue-item { 0% { opacity: 0; transform: translateX(10px); } 100% { opacity: 1; transform: translateX(0); } }
+/* R55: Queue fill progress bar */
+@keyframes r55-queue-fill { 0% { width: 0%; } 100% { width: var(--fill-width, 50%); } }
+/* R55: Fortune stat cell entrance */
+@keyframes r55-fortune-stat { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+/* R55: Action button press effect */
+@keyframes r55-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.93); } 100% { transform: scale(1); } }
+/* R55: Bingo glow shimmer infinite */
+@keyframes r55-bingo-shimmer { 0%, 100% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); } 50% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.5); } }
+/* R55: Map ping pulse infinite */
+@keyframes r55-map-ping { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.3); opacity: 0.3; } 100% { transform: scale(1); opacity: 0.7; } }
+/* R55: Fortune sparkle infinite */
+@keyframes r55-fortune-sparkle { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.2); } }
+
+/* R55 animation assignments */
+.bingo-panel .r55-bingo-stat { animation: r55-bingo-stat 0.25s ease-out both; }
+.bingo-panel .r55-bingo-cell { animation: r55-bingo-cell 0.3s ease-out both; }
+.bingo-panel .r55-pattern-item { animation: r55-pattern-item 0.25s ease-out both; }
+.bingo-panel .r55-history-item { animation: r55-history-item 0.2s ease-out both; }
+.bingo-panel .r55-action-btn { animation: r55-action-btn 0.2s ease-out; }
+.bingo-panel .r55-action-btn:active { transform: scale(0.9); }
+.minimap-panel .r55-map-stat { animation: r55-map-stat 0.25s ease-out both; }
+.minimap-panel .r55-map-cell { animation: r55-map-cell 0.15s ease-out both; }
+.minimap-panel .r55-zone-item { animation: r55-zone-item 0.25s ease-out both; }
+.minimap-panel .r55-action-btn { animation: r55-action-btn 0.2s ease-out; }
+.minimap-panel .r55-action-btn:active { transform: scale(0.9); }
+.factory-panel .r55-factory-stat { animation: r55-factory-stat 0.25s ease-out both; }
+.factory-panel .r55-material-item { animation: r55-material-item 0.3s ease-out both; }
+.factory-panel .r55-recipe-item { animation: r55-recipe-item 0.25s ease-out both; }
+.factory-panel .r55-queue-item { animation: r55-queue-item 0.3s ease-out both; }
+.factory-panel .r55-queue-fill { animation: r55-queue-fill 0.8s ease-out both; }
+.factory-panel .r55-action-btn { animation: r55-action-btn 0.2s ease-out; }
+.factory-panel .r55-action-btn:active { transform: scale(0.9); }
+.fortune-panel .r55-fortune-stat { animation: r55-fortune-stat 0.25s ease-out both; }
+.fortune-panel .r55-cookie-card { animation: r55-cookie-card 2s ease-in-out infinite; }
+.fortune-panel .r55-fortune-reveal { animation: r55-fortune-reveal 0.4s ease-out both; }
+.fortune-panel .r55-lucky-num { animation: r55-lucky-num 0.3s ease-out both; }
+.fortune-panel .r55-lucky-word { animation: r55-lucky-word 0.25s ease-out both; }
+.fortune-panel .r55-streak-card { animation: r55-streak-card 0.3s ease-out both; }
+.fortune-panel .r55-score-fill { animation: r55-score-fill 0.8s ease-out both; }
+.fortune-panel .r55-horoscope-card { animation: r55-horoscope-card 0.3s ease-out both; }
+.fortune-panel .r55-action-btn { animation: r55-action-btn 0.2s ease-out; }
+.fortune-panel .r55-action-btn:active { transform: scale(0.9); }
+/* R55 extra: Factory gear spin */
+@keyframes r55-gear-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.factory-panel .r55-gear-spin { animation: r55-gear-spin 3s linear infinite; }
