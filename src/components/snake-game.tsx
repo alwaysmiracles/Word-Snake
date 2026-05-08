@@ -132,6 +132,11 @@ import { createGhostCollisionWire, type GhostCollisionWire } from '@/lib/ghost-c
 import { createWordBombWire, classifyDetonation, type WordBombWire } from '@/lib/word-bomb-wire'
 import { createWordMasteryLiveTracker, type WordMasteryLiveTracker } from '@/lib/word-mastery-live-tracker'
 import { createRealtimeDashboardWire, type RealtimeDashboardWire } from '@/lib/realtime-dashboard-wire'
+// Round 43: Notification completion wire, Battle pass reward grantor, SFX volume category wire, Mastery tracker panel
+import { createNotificationCompletionWire, type NotificationCompletionWire } from '@/lib/notification-completion-wire'
+import { createBattlePassRewardGrantor, generateTierRewards, type BattlePassRewardGrantor } from '@/lib/battle-pass-reward-grantor'
+import { createSfxVolumeCategoryWire, type SfxVolumeCategoryWire } from '@/lib/sfx-volume-category-wire'
+import { createMasteryTrackerPanel, type MasteryTrackerPanel } from '@/lib/mastery-tracker-panel'
 import {
   Play,
   RotateCcw,
@@ -872,6 +877,11 @@ export default function SnakeGame() {
   const wordBombWireRef = useRef<WordBombWire>(createWordBombWire())
   const masteryTrackerRef = useRef<WordMasteryLiveTracker>(createWordMasteryLiveTracker())
   const realtimeDashboardRef = useRef<RealtimeDashboardWire>(createRealtimeDashboardWire())
+  // Round 43: Notification completion wire, Battle pass reward grantor, SFX volume category wire, Mastery tracker panel
+  const notifCompletionRef = useRef<NotificationCompletionWire>(createNotificationCompletionWire())
+  const bpRewardGrantorRef = useRef<BattlePassRewardGrantor>(createBattlePassRewardGrantor())
+  const sfxVolumeCatRef = useRef<SfxVolumeCategoryWire>(createSfxVolumeCategoryWire())
+  const masteryPanelRef = useRef<MasteryTrackerPanel>(createMasteryTrackerPanel())
   const [showEventLog, setShowEventLog] = useState(false)
   const [showMinigames, setShowMinigames] = useState(false)
   const [eventLogEntries, setEventLogEntries] = useState<Array<{id:string;type:string;level:string;message:string;emoji:string;color:string;timestamp:number}>>([])
@@ -3252,6 +3262,9 @@ export default function SnakeGame() {
     gs.speed = settings.speed
     gs.wordsEaten = 0
     gs.gameStarted = true
+    // Round 43: Game start — dashboard + SFX context
+    realtimeDashboardRef.current.pushGameStartEvent(gs.isDailyChallenge ? 'daily' : 'classic', gs.difficulty || 'medium')
+    sfxVolumeCatRef.current.setGameContext('playing')
     gs.wordFood = null
     gs.startTime = Date.now()
     gs.elapsedTime = 0
@@ -3754,6 +3767,8 @@ export default function SnakeGame() {
             const masteryNotif = masteryTrackerRef.current.recordWordEncounter(wordFood.word, wordFood.category || 'general', gs.difficulty || 'medium')
             if (masteryNotif) {
               spawnFloatingText(`${masteryNotif.emoji} ${wordFood.word} → ${masteryNotif.newLevel}!`, wx, wy - 40, masteryNotif.color)
+              // Round 43: Notification completion wire — mastery level up
+              notifCompletionRef.current.notifyMasteryLevelUp(wordFood.word, masteryNotif.oldLevel, masteryNotif.newLevel, masteryNotif.emoji)
             }
             // Round 42: Real-time dashboard — word eat event
             realtimeDashboardRef.current.pushWordEatEvent(wordFood.word, wordFood.category || 'general', points)
@@ -4026,6 +4041,10 @@ export default function SnakeGame() {
           const bhy = aiBot.snake[0].y * CELL_SIZE + CELL_SIZE / 2
           spawnParticles(bhx, bhy, '#f97316', 20)
           spawnFloatingText('🤖 Bot Down!', bhx, bhy - 20, '#f97316')
+          // Round 43: Notification — bot defeated
+          bossDefeatsRef.current += 1
+          notifCompletionRef.current.notifyBossDefeated('AI Bot', Math.min(bossDefeatsRef.current, 6))
+          sfxCompletionWireRef.current.onCollision('bot')
         } else if (botResult.ateFood) {
           // Bot ate the food — clear it so player can't eat it too
           const bwx = aiBot.snake[0].x * CELL_SIZE + CELL_SIZE / 2
@@ -4099,6 +4118,9 @@ export default function SnakeGame() {
             played: true,
             result: { completed, score: gs.score },
           }))
+          // Round 43: Notification — daily challenge completion
+          const stars = completed ? (gs.score >= gs.dailyTargetScore * 1.5 ? 3 : gs.score >= gs.dailyTargetScore * 1.2 ? 2 : 1) : 0
+          notifCompletionRef.current.notifyDailyChallengeComplete(gs.score, gs.dailyTargetScore, stars)
         }
 
         // Track game end stats
@@ -4132,6 +4154,15 @@ export default function SnakeGame() {
         const bpResult = addBattlePassXP(battlePassRef.current, gameEndXP.xpAwarded)
         if (bpResult.tierUp) {
           setBattlePassSummary(getPassSummary(battlePassRef.current))
+          // Round 43: Notification — battle pass tier up + reward granting
+          notifCompletionRef.current.notifyBattlePassTierUp(bpResult.oldTier || 0, bpResult.newTier || 1, `Tier ${bpResult.newTier}`)
+          // Grant reward via battle pass reward grantor
+          const tierRewards = generateTierRewards()
+          const tierReward = tierRewards.find(r => r.tier === bpResult.newTier && !bpRewardGrantorRef.current.isRewardGranted(`${bpResult.newTier}-free`))
+          const tierPremiumReward = tierRewards.find(r => r.tier === bpResult.newTier && !bpRewardGrantorRef.current.isRewardGranted(`${bpResult.newTier}-premium`))
+          if (tierReward) {
+            bpRewardGrantorRef.current.grantReward(tierReward)
+          }
         }
 
         // Check achievements

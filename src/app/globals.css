@@ -5438,4 +5438,84 @@
 /* 25. dashboard-history-entry — Dashboard history entry slide in */
 @keyframes dashboard-history-entry { 0%{opacity:0;transform:translateY(5px);} 100%{opacity:1;transform:translateY(0);} }
 
+/* ═══════════════════════════════════════════════════════════════
+   Round 43: 25 New CSS Animations (649 total)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. notif-boss-defeat — Boss defeat notification burst */
+@keyframes notif-boss-defeat { 0%{transform:scale(0.7);opacity:0;} 50%{transform:scale(1.15);opacity:1;} 100%{transform:scale(1);opacity:1;} }
+
+/* 2. notif-streak-milestone — Streak milestone celebration */
+@keyframes notif-streak-milestone { 0%{transform:translateY(10px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+
+/* 3. notif-album-achievement — Album achievement unlock glow */
+@keyframes notif-album-achievement { 0%{box-shadow:0 0 0 0 rgba(168,85,247,0);} 100%{box-shadow:0 0 12px 4px rgba(168,85,247,0.3);} }
+
+/* 4. notif-daily-star — Daily challenge star rating pop */
+@keyframes notif-daily-star { 0%{transform:scale(0) rotate(-180deg);opacity:0;} 60%{transform:scale(1.3) rotate(10deg);opacity:1;} 100%{transform:scale(1) rotate(0deg);opacity:1;} }
+
+/* 5. notif-mode-complete — Mode completion slide-in */
+@keyframes notif-mode-complete { 0%{transform:translateX(100%);opacity:0;} 100%{transform:translateX(0);opacity:1;} }
+
+/* 6. notif-bp-tier-up — Battle pass tier up glow */
+@keyframes notif-bp-tier-up { 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+
+/* 7. notif-mastery-up — Mastery level up sparkle */
+@keyframes notif-mastery-up { 0%{filter:brightness(1);} 30%{filter:brightness(1.5);} 100%{filter:brightness(1);} }
+
+/* 8. bp-reward-grant — Reward granted success flash */
+@keyframes bp-reward-grant { 0%{background-color:rgba(234,179,8,0.2);} 50%{background-color:rgba(234,179,8,0.4);} 100%{background-color:transparent;} }
+
+/* 9. bp-reward-locked — Locked reward subtle pulse */
+@keyframes bp-reward-locked { 0%,100%{opacity:0.4;} 50%{opacity:0.6;} }
+
+/* 10. bp-reward-rarity-common — Common reward subtle border */
+@keyframes bp-reward-rarity-common { 0%,100%{border-color:rgba(156,163,175,0.3);} 50%{border-color:rgba(156,163,175,0.6);} }
+
+/* 11. bp-reward-rarity-rare — Rare reward blue glow */
+@keyframes bp-reward-rarity-rare { 0%,100%{border-color:rgba(59,130,246,0.3);} 50%{border-color:rgba(59,130,246,0.6);} }
+
+/* 12. sfx-vol-slider-fill — Volume slider fill transition */
+@keyframes sfx-vol-slider-fill { 0%{width:var(--vol-width,50%);} 100%{width:var(--target-width,var(--vol-width,50%);} }
+
+/* 13. sfx-preset-apply — Preset applied confirmation flash */
+@keyframes sfx-preset-apply { 0%{opacity:0;transform:scale(0.95);} 50%{opacity:1;transform:scale(1.05);} 100%{opacity:1;transform:scale(1);} }
+
+/* 14. sfx-context-switch — Game context volume transition */
+@keyframes sfx-context-switch { 0%{opacity:0.7;} 100%{opacity:1;} }
+
+/* 15. sfx-master-mute — Master mute icon spin */
+@keyframes sfx-master-mute { 0%{transform:rotate(0deg);} 100%{transform:rotate(90deg);} }
+
+/* 16. mastery-panel-in — Mastery tracker panel slide-in */
+@keyframes mastery-panel-in { 0%{opacity:0;transform:translateX(10px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 17. mastery-level-bar-fill — Mastery level bar fill animation */
+@keyframes mastery-level-bar-fill { 0%{width:0;} 100%{width:var(--mastery-width,0%);} }
+
+/* 18. mastery-closest-word — Closest to level-up word highlight pulse */
+@keyframes mastery-closest-word { 0%,100%{background-color:transparent;} 50%{background-color:rgba(251,191,36,0.15);} }
+
+/* 19. mastery-recent-entry — Recent level-up entry slide */
+@keyframes mastery-recent-entry { 0%{opacity:0;transform:translateX(-8px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 20. mastery-share-btn — Share button hover glow */
+@keyframes mastery-share-btn { 0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,0);} 50%{box-shadow:0 0 10px 2px rgba(168,85,247,0.3);} }
+
+/* 21. bp-reward-preview — Reward preview hover scale */
+@keyframes bp-reward-preview { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
+
+/* 22. sfx-cat-eat-pop — Eat category volume pop */
+@keyframes sfx-cat-eat-pop { 0%{transform:scale(1);} 50%{transform:scale(1.08);} 100%{transform:scale(1);} }
+
+/* 23. sfx-cat-collision-flash — Collision category flash */
+@keyframes sfx-cat-collision-flash { 0%{background-color:rgba(239,68,68,0.1);} 50%{background-color:rgba(239,68,68,0.3);} 100%{background-color:transparent;} }
+
+/* 24. notif-debounce-dot — Debounce queue indicator dot */
+@keyframes notif-debounce-dot { 0%,100%{opacity:0.3;transform:scale(0.8);} 50%{opacity:1;transform:scale(1.2);} }
+
+/* 25. r43-btn-entrance — Staggered Round 43 button entrance */
+@keyframes r43-btn-entrance { 0%{opacity:0;transform:translateY(6px);} 100%{opacity:1;transform:translateY(0);} }
+
+
 
