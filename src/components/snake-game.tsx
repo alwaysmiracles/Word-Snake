@@ -66,6 +66,10 @@ import { shouldSpawnScramble, generateScramble, checkScrambleAnswer, getScramble
 import { getCoinBalance, addCoins, getShopItems, purchaseItem, hasItem, consumeItem, formatCoins, SHOP_ITEMS, COIN_REWARD, type CoinBalance, type ShopItem } from '@/lib/coin-shop'
 import { checkExtraAchievements, getExtraAchievementProgress, getExtraAchievementsUnlocked, EXTRA_ACHIEVEMENTS, type ExtraAchievement } from '@/lib/achievements-extra'
 import { getComboVfx, spawnComboParticles, updateComboParticles, getComboScreenShake, getComboTextConfig, getComboTrailConfig, shouldShowComboAnnouncement, resetComboAnnouncement, type ComboVfxConfig, type ComboParticle } from '@/lib/combo-vfx'
+import { HAMMER_CONFIG, shouldSpawnHammer, createHammerPowerUp, createInitialHammerState, activateHammer, isHammerActive, applyHammerOnWall, updateHammerState, drawHammerIndicator, type HammerPowerUp, type HammerState } from '@/lib/hammer-powerup'
+import { MULTILINGUAL_PACKS, getMultilingualPack, getAllMultilingualPacks, isMultilingualPackUnlocked, unlockMultilingualPack, getTotalMultilingualWords, type LanguagePack } from '@/lib/multilingual-packs'
+import { getObstacleScaling, shouldSpawnScaledObstacle, getObstacleSpeedMultiplier, getMaxScaledObstacles, getProgressTier, OBSTACLE_SCALING_PRESETS, SCALING_DESCRIPTIONS, type ObstacleScalingConfig, type GameDifficulty } from '@/lib/obstacle-difficulty-scaling'
+import { saveEventToHistory, getEventHistory, mergeWithLiveEvents, getEventFeedSettings, getEventHistoryCount, clearEventHistory, type PersistentEvent, type EventFeedSettings } from '@/lib/event-feed-persistence'
 import {
   Play,
   RotateCcw,
@@ -102,6 +106,7 @@ import {
   Music4,
   SlidersHorizontal,
   Hammer,
+  Globe,
 } from 'lucide-react'
 
 // Game constants
@@ -474,6 +479,10 @@ export default function SnakeGame() {
         aiDiffSliderRef.current = createAiDifficultySlider(5, 4)
       }
       setAiDiffLevel(aiDiffSliderRef.current.getLevel())
+      // Load multilingual packs
+      setMultilingualPacks(getAllMultilingualPacks())
+      // Load persistent event count
+      setPersistentEventCount(getEventHistoryCount())
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -559,6 +568,16 @@ export default function SnakeGame() {
   const deviceInfo = useDeviceInfo()
   // Show particle customization panel
   const [showParticlePanel, setShowParticlePanel] = useState(false)
+  // Hammer power-up state
+  const hammerStateRef = useRef<HammerState>(createInitialHammerState())
+  const hammerPowerUpRef = useRef<HammerPowerUp | null>(null)
+  const [hammerActive, setHammerActive] = useState(false)
+  // Multilingual packs state
+  const [multilingualPacks, setMultilingualPacks] = useState<ReturnType<typeof getAllMultilingualPacks>>([])
+  const [showMultilingualPanel, setShowMultilingualPanel] = useState(false)
+  // Event feed persistence
+  const gameIdRef = useRef<string>(`game-${Date.now()}`)
+  const [persistentEventCount, setPersistentEventCount] = useState(0)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -772,6 +791,10 @@ export default function SnakeGame() {
   const emitEvent = useCallback((type: string, message: string, emoji?: string, color?: string) => {
     const event = addEvent(eventFeedRef.current, { type, message, emoji, color })
     setEventFeedUpdate(n => n + 1)
+    // Persist event to history
+    try {
+      saveEventToHistory({ type, message, emoji, color, timestamp: Date.now(), gameId: gameIdRef.current })
+    } catch { /* ignore */ }
     return event
   }, [])
 
@@ -921,6 +944,10 @@ export default function SnakeGame() {
     movingObstaclesRef.current = []
     resetDestructibleWallIds()
     destructibleWallsRef.current = []
+    hammerStateRef.current = createInitialHammerState()
+    hammerPowerUpRef.current = null
+    setHammerActive(false)
+    gameIdRef.current = `game-${Date.now()}`
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     setActiveEasterEggs([])
@@ -994,6 +1021,10 @@ export default function SnakeGame() {
     movingObstaclesRef.current = []
     resetDestructibleWallIds()
     destructibleWallsRef.current = []
+    hammerStateRef.current = createInitialHammerState()
+    hammerPowerUpRef.current = null
+    setHammerActive(false)
+    gameIdRef.current = `game-${Date.now()}`
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     setActiveEasterEggs([])
@@ -2145,6 +2176,24 @@ export default function SnakeGame() {
       drawDestructibleWalls(ctx, destructibleWallsRef.current, CELL_SIZE, Date.now() / 1000)
     }
 
+    // Draw hammer power-up pickup on grid
+    if (hammerPowerUpRef.current) {
+      const hp = hammerPowerUpRef.current.position
+      const pulse = 0.8 + Math.sin(Date.now() / 200) * 0.2
+      ctx.save()
+      ctx.font = `${16 * pulse}px serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.shadowColor = HAMMER_CONFIG.color
+      ctx.shadowBlur = 8 * pulse
+      ctx.fillText(HAMMER_CONFIG.emoji, hp.x * CELL_SIZE + CELL_SIZE / 2, hp.y * CELL_SIZE + CELL_SIZE / 2)
+      ctx.shadowBlur = 0
+      ctx.restore()
+    }
+
+    // Draw hammer HUD indicator when active
+    drawHammerIndicator(ctx, hammerStateRef.current, CANVAS_WIDTH, Date.now() / 1000)
+
     // Draw easter egg confetti particles
     const eeParticles = easterEggParticlesRef.current
     for (let i = eeParticles.length - 1; i >= 0; i--) {
@@ -2875,8 +2924,16 @@ export default function SnakeGame() {
     movingObstaclesRef.current = []
     resetDestructibleWallIds()
     destructibleWallsRef.current = []
+    hammerStateRef.current = createInitialHammerState()
+    hammerPowerUpRef.current = null
+    setHammerActive(false)
+    gameIdRef.current = `game-${Date.now()}`
     resetDestructibleWallIds()
     destructibleWallsRef.current = []
+    hammerStateRef.current = createInitialHammerState()
+    hammerPowerUpRef.current = null
+    setHammerActive(false)
+    gameIdRef.current = `game-${Date.now()}`
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
     resetVisualizer()
@@ -3753,8 +3810,24 @@ export default function SnakeGame() {
       if (destructibleWallsRef.current.length > 0) {
         const hitWall = getDestructibleWallAt(head.x, head.y, destructibleWallsRef.current)
         if (hitWall) {
+          const hasHammer = isHammerActive(hammerStateRef.current)
           const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
-          if (hasShield) {
+          if (hasHammer) {
+            // Hammer breaks walls with bonus points, no bounce-back
+            const result = applyHammerOnWall(hammerStateRef.current, hitWall)
+            if (result.destroyed) {
+              destructibleWallsRef.current = destructibleWallsRef.current.filter(w => w.id !== hitWall.id)
+              gs.score += result.bonusPoints
+              addCoins(2)
+              spawnFloatingText(`${HAMMER_CONFIG.emoji} +${result.bonusPoints}`, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, HAMMER_CONFIG.color)
+              emitPresetParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, 'star')
+              emitEvent('obstacle_hit', `${HAMMER_CONFIG.emoji} Smashed ${DESTRUCTIBLE_WALL_CONFIG[hitWall.type].label}! +${result.bonusPoints}`, HAMMER_CONFIG.emoji, HAMMER_CONFIG.color)
+              if (canHaptic()) hapticFeedback('success')
+            } else {
+              spawnFloatingText(`${HAMMER_CONFIG.emoji} Hit!`, head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE - 10, HAMMER_CONFIG.color)
+              if (canHaptic()) hapticFeedback('medium')
+            }
+          } else if (hasShield) {
             // Shield breaks through destructible walls
             const destroyed = hitDestructibleWall(hitWall)
             if (destroyed) {
@@ -4213,10 +4286,6 @@ export default function SnakeGame() {
               emitEvent('obstacle_hit', `Moving obstacle appeared! (${movingObstaclesRef.current.length} active)`, '🧱', '#94a3b8')
             }
           }
-          // Update moving obstacles
-          if (movingObstaclesRef.current.length > 0) {
-            movingObstaclesRef.current = updateMovingObstacles(movingObstaclesRef.current, 1/60, Date.now() / 1000)
-          }
           // Spawn destructible walls (after eating 12 words, max 5 walls)
           if (gs.wordsEaten >= 12 && destructibleWallsRef.current.length < 5 && Math.random() < 0.002) {
             const existing = [...gs.obstacles, ...movingObstaclesRef.current.map(m => ({ x: Math.round(m.cx), y: Math.round(m.cy) })), ...destructibleWallsRef.current]
@@ -4227,7 +4296,45 @@ export default function SnakeGame() {
               emitEvent('obstacle_hit', `${DESTRUCTIBLE_WALL_CONFIG[wType].label} appeared!`, DESTRUCTIBLE_WALL_CONFIG[wType].emoji, DESTRUCTIBLE_WALL_CONFIG[wType].glowColor)
             }
           }
-          // Spawn portal pairs
+          // Spawn hammer power-up (after 15 words, no active hammer, no existing hammer pickup)
+          if (!isHammerActive(hammerStateRef.current) && !hammerPowerUpRef.current && shouldSpawnHammer(gs.wordsEaten, gs.wordsEaten > 30 ? 3 : gs.wordsEaten > 20 ? 2 : 1)) {
+            const occupied = new Set(gs.snake.map(s => `${s.x},${s.y}`))
+            if (gs.wordFood) occupied.add(`${gs.wordFood.position.x},${gs.wordFood.position.y}`)
+            let pos: Position | null = null
+            let attempts = 0
+            while (!pos && attempts < 50) {
+              const px = 2 + Math.floor(Math.random() * (GRID_WIDTH - 4))
+              const py = 2 + Math.floor(Math.random() * (GRID_HEIGHT - 4))
+              if (!occupied.has(`${px},${py}`)) pos = { x: px, y: py }
+              attempts++
+            }
+            if (pos) {
+              hammerPowerUpRef.current = createHammerPowerUp(pos)
+              emitEvent('powerup_spawn', `${HAMMER_CONFIG.emoji} Hammer appeared!`, HAMMER_CONFIG.emoji, HAMMER_CONFIG.color)
+            }
+          }
+          // Check hammer pickup (snake head on hammer position)
+          if (hammerPowerUpRef.current) {
+            const hp = hammerPowerUpRef.current.position
+            if (head.x === hp.x && head.y === hp.y) {
+              activateHammer(hammerStateRef.current)
+              setHammerActive(true)
+              hammerPowerUpRef.current = null
+              emitEvent('powerup_collect', `${HAMMER_CONFIG.emoji} Hammer activated! ${HAMMER_CONFIG.duration / 1000}s`, HAMMER_CONFIG.emoji, HAMMER_CONFIG.color)
+              emitPresetParticles(head.x * CELL_SIZE + CELL_SIZE / 2, head.y * CELL_SIZE + CELL_SIZE / 2, 'burst')
+              if (canHaptic()) hapticFeedback('success')
+            }
+          }
+          // Update hammer state (check expiry)
+          updateHammerState(hammerStateRef.current)
+          if (!isHammerActive(hammerStateRef.current) && hammerActive) {
+            setHammerActive(false)
+          }
+          // Update moving obstacles with difficulty scaling
+          if (movingObstaclesRef.current.length > 0) {
+            const speedMult = getObstacleSpeedMultiplier(gs.difficulty as GameDifficulty, gs.wordsEaten)
+            movingObstaclesRef.current = updateMovingObstacles(movingObstaclesRef.current, speedMult / 60, Date.now() / 1000)
+          }
           if (shouldSpawnPortal(gs.wordsEaten)) {
             const maxPairs = getMaxPortalPairs(gs.wordsEaten)
             if (gs.portalPairs.length < maxPairs) {
@@ -4573,6 +4680,10 @@ export default function SnakeGame() {
     movingObstaclesRef.current = []
     resetDestructibleWallIds()
     destructibleWallsRef.current = []
+    hammerStateRef.current = createInitialHammerState()
+    hammerPowerUpRef.current = null
+    setHammerActive(false)
+    gameIdRef.current = `game-${Date.now()}`
     collectedWordsRef.current = new Set()
     setLeaderboardRank(0)
     gs.isDailyChallenge = false
@@ -6084,6 +6195,51 @@ export default function SnakeGame() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Multilingual Word Packs */}
+            {mounted && multilingualPacks.length > 0 && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-blue-900/15 to-purple-900/10 border border-blue-700/20 multilingual-panel">
+                <div className="flex items-center justify-between mb-1.5 cursor-pointer" onClick={() => setShowMultilingualPanel(!showMultilingualPanel)}>
+                  <div className="flex items-center gap-1.5">
+                    <Globe className="h-3 w-3 text-blue-400" />
+                    <span className="text-[10px] text-slate-400 font-medium">Language Packs</span>
+                    <span className="text-[8px] text-blue-400/60">{getTotalMultilingualWords()} words</span>
+                  </div>
+                  <span className="text-[9px] text-blue-400">{showMultilingualPanel ? '▲' : '▼'}</span>
+                </div>
+                {showMultilingualPanel && (
+                  <div className="space-y-1.5 mt-2 multilingual-panel-expanded">
+                    {multilingualPacks.map(pack => (
+                      <div key={pack.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-slate-700/30 bg-slate-800/20">
+                        <span className="text-sm">{pack.flag}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-slate-300 font-medium">{pack.nativeName}</div>
+                          <div className="text-[8px] text-slate-500">{pack.words.length} words · {pack.unlockRequirement.type === 'coins' ? `🪙 ${pack.unlockRequirement.value}` : ''}</div>
+                        </div>
+                        {pack.isUnlocked ? (
+                          <span className="text-[8px] text-green-400 font-bold">✓</span>
+                        ) : (
+                          <button
+                            className="text-[8px] px-2 py-0.5 rounded bg-blue-900/40 text-blue-300 border border-blue-700/30 hover:bg-blue-800/50 transition-colors multilingual-unlock-btn"
+                            onClick={() => {
+                              const success = unlockMultilingualPack(pack.id)
+                              if (success) {
+                                setMultilingualPacks(getAllMultilingualPacks())
+                                const newCoinBal = getCoinBalance()
+                                gs.coinBalance = newCoinBal
+                                updateUI()
+                                emitEvent('achievement', `Unlocked ${pack.flag} ${pack.nativeName} pack!`, pack.emoji, pack.color)
+                                if (canHaptic()) hapticFeedback('success')
+                              }
+                            }}
+                          >Unlock</button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

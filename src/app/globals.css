@@ -3274,3 +3274,179 @@
   50% { text-shadow: 0 0 12px 4px rgba(249, 115, 22, 0.6); }
   100% { text-shadow: 0 0 4px rgba(249, 115, 22, 0.3); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Round 28: 25 New CSS Animations (Total: ~256 keyframes)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. hammer-pickup-pulse — Pulsing glow for hammer power-up on grid */
+@keyframes hammer-pickup-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.3)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.6)); transform: scale(1.15); }
+}
+
+/* 2. hammer-active-border — Orange border glow when hammer is active */
+@keyframes hammer-active-border {
+  0%, 100% { box-shadow: inset 0 0 8px rgba(249, 115, 22, 0.1); }
+  50% { box-shadow: inset 0 0 16px rgba(249, 115, 22, 0.25); }
+}
+.hammer-active-border { animation: hammer-active-border 1.5s ease-in-out infinite; }
+
+/* 3. hammer-hud-timer — Smooth timer bar drain animation */
+@keyframes hammer-hud-timer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* 4. multilingual-panel — Blue-purple shimmer for language pack panel */
+@keyframes multilingual-panel {
+  0%, 100% { border-color: rgba(59, 130, 246, 0.15); }
+  33% { border-color: rgba(139, 92, 246, 0.2); }
+  66% { border-color: rgba(59, 130, 246, 0.2); }
+}
+.multilingual-panel { animation: multilingual-panel 4s ease-in-out infinite; }
+
+/* 5. multilingual-panel-expanded — Slide down with stagger for pack items */
+@keyframes multilingual-panel-expanded {
+  0% { max-height: 0; opacity: 0; }
+  100% { max-height: 300px; opacity: 1; }
+}
+.multilingual-panel-expanded { animation: multilingual-panel-expanded 0.3s ease-out; overflow: hidden; }
+
+/* 6. multilingual-unlock-btn — Shimmer on unlock button hover */
+@keyframes multilingual-unlock-btn {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.multilingual-unlock-btn:hover {
+  background-image: linear-gradient(90deg, transparent 25%, rgba(59, 130, 246, 0.15) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: multilingual-unlock-btn 1.5s ease-in-out;
+}
+
+/* 7. obstacle-scaling-tier — Color flash when obstacle tier changes */
+@keyframes obstacle-scaling-tier {
+  0% { background-color: rgba(239, 68, 68, 0); }
+  30% { background-color: rgba(239, 68, 68, 0.1); }
+  100% { background-color: rgba(239, 68, 68, 0); }
+}
+
+/* 8. obstacle-speed-line — Speed lines for fast obstacles */
+@keyframes obstacle-speed-line {
+  0% { opacity: 0; transform: translateX(-10px); }
+  50% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateX(10px); }
+}
+
+/* 9. event-persist-save — Pulse indicator when event is saved */
+@keyframes event-persist-save {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* 10. event-history-badge — Bounce for persistent event count badge */
+@keyframes event-history-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* 11. wall-type-brick-bg — Subtle brick pattern overlay */
+@keyframes wall-type-brick-bg {
+  0%, 100% { background-color: rgba(146, 64, 14, 0.05); }
+  50% { background-color: rgba(146, 64, 14, 0.1); }
+}
+
+/* 12. wall-type-ice-bg — Icy blue shimmer overlay */
+@keyframes wall-type-ice-bg {
+  0%, 100% { background-color: rgba(14, 165, 233, 0.03); }
+  50% { background-color: rgba(14, 165, 233, 0.08); }
+}
+
+/* 13. wall-type-crystal-bg — Prismatic purple overlay */
+@keyframes wall-type-crystal-bg {
+  0% { background-color: rgba(124, 58, 237, 0.03); filter: hue-rotate(0deg); }
+  33% { background-color: rgba(168, 85, 247, 0.06); filter: hue-rotate(120deg); }
+  66% { background-color: rgba(192, 132, 252, 0.06); filter: hue-rotate(240deg); }
+  100% { background-color: rgba(124, 58, 237, 0.03); filter: hue-rotate(360deg); }
+}
+
+/* 14. progress-tier-up — Celebratory flash when progress tier increases */
+@keyframes progress-tier-up {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  50% { box-shadow: 0 0 20px 5px rgba(34, 197, 94, 0.2); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* 15. pack-unlock-success — Green flash for successful pack unlock */
+@keyframes pack-unlock-success {
+  0% { background-color: rgba(34, 197, 94, 0.15); }
+  50% { background-color: rgba(34, 197, 94, 0.05); }
+  100% { background-color: rgba(34, 197, 94, 0); }
+}
+
+/* 16. language-flag-float — Gentle floating animation for language flags */
+@keyframes language-flag-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* 17. hammer-break-chain — Rapid flash for consecutive wall breaks with hammer */
+@keyframes hammer-break-chain {
+  0% { opacity: 0.3; }
+  20% { opacity: 1; }
+  40% { opacity: 0.3; }
+  60% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+/* 18. sidebar-section-stagger — Staggered entrance for sidebar sections */
+@keyframes sidebar-section-stagger {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 19. difficulty-gradient-bar — Animated gradient for difficulty indicator */
+@keyframes difficulty-gradient-bar {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 20. coin-deduct — Quick scale-down animation when coins are spent */
+@keyframes coin-deduct {
+  0% { transform: scale(1.3); color: #fbbf24; }
+  100% { transform: scale(1); color: #f59e0b; }
+}
+
+/* 21. event-feed-persist-dot — Small dot indicator for persistent events */
+@keyframes event-feed-persist-dot {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* 22. obstacle-teleport-flash — Purple flash when teleport-type obstacle activates */
+@keyframes obstacle-teleport-flash {
+  0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5); }
+  50% { box-shadow: 0 0 15px 5px rgba(168, 85, 247, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+}
+
+/* 23. scaling-tier-badge — Pop animation for tier badge change */
+@keyframes scaling-tier-badge {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 24. hammer-expire-warning — Red pulse when hammer is about to expire */
+@keyframes hammer-expire-warning {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.1); }
+  50% { border-color: rgba(239, 68, 68, 0.4); }
+}
+
+/* 25. multilingual-word-reveal — Slide-in animation for revealed multilingual word */
+@keyframes multilingual-word-reveal {
+  0% { opacity: 0; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
