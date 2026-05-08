@@ -137,6 +137,10 @@ import { createNotificationCompletionWire, type NotificationCompletionWire } fro
 import { createBattlePassRewardGrantor, generateTierRewards, type BattlePassRewardGrantor } from '@/lib/battle-pass-reward-grantor'
 import { createSfxVolumeCategoryWire, type SfxVolumeCategoryWire } from '@/lib/sfx-volume-category-wire'
 import { createMasteryTrackerPanel, type MasteryTrackerPanel } from '@/lib/mastery-tracker-panel'
+import { createStoryModeWire, type StoryModeWire } from '@/lib/story-mode-level-wire'
+import { createWiringHubCompletionWire, type WiringHubCompletionWire } from '@/lib/wiring-hub-completion-wire'
+import { createMinigamePlayWire, type MinigamePlayWire } from '@/lib/minigame-play-wire'
+import { createMasteryPanelWire, type MasteryPanelWire } from '@/lib/mastery-panel-wire'
 import {
   Play,
   RotateCcw,
@@ -695,6 +699,7 @@ export default function SnakeGame() {
   const aiBotRef = useRef<AiBotState | null>(null)
   const [showWordBook, setShowWordBook] = useState(false)
   const [showStoryMode, setShowStoryMode] = useState(false)
+  const [showStoryLevelSelect, setShowStoryLevelSelect] = useState(false)
   const [showStatsComparison, setShowStatsComparison] = useState(false)
   const [highContrast, setHighContrast] = useState<HighContrastConfig>({ enabled: false, intensity: 'medium', reduceMotion: false, largeText: false })
   const [aiBotActive, setAiBotActive] = useState(false)
@@ -882,6 +887,11 @@ export default function SnakeGame() {
   const bpRewardGrantorRef = useRef<BattlePassRewardGrantor>(createBattlePassRewardGrantor())
   const sfxVolumeCatRef = useRef<SfxVolumeCategoryWire>(createSfxVolumeCategoryWire())
   const masteryPanelRef = useRef<MasteryTrackerPanel>(createMasteryTrackerPanel())
+  // Round 43b: Story mode level wire, Wiring hub completion, Minigame play wire, Mastery panel wire
+  const storyModeWireRef = useRef<StoryModeWire>(createStoryModeWire())
+  const wiringHubCompletionRef = useRef<WiringHubCompletionWire>(createWiringHubCompletionWire())
+  const minigamePlayWireRef = useRef<MinigamePlayWire>(createMinigamePlayWire(minigameLauncherRef.current))
+  const masteryPanelWireRef = useRef<MasteryPanelWire>(createMasteryPanelWire(masteryPanelRef.current, masteryTrackerRef.current))
   const [showEventLog, setShowEventLog] = useState(false)
   const [showMinigames, setShowMinigames] = useState(false)
   const [eventLogEntries, setEventLogEntries] = useState<Array<{id:string;type:string;level:string;message:string;emoji:string;color:string;timestamp:number}>>([])
@@ -3265,6 +3275,8 @@ export default function SnakeGame() {
     // Round 43: Game start — dashboard + SFX context
     realtimeDashboardRef.current.pushGameStartEvent(gs.isDailyChallenge ? 'daily' : 'classic', gs.difficulty || 'medium')
     sfxVolumeCatRef.current.setGameContext('playing')
+    // Round 43b: Mastery panel wire — game start
+    masteryPanelWireRef.current.onGameStart()
     gs.wordFood = null
     gs.startTime = Date.now()
     gs.elapsedTime = 0
@@ -3772,6 +3784,8 @@ export default function SnakeGame() {
             }
             // Round 42: Real-time dashboard — word eat event
             realtimeDashboardRef.current.pushWordEatEvent(wordFood.word, wordFood.category || 'general', points)
+            // Round 43b: Mastery panel wire — refresh on word eat
+            const masteryPanelNotif = masteryPanelWireRef.current.onWordEaten(wordFood.word, wordFood.category || 'general', gs.difficulty || 'medium')
             // Round 42: Word bomb detonation on word eat
             if (wordBombWireRef.current.shouldDetonateOnEat()) {
               const bombResult = wordBombWireRef.current.detonateBomb(wordFood.position.x, wordFood.position.y, GRID_WIDTH, GRID_HEIGHT)
@@ -4107,6 +4121,8 @@ export default function SnakeGame() {
         // Round 42: Real-time dashboard — game end + mastery session save
         realtimeDashboardRef.current.pushGameEndEvent(gs.score, gs.elapsedTime, gs.wordsEaten)
         masteryTrackerRef.current.saveSessionData()
+        // Round 43b: Mastery panel wire — game end
+        masteryPanelWireRef.current.onGameEnd()
         playSound(playGameOverSound)
 
         // Save daily challenge result if applicable
@@ -5089,6 +5105,28 @@ export default function SnakeGame() {
         } catch { /* ignore */ }
       }
 
+      // Round 43b: Wiring hub completion — wire all remaining events each tick
+      try {
+        wiringHubCompletionRef.current.wireAllRemainingSystems({
+          eventBusWire: eventBusWireRef.current,
+          gameState: {
+            direction: gs.direction,
+            difficulty: gs.difficulty,
+            difficultyLabel: gs.difficulty,
+            isTimedMode: modeEngineRef.current.isTimedMode,
+            isSpeedRun: gs.isSpeedRun,
+            timeRemaining: modeEngineRef.current.timeRemaining,
+            weather: gs.weather || 'clear',
+            activeSkin: gs.activeSkin || 'default',
+            collisionThisFrame: gs._collisionThisFrame,
+            collisionType: gs._collisionType,
+            collisionFatal: gs._collisionFatal,
+            collisionPosition: gs._collisionPosition,
+          },
+          modeEngine: modeEngineRef.current,
+        })
+      } catch { /* wiring completion is non-critical */ }
+
       updateUI()
       draw()
       animFrameRef.current = requestAnimationFrame(gameLoop)
@@ -5650,6 +5688,89 @@ export default function SnakeGame() {
     const current = uiState.score - base
     return { percent: Math.min(100, Math.round((current / range) * 100)), label: next.label }
   })()
+
+  // Round 43b: Story Level Select inline content
+  const StoryLevelSelectContent = () => {
+    try {
+      const chapters = storyModeWireRef.current.getChapterList()
+      const progress = storyModeWireRef.current.getProgress()
+      return (
+        <div>
+          {/* Progress overview */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center">
+              <div className="text-lg font-bold text-amber-400">{progress.totalCoins}</div>
+              <div className="text-[9px] text-slate-500">Coins</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center">
+              <div className="text-lg font-bold text-emerald-400">{progress.completedLevels}/{progress.totalLevels}</div>
+              <div className="text-[9px] text-slate-500">Levels</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-2 text-center">
+              <div className="text-lg font-bold text-violet-400">{Math.round(progress.overallProgress)}%</div>
+              <div className="text-[9px] text-slate-500">Progress</div>
+            </div>
+          </div>
+          {/* Overall progress bar */}
+          <div className="h-2 bg-slate-800 rounded-full mb-4 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500" style={{ width: `${progress.overallProgress}%` }} />
+          </div>
+          {/* Chapters */}
+          {chapters.map((ch) => (
+            <div key={ch.chapter} className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-xs font-bold text-slate-300">{ch.emoji} Chapter {ch.chapter}: {ch.title}</h4>
+                <span className="text-[9px] text-slate-500">{ch.completedLevels}/{ch.totalLevels}</span>
+              </div>
+              <div className="h-1.5 bg-slate-800 rounded-full mb-2 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-300" style={{ width: `${ch.progressPercent}%` }} />
+              </div>
+              <div className="grid grid-cols-4 gap-1.5">
+                {ch.levels.map((lvl) => (
+                  <button
+                    key={lvl.id}
+                    onClick={() => {
+                      if (!lvl.isUnlocked) return
+                      const result = storyModeWireRef.current.startLevel(lvl.id)
+                      if (result) {
+                        setShowStoryLevelSelect(false)
+                        resetGame()
+                        // Apply level modifiers to game state
+                        const gs = gameStateRef.current
+                        if (result.gameStateOverrides.speedMultiplier) gs.speed = Math.max(30, gs.speed * (1 / (result.gameStateOverrides.speedMultiplier as number)))
+                        if (result.gameStateOverrides.disableObstacles) gs.obstacles = []
+                        spawnFloatingText(`🗺️ ${result.level.title}`, CANVAS_WIDTH / 2, 80, '#fbbf24')
+                        spawnFloatingText(result.objectiveDescription, CANVAS_WIDTH / 2, 110, '#a3e635')
+                      }
+                    }}
+                    className={`relative p-1.5 rounded-lg border text-center transition-all active:scale-95 ${
+                      lvl.isCompleted
+                        ? 'border-emerald-600/50 bg-emerald-900/20'
+                        : lvl.isUnlocked
+                          ? 'border-amber-600/50 bg-amber-900/20 hover:bg-amber-900/40 cursor-pointer'
+                          : 'border-slate-700/30 bg-slate-800/20 opacity-50 cursor-not-allowed'
+                    }`}
+                    title={lvl.subtitle}
+                  >
+                    <div className="text-[10px] font-bold text-slate-300 truncate">{lvl.title}</div>
+                    <div className="flex justify-center gap-0.5 mt-0.5">
+                      {[1, 2, 3].map(s => (
+                        <span key={s} className={`text-[8px] ${s <= lvl.stars ? 'text-yellow-400' : 'text-slate-700'}`}>★</span>
+                      ))}
+                    </div>
+                    <div className="text-[8px] text-slate-500 mt-0.5 truncate">{lvl.objectivePreview}</div>
+                    {!lvl.isUnlocked && <div className="absolute inset-0 flex items-center justify-center text-lg">🔒</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    } catch {
+      return <div className="text-slate-400 text-xs text-center py-4">Story mode data unavailable</div>
+    }
+  }
 
   return (
     <div className={`flex flex-col lg:flex-row gap-4 w-full max-w-[1100px] mx-auto transition-all duration-700 ${nightMode.enabled ? 'night-mode-active' : ''}`}
@@ -6984,6 +7105,15 @@ export default function SnakeGame() {
                       title="Story Mode Prologue"
                     >
                       📖 Story
+                    </Button>
+                    {/* Round 43b: Story Level Select Button */}
+                    <Button
+                      onClick={() => setShowStoryLevelSelect(!showStoryLevelSelect)}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform story-level-btn"
+                      title="Story Mode — Level Select"
+                    >
+                      🗺️ Levels
                     </Button>
                     <Button
                       onClick={() => { setShowStatsComparison(true); playSound(playClickSound) }}
@@ -9393,6 +9523,20 @@ export default function SnakeGame() {
       {/* Word Book Overlay */}
       <WordBook isOpen={showWordBook} onClose={() => setShowWordBook(false)} />
       <StoryModePrologue isOpen={showStoryMode} onClose={() => setShowStoryMode(false)} onStartGame={() => { setShowStoryMode(false); resetGame() }} />
+
+      {/* Round 43b: Story Mode Level Select Panel */}
+      {showStoryLevelSelect && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStoryLevelSelect(false)}>
+          <div className="bg-slate-900/95 border border-slate-700/50 rounded-xl p-4 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto shadow-2xl story-level-panel" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-amber-400">🗺️ Story Mode — Level Select</h3>
+              <button onClick={() => setShowStoryLevelSelect(false)} className="text-slate-500 hover:text-slate-300 text-lg">✕</button>
+            </div>
+            <StoryLevelSelectContent />
+          </div>
+        </div>
+      )}
+
       <StatsComparison isOpen={showStatsComparison} onClose={() => setShowStatsComparison(false)} />
 
       {/* Shop Modal */}

@@ -5476,7 +5476,7 @@
 @keyframes bp-reward-rarity-rare { 0%,100%{border-color:rgba(59,130,246,0.3);} 50%{border-color:rgba(59,130,246,0.6);} }
 
 /* 12. sfx-vol-slider-fill — Volume slider fill transition */
-@keyframes sfx-vol-slider-fill { 0%{width:var(--vol-width,50%);} 100%{width:var(--target-width,var(--vol-width,50%);} }
+@keyframes sfx-vol-slider-fill { 0%{width:var(--vol-width,50%);} 100%{width:var(--target-width,var(--vol-width,50%));} }
 
 /* 13. sfx-preset-apply — Preset applied confirmation flash */
 @keyframes sfx-preset-apply { 0%{opacity:0;transform:scale(0.95);} 50%{opacity:1;transform:scale(1.05);} 100%{opacity:1;transform:scale(1);} }
@@ -5519,3 +5519,83 @@
 
 
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Round 43b: Story Mode Level Wire, Wiring Hub Completion, Minigame Play, Mastery Panel Wire
+   25 new animations (649 total keyframes)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. story-level-panel-in — Story level select panel slide-in from bottom */
+@keyframes story-level-panel-in { 0%{opacity:0;transform:translateY(20px) scale(0.97);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 2. story-chapter-entrance — Chapter section staggered entrance */
+@keyframes story-chapter-entrance { 0%{opacity:0;transform:translateX(-12px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 3. story-level-card-pop — Level card pop-in on hover */
+@keyframes story-level-card-pop { 0%{transform:scale(1);} 50%{transform:scale(1.06);} 100%{transform:scale(1);} }
+
+/* 4. story-level-complete-flash — Completed level green flash */
+@keyframes story-level-complete-flash { 0%{box-shadow:0 0 0 0 rgba(16,185,129,0.5);} 50%{box-shadow:0 0 12px 4px rgba(16,185,129,0.2);} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0);} }
+
+/* 5. story-level-locked-pulse — Locked level subtle pulse */
+@keyframes story-level-locked-pulse { 0%,100%{opacity:0.4;} 50%{opacity:0.6;} }
+
+/* 6. story-star-earned — Star earned golden glow */
+@keyframes story-star-earned { 0%{text-shadow:0 0 0 rgba(251,191,36,0);} 50%{text-shadow:0 0 8px rgba(251,191,36,0.8);} 100%{text-shadow:0 0 0 rgba(251,191,36,0);} }
+
+/* 7. story-progress-fill — Story progress bar fill sweep */
+@keyframes story-progress-fill { 0%{width:0;} 100%{width:var(--progress-width,0%);} }
+
+/* 8. story-narrative-fade — Narrative text fade-in */
+@keyframes story-narrative-fade { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 9. story-level-start-burst — Level start celebration burst */
+@keyframes story-level-start-burst { 0%{transform:scale(0.8);opacity:0;} 50%{transform:scale(1.1);opacity:1;} 100%{transform:scale(1);opacity:1;} }
+
+/* 10. story-objective-check — Objective progress check bounce */
+@keyframes story-objective-check { 0%{transform:scale(1);} 30%{transform:scale(1.15);} 100%{transform:scale(1);} }
+
+/* 11. wiring-hub-connected-flash — All wiring connected success flash */
+@keyframes wiring-hub-connected-flash { 0%{background-color:rgba(34,197,94,0);} 50%{background-color:rgba(34,197,94,0.1);} 100%{background-color:rgba(34,197,94,0);} }
+
+/* 12. wiring-event-pulse — Event wire activity pulse */
+@keyframes wiring-event-pulse { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
+
+/* 13. wiring-timer-tick — Timer wire tick indicator */
+@keyframes wiring-timer-tick { 0%{transform:scaleX(1);} 50%{transform:scaleX(1.05);} 100%{transform:scaleX(1);} }
+
+/* 14. wiring-achievement-glow — Achievement wiring glow ring */
+@keyframes wiring-achievement-glow { 0%{box-shadow:0 0 0 0 rgba(251,191,36,0.4);} 70%{box-shadow:0 0 0 8px rgba(251,191,36,0);} 100%{box-shadow:0 0 0 0 rgba(251,191,36,0);} }
+
+/* 15. wiring-error-flash — Wiring error red flash */
+@keyframes wiring-error-flash { 0%{background-color:rgba(239,68,68,0);} 25%{background-color:rgba(239,68,68,0.15);} 100%{background-color:rgba(239,68,68,0);} }
+
+/* 16. minigame-launch-shake — Minigame launch screen shake */
+@keyframes minigame-launch-shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-3px);} 40%{transform:translateX(3px);} 60%{transform:translateX(-2px);} 80%{transform:translateX(2px);} }
+
+/* 17. minigame-play-btn-glow — Play button active glow */
+@keyframes minigame-play-btn-glow { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0);} 50%{box-shadow:0 0 15px 3px rgba(34,197,94,0.3);} }
+
+/* 18. minigame-countdown-pulse — Countdown timer pulse */
+@keyframes minigame-countdown-pulse { 0%{transform:scale(1);color:#fbbf24;} 50%{transform:scale(1.3);color:#ef4444;} 100%{transform:scale(1);color:#fbbf24;} }
+
+/* 19. minigame-result-slide — Result card slide-in */
+@keyframes minigame-result-slide { 0%{opacity:0;transform:translateY(30px) scale(0.9);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 20. minigame-score-ticker — Score count-up ticker */
+@keyframes minigame-score-ticker { 0%{opacity:0;transform:translateY(10px);} 50%{opacity:1;transform:translateY(-2px);} 100%{opacity:1;transform:translateY(0);} }
+
+/* 21. mastery-panel-refresh — Mastery panel data refresh flash */
+@keyframes mastery-panel-refresh { 0%{border-color:rgba(168,85,247,0.3);} 50%{border-color:rgba(168,85,247,0.7);} 100%{border-color:rgba(168,85,247,0.3);} }
+
+/* 22. mastery-velocity-bar — Mastery velocity progress bar */
+@keyframes mastery-velocity-bar { 0%{width:0;} 100%{width:var(--velocity-width,0%);} }
+
+/* 23. mastery-weak-category-shake — Weak category warning shake */
+@keyframes mastery-weak-category-shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-2px);} 75%{transform:translateX(2px);} }
+
+/* 24. mastery-session-timer — Session timer pulse dot */
+@keyframes mastery-session-timer { 0%,100%{opacity:0.4;transform:scale(0.8);} 50%{opacity:1;transform:scale(1.2);} }
+
+/* 25. r43b-btn-entrance — Staggered Round 43b button entrance */
+@keyframes r43b-btn-entrance { 0%{opacity:0;transform:translateY(8px);} 100%{opacity:1;transform:translateY(0);} }
