@@ -70,6 +70,10 @@ import { HAMMER_CONFIG, shouldSpawnHammer, createHammerPowerUp, createInitialHam
 import { MULTILINGUAL_PACKS, getMultilingualPack, getAllMultilingualPacks, isMultilingualPackUnlocked, unlockMultilingualPack, getTotalMultilingualWords, type LanguagePack } from '@/lib/multilingual-packs'
 import { getObstacleScaling, shouldSpawnScaledObstacle, getObstacleSpeedMultiplier, getMaxScaledObstacles, getProgressTier, OBSTACLE_SCALING_PRESETS, SCALING_DESCRIPTIONS, type ObstacleScalingConfig, type GameDifficulty } from '@/lib/obstacle-difficulty-scaling'
 import { saveEventToHistory, getEventHistory, mergeWithLiveEvents, getEventFeedSettings, getEventHistoryCount, clearEventHistory, type PersistentEvent, type EventFeedSettings } from '@/lib/event-feed-persistence'
+import { createInitialVolumeConfig, saveVolumeConfig, loadVolumeConfig, getVolumeIcon, getVolumeLabel, formatVolumePercent, VOLUME_PRESETS, getClosestPreset, toggleMute, snapToPreset, type VolumeSliderConfig } from '@/lib/volume-slider'
+import { getRandomMultilingualWord, getMultilingualPackProgress, getTotalMultilingualCollection, hasAnyUnlockedMultilingualPack, getUnlockedMultilingualPackIds, MULTILINGUAL_PACK_ICONS, LANGUAGE_LABELS, type MultilingualGameWord } from '@/lib/multilingual-integration'
+import { calculateLayout, getCanvasScaleFactor, shouldUseCompactUI, getSidebarStyle, getCanvasStyle, getGameContainerStyle, ANIMATED_LAYOUT_TRANSITIONS, LAYOUT_BREAKPOINTS, type LayoutMetrics } from '@/lib/responsive-layout'
+import { MULTILINGUAL_ACHIEVEMENTS, getAllMultilingualAchievementIds, checkMultilingualAchievements as checkMultiAchievements, createMultilingualStats, type MultilingualAchievementStats } from '@/lib/multilingual-achievements'
 import {
   Play,
   RotateCcw,
@@ -483,6 +487,20 @@ export default function SnakeGame() {
       setMultilingualPacks(getAllMultilingualPacks())
       // Load persistent event count
       setPersistentEventCount(getEventHistoryCount())
+      // Load volume slider config
+      setVolumeConfig(loadVolumeConfig())
+      // Load active multilingual pack (if any was previously selected)
+      const savedMultiPack = localStorage.getItem('wordsnake_active_multilingual_pack')
+      if (savedMultiPack && hasAnyUnlockedMultilingualPack()) {
+        setActiveMultilingualPack(savedMultiPack)
+      }
+      // Load multilingual achievement state
+      const savedMultiAch = localStorage.getItem('wordsnake_multilingual_achievements')
+      if (savedMultiAch) {
+        try { setMultilingualAchievementsUnlocked(JSON.parse(savedMultiAch)) } catch { /* ignore */ }
+      }
+      // Calculate responsive layout
+      layoutMetricsRef.current = calculateLayout(deviceInfo, responsiveConfig)
     }
     const id = requestAnimationFrame(loadData)
     return () => cancelAnimationFrame(id)
@@ -575,6 +593,16 @@ export default function SnakeGame() {
   // Multilingual packs state
   const [multilingualPacks, setMultilingualPacks] = useState<ReturnType<typeof getAllMultilingualPacks>>([])
   const [showMultilingualPanel, setShowMultilingualPanel] = useState(false)
+  // Volume slider state
+  const [volumeConfig, setVolumeConfig] = useState<VolumeSliderConfig>(createInitialVolumeConfig())
+  const [showVolumePanel, setShowVolumePanel] = useState(false)
+  // Active multilingual word source
+  const [activeMultilingualPack, setActiveMultilingualPack] = useState<string | null>(null)
+  const multilingualProgressRef = useRef<Record<string, { total: number; collected: number; percent: number }>>({})
+  // Responsive layout metrics
+  const layoutMetricsRef = useRef<LayoutMetrics | null>(null)
+  // Multilingual achievement tracking
+  const [multilingualAchievementsUnlocked, setMultilingualAchievementsUnlocked] = useState<string[]>([])
   // Event feed persistence
   const gameIdRef = useRef<string>(`game-${Date.now()}`)
   const [persistentEventCount, setPersistentEventCount] = useState(0)
@@ -875,6 +903,20 @@ export default function SnakeGame() {
       word = pool[Math.floor(Math.random() * pool.length)]
       const entry = getWordEntry(word)
       category = entry?.category ?? 'nature'
+    } else if (activeMultilingualPack) {
+      // Multilingual word source takes priority if active
+      const collected = Array.from(collectedWordsRef.current)
+      const multiWord = getRandomMultilingualWord(activeMultilingualPack, collected)
+      if (multiWord) {
+        word = multiWord.word
+        category = multiWord.category
+      } else {
+        // Multilingual pack exhausted — fall back to default
+        const collected2 = Array.from(collectedWordsRef.current)
+        const pick = getRandomWordWithCategories(collected2, gs.activeCategories)
+        word = pick.word
+        category = pick.category
+      }
     } else {
       // Check if a word pack is active
       const packId = getActivePack()
@@ -5156,6 +5198,86 @@ export default function SnakeGame() {
                       <option key={key} value={key}>{val.emoji} {val.label}</option>
                     ))}
                   </select>
+                  {/* Volume slider */}
+                  <div className="relative flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        const newConfig = toggleMute(volumeConfig)
+                        setVolumeConfig(newConfig)
+                        saveVolumeConfig(newConfig)
+                        const engine = musicEngineRef.current || getMusicEngine()
+                        musicEngineRef.current = engine
+                        engine.setVolume(newConfig.muted ? 0 : newConfig.volume)
+                      }}
+                      className="h-7 w-7 flex items-center justify-center text-sm cursor-pointer hover:bg-slate-700/40 rounded transition-colors volume-mute-btn"
+                      title={volumeConfig.muted ? 'Unmute' : 'Mute'}
+                    >
+                      {volumeConfig.icon}
+                    </button>
+                    <div
+                      className="relative group"
+                      onMouseEnter={() => setShowVolumePanel(true)}
+                      onMouseLeave={() => setShowVolumePanel(false)}
+                    >
+                      <div className="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden cursor-pointer volume-slider-track">
+                        <div
+                          className="h-full rounded-full transition-all duration-150 volume-slider-fill"
+                          style={{
+                            width: `${(volumeConfig.muted ? 0 : volumeConfig.volume) * 100}%`,
+                            background: volumeConfig.muted ? '#64748b' : volumeConfig.volume < 0.3 ? '#22c55e' : volumeConfig.volume < 0.7 ? '#eab308' : '#ef4444',
+                          }}
+                        />
+                      </div>
+                      {showVolumePanel && mounted && (
+                        <div className="absolute top-full mt-2 right-0 w-52 p-2.5 rounded-lg bg-slate-900/95 border border-slate-700/50 shadow-xl backdrop-blur-sm z-50 volume-panel-popup">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] text-slate-400 font-medium">Volume Control</span>
+                            <span className="text-[10px] text-slate-500">{formatVolumePercent(volumeConfig.muted ? 0 : volumeConfig.volume)}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={1}
+                            step={0.05}
+                            value={volumeConfig.muted ? 0 : volumeConfig.volume}
+                            onChange={(e) => {
+                              const vol = parseFloat(e.target.value)
+                              const newConfig = { ...volumeConfig, volume: vol, muted: vol === 0, icon: getVolumeIcon(vol, false), label: getVolumeLabel(vol) }
+                              setVolumeConfig(newConfig)
+                              saveVolumeConfig(newConfig)
+                              const engine = musicEngineRef.current || getMusicEngine()
+                              musicEngineRef.current = engine
+                              engine.setVolume(vol)
+                            }}
+                            className="w-full h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer volume-range-input"
+                          />
+                          <div className="text-[9px] text-slate-500 mt-1">{volumeConfig.label}</div>
+                          <div className="flex gap-1 mt-2 flex-wrap">
+                            {VOLUME_PRESETS.map((preset, i) => (
+                              <button
+                                key={preset.name}
+                                onClick={() => {
+                                  const newConfig = snapToPreset(volumeConfig, i)
+                                  setVolumeConfig(newConfig)
+                                  saveVolumeConfig(newConfig)
+                                  const engine = musicEngineRef.current || getMusicEngine()
+                                  musicEngineRef.current = engine
+                                  engine.setVolume(newConfig.volume)
+                                }}
+                                className={`px-2 py-0.5 text-[8px] rounded-full border transition-all duration-150 active:scale-90 volume-preset-btn ${
+                                  Math.abs((volumeConfig.muted ? 0 : volumeConfig.volume) - preset.volume) < 0.08
+                                    ? 'bg-slate-600/60 text-slate-100 border-slate-400/50'
+                                    : 'bg-slate-800/60 text-slate-400 border-slate-700/30 hover:text-slate-200 hover:border-slate-600/50'
+                                }`}
+                              >
+                                {preset.emoji} {preset.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -5331,6 +5453,71 @@ export default function SnakeGame() {
                         </button>
                       )
                     })}
+                    {/* Multilingual word source selector */}
+                    {mounted && multilingualPacks.filter(p => p.isUnlocked).length > 0 && (
+                      <div className="mt-2">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Globe className="h-3 w-3 text-blue-400" />
+                          <span className="text-[10px] text-slate-500 font-medium">Language Source:</span>
+                        </div>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {/* None (use default pack) */}
+                          <button
+                            onClick={() => {
+                              setActiveMultilingualPack(null)
+                              setActiveWordPack('default')
+                              setActivePack('default')
+                              if (typeof window !== 'undefined') localStorage.removeItem('wordsnake_active_multilingual_pack')
+                              playSound(playClickSound)
+                            }}
+                            className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all duration-200 border active:scale-95 multi-source-btn ${
+                              !activeMultilingualPack
+                                ? 'bg-slate-600/60 text-slate-100 border-slate-400/50 shadow-sm'
+                                : 'bg-slate-800/60 text-slate-400 border-slate-700/30 hover:text-slate-200'
+                            }`}
+                          >
+                            <span>🐍</span>
+                            <span>Default</span>
+                          </button>
+                          {multilingualPacks.filter(p => p.isUnlocked).map(pack => {
+                            const progress = multilingualProgressRef.current[pack.id]
+                            const isActive = activeMultilingualPack === pack.id
+                            return (
+                              <button
+                                key={`multi-${pack.id}`}
+                                onClick={() => {
+                                  setActiveMultilingualPack(pack.id)
+                                  setActiveWordPack('default')
+                                  setActivePack('default')
+                                  if (typeof window !== 'undefined') localStorage.setItem('wordsnake_active_multilingual_pack', pack.id)
+                                  playSound(playClickSound)
+                                }}
+                                className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all duration-200 border active:scale-95 multi-source-btn ${
+                                  isActive
+                                    ? 'text-white shadow-sm'
+                                    : 'border-slate-700/30 hover:border-slate-600/50 hover:text-slate-100'
+                                }`}
+                                style={isActive ? {
+                                  backgroundColor: `${pack.color}30`,
+                                  borderColor: `${pack.color}60`,
+                                  boxShadow: `0 0 10px ${pack.color}25`,
+                                } : {
+                                  backgroundColor: `${pack.color}08`,
+                                  color: '#94a3b8',
+                                }}
+                                title={`${pack.flag} ${pack.nativeName}: ${pack.words.length} words${progress ? ` (${progress.collected}/${progress.total})` : ''}`}
+                              >
+                                <span>{pack.flag}</span>
+                                <span>{pack.nativeName}</span>
+                                {progress && progress.percent > 0 && (
+                                  <span className="text-[8px] opacity-60">{progress.percent}%</span>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {activeWordPack !== 'default' && (() => {
                     const activePack = WORD_PACKS.find(p => p.id === activeWordPack)
