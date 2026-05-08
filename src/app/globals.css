@@ -1335,3 +1335,153 @@
 .pack-unlock-burst {
   animation: pack-unlock-burst-kf 0.5s ease-out;
 }
+
+/* ===== Round 17 CSS Animation Polish ===== */
+
+/* 1. visualizer-bar-dance — Bouncy stagger effect for sound visualizer bars */
+@keyframes viz-bar-dance {
+  0%, 100% { transform: scaleY(0.3); }
+  25% { transform: scaleY(1); }
+  50% { transform: scaleY(0.6); }
+  75% { transform: scaleY(0.9); }
+}
+
+.viz-bar-dance {
+  animation: viz-bar-dance 0.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+/* 2. viz-wave-flow — Smooth flowing wave for visualizer wave style */
+@keyframes viz-wave-flow {
+  0% { transform: translateX(0) scaleY(1); }
+  25% { transform: translateX(2px) scaleY(1.3); }
+  50% { transform: translateX(0) scaleY(0.8); }
+  75% { transform: translateX(-2px) scaleY(1.2); }
+  100% { transform: translateX(0) scaleY(1); }
+}
+
+.viz-wave-flow {
+  animation: viz-wave-flow 1.5s ease-in-out infinite;
+}
+
+/* 3. viz-ring-expand — Expanding ring for visualizer ring style */
+@keyframes viz-ring-expand {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 0.9; }
+  100% { transform: scale(0.8); opacity: 0.6; }
+}
+
+.viz-ring-expand {
+  animation: viz-ring-expand 2s ease-in-out infinite;
+}
+
+/* 4. viz-particle-drift — Floating particle drift for visualizer particles style */
+@keyframes viz-particle-drift {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
+  33% { transform: translateY(-20px) translateX(8px) scale(0.7); opacity: 0.5; }
+  66% { transform: translateY(-40px) translateX(-4px) scale(0.3); opacity: 0.2; }
+  100% { transform: translateY(-60px) translateX(0) scale(0); opacity: 0; }
+}
+
+.viz-particle-drift {
+  animation: viz-particle-drift 2s ease-out forwards;
+}
+
+/* 5. pvp-battle-ready — Dramatic entrance for PvP mode start */
+@keyframes pvp-battle-ready {
+  0% { transform: scale(0.5); opacity: 0; filter: blur(8px); }
+  50% { transform: scale(1.05); opacity: 1; filter: blur(0); }
+  70% { transform: scale(0.97); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0); }
+}
+
+.pvp-battle-ready {
+  animation: pvp-battle-ready 0.8s ease-out forwards;
+}
+
+/* 6. pvp-score-flash — Flash effect when a player scores in PvP */
+@keyframes pvp-score-flash {
+  0% { text-shadow: 0 0 4px currentColor; transform: scale(1); }
+  30% { text-shadow: 0 0 16px currentColor, 0 0 32px currentColor; transform: scale(1.15); }
+  100% { text-shadow: 0 0 4px currentColor; transform: scale(1); }
+}
+
+.pvp-score-flash {
+  animation: pvp-score-flash 0.5s ease-out;
+}
+
+/* 7. pvp-winner-crown — Crown bounce and glow for the winner announcement */
+@keyframes pvp-winner-crown {
+  0% { transform: translateY(-20px) scale(0); opacity: 0; }
+  40% { transform: translateY(4px) scale(1.2); opacity: 1; }
+  60% { transform: translateY(-6px) scale(0.95); }
+  80% { transform: translateY(2px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.pvp-winner-crown {
+  animation: pvp-winner-crown 1s ease-out forwards;
+}
+
+/* 8. custom-color-preview — Glow transition for custom skin color picker */
+@keyframes custom-color-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--custom-color, rgba(34, 197, 94, 0.3)); }
+  50% { box-shadow: 0 0 20px var(--custom-color, rgba(34, 197, 94, 0.6)), 0 0 40px var(--custom-color, rgba(34, 197, 94, 0.15)); }
+}
+
+.custom-color-glow {
+  animation: custom-color-glow 2s ease-in-out infinite;
+}
+
+/* 9. custom-snake-preview-bounce — Bounce entrance for custom skin preview */
+@keyframes custom-preview-enter {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+  75% { transform: scale(0.95) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.custom-preview-enter {
+  animation: custom-preview-enter 0.6s ease-out forwards;
+}
+
+/* 10. pvp-head-collision — Shake + flash for head-to-head collision */
+@keyframes pvp-collision-shake {
+  0%, 100% { transform: translateX(0); filter: brightness(1); }
+  10% { transform: translateX(-4px); filter: brightness(1.5); }
+  20% { transform: translateX(4px); filter: brightness(0.8); }
+  30% { transform: translateX(-3px); filter: brightness(1.3); }
+  40% { transform: translateX(3px); filter: brightness(0.9); }
+  50% { transform: translateX(-2px); filter: brightness(1.2); }
+  60% { transform: translateX(2px); filter: brightness(1); }
+  70% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+}
+
+.pvp-collision-shake {
+  animation: pvp-collision-shake 0.6s ease-out;
+}
+
+/* 11. viz-style-btn-glow — Colored glow for active visualizer style button */
+@keyframes viz-style-glow-kf {
+  0%, 100% { box-shadow: 0 0 4px rgba(168, 85, 247, 0.3); }
+  50% { box-shadow: 0 0 14px rgba(168, 85, 247, 0.6), 0 0 28px rgba(168, 85, 247, 0.15); }
+}
+
+.viz-style-glow {
+  animation: viz-style-glow-kf 2.5s ease-in-out infinite;
+}
+
+/* 12. color-picker-swatch-hover — Smooth lift and glow on color picker swatches */
+.color-picker-swatch {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.color-picker-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.color-picker-swatch:active {
+  transform: scale(1.05);
+}

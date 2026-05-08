@@ -6,6 +6,19 @@ import { getSoundTheme, type SoundThemeId } from '@/lib/sound-themes'
 
 let audioCtx: AudioContext | null = null
 
+// ── Visualizer pulse intensity (used by sound-visualizer.ts) ───────────
+export let visualizerPulseIntensity = 0
+
+export function getVisualizerPulseIntensity(): number {
+  return visualizerPulseIntensity
+}
+
+export function decayVisualizerPulse(dt: number): void {
+  if (visualizerPulseIntensity > 0) {
+    visualizerPulseIntensity = Math.max(0, visualizerPulseIntensity - 2.0 * dt)
+  }
+}
+
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
     audioCtx = new AudioContext()
@@ -63,6 +76,7 @@ export function playEatSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 export function playGameOverSound() {
@@ -101,6 +115,7 @@ export function playGameOverSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 export function playStartSound() {
@@ -128,6 +143,7 @@ export function playStartSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 export function playPauseSound() {
@@ -151,6 +167,7 @@ export function playPauseSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 export function playPoemSound() {
@@ -190,6 +207,7 @@ export function playPoemSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 export function playPowerUpSound() {
@@ -230,6 +248,7 @@ export function playPowerUpSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 export function playClickSound() {
@@ -281,6 +300,7 @@ export function playThemePreviewSound(themeId: SoundThemeId) {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }
 
 // Easter egg discovery sound — a magical rising arpeggio with shimmer
@@ -338,4 +358,5 @@ export function playEasterEggSound() {
   } catch {
     // Audio not available
   }
+  visualizerPulseIntensity = 1.0
 }

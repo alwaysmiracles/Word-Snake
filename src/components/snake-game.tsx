@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWordStore } from '@/lib/word-store'
 import { toast } from '@/hooks/use-toast'
 import { getRandomWordWithCategories, getWordCountByCategory, getWordEntry, getWordEntryIncludingCustom, getCategoryInfo, CATEGORY_COLORS, type WordCategory, WORD_ENTRIES, WordRarity, RARITY_CONFIG, getRarityForPoints, getRandomRarity } from '@/lib/word-pool'
-import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound, setSoundTheme, playThemePreviewSound, playEasterEggSound } from '@/lib/sounds'
+import { playEatSound, playGameOverSound, playStartSound, playPauseSound, playClickSound, playPowerUpSound, setSoundTheme, playThemePreviewSound, playEasterEggSound, decayVisualizerPulse } from '@/lib/sounds'
 import { checkAchievements, type AchievementStats } from '@/lib/achievements'
 import { AchievementQueue, type AchievementNotification } from '@/lib/achievement-queue'
 import { checkMilestones, getActiveMilestoneBonuses, MILESTONE_CONFIG, type MilestoneConfig } from '@/lib/achievement-milestones'
@@ -29,6 +29,7 @@ import { getGridTheme, getAllGridThemes, getSavedGridTheme, saveGridTheme, type 
 import { getSavedSoundTheme, getAllSoundThemes, saveSoundTheme, type SoundThemeId } from '@/lib/sound-themes'
 import { getSavedTrail, getAllTrails, saveTrail, type SnakeTrailType, spawnTrailParticles, drawTrail, updateTrailParticles, type TrailParticle } from '@/lib/snake-trails'
 import KeyboardShortcutsDialog from '@/components/keyboard-shortcuts-dialog'
+import { updateVisualizer, drawVisualizer, resetVisualizer, getVisualizerConfig, isVisualizerActive, type VisualizerBar } from '@/lib/sound-visualizer'
 import SettingsPanel from '@/components/settings-panel'
 import GameOverStats from '@/components/game-over-stats'
 import { isSpeechSupported, pronounceWord } from '@/lib/word-pronunciation'
@@ -39,6 +40,7 @@ import { calculateInGameDifficulty, getSpeedMultiplier, type InGameDifficulty } 
 import { downloadShareCard, type ShareCardData } from '@/lib/share-card'
 import { WORD_PACKS, getActivePack, setActivePack, isPackUnlocked, getWordsFromPack, getPackWordEntry, getPackCategoryInfo, checkPackUnlocks, type WordPack, PACK_CATEGORY_INFO } from '@/lib/word-packs'
 import { isTutorialCompleted, markTutorialCompleted, saveTutorialProgress, resetTutorial as resetTutorialData, createTutorialState, type TutorialState } from '@/lib/tutorial'
+import { createPvPState, P2_COLORS, type PvPState } from '@/lib/pvp-mode'
 import {
   Play,
   RotateCcw,
@@ -315,6 +317,8 @@ export default function SnakeGame() {
   // Trail state
   const [activeTrail, setActiveTrail] = useState<SnakeTrailType>('none')
   const trailParticlesRef = useRef<TrailParticle[]>([])
+  const visualizerBarsRef = useRef<VisualizerBar[]>([])
+  const lastFrameTimeRef = useRef(0)
 
   // Daily challenge state (lazy init to avoid hydration mismatch)
   const [dailyInfo, setDailyInfo] = useState<{
@@ -448,7 +452,9 @@ export default function SnakeGame() {
   const lastRenderRef = useRef(0)
   const animFrameRef = useRef<number>(0)
   const directionQueueRef = useRef<Direction[]>([])
+  const p2DirectionQueueRef = useRef<Direction[]>([])
   const collectedWordsRef = useRef<Set<string>>(new Set())
+  const pvpRef = useRef<PvPState | null>(null)
   const floatingTextsRef = useRef<FloatingText[]>([])
   const particlesRef = useRef<Particle[]>([])
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
@@ -669,6 +675,13 @@ export default function SnakeGame() {
   const spawnWord = useCallback(() => {
     const gs = gameStateRef.current
     const occupiedPositions = new Set(gs.snake.map((s) => `${s.x},${s.y}`))
+    // Include Player 2 positions in PvP mode
+    const pvpSpawn = pvpRef.current
+    if (pvpSpawn) {
+      for (const seg of pvpSpawn.player2Snake) {
+        occupiedPositions.add(`${seg.x},${seg.y}`)
+      }
+    }
 
     let word: string
     let category: WordCategory
@@ -720,6 +733,71 @@ export default function SnakeGame() {
     const rarity = getRandomRarity()
     gs.wordFood = { word, position: pos, spawnTime: Date.now(), category, rarity }
   }, [])
+
+  const startPvP = useCallback(() => {
+    const gs = gameStateRef.current
+    const diff = gs.difficulty
+    const settings = DIFFICULTY_SETTINGS[diff]
+    gs.snake = [
+      { x: 5, y: 12 },
+      { x: 4, y: 12 },
+      { x: 3, y: 12 },
+    ]
+    gs.direction = 'RIGHT'
+    gs.gameOver = false
+    gs.paused = false
+    gs.score = 0
+    gs.speed = settings.speed
+    gs.wordsEaten = 0
+    gs.gameStarted = true
+    gs.wordFood = null
+    gs.startTime = Date.now()
+    gs.elapsedTime = 0
+    directionQueueRef.current = []
+    p2DirectionQueueRef.current = []
+    floatingTextsRef.current = []
+    particlesRef.current = []
+    collectedWordsRef.current = new Set()
+    easterEggParticlesRef.current = []
+    setActiveEasterEggs([])
+    resetEasterEggForNewGame()
+    setLeaderboardRank(0)
+    gs.isDailyChallenge = false
+    gs.dailyChallengeWords = []
+    gs.dailyWordsCollected = []
+    gs.dailyTargetScore = 0
+    gs.streakMultiplier = 1
+    gs.powerUp = null
+    gs.activePowerUps = []
+    gs.comboCount = 0
+    gs.lastEatenCategory = null
+    gs.comboMultiplier = 1
+    achievementQueue.clear()
+    gs.lastAchievement = null
+    if (toastTimerRef.current) { clearTimeout(toastTimerRef.current); toastTimerRef.current = null }
+    if (milestoneToastTimerRef.current) { clearTimeout(milestoneToastTimerRef.current); milestoneToastTimerRef.current = null }
+    gs.lastMilestone = null
+    gs.extraLifeAvailable = false
+    gs.weather = 'clear' // PvP always clear weather for fairness
+    weatherParticlesRef.current = []
+    gs.isSpeedRun = false
+    gs.speedRunTimeLeft = getSpeedRunDuration()
+    gs.speedRunMaxCombo = 0
+    gs.speedRunPowerUpsCollected = 0
+    gs.speedRunLongestSnake = gs.snake.length
+    gs.wordsByCategory = {}
+    gs.inGameDifficulty = null
+    prevInGameDiffLevelRef.current = 0
+    // Initialize PvP state
+    pvpRef.current = createPvPState()
+    spawnWord()
+    playSound(playStartSound)
+    try {
+      const games = parseInt(localStorage.getItem('word-snake-games') ?? '0', 10) + 1
+      localStorage.setItem('word-snake-games', String(games))
+    } catch { /* ignore */ }
+    updateUI()
+  }, [spawnWord, updateUI, playSound])
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000)
@@ -826,6 +904,11 @@ export default function SnakeGame() {
         }
       }
       ctx.globalAlpha = 1
+    }
+
+    // Sound visualizer (background effect behind game elements)
+    if (isVisualizerActive()) {
+      drawVisualizer(ctx, { width: CANVAS_WIDTH, height: CANVAS_HEIGHT }, visualizerBarsRef.current)
     }
 
     // Weather effects
@@ -1087,6 +1170,73 @@ export default function SnakeGame() {
         }
       }
     })
+
+    // ===== PvP: Draw Player 2 Snake =====
+    const pvpDraw = pvpRef.current
+    if (pvpDraw && pvpDraw.player2Snake.length > 0) {
+      // P2 body trail glow
+      ctx.globalAlpha = 0.04
+      ctx.fillStyle = P2_COLORS.glow
+      for (const seg of pvpDraw.player2Snake) {
+        ctx.beginPath()
+        ctx.arc(seg.x * CELL_SIZE + CELL_SIZE / 2, seg.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE * 0.8, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+
+      pvpDraw.player2Snake.forEach((segment, index) => {
+        const ratio = 1 - index / pvpDraw.player2Snake.length
+        if (index === 0) {
+          // P2 Head
+          ctx.shadowColor = P2_COLORS.glow
+          ctx.shadowBlur = 12
+          ctx.fillStyle = P2_COLORS.head
+          ctx.beginPath()
+          ctx.roundRect(segment.x * CELL_SIZE + 1, segment.y * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2, 5)
+          ctx.fill()
+          ctx.shadowBlur = 0
+
+          // P2 Eyes
+          const eyeSize = 2.5
+          const cx = segment.x * CELL_SIZE + CELL_SIZE / 2
+          const cy = segment.y * CELL_SIZE + CELL_SIZE / 2
+          let eye1x: number, eye1y: number, eye2x: number, eye2y: number
+          if (pvpDraw.player2Direction === 'RIGHT') { eye1x = cx + 4; eye1y = cy - 3.5; eye2x = cx + 4; eye2y = cy + 3.5 }
+          else if (pvpDraw.player2Direction === 'LEFT') { eye1x = cx - 4; eye1y = cy - 3.5; eye2x = cx - 4; eye2y = cy + 3.5 }
+          else if (pvpDraw.player2Direction === 'UP') { eye1x = cx - 3.5; eye1y = cy - 4; eye2x = cx + 3.5; eye2y = cy - 4 }
+          else { eye1x = cx - 3.5; eye1y = cy + 4; eye2x = cx + 3.5; eye2y = cy + 4 }
+          ctx.fillStyle = P2_COLORS.eyeOuter
+          ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
+          ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize + 1, 0, Math.PI * 2); ctx.fill()
+          ctx.fillStyle = gridTheme.bgColor
+          ctx.beginPath(); ctx.arc(eye1x, eye1y, eyeSize, 0, Math.PI * 2); ctx.fill()
+          ctx.beginPath(); ctx.arc(eye2x, eye2y, eyeSize, 0, Math.PI * 2); ctx.fill()
+
+          // P2 label near head
+          ctx.globalAlpha = 0.5
+          ctx.fillStyle = '#06b6d4'
+          ctx.font = 'bold 8px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'bottom'
+          ctx.fillText('P2', cx, segment.y * CELL_SIZE - 2)
+          ctx.textAlign = 'start'
+          ctx.textBaseline = 'alphabetic'
+          ctx.globalAlpha = 1
+        } else {
+          // P2 Body - gradient from cyan to teal
+          const startRgb = hexToRgb(P2_COLORS.bodyStart)
+          const endRgb = hexToRgb(P2_COLORS.bodyEnd)
+          const alpha = 0.6 + ratio * 0.4
+          const r = Math.floor(startRgb.r + (endRgb.r - startRgb.r) * ratio)
+          const g = Math.floor(startRgb.g + (endRgb.g - startRgb.g) * ratio)
+          const b = Math.floor(startRgb.b + (endRgb.b - startRgb.b) * ratio)
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`
+          ctx.beginPath()
+          ctx.roundRect(segment.x * CELL_SIZE + 2, segment.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4, 3)
+          ctx.fill()
+        }
+      })
+    }
 
     // Platinum milestone: golden sparkle particle trail behind snake head
     if (gameStarted && !gameOver && !paused && snake.length > 0) {
@@ -1530,6 +1680,66 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
+    // PvP Score HUD (top center)
+    if (pvpDraw && gameStarted) {
+      const hudY = gameOver ? 10 : 10
+      const barW = 200
+      const barH = 22
+      const barX = (CANVAS_WIDTH - barW) / 2
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+      ctx.beginPath()
+      ctx.roundRect(barX, hudY, barW, barH, 6)
+      ctx.fill()
+
+      // P1 score (green)
+      ctx.fillStyle = '#4ade80'
+      ctx.font = 'bold 11px sans-serif'
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(`P1: ${gs.score}`, barX + 10, hudY + barH / 2)
+
+      // Divider
+      ctx.fillStyle = '#475569'
+      ctx.fillText('|', CANVAS_WIDTH / 2 - 4, hudY + barH / 2)
+
+      // P2 score (cyan)
+      ctx.fillStyle = '#22d3ee'
+      ctx.textAlign = 'right'
+      ctx.fillText(`P2: ${pvpDraw.player2Score}`, barX + barW - 10, hudY + barH / 2)
+
+      ctx.textAlign = 'start'
+      ctx.textBaseline = 'alphabetic'
+
+      // P2 words collected list (right side of canvas)
+      if (!gameOver) {
+        const wordsListX = CANVAS_WIDTH - 8
+        const wordsListY = 40
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.12)'
+        ctx.beginPath()
+        ctx.roundRect(wordsListX - 100, wordsListY - 12, 108, Math.min(pvpDraw.player2WordsEaten.length * 14 + 18, 120), 4)
+        ctx.fill()
+        ctx.fillStyle = '#22d3ee'
+        ctx.font = 'bold 8px sans-serif'
+        ctx.textAlign = 'right'
+        ctx.textBaseline = 'top'
+        ctx.fillText('P2 Words', wordsListX, wordsListY - 10)
+        const maxShow = 7
+        const recentWords = pvpDraw.player2WordsEaten.slice(-maxShow)
+        ctx.font = '9px monospace'
+        ctx.fillStyle = '#94a3b8'
+        recentWords.forEach((w, i) => {
+          ctx.fillText(w, wordsListX, wordsListY + 4 + i * 14)
+        })
+        if (pvpDraw.player2WordsEaten.length > maxShow) {
+          ctx.fillStyle = '#475569'
+          ctx.fillText(`+${pvpDraw.player2WordsEaten.length - maxShow} more`, wordsListX, wordsListY + 4 + maxShow * 14)
+        }
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+      }
+    }
+
     // Scanlines overlay (retro CRT effect)
     if (gridTheme.scanlines) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'
@@ -1613,6 +1823,67 @@ export default function SnakeGame() {
 
     // Game over overlay
     if (gameOver) {
+      // PvP game over overlay
+      if (pvpDraw && pvpDraw.winner) {
+        const goBg = hexToRgb(gridTheme.bgColor)
+        ctx.fillStyle = `rgba(${goBg.r}, ${goBg.g}, ${goBg.b}, 0.88)`
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+        let titleText: string
+        let titleColor: string
+        let subtitleEmoji: string
+        if (pvpDraw.winner === 'player1') {
+          titleText = 'Player 1 Wins!'
+          titleColor = '#4ade80'
+          subtitleEmoji = '🏆'
+        } else if (pvpDraw.winner === 'player2') {
+          titleText = 'Player 2 Wins!'
+          titleColor = '#22d3ee'
+          subtitleEmoji = '🏆'
+        } else {
+          titleText = "It's a Tie!"
+          titleColor = '#fbbf24'
+          subtitleEmoji = '🤝'
+        }
+
+        // Decorative line
+        const lineGrad = ctx.createLinearGradient(CANVAS_WIDTH * 0.2, 0, CANVAS_WIDTH * 0.8, 0)
+        lineGrad.addColorStop(0, 'rgba(148, 163, 184, 0)')
+        lineGrad.addColorStop(0.5, titleColor + '99')
+        lineGrad.addColorStop(1, 'rgba(148, 163, 184, 0)')
+        ctx.strokeStyle = lineGrad; ctx.lineWidth = 1
+        ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 - 90); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 - 90); ctx.stroke()
+
+        // Title
+        ctx.fillStyle = titleColor
+        ctx.font = 'bold 36px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(`${subtitleEmoji} ${titleText} ${subtitleEmoji}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50)
+
+        // Score summary
+        ctx.font = '18px sans-serif'
+        ctx.fillStyle = '#4ade80'
+        ctx.fillText(`P1: ${gs.score} pts`, CANVAS_WIDTH / 2 - 90, CANVAS_HEIGHT / 2)
+        ctx.fillStyle = '#22d3ee'
+        ctx.fillText(`P2: ${pvpDraw.player2Score} pts`, CANVAS_WIDTH / 2 + 90, CANVAS_HEIGHT / 2)
+
+        // Words eaten
+        ctx.fillStyle = '#64748b'
+        ctx.font = '14px sans-serif'
+        ctx.fillText(`P1 ate ${gs.wordsEaten} words  •  P2 ate ${pvpDraw.player2WordsEaten.length} words  •  ${formatTime(gs.elapsedTime)}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 30)
+
+        // Bottom line
+        ctx.strokeStyle = lineGrad
+        ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.15, CANVAS_HEIGHT / 2 + 60); ctx.lineTo(CANVAS_WIDTH * 0.85, CANVAS_HEIGHT / 2 + 60); ctx.stroke()
+
+        const alpha = 0.5 + Math.sin(Date.now() / 500) * 0.3
+        ctx.fillStyle = `rgba(148, 163, 184, ${alpha})`; ctx.font = '14px sans-serif'
+        ctx.fillText('Press Space or click to return to menu', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 85)
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+      } else {
+        // Original single-player game over overlay
       const goBg = hexToRgb(gridTheme.bgColor)
       ctx.fillStyle = `rgba(${goBg.r}, ${goBg.g}, ${goBg.b}, 0.88)`
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -1685,6 +1956,7 @@ export default function SnakeGame() {
       ctx.fillStyle = `rgba(74, 222, 128, ${alpha})`; ctx.font = '14px sans-serif'
       ctx.fillText('Press Space or click to restart', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 115)
       ctx.textAlign = 'start'
+      } // end else single-player game over
     }
 
     // Start screen
@@ -1987,13 +2259,17 @@ export default function SnakeGame() {
     gs.startTime = Date.now()
     gs.elapsedTime = 0
     directionQueueRef.current = []
+    p2DirectionQueueRef.current = []
     floatingTextsRef.current = []
     particlesRef.current = []
     collectedWordsRef.current = new Set()
     easterEggParticlesRef.current = []
+    resetVisualizer()
     setActiveEasterEggs([])
     resetEasterEggForNewGame()
     setLeaderboardRank(0)
+    // Clear PvP state (PvP mode is session-only, not persisted)
+    pvpRef.current = null
 
     // Daily challenge setup
     if (isDaily) {
@@ -2125,6 +2401,18 @@ export default function SnakeGame() {
     const gameLoop = (timestamp: number) => {
       const gs = gameStateRef.current
 
+      // Compute deltaTime for visualizer
+      const dt = lastFrameTimeRef.current > 0
+        ? Math.min((timestamp - lastFrameTimeRef.current) / 1000, 0.1)
+        : 0.016
+      lastFrameTimeRef.current = timestamp
+
+      // Decay visualizer pulse and update bars
+      if (isVisualizerActive()) {
+        decayVisualizerPulse(dt)
+        visualizerBarsRef.current = updateVisualizer(dt)
+      }
+
       if (!gs.gameStarted || gs.gameOver || gs.paused) {
         draw()
         animFrameRef.current = requestAnimationFrame(gameLoop)
@@ -2172,6 +2460,298 @@ export default function SnakeGame() {
       }
 
       lastRenderRef.current = timestamp
+
+      // ===== PvP GAME LOOP =====
+      const pvp = pvpRef.current
+      if (pvp) {
+        // Expire P2 power-ups
+        const pvpNow = Date.now()
+        pvp.player2ActivePowerUps = pvp.player2ActivePowerUps.filter(pu => pu.expiresAt === 0 || pu.expiresAt > pvpNow)
+
+        // Process P1 direction
+        if (directionQueueRef.current.length > 0) {
+          const newDir = directionQueueRef.current.shift()!
+          const opp: Record<Direction, Direction> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' }
+          if (opp[newDir] !== gs.direction) gs.direction = newDir
+        }
+
+        // Process P2 direction
+        if (p2DirectionQueueRef.current.length > 0 && pvp.player2Alive) {
+          const p2Dir = p2DirectionQueueRef.current.shift()!
+          const opp2: Record<Direction, Direction> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' }
+          if (opp2[p2Dir] !== pvp.player2Direction) pvp.player2Direction = p2Dir
+        }
+
+        // Compute new head positions
+        const p1Head = { ...gs.snake[0] }
+        switch (gs.direction) {
+          case 'UP': p1Head.y -= 1; break
+          case 'DOWN': p1Head.y += 1; break
+          case 'LEFT': p1Head.x -= 1; break
+          case 'RIGHT': p1Head.x += 1; break
+        }
+
+        const p2Head = { ...pvp.player2Snake[0] }
+        if (pvp.player2Alive) {
+          switch (pvp.player2Direction) {
+            case 'UP': p2Head.y -= 1; break
+            case 'DOWN': p2Head.y += 1; break
+            case 'LEFT': p2Head.x -= 1; break
+            case 'RIGHT': p2Head.x += 1; break
+          }
+        }
+
+        let p1Died = false
+        let p2Died = false
+
+        // P1 wall collision
+        if (p1Head.x < 0 || p1Head.x >= GRID_WIDTH || p1Head.y < 0 || p1Head.y >= GRID_HEIGHT) {
+          const hasShield = gs.activePowerUps.some(pu => pu.type === 'shield')
+          if (hasShield) {
+            gs.activePowerUps = gs.activePowerUps.filter(pu => pu.type !== 'shield')
+            if (p1Head.x < 0) p1Head.x = GRID_WIDTH - 1
+            else if (p1Head.x >= GRID_WIDTH) p1Head.x = 0
+            else if (p1Head.y < 0) p1Head.y = GRID_HEIGHT - 1
+            else if (p1Head.y >= GRID_HEIGHT) p1Head.y = 0
+            spawnFloatingText('🛡️', p1Head.x * CELL_SIZE + CELL_SIZE / 2, p1Head.y * CELL_SIZE - 10, '#60a5fa')
+          } else {
+            p1Died = true
+          }
+        }
+
+        // P2 wall collision
+        if (pvp.player2Alive && !p2Died) {
+          if (p2Head.x < 0 || p2Head.x >= GRID_WIDTH || p2Head.y < 0 || p2Head.y >= GRID_HEIGHT) {
+            const hasP2Shield = pvp.player2ActivePowerUps.some(pu => pu.type === 'shield')
+            if (hasP2Shield) {
+              pvp.player2ActivePowerUps = pvp.player2ActivePowerUps.filter(pu => pu.type !== 'shield')
+              if (p2Head.x < 0) p2Head.x = GRID_WIDTH - 1
+              else if (p2Head.x >= GRID_WIDTH) p2Head.x = 0
+              else if (p2Head.y < 0) p2Head.y = GRID_HEIGHT - 1
+              else if (p2Head.y >= GRID_HEIGHT) p2Head.y = 0
+              spawnFloatingText('🛡️', p2Head.x * CELL_SIZE + CELL_SIZE / 2, p2Head.y * CELL_SIZE - 10, '#60a5fa')
+            } else {
+              p2Died = true
+            }
+          }
+        }
+
+        // P1 self collision
+        if (!p1Died && gs.snake.some((s) => s.x === p1Head.x && s.y === p1Head.y)) {
+          p1Died = true
+        }
+
+        // P2 self collision
+        if (pvp.player2Alive && !p2Died && pvp.player2Snake.some((s) => s.x === p2Head.x && s.y === p2Head.y)) {
+          p2Died = true
+        }
+
+        // Tentatively update snakes for cross-collision checks
+        if (!p1Died) gs.snake = [p1Head, ...gs.snake]
+        if (pvp.player2Alive && !p2Died) pvp.player2Snake = [p2Head, ...pvp.player2Snake]
+
+        // Cross collision: P1 head on P2 body (exclude P2 head at index 0)
+        if (!p1Died && !p2Died) {
+          const p1OnP2Body = pvp.player2Snake.some((s, i) => i > 0 && s.x === p1Head.x && s.y === p1Head.y)
+          if (p1OnP2Body) p1Died = true
+
+          const p2OnP1Body = gs.snake.some((s, i) => i > 0 && s.x === p2Head.x && s.y === p2Head.y)
+          if (p2OnP1Body) p2Died = true
+
+          // Head-to-head
+          if (p1Head.x === p2Head.x && p1Head.y === p2Head.y) {
+            p1Died = true
+            p2Died = true
+          }
+        }
+
+        // Handle deaths
+        if (p1Died || p2Died) {
+          gs.gameOver = true
+          if (p1Died && p2Died) pvp.winner = 'tie'
+          else if (p1Died) pvp.winner = 'player2'
+          else pvp.winner = 'player1'
+
+          // Spawn death particles
+          if (p1Died) {
+            const hx = gs.snake[0].x * CELL_SIZE + CELL_SIZE / 2
+            const hy = gs.snake[0].y * CELL_SIZE + CELL_SIZE / 2
+            spawnParticles(hx, hy, '#ef4444', 20)
+          }
+          if (p2Died) {
+            const hx = pvp.player2Snake[0].x * CELL_SIZE + CELL_SIZE / 2
+            const hy = pvp.player2Snake[0].y * CELL_SIZE + CELL_SIZE / 2
+            spawnParticles(hx, hy, '#06b6d4', 20)
+          }
+          playSound(playGameOverSound)
+          updateUI()
+          draw()
+          animFrameRef.current = requestAnimationFrame(gameLoop)
+          return
+        }
+
+        // --- Food eating ---
+        let whoAte: 'p1' | 'p2' | null = null
+        const { snake, direction, wordFood } = gs
+
+        if (wordFood) {
+          const fx = wordFood.position.x
+          const fy = wordFood.position.y
+
+          // Check proximity helper
+          const isNear = (hx: number, hy: number) =>
+            (hx === fx && hy === fy) ||
+            (hx === fx + 1 && hy === fy) ||
+            (hx === fx - 1 && hy === fy) ||
+            (hx === fx && hy === fy + 1) ||
+            (hx === fx && hy === fy - 1)
+
+          // P1 eats food?
+          if (isNear(p1Head.x, p1Head.y)) {
+            const entry = getWordEntryIncludingCustom(wordFood.word)
+            let points = entry ? entry.points : wordFood.word.length * 10
+            const rarityConfig = RARITY_CONFIG[wordFood.rarity]
+            if (rarityConfig && rarityConfig.pointMultiplier > 1) {
+              points += Math.floor(points * (rarityConfig.pointMultiplier - 1))
+            }
+            if (gs.activePowerUps.some(pu => pu.type === 'double_points')) points *= 2
+            const catColor = CATEGORY_COLORS[wordFood.category] ?? '#f59e0b'
+            addWord(wordFood.word)
+            collectedWordsRef.current.add(wordFood.word)
+            gs.score += points
+            gs.wordsEaten += 1
+            whoAte = 'p1'
+            const wx = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
+            const wy = wordFood.position.y * CELL_SIZE
+            spawnFloatingText(`+${points}`, wx, wy, '#4ade80')
+            spawnFloatingText(wordFood.word, wx, wy - 22, catColor)
+            spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 10)
+            playSound(playEatSound)
+          } else if (isNear(p2Head.x, p2Head.y)) {
+            // P2 eats food?
+            const entry = getWordEntryIncludingCustom(wordFood.word)
+            let points = entry ? entry.points : wordFood.word.length * 10
+            const rarityConfig = RARITY_CONFIG[wordFood.rarity]
+            if (rarityConfig && rarityConfig.pointMultiplier > 1) {
+              points += Math.floor(points * (rarityConfig.pointMultiplier - 1))
+            }
+            if (pvp.player2ActivePowerUps.some(pu => pu.type === 'double_points')) points *= 2
+            pvp.player2Score += points
+            pvp.player2WordsEaten.push(wordFood.word)
+            addWord(wordFood.word)
+            whoAte = 'p2'
+            const wx = wordFood.position.x * CELL_SIZE + CELL_SIZE / 2
+            const wy = wordFood.position.y * CELL_SIZE
+            const catColor = CATEGORY_COLORS[wordFood.category] ?? '#f59e0b'
+            spawnFloatingText(`P2 +${points}`, wx, wy, '#06b6d4')
+            spawnFloatingText(wordFood.word, wx, wy - 22, '#22d3ee')
+            spawnParticles(wx, wy + CELL_SIZE / 2, '#06b6d4', 10)
+            playSound(playEatSound)
+          }
+
+          // Remove tail for non-eaters; eater keeps tail (grows)
+          if (whoAte === 'p1') {
+            pvp.player2Snake.pop()
+          } else if (whoAte === 'p2') {
+            gs.snake.pop()
+          } else {
+            gs.snake.pop()
+            pvp.player2Snake.pop()
+          }
+          gs.wordFood = null
+          // Spawn new word (food was eaten)
+          spawnWord()
+        } else {
+          gs.snake.pop()
+          pvp.player2Snake.pop()
+        }
+
+        // Chance to spawn power-up after food eaten
+        if (whoAte && !gs.powerUp) {
+          if (Math.random() < POWERUP_SPAWN_CHANCE) {
+            const puType = getRandomPowerUpType()
+            const occupied = new Set([
+              ...gs.snake.map(s => `${s.x},${s.y}`),
+              ...pvp.player2Snake.map(s => `${s.x},${s.y}`),
+            ])
+            let puPos: Position
+            let attempts = 0
+            do {
+              puPos = {
+                x: Math.floor(Math.random() * (GRID_WIDTH - 6)) + 3,
+                y: Math.floor(Math.random() * (GRID_HEIGHT - 6)) + 3,
+              }
+              attempts++
+            } while (occupied.has(`${puPos.x},${puPos.y}`) && attempts < 50)
+            gs.powerUp = { type: puType, position: puPos, spawnTime: Date.now() }
+          }
+        }
+
+        // Power-up collection for P1
+        if (gs.powerUp && !p1Died) {
+          const pu = gs.powerUp
+          if (p1Head.x === pu.position.x && p1Head.y === pu.position.y) {
+            const config = POWERUP_CONFIG[pu.type]
+            if (pu.type === 'shrink') {
+              const removeCount = Math.min(3, gs.snake.length - 1)
+              gs.snake = gs.snake.slice(0, gs.snake.length - removeCount)
+            } else {
+              gs.activePowerUps.push({ type: pu.type, expiresAt: config.duration > 0 ? Date.now() + config.duration * 1000 : 0 })
+            }
+            const px = pu.position.x * CELL_SIZE + CELL_SIZE / 2
+            const py = pu.position.y * CELL_SIZE + CELL_SIZE / 2
+            spawnFloatingText(config.emoji, px, py - 10, config.color)
+            spawnParticles(px, py, config.color, 12)
+            playSound(playPowerUpSound)
+            gs.powerUp = null
+          }
+        }
+
+        // Power-up collection for P2
+        if (gs.powerUp && pvp.player2Alive && !p2Died) {
+          const pu = gs.powerUp
+          if (p2Head.x === pu.position.x && p2Head.y === pu.position.y) {
+            const config = POWERUP_CONFIG[pu.type]
+            if (pu.type === 'shrink') {
+              const removeCount = Math.min(3, pvp.player2Snake.length - 1)
+              pvp.player2Snake = pvp.player2Snake.slice(0, pvp.player2Snake.length - removeCount)
+            } else {
+              pvp.player2ActivePowerUps.push({ type: pu.type, expiresAt: config.duration > 0 ? Date.now() + config.duration * 1000 : 0 })
+            }
+            const px = pu.position.x * CELL_SIZE + CELL_SIZE / 2
+            const py = pu.position.y * CELL_SIZE + CELL_SIZE / 2
+            spawnFloatingText(`P2 ${config.emoji}`, px, py - 10, config.color)
+            spawnParticles(px, py, '#06b6d4', 12)
+            playSound(playPowerUpSound)
+            gs.powerUp = null
+          }
+        }
+
+        // Magnet effect — attract food toward the collecting player's head
+        if (gs.wordFood) {
+          if (gs.activePowerUps.some(pu => pu.type === 'magnet')) {
+            const headPos = gs.snake[0]
+            const foodPos = gs.wordFood.position
+            if (Math.abs(headPos.x - foodPos.x) > 0) foodPos.x += Math.sign(headPos.x - foodPos.x)
+            if (Math.abs(headPos.y - foodPos.y) > 0) foodPos.y += Math.sign(headPos.y - foodPos.y)
+          } else if (pvp.player2ActivePowerUps.some(pu => pu.type === 'magnet')) {
+            const headPos = pvp.player2Snake[0]
+            const foodPos = gs.wordFood.position
+            if (Math.abs(headPos.x - foodPos.x) > 0) foodPos.x += Math.sign(headPos.x - foodPos.x)
+            if (Math.abs(headPos.y - foodPos.y) > 0) foodPos.y += Math.sign(headPos.y - foodPos.y)
+          }
+        }
+
+        // Speed up over time (shared)
+        const settings = DIFFICULTY_SETTINGS[gs.difficulty]
+        gs.speed = Math.max(settings.minSpeed, gs.speed - 0.02)
+
+        updateUI()
+        draw()
+        animFrameRef.current = requestAnimationFrame(gameLoop)
+        return
+      }
+      // ===== END PvP GAME LOOP =====
 
       if (directionQueueRef.current.length > 0) {
         const newDir = directionQueueRef.current.shift()!
@@ -2694,6 +3274,7 @@ export default function SnakeGame() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const gs = gameStateRef.current
+      const isPvPActive = !!pvpRef.current
       if (e.key === ' ') {
         e.preventDefault()
         if (gs.gameOver) { resetGame(gs.isDailyChallenge) }
@@ -2714,15 +3295,18 @@ export default function SnakeGame() {
         updateUI()
         return
       }
-      if (e.key === 's' || e.key === 'S') {
-        e.preventDefault()
-        if (!gs.gameStarted) resetGame()
-        return
-      }
-      if (e.key === 'd' || e.key === 'D') {
-        e.preventDefault()
-        if (!gs.gameStarted) { resetGame(true) }
-        return
+      // In PvP mode, skip the s/d special shortcuts (they're direction controls for P1)
+      if (!isPvPActive) {
+        if (e.key === 's' || e.key === 'S') {
+          e.preventDefault()
+          if (!gs.gameStarted) resetGame()
+          return
+        }
+        if (e.key === 'd' || e.key === 'D') {
+          e.preventDefault()
+          if (!gs.gameStarted) { resetGame(true) }
+          return
+        }
       }
       if (e.key === 'Tab') {
         e.preventDefault()
@@ -2755,34 +3339,61 @@ export default function SnakeGame() {
       if (e.key === '3') { e.preventDefault(); if (!gs.gameStarted || gs.gameOver) changeDifficulty('hard'); return }
       if (!gs.gameStarted || gs.gameOver || gs.paused) return
 
-      const keyToDir: Record<string, Direction> = {
-        ArrowUp: 'UP', w: 'UP', W: 'UP',
-        ArrowDown: 'DOWN', s: 'DOWN', S: 'DOWN',
-        ArrowLeft: 'LEFT', a: 'LEFT', A: 'LEFT',
-        ArrowRight: 'RIGHT', d: 'RIGHT', D: 'RIGHT',
-      }
+      // Direction controls
+      if (isPvPActive) {
+        // PvP: WASD -> Player 1, Arrow Keys -> Player 2
+        const p1KeyToDir: Record<string, Direction> = {
+          w: 'UP', W: 'UP', s: 'DOWN', S: 'DOWN',
+          a: 'LEFT', A: 'LEFT', d: 'RIGHT', D: 'RIGHT',
+        }
+        const p2KeyToDir: Record<string, Direction> = {
+          ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT',
+        }
+        const p1Dir = p1KeyToDir[e.key]
+        if (p1Dir) {
+          e.preventDefault()
+          directionQueueRef.current.push(p1Dir)
+          if (directionQueueRef.current.length > 2) directionQueueRef.current = directionQueueRef.current.slice(-2)
+          return
+        }
+        const p2Dir = p2KeyToDir[e.key]
+        if (p2Dir) {
+          e.preventDefault()
+          p2DirectionQueueRef.current.push(p2Dir)
+          if (p2DirectionQueueRef.current.length > 2) p2DirectionQueueRef.current = p2DirectionQueueRef.current.slice(-2)
+          return
+        }
+      } else {
+        // Single-player: both WASD and Arrow keys control the same snake
+        const keyToDir: Record<string, Direction> = {
+          ArrowUp: 'UP', w: 'UP', W: 'UP',
+          ArrowDown: 'DOWN', s: 'DOWN', S: 'DOWN',
+          ArrowLeft: 'LEFT', a: 'LEFT', A: 'LEFT',
+          ArrowRight: 'RIGHT', d: 'RIGHT', D: 'RIGHT',
+        }
 
-      // Easter egg: reverse controls (Chaos Mode)
-      const reverseMap: Record<Direction, Direction> = {
-        UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT',
-      }
-      const isReversed = hasActiveEffect('reverse_controls')
+        // Easter egg: reverse controls (Chaos Mode)
+        const reverseMap: Record<Direction, Direction> = {
+          UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT',
+        }
+        const isReversed = hasActiveEffect('reverse_controls')
 
-      let newDir = keyToDir[e.key]
-      if (newDir && isReversed) {
-        newDir = reverseMap[newDir]
-      }
-      if (newDir) {
-        e.preventDefault()
-        directionQueueRef.current.push(newDir)
-        if (directionQueueRef.current.length > 2) {
-          directionQueueRef.current = directionQueueRef.current.slice(-2)
+        let newDir = keyToDir[e.key]
+        if (newDir && isReversed) {
+          newDir = reverseMap[newDir]
+        }
+        if (newDir) {
+          e.preventDefault()
+          directionQueueRef.current.push(newDir)
+          if (directionQueueRef.current.length > 2) {
+            directionQueueRef.current = directionQueueRef.current.slice(-2)
+          }
         }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [resetGame, updateUI, playSound])
+  }, [resetGame, updateUI, playSound, startPvP])
 
   // Touch controls - also prevent page scroll
   useEffect(() => {
@@ -3640,6 +4251,13 @@ export default function SnakeGame() {
                     <Button onClick={() => resetGame()} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 active:scale-95 transition-transform">
                       <Play className="h-4 w-4 mr-1" /> Start Game
                     </Button>
+                    <Button
+                      onClick={() => { playSound(playClickSound); startPvP() }}
+                      className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg shadow-cyan-900/30 active:scale-95 transition-transform"
+                      title="Two snakes, one arena. Keyboard-only (WASD + Arrows)"
+                    >
+                      ⚔️ PvP Battle
+                    </Button>
                     {!tutorialCompleted && (
                       <Button
                         onClick={startTutorial}
@@ -3769,6 +4387,16 @@ export default function SnakeGame() {
                 <span>Space - Start/Pause</span>
                 <span className="hidden sm:inline">Swipe on mobile</span>
               </div>
+
+              {/* PvP controls legend */}
+              {!uiState.gameStarted && (
+                <div className="flex items-center justify-center gap-4 mt-1 text-[11px] text-slate-600">
+                  <span className="text-cyan-500">⚔️ PvP:</span>
+                  <span><kbd className="px-1 py-0.5 rounded bg-slate-800 text-green-400 text-[10px] font-mono">WASD</kbd> P1</span>
+                  <span><kbd className="px-1 py-0.5 rounded bg-slate-800 text-cyan-400 text-[10px] font-mono">↑↓←→</kbd> P2</span>
+                  <span className="hidden sm:inline text-slate-700">Keyboard only</span>
+                </div>
+              )}
 
               {/* On-screen D-pad for mobile - glass-morphism style */}
               <div id="mobile-dpad" className="flex justify-center mt-3 lg:hidden">

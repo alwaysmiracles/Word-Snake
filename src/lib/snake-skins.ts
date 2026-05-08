@@ -1,4 +1,4 @@
-export type SnakeSkin = 'classic' | 'ocean' | 'fire' | 'royal' | 'ice' | 'shadow' | 'rainbow' | 'golden'
+export type SnakeSkin = 'classic' | 'ocean' | 'fire' | 'royal' | 'ice' | 'shadow' | 'rainbow' | 'golden' | 'custom'
 
 export type SkinPattern = 'solid' | 'striped' | 'dotted' | 'rainbow' | 'gradient'
 
@@ -17,7 +17,7 @@ export interface SnakeSkinConfig {
   unlockLabel?: string
 }
 
-export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
+export const SNAKE_SKINS: Record<Exclude<SnakeSkin, 'custom'>, SnakeSkinConfig> = {
   classic: {
     id: 'classic',
     name: 'Classic',
@@ -120,30 +120,128 @@ export const SNAKE_SKINS: Record<SnakeSkin, SnakeSkinConfig> = {
   },
 }
 
-const SKIN_ORDER: SnakeSkin[] = ['classic', 'ocean', 'fire', 'royal', 'ice', 'shadow', 'rainbow', 'golden']
+const SKIN_ORDER: SnakeSkin[] = ['classic', 'ocean', 'fire', 'royal', 'ice', 'shadow', 'rainbow', 'golden', 'custom']
 
 const SKIN_STORAGE_KEY = 'word-snake-skin'
 
+// --- Custom Skin ---
+
+export interface CustomSkinData {
+  headColor: string
+  bodyColor: string
+  tailColor: string
+  glowColor: string
+  name: string
+}
+
+const CUSTOM_SKIN_KEY = 'word-snake-custom-skin'
+
+export const DEFAULT_CUSTOM_SKIN: CustomSkinData = {
+  headColor: '#22c55e',
+  bodyColor: '#16a34a',
+  tailColor: '#15803d',
+  glowColor: '#4ade80',
+  name: 'My Custom',
+}
+
+export function getCustomSkin(): CustomSkinData | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(CUSTOM_SKIN_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<CustomSkinData>
+    // Validate required fields
+    if (
+      typeof parsed.headColor === 'string' &&
+      typeof parsed.bodyColor === 'string' &&
+      typeof parsed.tailColor === 'string' &&
+      typeof parsed.glowColor === 'string' &&
+      typeof parsed.name === 'string'
+    ) {
+      return {
+        headColor: parsed.headColor,
+        bodyColor: parsed.bodyColor,
+        tailColor: parsed.tailColor,
+        glowColor: parsed.glowColor,
+        name: parsed.name,
+      }
+    }
+    // Corrupted data — clean up
+    deleteCustomSkin()
+  } catch {
+    deleteCustomSkin()
+  }
+  return null
+}
+
+export function saveCustomSkin(skin: CustomSkinData): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(CUSTOM_SKIN_KEY, JSON.stringify(skin))
+  } catch { /* ignore */ }
+}
+
+export function deleteCustomSkin(): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(CUSTOM_SKIN_KEY)
+  } catch { /* ignore */ }
+}
+
+export function customSkinToConfig(data: CustomSkinData): SnakeSkinConfig {
+  return {
+    id: 'custom',
+    name: data.name,
+    emoji: '🎨',
+    description: `Custom: ${data.name}`,
+    headColor: data.headColor,
+    bodyGradient: [data.tailColor, data.bodyColor],
+    glowColor: data.glowColor,
+    eyeColor: '#ffffff',
+    pattern: 'gradient',
+  }
+}
+
 export function getSnakeSkin(id: SnakeSkin): SnakeSkinConfig {
+  if (id === 'custom') {
+    const custom = getCustomSkin()
+    if (custom) return customSkinToConfig(custom)
+    return SNAKE_SKINS.classic
+  }
   return SNAKE_SKINS[id] ?? SNAKE_SKINS.classic
 }
 
 export function getAllSkins(): SnakeSkinConfig[] {
-  return SKIN_ORDER.map((id) => SNAKE_SKINS[id])
+  return SKIN_ORDER.map((id) => {
+    if (id === 'custom') {
+      const custom = getCustomSkin()
+      if (custom) return customSkinToConfig(custom)
+      return null
+    }
+    return SNAKE_SKINS[id]
+  }).filter((s): s is SnakeSkinConfig => s !== null)
 }
 
 export function getSavedSkin(): SnakeSkin {
   if (typeof window === 'undefined') return 'classic'
   try {
     const stored = localStorage.getItem(SKIN_STORAGE_KEY)
-    if (stored && stored in SNAKE_SKINS) {
-      return stored as SnakeSkin
+    if (stored) {
+      if (stored === 'custom') {
+        // Only allow custom if custom skin data exists
+        if (getCustomSkin()) return 'custom'
+        return 'classic'
+      }
+      if (stored in SNAKE_SKINS) {
+        return stored as SnakeSkin
+      }
     }
   } catch { /* ignore */ }
   return 'classic'
 }
 
 export function saveSnakeSkin(id: SnakeSkin): void {
+  if (typeof window === 'undefined') return
   try {
     localStorage.setItem(SKIN_STORAGE_KEY, id)
   } catch { /* ignore */ }
@@ -158,6 +256,8 @@ import { getUnlockedAchievements } from './achievements'
  * Milestone skins require the user to have reached the achievement count threshold.
  */
 export function isSkinUnlocked(skinId: string): boolean {
+  // Custom skin is always unlocked
+  if (skinId === 'custom') return true
   const skin = SNAKE_SKINS[skinId as SnakeSkin]
   if (!skin || !skin.unlockType) return true
 
