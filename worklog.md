@@ -2430,3 +2430,148 @@ The application is a comprehensive Word Snake game with 56+ major features.
 8. **Story Mode**: Narrative-driven campaign with levels
 9. **Widget/Embed**: Embeddable mini-game widget
 10. **AI Opponent**: Single-player vs AI bot
+
+---
+Task ID: 18
+Agent: Review Agent (cron Round 18)
+Task: QA testing, bug fixes, and feature enhancements
+
+Work Log:
+- **QA**: Build passes with zero errors, ESLint passes with zero errors. Project stable.
+- **No bugs found** — code compiles cleanly, no type errors, no lint warnings
+- **QA with agent-browser**: Game page loads correctly with all 58+ features visible, new Replays button and Chinese/Japanese word packs confirmed in DOM
+- **Feature: Game Replay System**:
+  - Created `src/lib/game-replay.ts`:
+    - `ReplayFrame` interface: tick, snake positions, direction, food, powerUp, score, words, combo, events
+    - `GameReplay` interface: id, date, difficulty, finalScore, wordsCollected, duration, maxCombo, isDailyChallenge, weather, wordPack, frames
+    - `startRecording()`: Initialize recording session
+    - `recordFrame()`: Add frame (throttled every 3rd tick)
+    - `stopRecording()`: Finalize and save to localStorage
+    - `getReplays()`, `deleteReplay()`, `clearAllReplays()`: CRUD for replays (max 10)
+    - `startPlayback()`, `stopPlayback()`, `advancePlayback()`: Playback controls
+    - `setPlaybackSpeed()`, `setPlaybackPlaying()`, `seekPlayback()`: Playback settings
+    - Storage key: `word-snake-replays`, max 10 entries
+  - Modified `src/components/snake-game.tsx`:
+    - Auto-records every non-PvP game session (starts on game start, stops on death)
+    - "🎬 Replays" button on start screen (between Speed Run and Settings)
+    - Replay dialog with scrollable list of saved replays
+    - Each replay card shows: date, difficulty badge, daily challenge indicator, score, word count, duration, max combo
+    - Play and Delete buttons per replay
+    - Empty state with encouraging message
+    - Storage usage indicator (X/10 slots), "Clear all" button
+    - Replay playback mode:
+      - Sets up game state from recorded frames
+      - Frame-by-frame playback via setInterval (base 60ms, adjusted by speed)
+      - REPLAY badge overlay with speed controls (0.5x-4x), pause/resume, exit
+      - Progress bar at bottom with gradient and shine animation
+    - Toast notification on replay save ("Replay Saved") and start
+  - New imports: Film, Trash2, SkipForward, SkipBack, X from lucide-react
+- **Feature: Chinese Word Pack (中文词汇)**:
+  - Added to `WORD_PACKS` in `src/lib/word-packs.ts`:
+    - 12 words: Yuanfen, Wabi-sabi, Xiaoren, Junzi, Mandate, Qi, Yin-Yang, Dao, Kung Fu, Dim Sum, Zen, Fengshui
+    - Categories: chinese_emotion, chinese_aesthetic, chinese_character, chinese_philosophy, chinese_culture
+    - Free pack, red theme color (#ef4444)
+  - Added 5 category info entries to `PACK_CATEGORY_INFO`
+- **Feature: Japanese Word Pack (日本語)**:
+  - Added to `WORD_PACKS` in `src/lib/word-packs.ts`:
+    - 12 words: Ikigai, Kintsugi, Shibui, Mono-no-aware, Wabi, Sabi, Mottainai, Omotenashi, Gaman, Forest-bathing, Tsundoku, Natsukashii
+    - Categories: japanese_philosophy, japanese_aesthetic, japanese_values, japanese_nature, japanese_culture, japanese_emotion
+    - Free pack, pink theme color (#ec4899)
+  - Added 6 category info entries to `PACK_CATEGORY_INFO`
+- **Achievement Notification Queue**: Already fully implemented with cascading toasts (verified working, no changes needed)
+- **Visual Polish — Round 18**:
+  - Added 9 new CSS animations to `globals.css`:
+    - `replay-pulse`: Gentle opacity breathing (1.5s loop)
+    - `replay-badge-glow`: Red pulsing glow for replay badge (2s loop)
+    - `replay-progress-shine`: Moving highlight on progress bar (2s loop)
+    - `replay-card-enter`: Staggered fade-in for replay cards (0.3s one-shot)
+    - `replay-speed-change`: Quick scale pop on speed change (0.3s one-shot)
+    - `pack-chinese-glow`: Warm red pulsing glow for Chinese pack (2s loop)
+    - `pack-japanese-glow`: Pink pulsing glow for Japanese pack (2s loop)
+    - `kanji-float`: Subtle floating rotation for East Asian elements (3s loop)
+    - `language-badge-pop`: Scale-in entrance for language badges (0.4s one-shot)
+
+**New Files**:
+- `src/lib/game-replay.ts`: Game replay recording and playback system
+
+**Modified Files**:
+- `src/components/snake-game.tsx`: Replay recording hooks, replay dialog, replay playback mode, replay UI
+- `src/lib/word-packs.ts`: Chinese + Japanese word packs (24 new words total)
+- `src/app/globals.css`: 9 new CSS animations
+- ESLint passes with zero errors
+- `next build` compiles successfully with zero errors
+
+Stage Summary:
+- No bugs found in QA
+- 3 major new features (Game Replay System, Chinese Word Pack, Japanese Word Pack)
+- 9 new CSS animations (total: 97+ keyframe animations)
+- 24 new themed words (148 → 172 total words across all packs)
+- All code passes ESLint and builds successfully
+
+## Project Current State
+
+**Status**: Feature-rich, highly polished, and stable
+
+The application is a comprehensive Word Snake game with 59+ major features.
+
+### What Works
+- **Game**: Start, play, pause, resume, game over, restart
+- **Game Replay System**: Auto-record games, replay with speed controls (0.5x-4x), pause/resume, max 10 saved replays
+- **3 Difficulty Levels**: Easy/Medium/Hard
+- **In-Game Progressive Difficulty**: 10-level curve within a game
+- **Dynamic Difficulty**: 10-level AI system between games
+- **9 Snake Skins**: 4 free + 4 unlockable + 1 custom
+- **4 Canvas Grid Themes**: Classic, Neon, Retro, Nature
+- **Night Mode**: Sepia filter, auto-enable
+- **7 Default Word Packs** + **5 Themed Word Packs** + **2 Language Packs** (Chinese, Japanese)
+  - 172 total words (88 default + 60 themed + 24 multilingual)
+- **4 Word Rarities**: Common, Uncommon, Rare, Legendary
+- **Category Filter**: Toggle categories on/off
+- **Custom Word Lists**: 50 custom words with JSON/CSV import/export
+- **5 Power-ups**: Slow-Mo, Double Points, Shrink, Magnet, Shield
+- **Combo Chain**: Same-category eating builds multiplier
+- **Canvas Weather**: Rain, Snow, Stars
+- **Canvas Mini-map**: Toggleable bird's eye view
+- **Speed Run Mode**: 60-second timed challenge
+- **Daily Challenge**: Deterministic daily word set
+- **Streak System**: 4 milestone tiers
+- **6 Easter Eggs**: Sequence, collection, special word triggers
+- **Tutorial Mode**: 9-step guided tutorial
+- **Sound Visualizer**: 4 styles, 4 color schemes
+- **PvP Local Multiplayer**: Two-player same keyboard
+- **11 Achievements**: Toast notifications, gallery, skin rewards, cascading queue
+- **4 Sound Themes**: Default, Retro 8-bit, Soft Ambient, Epic Orchestra
+- **Leaderboard**: Per-difficulty top 10
+- **Game Statistics Dashboard**: 20+ metrics
+- **Word Pronunciation**: Web Speech API
+- **Game Stats Share Card**: Downloadable PNG
+- **4 Poem Styles**: Free Verse, Haiku, Limerick, Sonnet
+- **AI Poem Generation**: Style-specific prompts
+- **Poem Sharing**: 1080x1080 image
+- **Poem Favorites**: Persistent collection (max 20)
+- **Poem Collage**: 4 layouts, downloadable
+- **Word Definitions + Etymology**: Tooltips on hover
+- **Settings Panel**: Skins, themes, sound, trails, visualizer
+- **Mobile Support**: Touch/swipe, D-pad
+- **Keyboard Shortcuts**: Help dialog
+- **5 Trail Effects**: None, Fade, Particles, Sparkle, Rainbow
+- **Visual Polish**: 97+ CSS animations
+
+### Known Issues / Risks
+- `.env` placeholder exists in early git history (low risk)
+- On-screen D-pad may interfere with game canvas touch events on some devices
+- Dynamic difficulty needs more games (3+) to start adjusting
+- PvP mode is keyboard-only (no mobile support for two players)
+- Replay recording adds minimal memory overhead per session
+
+### Suggested Next Steps
+1. **Multi-language Support**: Korean, French, Spanish word packs
+2. **AI Opponent**: Single-player vs AI bot
+3. **Accessibility**: Screen reader support, high contrast mode
+4. **Online Leaderboard**: Server-side global rankings
+5. **Story Mode**: Narrative-driven campaign with levels
+6. **PvP Enhancements**: Power-up stealing, team mode
+7. **Replay Enhancements**: Replay sharing, replay bookmarks
+8. **Sound Visualizer Enhancements**: Frequency analysis, fullscreen
+9. **Word Pack Community**: User-created word packs with sharing
+10. **Widget/Embed**: Embeddable mini-game widget
