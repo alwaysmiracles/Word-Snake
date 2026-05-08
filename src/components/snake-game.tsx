@@ -153,6 +153,11 @@ import { getMatchHistory as pvpGetHistory, getWinStats, getPlayerProfileSummary,
 import { getSeasonCalendar, getActiveSeason, browseAllSeasons, activateSeason, getInstalledPacks, getSeasonProgress, getSeasonRewards, getSeasonCountdown as scGetSeasonCountdown } from '@/lib/seasonal-content-wire'
 import { getCustomWordStats, quickAddWord as cwQuickAdd, getCustomCategories, validateWordList, exportAsWordPack as cwExportPack, getWordQueue, getModificationHistory, getRecommendations } from '@/lib/custom-words-manager-wire'
 import { getActiveTheme, toggleTheme, getAccessibilityProfile, getColorBlindSettings, getHighContrastStatus, getGridTheme as atGetGridTheme, getFontSize, getMotionPreference, applyQuickPreset, getAccessibilityScore } from '@/lib/accessibility-theme-wire'
+// Round 49: Tournament Bracket Wire, Word Puzzle Wire, Progress Dashboard Wire, Controller Config Wire
+import { createTournament, getTournament, getActiveTournaments, generateBracket, getBracket, getMatch, reportMatchResult, advanceBracket, getTournamentStandings, joinTournament, getParticipants, getMyMatchups, getTournamentLeaderboard, getPlayerRanking, getWinRate, getBestStreak as tbbGetBestStreak, claimTournamentReward, getTournamentOverview, getBracketCard, getMatchCard, getMyStats as tbGetMyStats, getRecentResults, startQuickMatch, getQuickMatchStatus } from '@/lib/tournament-bracket-wire'
+import { generateCrossword, getCrosswordClues, checkCrosswordAnswer, getCrosswordProgress, generateAnagram, checkAnagram, generateWordSearch, getWordSearchWords, getWordSearchProgress, generateScramble as pzGenerateScramble, checkScrambleAnswer as pzCheckScrambleAnswer, getScrambleStats, startWordChain, isValidChainWord, getChainLength, getPuzzleStats, getPuzzleStreak, getBestScores, getDailyPuzzle as pzGetDailyChallenge, getDailyPuzzleStreak, getPuzzleOverview, getAvailablePuzzles, getPuzzleCard, getQuickPuzzle, getDailyChallenge as pzGetDailyChallenge, getDifficultyDistribution, claimPuzzleReward, completeDailyPuzzle } from '@/lib/word-puzzle-wire'
+import { getOverallProgressScore, getProgressGrade, getProgressPercent, getGameplayProgress, getCollectionProgress, getMasteryProgress as pdGetMasteryProgress, getAchievementProgress, getSocialProgress, getExplorationProgress, getEconomyProgress, getBattlePassProgress, getWeeklyProgress, getProgressTrend, getGoalsAndTargets, getMilestones, getStrengthsAndWeaknesses, getImprovementSuggestions, getAvailableWidgets, getWidgetData, getProgressDashboardOverview, getProgressRingData, getProgressBarData, getSummaryCard } from '@/lib/progress-dashboard-wire'
+import { getDefaultKeybinds, getKeybinds, setKeybind, resetAllKeybinds, getKeybindForAction, getActionForKey, getProfiles, createProfile, deleteProfile, loadProfile as ctrlLoadProfile, getDefaultProfiles, getSensitivity, setSensitivity as ctrlSetSensitivity, getSensitivityPresets, getTouchConfig, setTouchConfig, getGesturesEnabled, toggleGesture, getControllerConfig, getControllerMappings, setControllerMapping, getInputHeatmap, getAPM, getMostUsedKeys, getControllerOverview, getKeybindGrid, getQuickSettings, getRecommendedSettings, getAccessibilityInput, setAccessibilityInput, getInputAssistLevel, setInputAssistLevel } from '@/lib/controller-config-wire'
 // Round 48: Soundtrack Manager Wire, Social Activity Feed Wire, Inventory System Wire, World Map Explorer Wire
 import { getMusicLibrary, getTrack, getPlaylists, createPlaylist, getCurrentTrack, getPlaybackState as stGetPlaybackState, play as stPlay, pause as stPause, resume as stResume, next as stNext, previous as stPrev, getMasterVolume, setMasterVolume, getMusicVolume, setMusicVolume, getAmbientSounds, toggleAmbient, getActiveAmbients, getAmbientMix, applyAmbientMix, getVolumePreset, applyVolumePreset, getAudioMixerState, getMostPlayed, getListeningTime, getGenreBreakdown, getDetectedMood, enableAutoPlay, isAutoPlayEnabled, getSoundtrackOverview, getNowPlayingCard, getQuickControls, getGenreDistribution, recordPlay, shuffle as stShuffle, repeat as stRepeat, seek as stSeek } from '@/lib/soundtrack-manager-wire'
 import { postActivity, getActivityFeed, formatActivity, getActivityIcon, getActivityColor, addReaction, getReactions, getHighlights, getActivityStats, getActivityFrequency, postStatus, getCurrentStatus, setMood, getMood, generateWeeklyDigest, getFeedOverview, getFeedTimeline, getActivitySummary, getTrendingActivity, muteActivityType, unmuteActivityType, getMutedTypes, deleteActivity, clearFeed } from '@/lib/social-activity-feed-wire'
@@ -938,6 +943,11 @@ export default function SnakeGame() {
   const [showSocialFeedPanel, setShowSocialFeedPanel] = useState(false)
   const [showInventoryPanel, setShowInventoryPanel] = useState(false)
   const [showWorldMapPanel, setShowWorldMapPanel] = useState(false)
+  // Round 49: Tournament Bracket, Word Puzzle, Progress Dashboard, Controller Config panel states
+  const [showTournamentPanel, setShowTournamentPanel] = useState(false)
+  const [showPuzzlePanel, setShowPuzzlePanel] = useState(false)
+  const [showProgressDashPanel, setShowProgressDashPanel] = useState(false)
+  const [showControllerPanel, setShowControllerPanel] = useState(false)
   // Round 45: XP Progression, Replay Analyzer, Battle Pass, Achievement Showcase panel states
   const [showXPDetailPanel, setShowXPDetailPanel] = useState(false)
   const [showReplayPanel, setShowReplayPanel] = useState(false)
@@ -7889,6 +7899,42 @@ export default function SnakeGame() {
                       title="World Map Explorer"
                     >
                       🗺️ World Map
+                    </Button>
+                    {/* Round 49: Tournament Bracket Button */}
+                    <Button
+                      onClick={() => setShowTournamentPanel(!showTournamentPanel)}
+                      variant="outline"
+                      className="border-orange-500/50 text-orange-400 hover:bg-orange-900/20 active:scale-95 transition-transform tournament-btn"
+                      title="Tournament Bracket"
+                    >
+                      🏆 Tournament
+                    </Button>
+                    {/* Round 49: Word Puzzle Button */}
+                    <Button
+                      onClick={() => setShowPuzzlePanel(!showPuzzlePanel)}
+                      variant="outline"
+                      className="border-pink-500/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform puzzle-btn"
+                      title="Word Puzzles"
+                    >
+                      🧩 Puzzles
+                    </Button>
+                    {/* Round 49: Progress Dashboard Button */}
+                    <Button
+                      onClick={() => setShowProgressDashPanel(!showProgressDashPanel)}
+                      variant="outline"
+                      className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-900/20 active:scale-95 transition-transform progress-dash-btn"
+                      title="Progress Dashboard"
+                    >
+                      📊 Progress
+                    </Button>
+                    {/* Round 49: Controller Config Button */}
+                    <Button
+                      onClick={() => setShowControllerPanel(!showControllerPanel)}
+                      variant="outline"
+                      className="border-teal-500/50 text-teal-400 hover:bg-teal-900/20 active:scale-95 transition-transform controller-btn"
+                      title="Controller Config"
+                    >
+                      🎮 Controls
                     </Button>
                     <Button
                       onClick={() => resetGame(false, true)}
