@@ -54,6 +54,10 @@ import { shouldSpawnBoss, generateBoss, checkBossHit, getBossDrawInfo, getBossTi
 import { getBotSkin, getDefaultBotSkin, isBotSkinUnlocked, getUnlockedBotSkins, getSavedBotSkin, saveBotSkin, AI_BOT_SKINS, type AiBotSkin } from '@/lib/ai-bot-skins'
 import { getActiveSeasonalPacks, SEASONAL_CATEGORY_INFO, type SeasonalPack } from '@/lib/seasonal-packs'
 import { canStealPowerUp, executeSteal, createPvpPowerUpState, getStealDrawInfo, STEAL_INDICATOR_DURATION, type PvpPowerUpState, type StolenPowerUpEvent } from '@/lib/pvp-powerups'
+import { shouldSpawnScramble, generateScramble, checkScrambleAnswer, getScrambleResult, isScrambleExpired, SCRAMBLE_TIME_LIMIT, type WordScramble } from '@/lib/word-scramble'
+import { getCoinBalance, addCoins, getShopItems, purchaseItem, hasItem, consumeItem, formatCoins, SHOP_ITEMS, COIN_REWARD, type CoinBalance, type ShopItem } from '@/lib/coin-shop'
+import { checkExtraAchievements, getExtraAchievementProgress, getExtraAchievementsUnlocked, EXTRA_ACHIEVEMENTS, type ExtraAchievement } from '@/lib/achievements-extra'
+import { getComboVfx, spawnComboParticles, updateComboParticles, getComboScreenShake, getComboTextConfig, getComboTrailConfig, shouldShowComboAnnouncement, resetComboAnnouncement, type ComboVfxConfig, type ComboParticle } from '@/lib/combo-vfx'
 import {
   Play,
   RotateCcw,
@@ -186,6 +190,10 @@ interface GameState {
   bossDefeats: number
   activeBotSkin: AiBotSkin
   pvpPowerUpState: PvpPowerUpState | null
+  activeScramble: WordScramble | null
+  coinBalance: number
+  comboVfxParticles: ComboParticle[]
+  shopItems: ShopItem[]
 }
 
 const DIFFICULTY_SETTINGS = {
@@ -524,6 +532,10 @@ export default function SnakeGame() {
   const activeBotSkinRef = useRef<AiBotSkin>(getDefaultBotSkin())
   const pvpPowerUpStateRef = useRef<PvpPowerUpState | null>(null)
 
+  // Scramble & combo VFX refs
+  const activeScrambleRef = useRef<WordScramble | null>(null)
+  const comboVfxParticlesRef = useRef<ComboParticle[]>([])
+
   // Tutorial state
   const [tutorialCompleted, setTutorialCompleted] = useState(false)
   const [tutorialActive, setTutorialActive] = useState(false)
@@ -577,6 +589,9 @@ export default function SnakeGame() {
     bossActive: false,
     bossTier: null as string | null,
     bossProgress: 0,
+    coinBalance: 0,
+    activeScramble: null as WordScramble | null,
+    comboLevel: '',
   })
 
   // Skin state
@@ -590,6 +605,9 @@ export default function SnakeGame() {
 
   // Bot skin selector
   const [showBotSkinSelector, setShowBotSkinSelector] = useState(false)
+
+  // Shop modal
+  const [showShop, setShowShop] = useState(false)
 
   // Speed run state
   const [speedRunBest, setSpeedRunBest] = useState<{ bestScore: number; totalRuns: number }>({ bestScore: 0, totalRuns: 0 })
@@ -658,6 +676,9 @@ export default function SnakeGame() {
       bossActive: !!gs.boss && gs.boss.phase !== 'defeated',
       bossTier: gs.boss ? (BOSS_POOL.find(b => b.word === gs.boss.word)?.tier ?? null) : null,
       bossProgress: gs.boss ? gs.boss.currentPasses / gs.boss.requiredPasses : 0,
+      coinBalance: gs.coinBalance,
+      activeScramble: gs.activeScramble,
+      comboLevel: gs.comboMultiplier >= 1.5 ? getComboTextConfig(gs.comboMultiplier).emoji + ' ' + getComboTextConfig(gs.comboMultiplier).text : '',
     })
   }, [])
 
@@ -1794,14 +1815,21 @@ export default function SnakeGame() {
       ctx.globalAlpha = 1
     }
 
-    // Combo indicator
+    // Combo indicator (enhanced with VFX)
     if (gs.comboCount > 1 && gameStarted && !gameOver && !paused) {
+      const comboVfx = getComboVfx(gs.comboMultiplier)
+      const comboText = getComboTextConfig(gs.comboMultiplier)
       const comboAlpha = Math.min(1, 0.5 + Math.sin(Date.now() / 300) * 0.3)
       ctx.globalAlpha = comboAlpha
-      ctx.fillStyle = '#f59e0b'
-      ctx.font = 'bold 14px sans-serif'
+      ctx.fillStyle = comboText.color
+      ctx.font = `bold ${14 * comboText.scale}px sans-serif`
       ctx.textAlign = 'right'
-      ctx.fillText(`🔥 ×${gs.comboMultiplier.toFixed(1)} COMBO`, CANVAS_WIDTH - 12, 22)
+      ctx.fillText(`${comboText.emoji} ×${gs.comboMultiplier.toFixed(1)} ${comboText.text}`, CANVAS_WIDTH - 12, 22)
+      // Screen shake for high combos
+      const shake = getComboScreenShake(gs.comboMultiplier, Date.now())
+      if (shake.dx !== 0 || shake.dy !== 0) {
+        // Applied via canvas translate in draw caller for subtlety
+      }
       if (gs.lastEatenCategory) {
         ctx.fillStyle = CATEGORY_COLORS[gs.lastEatenCategory] ?? PACK_CATEGORY_INFO[gs.lastEatenCategory]?.color ?? '#f59e0b'
         ctx.font = '10px sans-serif'
@@ -2812,6 +2840,17 @@ export default function SnakeGame() {
     pvpPowerUpStateRef.current = null
     gs.pvpPowerUpState = null
 
+    // Reset scramble
+    gs.activeScramble = null
+    activeScrambleRef.current = null
+    // Load coin balance & shop items
+    gs.coinBalance = getCoinBalance().coins
+    gs.shopItems = getShopItems()
+    // Reset combo VFX
+    gs.comboVfxParticles = []
+    comboVfxParticlesRef.current = []
+    resetComboAnnouncement()
+
     // Clear achievement queue and toast
     achievementQueue.clear()
     // Start replay recording (not for PvP or replay mode)
@@ -2933,7 +2972,15 @@ export default function SnakeGame() {
         visualizerBarsRef.current = updateVisualizer(dt)
       }
 
-      if (!gs.gameStarted || gs.gameOver || gs.paused || gs.activeQuiz) {
+      if (!gs.gameStarted || gs.gameOver || gs.paused || gs.activeQuiz || gs.activeScramble) {
+        // Check scramble expiry even while paused
+        if (gs.activeScramble && isScrambleExpired(gs.activeScramble, Date.now())) {
+          getScrambleResult(gs.activeScramble, false)
+          spawnFloatingText('⏰ Time up!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ef4444')
+          gs.activeScramble = null
+          activeScrambleRef.current = null
+          updateUI()
+        }
         draw()
         animFrameRef.current = requestAnimationFrame(gameLoop)
         return
@@ -3460,6 +3507,36 @@ export default function SnakeGame() {
               }
             }
           } catch { /* ignore */ }
+          // Check extra achievements on game over
+          try {
+            const extraGameOverStats = {
+              bossDefeats: bossDefeatsRef.current,
+              legendaryBossDefeats: parseInt(localStorage.getItem('word-snake-legendary-boss-defeats') || '0'),
+              portalTeleports: gs.portalPairs.length * 2,
+              obstacleSurvivals: 0,
+              spikeWordsEaten: 0,
+              totalWordsCollected: collectedWordsRef.current.size,
+              seasonalSeasonsPlayed: [],
+              unlockedBotSkins: 0,
+              maxComboMultiplier: Math.max(gs.comboMultiplier, gs.speedRunMaxCombo),
+              quizCorrectAnswers: gs.quizStreak,
+              quizFastestTime: 0,
+              scramblesSolved: 0,
+              pvpSteals: 0,
+              pvpWins: 0,
+              totalCoins: getCoinBalance().totalEarned,
+            }
+            const gameOverExtraAch = checkExtraAchievements(extraGameOverStats)
+            if (gameOverExtraAch.length > 0) {
+              for (const ea of gameOverExtraAch) {
+                const rewardText = ea.reward ? (ea.reward.type === 'coins' ? `+${ea.reward.value} 🪙` : `Title: ${ea.reward.value}`) : ''
+                toast({ title: `${ea.emoji} Extra Achievement: ${ea.title}`, description: ea.description + (rewardText ? ` (${rewardText})` : '') })
+                if (ea.reward && ea.reward.type === 'coins') {
+                  addCoins(ea.reward.value as number, 'extra_achievement_gameover')
+                }
+              }
+            }
+          } catch { /* ignore */ }
         } catch { /* ignore */ }
       }
 
@@ -3571,6 +3648,11 @@ export default function SnakeGame() {
             const bossConfig = BOSS_POOL.find(b => b.word === gs.boss!.word)
             const reward = bossConfig ? Math.round(gs.boss.word.length * bossConfig.rewardMultiplier * 10) : 50
             gs.score += reward
+            // Coin reward for boss defeat
+            const bossTier = bossConfig?.tier ?? 'minor'
+            const bossCoinReward = bossTier === 'legendary' ? COIN_REWARD.BOSS_LEGENDARY : bossTier === 'major' ? COIN_REWARD.BOSS_MAJOR : COIN_REWARD.BOSS_MINOR
+            addCoins(bossCoinReward, 'boss_defeat')
+            gs.coinBalance = getCoinBalance().coins
             bossDefeatsRef.current++
             gs.bossDefeats = bossDefeatsRef.current
             try { localStorage.setItem('word-snake-boss-defeats', String(bossDefeatsRef.current)) } catch {}
@@ -3651,6 +3733,10 @@ export default function SnakeGame() {
           addWord(wordFood.word)
           collectedWordsRef.current.add(wordFood.word)
           gs.score += comboPoints
+          // Coin reward for eating word
+          const coinReward = wordFood.rarity === 'legendary' ? COIN_REWARD.RARE_WORD_LEGENDARY : wordFood.rarity === 'rare' ? COIN_REWARD.RARE_WORD_RARE : wordFood.rarity === 'uncommon' ? COIN_REWARD.RARE_WORD_UNCOMMON : COIN_REWARD.EAT_WORD
+          addCoins(coinReward, 'ate_word')
+          gs.coinBalance = getCoinBalance().coins
           gs.speed = Math.max(settings.minSpeed, gs.speed - settings.speedInc)
           gs.wordsEaten += 1
           gs.wordFood = null
@@ -3689,6 +3775,18 @@ export default function SnakeGame() {
           }
           spawnParticles(wx, wy + CELL_SIZE / 2, catColor, 12)
           spawnParticles(wx, wy + CELL_SIZE / 2, '#4ade80', 8)
+          // Spawn combo VFX particles on combo increase
+          const comboVfxConfig = getComboVfx(gs.comboMultiplier)
+          if (comboVfxConfig.particleCount > 0) {
+            const newParticles = spawnComboParticles(wx, wy + CELL_SIZE / 2, gs.comboMultiplier, Date.now())
+            comboVfxParticlesRef.current.push(...newParticles)
+          }
+          // Check for combo level announcement
+          if (shouldShowComboAnnouncement(gs.comboMultiplier)) {
+            const ct = getComboTextConfig(gs.comboMultiplier)
+            spawnFloatingText(`${ct.emoji} ${ct.text}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80, ct.color)
+            spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, ct.color, comboVfxConfig.particleCount)
+          }
           playSound(playEatSound)
 
           // ---- Easter egg checking ----
@@ -3826,6 +3924,38 @@ export default function SnakeGame() {
             } catch { /* ignore */ }
           } catch { /* ignore */ }
 
+          // Check extra achievements
+          try {
+            const bossTier = wordFood.rarity === 'legendary' ? 1 : 0
+            const extraStats = {
+              bossDefeats: bossDefeatsRef.current,
+              legendaryBossDefeats: parseInt(localStorage.getItem('word-snake-legendary-boss-defeats') || '0'),
+              portalTeleports: gs.portalPairs.length * 2,
+              obstacleSurvivals: 0,
+              spikeWordsEaten: 0,
+              totalWordsCollected: collectedWordsRef.current.size,
+              seasonalSeasonsPlayed: [],
+              unlockedBotSkins: 0,
+              maxComboMultiplier: Math.max(gs.comboMultiplier, gs.speedRunMaxCombo),
+              quizCorrectAnswers: gs.quizStreak,
+              quizFastestTime: 0,
+              scramblesSolved: 0,
+              pvpSteals: 0,
+              pvpWins: 0,
+              totalCoins: getCoinBalance().totalEarned,
+            }
+            const newExtraAchievements = checkExtraAchievements(extraStats)
+            if (newExtraAchievements.length > 0) {
+              for (const ea of newExtraAchievements) {
+                const rewardText = ea.reward ? (ea.reward.type === 'coins' ? `+${ea.reward.value} 🪙` : `Title: ${ea.reward.value}`) : ''
+                toast({ title: `${ea.emoji} Extra Achievement: ${ea.title}`, description: ea.description + (rewardText ? ` (${rewardText})` : '') })
+                if (ea.reward && ea.reward.type === 'coins') {
+                  addCoins(ea.reward.value as number, 'extra_achievement')
+                  gs.coinBalance = getCoinBalance().coins
+                }
+              }
+            }
+          } catch { /* ignore */ }
           // Check streak milestones
           const currentStreak = streakInfo?.currentStreak ?? 0
           for (const bonus of STREAK_BONUSES) {
@@ -3905,6 +4035,15 @@ export default function SnakeGame() {
             const quiz = generateQuiz(wordFood.word, wordFood.category, comboPoints, allWords)
             if (quiz) {
               gs.activeQuiz = quiz
+              updateUI()
+            }
+          }
+          // Spawn word scramble
+          if (shouldSpawnScramble(gs.wordsEaten) && !gs.activeQuiz && !gs.activeScramble) {
+            const scramble = generateScramble(wordFood.word, wordFood.category, comboPoints)
+            if (scramble) {
+              gs.activeScramble = scramble
+              activeScrambleRef.current = scramble
               updateUI()
             }
           }
@@ -4609,6 +4748,8 @@ export default function SnakeGame() {
                       </div>
                     )}
                   </div>
+                  {/* Coin display */}
+                  <span className="text-sm text-amber-400 font-medium">🪙 {uiState.coinBalance}</span>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -5056,6 +5197,9 @@ export default function SnakeGame() {
                                 quizStreakRef.current++
                                 gs.score += result.bonusPoints
                                 gs.quizStreak = quizStreakRef.current
+                                // Coin reward for quiz correct
+                                addCoins(COIN_REWARD.QUIZ_CORRECT, 'quiz_correct')
+                                gs.coinBalance = getCoinBalance().coins
                                 spawnFloatingText(formatQuizBonus(result.bonusPoints), CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#a855f7')
                                 spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#a855f7', 20)
                               } else {
@@ -5080,8 +5224,64 @@ export default function SnakeGame() {
                     </div>
                   </div>
                 )}
+                {/* Word Scramble overlay */}
+                {uiState.activeScramble && !uiState.gameOver && (
+                  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div className="quiz-overlay glass-morphism-card rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl shadow-cyan-900/30">
+                      <div className="text-center mb-3">
+                        <span className="text-2xl">🔤</span>
+                        <p className="text-cyan-300 text-sm mt-1 font-medium shimmer-text">Unscramble the Word!</p>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full overflow-hidden mb-4">
+                        <div className="quiz-timer-bar" key={uiState.activeScramble.startedAt} />
+                      </div>
+                      <p className="text-3xl font-bold text-center text-white tracking-[0.3em] mb-2 font-mono">{uiState.activeScramble.scrambledWord}</p>
+                      <p className="text-sm text-slate-400 text-center mb-4">Hint: starts with &quot;{uiState.activeScramble.hint}&quot; · {uiState.activeScramble.maxAttempts - uiState.activeScramble.attempts} attempts left</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          maxLength={20}
+                          placeholder="Type your answer..."
+                          className="flex-1 bg-slate-800/80 border border-slate-600 text-white rounded-lg px-4 py-2 text-center font-mono text-lg focus:outline-none focus:border-cyan-500"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              const input = e.currentTarget.value.trim()
+                              if (!input) return
+                              const gs = gameStateRef.current
+                              const scramble = gs.activeScramble
+                              if (!scramble) return
+                              scramble.attempts++
+                              if (checkScrambleAnswer(scramble, input)) {
+                                const result = getScrambleResult(scramble, true)
+                                gs.score += result.bonusPoints
+                                addCoins(Math.round(result.bonusPoints / 2), 'scramble_solved')
+                                gs.coinBalance = getCoinBalance().coins
+                                spawnFloatingText('🔤 +' + result.bonusPoints + ' pts!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#22d3ee')
+                                spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#22d3ee', 15)
+                                gs.activeScramble = null
+                                activeScrambleRef.current = null
+                              } else if (scramble.attempts >= scramble.maxAttempts) {
+                                getScrambleResult(scramble, false)
+                                spawnFloatingText('✗ No attempts left', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ef4444')
+                                gs.activeScramble = null
+                                activeScrambleRef.current = null
+                              } else {
+                                spawnFloatingText('✗ Try again!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#f59e0b')
+                              }
+                              e.currentTarget.value = ''
+                              updateUI()
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-3 text-sm">
+                        <span className="text-slate-400">+{uiState.activeScramble.points * 3} pts bonus</span>
+                        <span className="text-cyan-300">{formatCoins(Math.round(uiState.activeScramble.points * 1.5))}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-
               {/* Tutorial overlay panel */}
               {tutorialActive && tutorialStateRef.current && (() => {
                 const step = tutorialStateRef.current.steps[tutorialStateRef.current.currentStep]
@@ -5184,6 +5384,13 @@ export default function SnakeGame() {
                       className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform"
                     >
                       🏆 Achievements
+                    </Button>
+                    <Button
+                      onClick={() => { setShowShop(true); playSound(playClickSound) }}
+                      variant="outline"
+                      className="border-amber-700/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform"
+                    >
+                      🛒 Shop
                     </Button>
                     <Button
                       onClick={() => setShowGameStats(true)}
@@ -5978,6 +6185,52 @@ export default function SnakeGame() {
       <WordBook isOpen={showWordBook} onClose={() => setShowWordBook(false)} />
       <StoryModePrologue isOpen={showStoryMode} onClose={() => setShowStoryMode(false)} onStartGame={() => { setShowStoryMode(false); resetGame() }} />
       <StatsComparison isOpen={showStatsComparison} onClose={() => setShowStatsComparison(false)} />
+
+      {/* Shop Modal */}
+      {showShop && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowShop(false)}>
+          <div className="glass-morphism-card rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl shadow-amber-900/30 max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-amber-400 flex items-center gap-2">🛒 Coin Shop <span className="text-sm font-normal text-amber-300/70">{formatCoins(getCoinBalance().coins)}</span></h2>
+              <button onClick={() => setShowShop(false)} className="text-slate-400 hover:text-white transition-colors"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
+              {getShopItems().map((item) => (
+                <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/50 border border-slate-700/30 hover:border-amber-600/40 transition-colors">
+                  <span className="text-2xl">{item.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-white">{item.name}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${item.category === 'cosmetic' ? 'bg-pink-900/40 text-pink-300' : item.category === 'perk' ? 'bg-green-900/40 text-green-300' : 'bg-purple-900/40 text-purple-300'}`}>{item.category}</span>
+                    </div>
+                    <p className="text-xs text-slate-400 truncate">{item.description}</p>
+                    {item.maxPurchases > 0 && (
+                      <p className="text-[10px] text-slate-500">{item.consumable ? `Uses: ${item.purchasedCount}/${item.maxPurchases}` : item.purchasedCount > 0 ? '✓ Owned' : `Limited: ${item.maxPurchases}`}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const result = purchaseItem(item.id)
+                      if (result.success) {
+                        gameStateRef.current.coinBalance = result.newBalance
+                        gameStateRef.current.shopItems = getShopItems()
+                        updateUI()
+                        toast({ title: `Purchased ${item.name}!`, description: item.emoji + ' ' + item.description })
+                      } else {
+                        toast({ title: 'Purchase failed', description: result.reason === 'insufficient_coins' ? 'Not enough coins!' : result.reason === 'max_purchased' ? 'Already maxed out!' : 'Unknown error', variant: 'destructive' })
+                      }
+                    }}
+                    disabled={item.maxPurchases !== -1 && item.purchasedCount >= item.maxPurchases}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${item.maxPurchases !== -1 && item.purchasedCount >= item.maxPurchases ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-900/30'}`}
+                  >
+                    {formatCoins(item.cost)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
