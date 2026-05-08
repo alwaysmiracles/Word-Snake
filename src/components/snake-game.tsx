@@ -102,6 +102,10 @@ import { createTipConfig, getRelevantTips, getTipOfTheDay, markTipShown, dismiss
 import { recordEncounter, getMastery, getMasteryLevel, getAllMasteries, getMasteryStats, getWordsByLevel, getWeakestWords, getStrongestWords, getMasteryProgress, getLevelName, getLevelColor, getLevelEmoji, MASTERY_THRESHOLDS, MASTERY_COLORS, MASTERY_EMOJIS, type MasteryLevel, type WordMastery, type MasteryStats as MasteryStatsType } from '@/lib/word-mastery'
 import { collectExportData, exportAsJSON, exportAsCSV, exportAsMarkdown, exportToClipboard, triggerDownload, createDefaultExportConfig, getExportSizeEstimate, getSectionLabel, getFormatIcon, quickExport, buildShareText, EXPORT_VERSION, type ExportFormat, type ExportSection, type ExportConfig, type ExportResult, type GameExportData } from '@/lib/stats-export'
 import { createPanelConfig, loadPanelConfig, savePanelConfig, toggleSection, selectTab, applyPreset, getAllPresets, getActivePreset, createVisualizerConfig, getVisualizerStyles, getVolumeSummary, formatVolume, getSfxCategories, resetAllAudio, SOUND_PRESETS, type SoundThemePanelConfig, type SoundPreset, type AudioVisualizerConfig } from '@/lib/sound-theme-panel'
+import { createScoreBreakdown, loadBreakdown, getTopScoringWords, getCategoryContribution, getScoreRating, formatPoints, getTimeEfficiency, getComboAnalysis, getBreakdownSummary, type ScoreEntry, type ScoreBreakdown } from '@/lib/score-breakdown'
+import { createNotificationQueue, pushQuick, dismissActive, getActive, getNotificationStats, getTypeConfig, createAchievementNotification, createComboNotification, type NotificationType, type NotificationQueue, type Notification } from '@/lib/notification-manager'
+import { GAME_MODES, getMode, getAllModes, getUnlockedModes, getModeStats, getModeProgress, getTimeDisplay, getScoreDisplay, getDifficultyColor as getModeDifficultyColor, getRecommendedMode, type GameMode, type GameModeConfig } from '@/lib/game-mode-selector'
+import { createDefaultProfile, loadProfile, saveProfile, setPlayerName, setAvatar, addXP, calculateLevel, getProfileCard, getUnlockedAvatars, getUnlockedTitles, checkTitleUnlocks, AVATARS, PLAYER_TITLES, XP_PER_LEVEL, type PlayerProfile, type Avatar, type PlayerTitle } from '@/lib/player-profile'
 import {
   Play,
   RotateCcw,
@@ -593,6 +597,10 @@ export default function SnakeGame() {
       setMasteryStats(getMasteryStats())
       // Load sound panel config
       setSoundPanelConfig(loadPanelConfig())
+      // Load score breakdown
+      setScoreBreakdown(loadBreakdown())
+      // Load player profile
+      setPlayerProfile(loadProfile())
     }
     const id = requestAnimationFrame(loadData)
     return () => {
@@ -781,6 +789,18 @@ export default function SnakeGame() {
   const [showSoundPanel, setShowSoundPanel] = useState(false)
   const [soundPanelConfig, setSoundPanelConfig] = useState<SoundThemePanelConfig>(createPanelConfig())
   const [activePresetName, setActivePresetName] = useState('default')
+  // Score Breakdown
+  const [scoreBreakdown, setScoreBreakdown] = useState<ScoreBreakdown>(createScoreBreakdown())
+  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false)
+  // Notification Manager
+  const [notifQueue] = useState<NotificationQueue>(() => createNotificationQueue())
+  const [activeNotif, setActiveNotif] = useState<Notification | null>(null)
+  // Game Mode Selector
+  const [showModeSelector, setShowModeSelector] = useState(false)
+  const [currentGameMode, setCurrentGameMode] = useState<GameMode>('classic')
+  // Player Profile
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>(createDefaultProfile())
+  const [showPlayerProfile, setShowPlayerProfile] = useState(false)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const weatherParticlesRef = useRef<{x: number; y: number; vx: number; vy: number; size: number; alpha: number}[]>([])
@@ -6455,6 +6475,30 @@ export default function SnakeGame() {
                       🎵 Sound
                     </Button>
                     <Button
+                      onClick={() => { setShowScoreBreakdown(!showScoreBreakdown) }}
+                      variant="outline"
+                      className="border-rose-700/50 text-rose-400 hover:bg-rose-900/20 active:scale-95 transition-transform breakdown-btn"
+                      title="Score Breakdown"
+                    >
+                      📊 Scores
+                    </Button>
+                    <Button
+                      onClick={() => { setShowModeSelector(!showModeSelector) }}
+                      variant="outline"
+                      className="border-indigo-700/50 text-indigo-400 hover:bg-indigo-900/20 active:scale-95 transition-transform mode-btn"
+                      title="Game Mode Selector"
+                    >
+                      🎮 Modes
+                    </Button>
+                    <Button
+                      onClick={() => { setShowPlayerProfile(!showPlayerProfile) }}
+                      variant="outline"
+                      className="border-violet-700/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform profile-btn"
+                      title="Player Profile"
+                    >
+                      👤 Profile
+                    </Button>
+                    <Button
                       onClick={() => resetGame(false, true)}
                       className="bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/30 active:scale-95 transition-transform"
                       title="60-second timed challenge"
@@ -7831,6 +7875,102 @@ export default function SnakeGame() {
                 </div>
                 <div className="text-[7px] text-slate-500 mb-1">{getVolumeSummary(Math.round(musicVolume * 100), Math.round(volumeConfig.sfxVolume * 100), Math.round(volumeConfig.masterVolume * 100))}</div>
                 <div className="text-[7px] text-slate-600">Visualizer styles: {getVisualizerStyles().length} available</div>
+              </div>
+            )}
+
+            {/* Score Breakdown Panel */}
+            {showScoreBreakdown && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-rose-900/20 to-pink-900/15 border border-rose-700/25 breakdown-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">📊</span>
+                    <span className="text-[10px] text-rose-300 font-bold">Score Breakdown</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-rose-900/40 text-rose-300 breakdown-rating">{getScoreRating(scoreBreakdown.grandTotal)}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  <div className="text-center p-1 rounded bg-rose-900/20">
+                    <div className="text-[7px] text-slate-500">Total</div>
+                    <div className="text-[10px] text-rose-300 font-bold">{formatPoints(scoreBreakdown.grandTotal)}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-rose-900/20">
+                    <div className="text-[7px] text-slate-500">Rate</div>
+                    <div className="text-[10px] text-rose-300 font-bold">{Math.round(getTimeEfficiency(scoreBreakdown))}/s</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-rose-900/20">
+                    <div className="text-[7px] text-slate-500">Words</div>
+                    <div className="text-[10px] text-rose-300 font-bold">{scoreBreakdown.entries.length}</div>
+                  </div>
+                </div>
+                {getTopScoringWords(scoreBreakdown, 3).map((e, i) => (
+                  <div key={i} className="flex justify-between text-[7px] py-0.5 border-b border-slate-800/30">
+                    <span className="text-slate-400 truncate max-w-[100px]">{e.word}</span>
+                    <span className="text-rose-400">+{formatPoints(e.totalPoints)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Game Mode Selector Panel */}
+            {showModeSelector && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-indigo-900/20 to-blue-900/15 border border-indigo-700/25 mode-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">🎮</span>
+                    <span className="text-[10px] text-indigo-300 font-bold">Game Modes</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-indigo-900/40 text-indigo-300">{getUnlockedModes().length} unlocked</span>
+                </div>
+                <div className="space-y-1 max-h-[160px] overflow-y-auto">
+                  {getAllModes().map(mode => (
+                    <div key={mode.id} className={`flex items-center gap-1.5 p-1 rounded cursor-pointer transition-colors mode-card-item ${mode.isLocked ? 'opacity-40' : 'hover:bg-indigo-900/20'} ${currentGameMode === mode.id ? 'bg-indigo-900/30 border border-indigo-700/30' : ''}`}
+                      onClick={() => { if (!mode.isLocked) setCurrentGameMode(mode.id) }}>
+                      <span className="text-[9px]">{mode.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[8px] text-indigo-200 font-bold truncate">{mode.name}</div>
+                        <div className="text-[6px] text-slate-500">{getTimeDisplay(mode.timeLimit)} | {getScoreDisplay(mode.scoreMultiplier)} | {mode.isLocked ? '🔒 ' + mode.unlockCondition : 'Played: ' + mode.playCount}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Player Profile Panel */}
+            {showPlayerProfile && mounted && (
+              <div className="mb-3 px-2.5 py-2 rounded-md bg-gradient-to-r from-violet-900/20 to-purple-900/15 border border-violet-700/25 profile-panel">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">👤</span>
+                    <span className="text-[10px] text-violet-300 font-bold">Player Profile</span>
+                  </div>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-violet-900/40 text-violet-300">Lv.{calculateLevel(playerProfile.xp).level}</span>
+                </div>
+                <div className="flex items-center gap-2 mb-2 p-1.5 rounded bg-violet-900/15">
+                  <span className="text-2xl">{playerProfile.avatar.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[9px] text-violet-200 font-bold truncate">{playerProfile.name}{playerProfile.activeTitle ? ` [${playerProfile.activeTitle}]` : ''}</div>
+                    <div className="w-full h-1 rounded-full bg-slate-800 mt-0.5">
+                      <div className="h-full rounded-full bg-violet-500 transition-all xp-bar-fill" style={{ width: `${calculateLevel(playerProfile.xp).progress}%` }} />
+                    </div>
+                    <div className="text-[6px] text-slate-500">{calculateLevel(playerProfile.xp).currentXp}/{calculateLevel(playerProfile.xp).xpToNext} XP</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  <div className="text-center p-1 rounded bg-violet-900/20 profile-stat-cell">
+                    <div className="text-[7px] text-slate-500">Games</div>
+                    <div className="text-[10px] text-violet-300 font-bold">{playerProfile.totalGamesPlayed}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-violet-900/20 profile-stat-cell">
+                    <div className="text-[7px] text-slate-500">Best</div>
+                    <div className="text-[10px] text-violet-300 font-bold">{playerProfile.bestScore}</div>
+                  </div>
+                  <div className="text-center p-1 rounded bg-violet-900/20 profile-stat-cell">
+                    <div className="text-[7px] text-slate-500">Words</div>
+                    <div className="text-[10px] text-violet-300 font-bold">{playerProfile.totalWordsCollected}</div>
+                  </div>
+                </div>
+                <div className="text-[7px] text-slate-500">Titles: {getUnlockedTitles(playerProfile).length}/{PLAYER_TITLES.length} | Avatars: {getUnlockedAvatars(playerProfile).length}/{AVATARS.length}</div>
               </div>
             )}
 

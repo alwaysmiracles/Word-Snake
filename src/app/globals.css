@@ -4825,3 +4825,92 @@
 /* 25. sound ambient pulse */
 @keyframes sound-ambient-pulse { 0%,100%{border-color:rgba(192,38,211,0.2);} 50%{border-color:rgba(192,38,211,0.45);} }
 .sound-panel { animation: sound-panel-in 0.3s ease-out, sound-ambient-pulse 4s ease-in-out 0.3s infinite; }
+
+/* ============================== */
+/* Round 36: Breakdown, Notifications, Modes, Profile — 25 new animations */
+/* ============================== */
+
+/* 1. breakdown-panel slide-in */
+@keyframes breakdown-panel-in { 0%{opacity:0;transform:translateX(-10px);} 100%{opacity:1;transform:translateX(0);} }
+.breakdown-panel { animation: breakdown-panel-in 0.3s ease-out; }
+
+/* 2. score entry slide */
+@keyframes score-entry-slide { 0%{opacity:0;transform:translateX(8px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 3. score rating glow */
+@keyframes score-rating-glow { 0%,100%{text-shadow:0 0 4px rgba(244,63,94,0.4);} 50%{text-shadow:0 0 10px rgba(244,63,94,0.8);} }
+.breakdown-rating { animation: score-rating-glow 2s ease-in-out infinite; }
+
+/* 4. score bar grow */
+@keyframes score-bar-grow { 0%{width:0%;} 100%{width:var(--score-pct, 75%);} }
+
+/* 5. score highlight flash */
+@keyframes score-highlight { 0%{background-color:rgba(244,63,94,0.2);} 100%{background-color:transparent;} }
+
+/* 6. mode-panel slide-in */
+@keyframes mode-panel-in { 0%{opacity:0;transform:translateY(-8px);} 100%{opacity:1;transform:translateY(0);} }
+.mode-panel { animation: mode-panel-in 0.3s ease-out; }
+
+/* 7. mode card hover */
+@keyframes mode-card-hover { 0%,100%{border-color:transparent;} 50%{border-color:rgba(99,102,241,0.4);} }
+.mode-card-item:hover { animation: mode-card-hover 1.5s ease-in-out infinite; }
+
+/* 8. mode lock shake */
+@keyframes mode-lock-shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-2px);} 75%{transform:translateX(2px);} }
+
+/* 9. mode switch flash */
+@keyframes mode-switch-flash { 0%{box-shadow:0 0 0 0 rgba(99,102,241,0.5);} 100%{box-shadow:0 0 0 10px rgba(99,102,241,0);} }
+
+/* 10. mode progress fill */
+@keyframes mode-progress-fill { 0%{width:0%;} 100%{width:var(--mode-progress, 50%);} }
+
+/* 11. profile-panel slide-in */
+@keyframes profile-panel-in { 0%{opacity:0;transform:translateX(10px);} 100%{opacity:1;transform:translateX(0);} }
+.profile-panel { animation: profile-panel-in 0.3s ease-out; }
+
+/* 12. avatar pop */
+@keyframes avatar-pop { 0%{transform:scale(0.5) rotate(-10deg);opacity:0;} 60%{transform:scale(1.15) rotate(3deg);} 100%{transform:scale(1) rotate(0deg);opacity:1;} }
+
+/* 13. xp bar shimmer */
+@keyframes xp-bar-shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+.xp-bar-fill { background-size:200% 100%; animation: xp-bar-shimmer 3s linear infinite; }
+
+/* 14. title unlock flash */
+@keyframes title-unlock-flash { 0%{color:#fbbf24;text-shadow:0 0 10px rgba(251,191,36,0.8);} 100%{color:#a78bfa;text-shadow:none;} }
+
+/* 15. level up burst */
+@keyframes level-up-burst { 0%{transform:scale(1);} 30%{transform:scale(1.2);} 60%{transform:scale(0.95);} 100%{transform:scale(1);} }
+
+/* 16. notification slide-in */
+@keyframes notif-slide-in { 0%{opacity:0;transform:translateY(-20px) scale(0.9);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+
+/* 17. notification slide-out */
+@keyframes notif-slide-out { 0%{opacity:1;transform:translateY(0);} 100%{opacity:0;transform:translateY(-20px);} }
+
+/* 18. notification pulse border */
+@keyframes notif-pulse-border { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.4);} 50%{box-shadow:0 0 0 3px rgba(59,130,246,0);} }
+
+/* 19. notification icon bounce */
+@keyframes notif-icon-bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-2px);} }
+
+/* 20. notification progress bar */
+@keyframes notif-progress { 0%{width:100%;} 100%{width:0%;} }
+
+/* 21. R36 feature button stagger */
+@keyframes r36-btn-stagger { 0%{opacity:0;transform:translateY(8px) scale(0.93);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+.breakdown-btn { animation: r36-btn-stagger 0.25s ease-out 0.05s both; }
+.mode-btn { animation: r36-btn-stagger 0.25s ease-out 0.1s both; }
+.profile-btn { animation: r36-btn-stagger 0.25s ease-out 0.15s both; }
+
+/* 22. stat card reveal */
+@keyframes stat-card-reveal { 0%{opacity:0;transform:scale(0.9);} 100%{opacity:1;transform:scale(1);} }
+
+/* 23. list item cascade */
+@keyframes list-item-cascade { 0%{opacity:0;transform:translateX(-5px);} 100%{opacity:1;transform:translateX(0);} }
+
+/* 24. mode feature tag float */
+@keyframes mode-tag-float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-1px);} }
+
+/* 25. profile stat glow */
+@keyframes profile-stat-glow { 0%,100%{background-color:rgba(139,92,246,0.1);} 50%{background-color:rgba(139,92,246,0.2);} }
+.profile-stat-cell { animation: profile-stat-glow 3s ease-in-out infinite; }
