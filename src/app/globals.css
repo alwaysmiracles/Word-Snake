@@ -7251,3 +7251,125 @@
 /* R58-28: Gene double helix weave */
 @keyframes r58-helix-weave { 0% { transform: translateX(0) rotate(0deg); } 25% { transform: translateX(3px) rotate(5deg); } 75% { transform: translateX(-3px) rotate(-5deg); } 100% { transform: translateX(0) rotate(0deg); } }
 .genelab-panel .r58-helix-weave { animation: r58-helix-weave 3s ease-in-out infinite; }
+
+/* ===== Round 59: Robot Factory, Dream Journal, Pixel Art Studio, Island Builder Animations ===== */
+
+/* R59-1: Robot Factory stat cell entrance pop */
+@keyframes r59-robot-stat { 0% { opacity: 0; transform: scale(0.5); } 60% { transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+.robot-factory-panel .r59-robot-stat { animation: r59-robot-stat 0.4s ease-out both; }
+
+/* R59-2: Robot item scale entrance */
+@keyframes r59-robot-item { 0% { opacity: 0; transform: scale(0.3) rotate(-10deg); } 70% { transform: scale(1.05) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.robot-factory-panel .r59-robot-item { animation: r59-robot-item 0.5s ease-out both; }
+
+/* R59-3: Opponent item pulse entrance */
+@keyframes r59-opponent-item { 0% { opacity: 0; transform: scale(0.7); } 50% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+.robot-factory-panel .r59-opponent-item { animation: r59-opponent-item 0.4s ease-out both; }
+
+/* R59-4: Part item slide entrance */
+@keyframes r59-part-item { 0% { opacity: 0; transform: translateX(-20px); } 100% { opacity: 1; transform: translateX(0); } }
+.robot-factory-panel .r59-part-item { animation: r59-part-item 0.4s ease-out both; }
+
+/* R59-5: Robot gear spin infinite */
+@keyframes r59-gear-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.robot-factory-panel .r59-gear-spin { animation: r59-gear-spin 4s linear infinite; }
+
+/* R59-6: Battle flash effect */
+@keyframes r59-battle-flash { 0% { background-color: transparent; } 30% { background-color: rgba(239, 68, 68, 0.3); } 100% { background-color: transparent; } }
+.robot-factory-panel .r59-battle-flash { animation: r59-battle-flash 0.6s ease-out; }
+
+/* R59-7: Dream stat cell entrance */
+@keyframes r59-dream-stat { 0% { opacity: 0; transform: translateY(-15px); } 100% { opacity: 1; transform: translateY(0); } }
+.dream-journal-panel .r59-dream-stat { animation: r59-dream-stat 0.4s ease-out both; }
+
+/* R59-8: Dream item float in */
+@keyframes r59-dream-item { 0% { opacity: 0; transform: translateY(20px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.dream-journal-panel .r59-dream-item { animation: r59-dream-item 0.5s ease-out both; }
+
+/* R59-9: Realm item shimmer entrance */
+@keyframes r59-realm-item { 0% { opacity: 0; transform: scale(0.6); box-shadow: none; } 60% { box-shadow: 0 0 12px rgba(129, 140, 248, 0.3); } 100% { opacity: 1; transform: scale(1); box-shadow: none; } }
+.dream-journal-panel .r59-realm-item { animation: r59-realm-item 0.5s ease-out both; }
+
+/* R59-10: Dream symbol float infinite */
+@keyframes r59-symbol-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.dream-journal-panel .r59-symbol-item { animation: r59-symbol-float 3s ease-in-out infinite; }
+
+/* R59-11: Lucid glow pulse infinite */
+@keyframes r59-lucid-glow { 0%, 100% { box-shadow: 0 0 4px rgba(139, 92, 246, 0.2); } 50% { box-shadow: 0 0 16px rgba(139, 92, 246, 0.5); } }
+.dream-journal-panel .r59-lucid-glow { animation: r59-lucid-glow 2s ease-in-out infinite; }
+
+/* R59-12: Pixel Art stat cell entrance */
+@keyframes r59-pixel-stat { 0% { opacity: 0; transform: scale(0.5) rotate(-5deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.pixel-art-panel .r59-pixel-stat { animation: r59-pixel-stat 0.35s ease-out both; }
+
+/* R59-13: Tool item bounce entrance */
+@keyframes r59-tool-item { 0% { opacity: 0; transform: translateY(15px); } 60% { transform: translateY(-5px); } 100% { opacity: 1; transform: translateY(0); } }
+.pixel-art-panel .r59-tool-item { animation: r59-tool-item 0.4s ease-out both; }
+
+/* R59-14: Color item pop entrance */
+@keyframes r59-color-item { 0% { opacity: 0; transform: scale(0); } 70% { transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+.pixel-art-panel .r59-color-item { animation: r59-color-item 0.3s ease-out both; }
+
+/* R59-15: Gallery item slide entrance */
+@keyframes r59-gallery-item { 0% { opacity: 0; transform: translateX(20px); } 100% { opacity: 1; transform: translateX(0); } }
+.pixel-art-panel .r59-gallery-item { animation: r59-gallery-item 0.5s ease-out both; }
+
+/* R59-16: Pixel cursor blink infinite */
+@keyframes r59-cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.pixel-art-panel .r59-cursor-blink { animation: r59-cursor-blink 1s step-end infinite; }
+
+/* R59-17: Island stat cell entrance */
+@keyframes r59-island-stat { 0% { opacity: 0; transform: translateX(-10px) scale(0.9); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+.island-builder-panel .r59-island-stat { animation: r59-island-stat 0.4s ease-out both; }
+
+/* R59-18: Tile item pop entrance */
+@keyframes r59-tile-item { 0% { opacity: 0; transform: scale(0.3); } 70% { transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+.island-builder-panel .r59-tile-item { animation: r59-tile-item 0.25s ease-out both; }
+
+/* R59-19: Resource item bounce entrance */
+@keyframes r59-resource-item { 0% { opacity: 0; transform: translateY(10px); } 60% { transform: translateY(-3px); } 100% { opacity: 1; transform: translateY(0); } }
+.island-builder-panel .r59-resource-item { animation: r59-resource-item 0.4s ease-out both; }
+
+/* R59-20: Event card glow pulse infinite */
+@keyframes r59-event-glow { 0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.2); } 50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); } }
+.island-builder-panel .r59-event-card { animation: r59-event-glow 2s ease-in-out infinite; }
+
+/* R59-21: Visitor item wave entrance */
+@keyframes r59-visitor-item { 0% { opacity: 0; transform: translateX(15px) rotate(5deg); } 100% { opacity: 1; transform: translateX(0) rotate(0deg); } }
+.island-builder-panel .r59-visitor-item { animation: r59-visitor-item 0.5s ease-out both; }
+
+/* R59-22: Ocean wave shimmer infinite */
+@keyframes r59-ocean-wave { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.island-builder-panel .r59-ocean-wave { animation: r59-ocean-wave 4s ease-in-out infinite; }
+
+/* R59-23: Shared action button press effect */
+@keyframes r59-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.93); } 100% { transform: scale(1); } }
+.r59-action-btn:active { animation: r59-action-btn 0.15s ease-in-out; }
+
+/* R59-24: Achievement badge pop entrance */
+@keyframes r59-achievement-item { 0% { opacity: 0; transform: scale(0.5); } 70% { transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+.r59-achievement-item { animation: r59-achievement-item 0.35s ease-out both; }
+
+/* R59-25: Daily card shimmer infinite */
+@keyframes r59-daily-shimmer { 0%, 100% { border-color: rgba(148, 163, 184, 0.15); } 50% { border-color: rgba(148, 163, 184, 0.4); } }
+.r59-daily-card { animation: r59-daily-shimmer 3s ease-in-out infinite; }
+
+/* R59-26: Robot spark weld infinite */
+@keyframes r59-spark-weld { 0%, 100% { text-shadow: 0 0 4px rgba(251, 191, 36, 0.3); } 50% { text-shadow: 0 0 12px rgba(251, 191, 36, 0.8); } }
+.robot-factory-panel .r59-spark-weld { animation: r59-spark-weld 1.5s ease-in-out infinite; }
+
+/* R59-27: Dream cloud drift infinite */
+@keyframes r59-cloud-drift { 0%, 100% { transform: translateX(0) translateY(0); } 25% { transform: translateX(3px) translateY(-2px); } 75% { transform: translateX(-3px) translateY(2px); } }
+.dream-journal-panel .r59-cloud-drift { animation: r59-cloud-drift 5s ease-in-out infinite; }
+
+/* R59-28: Island tree sway infinite */
+@keyframes r59-tree-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+.island-builder-panel .r59-tree-sway { animation: r59-tree-sway 3s ease-in-out infinite; }
+
+/* R59-29: Pixel art pixelate entrance */
+@keyframes r59-pixelate { 0% { opacity: 0; filter: blur(8px); transform: scale(0.8); } 100% { opacity: 1; filter: blur(0px); transform: scale(1); } }
+.pixel-art-panel .r59-pixelate { animation: r59-pixelate 0.6s ease-out both; }
+
+/* R59-30: Robot factory smoke infinite */
+@keyframes r59-factory-smoke { 0% { opacity: 0.3; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-20px) scale(1.5); } }
+.robot-factory-panel .r59-factory-smoke { animation: r59-factory-smoke 2s ease-out infinite; }

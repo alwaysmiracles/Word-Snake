@@ -201,6 +201,10 @@ import { gnGetState, gnResetState, gnGetLab, gnGetLabLevel, gnAddLabXP, gnGetSta
 import { lcGetState, lcResetState, lcGetChapters, lcGetChapter, lcGetEntries, lcGetEntry, lcGetEntriesByChapter, lcReadEntry, lcIsRead, lcGetReadEntries, lcDiscoverEntry, lcUnlockSecret, lcGetCharacters, lcGetCharacter, lcGetCharacterRelationships, lcGetTimeline, lcGetEvent, lcGetSecrets, lcGetTriviaQuestions, lcAnswerTrivia, lcGetDailyLore, lcGetDailyTrivia, lcGetReadingStreak, lcGetCodexOverview, lcGetCodexDashboard, lcGetChapterCard, lcGetEntryCard, lcGetCharacterCard, lcGetCompletionPercentage, lcGetLorePoints, lcGetMasteryRank, lcGetTotalWordsRead, lcGetReadingTime, lcGetFavoriteChapter, lcSearchLore, lcGetRelatedEntries, lcGetLoreRank, lcGetNextUnlock, lcGetAchievements, lcCheckAchievements } from '@/lib/lore-codex-wire'
 import { tpGetState, tpResetState, tpGetRange, tpGetRangeLevel, tpAddRangeXP, tpGetModes, tpStartSession, tpEndSession, tpShoot, tpMiss, tpGetCombo, tpResetCombo, tpGetTargets, tpSpawnTarget, tpGetTargetTypes, tpGetWeapons, tpGetWeapon, tpEquipWeapon, tpGetEquippedWeapon, tpGetScore, tpGetAccuracy, tpGetGrade, tpGetStats, tpGetBestScore, tpGetTotalShots, tpGetAchievements, tpCheckAchievements, tpGetDailyChallenge, tpCompleteDailyChallenge, tpGetDailyStreak, tpGetTargetPracticeOverview, tpGetRangeDashboard, tpGetModeCard, tpGetWeaponCard, tpGetTargetCard, tpGetLeaderboard, tpGetRank, tpGetReactionTime, tpGetShotsPerMinute, tpGetWeaponMastery, tpGetSessionHistory, tpGetRecentSessions, tpGetActiveSession, tpIsSessionActive, tpGetSessionTimer, tpDefeatBoss, tpGetBossWord, tpGetBossProgress, tpUpdateTargets } from '@/lib/target-practice-wire'
 import { cvGetState, cvResetState, cvGetCarnival, cvGetCarnivalLevel, cvAddTickets, cvGetAttractions, cvGetAttraction, cvPlayAttraction, cvSpinWheel, cvGetWheelResult, cvGetFreeSpins, cvGetSpinHistory, cvTossRing, cvGetRingTossState, cvGetPegs, cvWhackWord, cvWhackMiss, cvGetWhackAWordState, cvGetMoles, cvPopBalloon, cvGetBalloonPopState, cvGetBalloons, cvGetFortune, cvGetFortuneHistory, cvGetPrizes, cvRedeemPrize, cvGetPrizeCollection, cvGetTickets, cvGetTokens, cvSpendTickets, cvSpendTokens, cvGetEvent, cvGetEventLeaderboard, cvGetEventAchievements, cvGetAchievements, cvCheckAchievements, cvGetCarnivalOverview, cvGetCarnivalDashboard, cvGetAttractionCard, cvGetPrizeCard, cvGetWheelCard, cvGetStats, cvGetTotalGamesPlayed, cvGetBestScore as cvGetBestScore, cvGetCarnivalRank, cvGetNextPrizeUnlock, cvGetDailyBonus, cvClaimDailyBonus, cvGetSeasonProgress, cvGetSeasonPrizes, cvGetJackpot, cvUseFreeSpin } from '@/lib/carnival-wire'
+import { rbGetState, rbResetState, rbGetFactory, rbGetFactoryLevel, rbAddFactoryXP, rbGetWorkshopUpgrades, rbUpgradeWorkshop, rbGetAssemblySpeed, rbGetQualityBonus, rbGetAllParts, rbGetPart, rbGetPartsByType, rbGetPartsByRarity, rbGetPartStats, rbGetInventory, rbAddPart, rbRemovePart, rbGetInventoryCount, rbBuildRobot, rbSetName, rbGetRobot, rbGetRobots, rbGetRobotStats, rbGetClassBonus, rbSetPart, rbGetOpponents, rbStartBattle, rbAttack, rbDefend, rbUseAbility, rbGetBattleState, rbGetBattleLog, rbEndBattle, rbGetBattleHistory, rbGetWinStreak, rbGetDailyBlueprint, rbGetDailyChallenge, rbCompleteDailyChallenge, rbGetTournament, rbGetTournamentProgress, rbDismantlePart, rbGetScrapCount, rbSpendScrap, rbForgeCost, rbForgePart, rbEnhanceCost, rbEnhancePart, rbFuseCost, rbFuseParts, rbGetStatsGrid, rbGetPartCard, rbGetRobotCard, rbGetOpponentCard, rbGetBattleCard, rbGetDailyCard, rbGetAchievements, rbCheckAchievements, rbGetFactoryOverview, rbGetFactoryDashboard } from '@/lib/robot-factory-wire'
+import { djGetState, djResetState, djGetDreams, djGetDream, djRecordDream, djDeleteDream, djGetDreamsByCategory, djGetDreamsByMood, djSearchDreams, djGetDreamCount, djGetSymbols, djGetSymbolMeaning, djInterpretDream, djGetDreamMeaningScore, djGetDailyInterpretation, djGetRealms, djGetRealm, djDiscoverRealm, djVisitRealm, djGetRealmProgress, djExploreRealm, djGetDiscoveredRealms, djGetLucidLevel, djAddLucidXP, djGetLucidAbilities, djUnlockAbility, djPerformRealityCheck, djGetRealityChecks, djGetSleepQuality, djGetSleepChart, djGetSleepPatterns, djGetRecommendations, djGetDreamFrequency, djGetDailyPrompt, djGetDailyChallenge, djCompleteDailyChallenge, djGetStreak, djCheckStreakMilestone, djGetJournalOverview, djGetDreamCard, djGetRealmCard, djGetInterpretationCard, djGetSleepCard, djGetDailyCard, djGetStatsGrid, djGetAchievements, djCheckAchievements, djGetMasteryRank, djGetCategories, djGetMoods, djGetRealmDefinitions, djGetRealityCheckTypes, djGetAllTags } from '@/lib/dream-journal-wire'
+import { pxGetState, pxResetState, pxCreateCanvas, pxGetCanvas, pxGetActiveCanvas, pxDeleteCanvas, pxResizeCanvas, pxSetPixel, pxGetPixel, pxFillArea, pxDrawLine, pxDrawRect, pxDrawCircle, pxApplyBrush, pxUndo, pxRedo, pxGetHistory, pxClearCanvas, pxGetCanvasSize, pxGetCanvasGrid, pxToggleGrid, pxSetTool, pxGetTool, pxSetZoom, pxGetZoom, pxAddLayer, pxRemoveLayer, pxSetActiveLayer, pxToggleLayerVisibility, pxSetLayerOpacity, pxGetLayers, pxGetPalette, pxSetPalette, pxGetAllPaletteColors, pxGetRecentColors, pxAddRecentColor, pxGetCustomColors, pxSetCustomColor, pxPickColor, pxSetActiveColor, pxGetActiveColor, pxExportPalette, pxImportPalette, pxSaveToGallery, pxGetGallery, pxGetArtwork, pxDeleteArtwork, pxLikeArtwork, pxToggleFavorite, pxGetFavorites, pxSearchGallery, pxFilterByTag, pxGenerateShareCode, pxCreateAnimation, pxGetAnimation, pxGetActiveAnimation, pxGetAnimations, pxAddFrame, pxRemoveFrame, pxDuplicateFrame, pxSetFrameData, pxSetFramePixel, pxGetFramePixel, pxReorderFrame, pxSetPlaybackSpeed, pxGetPlaybackSpeed, pxToggleOnionSkin, pxGetOnionSkinData, pxDeleteAnimation, pxSaveAnimationToGallery, pxGetArtistLevel, pxAddArtistXP, pxGetTitle, pxGetTitleProgress, pxGetStudioCoins, pxSpendCoins, pxEarnCoins, pxGetUnlocks, pxPurchaseUnlock, pxGetXPProgress, pxGetDailyChallenge, pxCompleteDailyChallenge, pxGetWeeklyContest, pxParticipateWeeklyContest, pxGetStreak, pxGetTemplates, pxGetTemplate, pxGetTemplateCategories, pxLoadTemplate, pxGetAchievements, pxCheckAchievements, pxGetAchievementProgress, pxGetStudioOverview, pxGetStatsGrid, pxGetCanvasCard, pxGetArtworkCard, pxGetAnimationCard, pxGetDailyCard, pxGetGalleryGrid, pxGetToolGrid, pxGetPaletteGrid, pxGetCanvasSizeOptions, pxGetWeeklyCard, pxGetAllCanvasCards, pxGetAllAnimationCards, pxGetTemplateGrid, pxGetUnlockGrid, pxGetFrameData, pxGetFrameList } from '@/lib/pixel-art-studio-wire'
+import { ibGetState, ibResetState, ibGetIsland, ibGetName, ibSetName, ibGetGrid, ibGetTile, ibSetTerrain, ibImproveTile, ibGetIslandLevel, ibAddIslandXP, ibGetBuildings, ibGetBuilding, ibBuildStructure, ibDemolishStructure, ibUpgradeBuilding, ibGetBuildableBuildings, ibGetBuildingCost, ibCanAfford, ibGetBuildingsOnIsland, ibGetResources, ibGetResource, ibAddResource, ibSpendResource, ibGetProduction, ibGetStorage, ibTradeResources, ibGetTradeRate, ibGetResourceBonus, ibGetPopulation, ibGetHappiness, ibAssignWorker, ibGetWorkerAssignment, ibGetPopulationCapacity, ibGetVisitors, ibGetActiveVisitors, ibGetVisitorSatisfaction, ibGetIslandRating, ibGetVisitorGifts, ibGetActiveEvent, ibProcessEvent, ibGetWeather, ibGetSeason, ibGetSeasonModifier, ibGetDailyTask, ibCompleteDailyTask, ibGetDailyBonus, ibGetWeeklyCompetition, ibGetStreak, ibTick, ibGetIslandOverview, ibGetIslandDashboard, ibGetStatsGrid, ibGetBuildingCard, ibGetResourceCard, ibGetTileCard, ibGetVisitorCard, ibGetEventCard, ibGetDailyCard, ibGetAchievements, ibCheckAchievements, ibGetProductionChart, ibGetGridOverview, ibGetTerrainTypes, ibGetTerrainIcon, ibGetResourceTypes, ibGetResourceIcon, ibGetBuildingCategories, ibGetBuildingsByCategory, ibGetCompatibleBuildings, ibGetWeatherTypes, ibGetSeasons, ibGetEventsList, ibGetImprovementCost, ibCanImproveTile, ibGetTotalWorkers, ibGetAvailableWorkers, ibGetTotalMilitaryPower, ibGetBuildingsCount, ibGetTotalBuildingsEverBuilt, ibGetTotalVisitorsEver, ibGetCategoryIcon } from '@/lib/island-builder-wire'
 import {
   Play,
   RotateCcw,
@@ -1011,6 +1015,11 @@ export default function SnakeGame() {
   const [showLoreCodexPanel, setShowLoreCodexPanel] = useState(false)
   const [showTargetPracticePanel, setShowTargetPracticePanel] = useState(false)
   const [showCarnivalPanel, setShowCarnivalPanel] = useState(false)
+  // Round 59: Robot Factory, Dream Journal, Pixel Art Studio, Island Builder panel states
+  const [showRobotFactoryPanel, setShowRobotFactoryPanel] = useState(false)
+  const [showDreamJournalPanel, setShowDreamJournalPanel] = useState(false)
+  const [showPixelArtPanel, setShowPixelArtPanel] = useState(false)
+  const [showIslandBuilderPanel, setShowIslandBuilderPanel] = useState(false)
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -8216,6 +8225,42 @@ export default function SnakeGame() {
                     >
                       🎪 Carnival
                     </Button>
+                    {/* Round 59: Robot Factory Button */}
+                    <Button
+                      onClick={() => setShowRobotFactoryPanel(!showRobotFactoryPanel)}
+                      variant="outline"
+                      className="border-slate-500/50 text-slate-300 hover:bg-slate-900/20 active:scale-95 transition-transform robot-factory-btn"
+                      title="Robot Factory"
+                    >
+                      🤖 Robots
+                    </Button>
+                    {/* Round 59: Dream Journal Button */}
+                    <Button
+                      onClick={() => setShowDreamJournalPanel(!showDreamJournalPanel)}
+                      variant="outline"
+                      className="border-indigo-500/50 text-indigo-300 hover:bg-indigo-900/20 active:scale-95 transition-transform dream-journal-btn"
+                      title="Dream Journal"
+                    >
+                      💭 Dreams
+                    </Button>
+                    {/* Round 59: Pixel Art Studio Button */}
+                    <Button
+                      onClick={() => setShowPixelArtPanel(!showPixelArtPanel)}
+                      variant="outline"
+                      className="border-fuchsia-500/50 text-fuchsia-300 hover:bg-fuchsia-900/20 active:scale-95 transition-transform pixel-art-btn"
+                      title="Pixel Art Studio"
+                    >
+                      🎨 Pixel Art
+                    </Button>
+                    {/* Round 59: Island Builder Button */}
+                    <Button
+                      onClick={() => setShowIslandBuilderPanel(!showIslandBuilderPanel)}
+                      variant="outline"
+                      className="border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/20 active:scale-95 transition-transform island-builder-btn"
+                      title="Island Builder"
+                    >
+                      🏝️ Island
+                    </Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -14866,6 +14911,333 @@ export default function SnakeGame() {
                 {prizes.slice(0, 10).map((p: any, i: number) => (
                   <div key={p.id || i} className={`p-1 rounded-lg border text-center r58-prize-item ${p.owned ? 'border-pink-400 bg-pink-900/30' : 'border-slate-700 bg-slate-800/30'}`}>
                     <div className="text-[7px] font-bold text-pink-300">{p.name || `P${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 59: Robot Factory Panel */}
+      {showRobotFactoryPanel && mounted && (() => {
+        const factory = rbGetFactory()
+        const stats = rbGetStatsGrid()
+        const robots = rbGetRobots()
+        const opponents = rbGetOpponents()
+        const inventory = rbGetInventory()
+        const daily = rbGetDailyCard()
+        const achievements = rbGetAchievements()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRobotFactoryPanel(false)}>
+            <div className="bg-slate-900/95 border border-slate-600/50 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-slate-200 flex items-center gap-1.5">🤖 Robot Factory</h3>
+                <button onClick={() => setShowRobotFactoryPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.map((s: any, i: number) => (
+                  <div key={i} className="p-2 bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-lg border border-slate-600/20 r59-robot-stat">
+                    <div className="text-[9px] text-slate-400">{s.label}</div>
+                    <div className="text-xs font-bold text-slate-200">{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">My Robots ({robots.length})</div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                {robots.slice(0, 6).map((r: any, i: number) => (
+                  <div key={r.id || i} className="p-2 bg-gradient-to-br from-slate-800/30 to-zinc-900/30 rounded-lg border border-slate-600/20 r59-robot-item">
+                    <div className="text-[9px] font-bold text-slate-200">{r.name || `Bot-${i + 1}`}</div>
+                    <div className="text-[7px] text-slate-400">{r.class || 'Scout'} · Lv.{r.level || 1}</div>
+                    <div className="flex gap-1 mt-1">
+                      <span className="text-[7px] text-red-400">ATK {r.stats?.attack || 0}</span>
+                      <span className="text-[7px] text-blue-400">DEF {r.stats?.defense || 0}</span>
+                      <span className="text-[7px] text-green-400">HP {r.stats?.hp || 0}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Arena Opponents</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {opponents.slice(0, 8).map((o: any, i: number) => (
+                  <div key={o.id || i} className="p-1.5 rounded-lg border text-center r59-opponent-item" style={{ borderColor: o.defeated ? '#22c55e40' : '#ef444440' }}>
+                    <div className="text-[8px] font-bold text-slate-300">{o.name || `Enemy-${i + 1}`}</div>
+                    <div className="text-[7px] text-slate-500">Lv.{o.level || i + 1}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Parts Inventory ({inventory.length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {inventory.slice(0, 8).map((p: any, i: number) => (
+                  <div key={p.id || i} className="p-1.5 rounded-lg border text-center r59-part-item" style={{ borderColor: p.rarity === 'Legendary' ? '#f97316' : p.rarity === 'Epic' ? '#a855f7' : p.rarity === 'Rare' ? '#3b82f6' : p.rarity === 'Uncommon' ? '#22c55e' : '#64748b' }}>
+                    <div className="text-[8px] font-bold text-slate-200">{p.name || `P${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{p.type || 'Head'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { rbBuildRobot(); toast({ title: 'Robot built!' }) }} className="flex-1 px-2 py-1.5 bg-slate-800/60 hover:bg-slate-700/60 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Build Robot</button>
+                <button onClick={() => { rbStartBattle(); toast({ title: 'Battle started!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Arena Fight</button>
+                <button onClick={() => { rbForgePart(''); toast({ title: 'Forging!' }) }} className="flex-1 px-2 py-1.5 bg-orange-900/40 hover:bg-orange-800/50 text-orange-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Forge</button>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Daily Blueprint</div>
+              <div className="p-2 bg-gradient-to-br from-slate-800/30 to-zinc-900/30 rounded-lg border border-slate-600/20 mb-3 r59-daily-card">
+                <div className="text-[9px] text-slate-300">{daily?.title || 'Daily Blueprint'}</div>
+                <div className="text-[7px] text-slate-500">{daily?.description || 'Check back tomorrow'}</div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Achievements ({achievements.filter((a: any) => a.unlocked).length}/{achievements.length})</div>
+              <div className="grid grid-cols-5 gap-1">
+                {achievements.slice(0, 10).map((a: any, i: number) => (
+                  <div key={a.id || i} className={`p-1 rounded-lg border text-center r59-achievement-item ${a.unlocked ? 'border-yellow-400 bg-yellow-900/20' : 'border-slate-700 bg-slate-800/20'}`}>
+                    <div className="text-[7px] font-bold text-slate-400">{a.name || `A${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 59: Dream Journal Panel */}
+      {showDreamJournalPanel && mounted && (() => {
+        const dreams = djGetDreams()
+        const stats = djGetStatsGrid()
+        const realms = djGetRealms()
+        const sleepCard = djGetSleepCard()
+        const daily = djGetDailyCard()
+        const symbols = djGetSymbols()
+        const achievements = djGetAchievements()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDreamJournalPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-indigo-200 flex items-center gap-1.5">💭 Dream Journal</h3>
+                <button onClick={() => setShowDreamJournalPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.map((s: any, i: number) => (
+                  <div key={i} className="p-2 bg-gradient-to-br from-indigo-900/30 to-violet-900/30 rounded-lg border border-indigo-500/20 r59-dream-stat">
+                    <div className="text-[9px] text-indigo-300">{s.label}</div>
+                    <div className="text-xs font-bold text-indigo-200">{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider mb-1.5">Recent Dreams ({dreams.length})</div>
+              <div className="space-y-1.5 mb-3">
+                {dreams.slice(0, 5).map((d: any, i: number) => (
+                  <div key={d.id || i} className="p-2 bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-lg border border-indigo-500/10 r59-dream-item">
+                    <div className="text-[9px] font-bold text-indigo-200">{d.title || `Dream ${i + 1}`}</div>
+                    <div className="text-[7px] text-indigo-400/70 truncate">{d.content || 'No content'}</div>
+                    <div className="flex gap-2 mt-0.5">
+                      <span className="text-[7px] text-purple-400">{d.mood || 'Neutral'}</span>
+                      <span className="text-[7px] text-violet-400">{d.category || 'Adventure'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider mb-1.5">Dream Realms ({realms.filter((r: any) => r.discovered).length}/{realms.length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {realms.slice(0, 8).map((r: any, i: number) => (
+                  <div key={r.id || i} className={`p-1.5 rounded-lg border text-center r59-realm-item ${r.discovered ? 'border-indigo-400/40 bg-indigo-900/30' : 'border-slate-700/40 bg-slate-800/20'}`}>
+                    <div className="text-[9px]">{r.icon || '🌙'}</div>
+                    <div className="text-[7px] font-bold text-indigo-300">{r.name || `Realm ${i + 1}`}</div>
+                    <div className="text-[6px] text-indigo-400/50">Lv.{r.level || 0}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider mb-1.5">Dream Symbols</div>
+              <div className="grid grid-cols-6 gap-1 mb-3">
+                {symbols.slice(0, 12).map((s: any, i: number) => (
+                  <div key={s.id || i} className="p-1 rounded-lg border border-violet-500/20 bg-violet-900/20 text-center r59-symbol-item">
+                    <div className="text-[8px]">{s.icon || '🔮'}</div>
+                    <div className="text-[6px] text-violet-300 truncate">{s.name || 'S'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider mb-1.5">Sleep Quality</div>
+              <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-violet-900/30 rounded-lg border border-indigo-500/20 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="text-lg">{sleepCard?.quality >= 80 ? '😴' : sleepCard?.quality >= 50 ? '😪' : '😰'}</div>
+                  <div>
+                    <div className="text-[10px] font-bold text-indigo-200">Quality: {sleepCard?.quality || 0}/100</div>
+                    <div className="text-[7px] text-indigo-400">{sleepCard?.pattern || 'Normal pattern'}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { djRecordDream({ title: 'New Dream', content: 'A mysterious dream...', mood: 'Neutral', category: 'Adventure' }); toast({ title: 'Dream recorded!' }) }} className="flex-1 px-2 py-1.5 bg-indigo-900/40 hover:bg-indigo-800/50 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Record</button>
+                <button onClick={() => { djPerformRealityCheck(); toast({ title: 'Reality checked!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Check</button>
+                <button onClick={() => { const r = djGetDiscoveredRealms()[0]; if (r) { djExploreRealm(r.id); toast({ title: 'Exploring!' }) } }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Explore</button>
+              </div>
+              <div className="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({achievements.filter((a: any) => a.unlocked).length}/{achievements.length})</div>
+              <div className="grid grid-cols-5 gap-1">
+                {achievements.slice(0, 10).map((a: any, i: number) => (
+                  <div key={a.id || i} className={`p-1 rounded-lg border text-center r59-achievement-item ${a.unlocked ? 'border-indigo-400 bg-indigo-900/20' : 'border-slate-700 bg-slate-800/20'}`}>
+                    <div className="text-[7px] font-bold text-indigo-400">{a.name || `A${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 59: Pixel Art Studio Panel */}
+      {showPixelArtPanel && mounted && (() => {
+        const stats = pxGetStatsGrid()
+        const gallery = pxGetGallery()
+        const tools = pxGetToolGrid()
+        const palette = pxGetPaletteGrid()
+        const daily = pxGetDailyCard()
+        const templates = pxGetTemplates()
+        const achievements = pxGetAchievements()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPixelArtPanel(false)}>
+            <div className="bg-fuchsia-950/95 border border-fuchsia-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-fuchsia-200 flex items-center gap-1.5">🎨 Pixel Art Studio</h3>
+                <button onClick={() => setShowPixelArtPanel(false)} className="text-fuchsia-400 hover:text-white text-xs">✕</button>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.map((s: any, i: number) => (
+                  <div key={i} className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-pink-900/30 rounded-lg border border-fuchsia-500/20 r59-pixel-stat">
+                    <div className="text-[9px] text-fuchsia-300">{s.label}</div>
+                    <div className="text-xs font-bold text-fuchsia-200">{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-fuchsia-300 font-semibold uppercase tracking-wider mb-1.5">Drawing Tools</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {tools.slice(0, 8).map((t: any, i: number) => (
+                  <div key={t.id || i} className={`p-1.5 rounded-lg border text-center cursor-pointer r59-tool-item ${t.active ? 'border-fuchsia-400 bg-fuchsia-900/40' : 'border-slate-700 bg-slate-800/20'}`} onClick={() => { pxSetTool(t.id); toast({ title: `${t.name} selected` }) }}>
+                    <div className="text-[10px]">{t.icon || '✏️'}</div>
+                    <div className="text-[6px] text-fuchsia-300">{t.name || 'Tool'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-fuchsia-300 font-semibold uppercase tracking-wider mb-1.5">Color Palette</div>
+              <div className="grid grid-cols-8 gap-1 mb-3">
+                {palette.slice(0, 32).map((c: any, i: number) => (
+                  <div key={c.id || i} className="w-5 h-5 rounded border border-fuchsia-500/20 cursor-pointer hover:scale-110 transition-transform r59-color-item" style={{ backgroundColor: c.color || c.hex || '#888' }} title={c.name || `Color ${i + 1}`} onClick={() => { pxSetActiveColor(c.color || c.hex); toast({ title: 'Color set!' }) }} />
+                ))}
+              </div>
+              <div className="text-[10px] text-fuchsia-300 font-semibold uppercase tracking-wider mb-1.5">Gallery ({gallery.length})</div>
+              <div className="grid grid-cols-3 gap-1.5 mb-3">
+                {gallery.slice(0, 6).map((a: any, i: number) => (
+                  <div key={a.id || i} className="p-2 bg-gradient-to-br from-fuchsia-900/20 to-pink-900/20 rounded-lg border border-fuchsia-500/10 r59-gallery-item">
+                    <div className="text-[9px] font-bold text-fuchsia-200">{a.name || `Art ${i + 1}`}</div>
+                    <div className="text-[7px] text-fuchsia-400/60">{a.size || '16×16'}</div>
+                    <div className="flex gap-1 mt-0.5">
+                      <span className="text-[6px] text-pink-400">♥ {a.likes || 0}</span>
+                      {a.favorite && <span className="text-[6px] text-yellow-400">⭐</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-fuchsia-300 font-semibold uppercase tracking-wider mb-1.5">Templates ({templates.length})</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {templates.slice(0, 10).map((t: any, i: number) => (
+                  <div key={t.id || i} className="p-1.5 rounded-lg border border-fuchsia-500/15 bg-fuchsia-900/10 text-center r59-template-item">
+                    <div className="text-[9px]">{t.icon || '🖼️'}</div>
+                    <div className="text-[6px] text-fuchsia-300 truncate">{t.name || `T${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { pxCreateCanvas(16); toast({ title: 'Canvas created!' }) }} className="flex-1 px-2 py-1.5 bg-fuchsia-900/40 hover:bg-fuchsia-800/50 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">New Canvas</button>
+                <button onClick={() => { pxSaveToGallery(); toast({ title: 'Saved!' }) }} className="flex-1 px-2 py-1.5 bg-pink-900/40 hover:bg-pink-800/50 text-pink-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Save</button>
+                <button onClick={() => { pxCreateAnimation(); toast({ title: 'Animation created!' }) }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Animate</button>
+              </div>
+              <div className="text-[10px] text-fuchsia-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({achievements.filter((a: any) => a.unlocked).length}/{achievements.length})</div>
+              <div className="grid grid-cols-5 gap-1">
+                {achievements.slice(0, 10).map((a: any, i: number) => (
+                  <div key={a.id || i} className={`p-1 rounded-lg border text-center r59-achievement-item ${a.unlocked ? 'border-fuchsia-400 bg-fuchsia-900/20' : 'border-slate-700 bg-slate-800/20'}`}>
+                    <div className="text-[7px] font-bold text-fuchsia-400">{a.name || `A${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 59: Island Builder Panel */}
+      {showIslandBuilderPanel && mounted && (() => {
+        const island = ibGetIsland()
+        const stats = ibGetStatsGrid()
+        const grid = ibGetGridOverview()
+        const resources = ibGetResources()
+        const daily = ibGetDailyCard()
+        const visitors = ibGetActiveVisitors()
+        const event = ibGetActiveEvent()
+        const achievements = ibGetAchievements()
+        const weather = ibGetWeather()
+        const season = ibGetSeason()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowIslandBuilderPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-emerald-200 flex items-center gap-1.5">🏝️ Island Builder</h3>
+                <button onClick={() => setShowIslandBuilderPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[9px] text-emerald-400/70">{island?.name || 'My Island'}</span>
+                <span className="text-[8px] text-slate-500">|</span>
+                <span className="text-[8px] text-blue-300">{weather?.icon || '☀️'} {weather?.name || 'Sunny'}</span>
+                <span className="text-[8px] text-green-300">{season?.icon || '🌸'} {season?.name || 'Spring'}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {stats.map((s: any, i: number) => (
+                  <div key={i} className="p-2 bg-gradient-to-br from-emerald-900/30 to-teal-900/30 rounded-lg border border-emerald-500/20 r59-island-stat">
+                    <div className="text-[9px] text-emerald-300">{s.label}</div>
+                    <div className="text-xs font-bold text-emerald-200">{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-emerald-300 font-semibold uppercase tracking-wider mb-1.5">Island Grid</div>
+              <div className="grid grid-cols-8 gap-0.5 mb-3">
+                {grid && grid.grid ? grid.grid.slice(0, 64).map((tile: any, i: number) => (
+                  <div key={i} className="w-full aspect-square rounded-sm border border-emerald-600/10 flex items-center justify-center text-[7px] r59-tile-item" style={{ backgroundColor: tile.bgColor || '#1a3a2a' }} title={tile.building || tile.terrain || 'Empty'}>
+                    {tile.icon || '·'}
+                  </div>
+                )) : Array.from({ length: 16 }, (_, i) => (
+                  <div key={i} className="w-full aspect-square rounded-sm border border-emerald-600/10 bg-emerald-900/20 flex items-center justify-center text-[7px] text-emerald-600/40">·</div>
+                ))}
+              </div>
+              <div className="text-[10px] text-emerald-300 font-semibold uppercase tracking-wider mb-1.5">Resources</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {resources && Object.keys(resources).length > 0 ? Object.entries(resources).slice(0, 8).map(([key, val]: [string, any]) => (
+                  <div key={key} className="p-1.5 bg-gradient-to-br from-emerald-900/20 to-teal-900/20 rounded-lg border border-emerald-500/10 r59-resource-item">
+                    <div className="text-[8px] text-emerald-400">{(val as any).icon || '📦'}</div>
+                    <div className="text-[8px] font-bold text-emerald-200">{(val as any).amount || val || 0}</div>
+                  </div>
+                )) : Array.from({ length: 4 }, (_, i) => (
+                  <div key={i} className="p-1.5 bg-emerald-900/20 rounded-lg border border-emerald-500/10 r59-resource-item">
+                    <div className="text-[8px] text-emerald-400">📦</div>
+                    <div className="text-[8px] font-bold text-emerald-200">0</div>
+                  </div>
+                ))}
+              </div>
+              {event && <div className="p-2 bg-gradient-to-br from-amber-900/30 to-yellow-900/30 rounded-lg border border-amber-500/20 mb-3 r59-event-card">
+                <div className="text-[9px] font-bold text-amber-200">{event.icon || '⚡'} {event.name || 'Event'}</div>
+                <div className="text-[7px] text-amber-300/70">{event.description || 'Something is happening...'}</div>
+              </div>}
+              <div className="text-[10px] text-emerald-300 font-semibold uppercase tracking-wider mb-1.5">Visitors ({visitors?.length || 0})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {(visitors || []).slice(0, 4).map((v: any, i: number) => (
+                  <div key={v.id || i} className="p-1.5 rounded-lg border border-emerald-500/15 bg-emerald-900/10 text-center r59-visitor-item">
+                    <div className="text-[8px]">{v.icon || '👤'}</div>
+                    <div className="text-[6px] text-emerald-300">{v.name || `Visitor ${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { ibTick(); toast({ title: 'Resources collected!' }) }} className="flex-1 px-2 py-1.5 bg-emerald-900/40 hover:bg-emerald-800/50 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Collect</button>
+                <button onClick={() => { ibBuildStructure('lumber_mill', 0, 0); toast({ title: 'Building placed!' }) }} className="flex-1 px-2 py-1.5 bg-teal-900/40 hover:bg-teal-800/50 text-teal-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Build</button>
+                <button onClick={() => { ibUpgradeBuilding(''); toast({ title: 'Upgraded!' }) }} className="flex-1 px-2 py-1.5 bg-lime-900/40 hover:bg-lime-800/50 text-lime-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Upgrade</button>
+                <button onClick={() => { ibTradeResources('wood', 'stone', 10); toast({ title: 'Traded!' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r59-action-btn">Trade</button>
+              </div>
+              <div className="text-[10px] text-emerald-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({achievements.filter((a: any) => a.unlocked).length}/{achievements.length})</div>
+              <div className="grid grid-cols-5 gap-1">
+                {achievements.slice(0, 10).map((a: any, i: number) => (
+                  <div key={a.id || i} className={`p-1 rounded-lg border text-center r59-achievement-item ${a.unlocked ? 'border-emerald-400 bg-emerald-900/20' : 'border-slate-700 bg-slate-800/20'}`}>
+                    <div className="text-[7px] font-bold text-emerald-400">{a.name || `A${i + 1}`}</div>
                   </div>
                 ))}
               </div>
