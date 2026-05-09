@@ -7427,3 +7427,83 @@
 .puzzle-box-panel .r60-box-unlock { animation: r60-box-unlock 0.8s ease-in-out; }
 @keyframes r60-bloom { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
 .zen-garden-panel .r60-bloom { animation: r60-bloom 3s ease-in-out infinite; }
+/* Round 61: Horror Escape Animations */
+@keyframes r61-he-stat { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.horror-escape-panel .r61-he-stat { animation: r61-he-stat 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-sanity-bar { 0% { width: 0%; } 100% { width: var(--target-width); } }
+.horror-escape-panel .r61-sanity-bar { animation: r61-sanity-bar 1s ease-out; }
+@keyframes r61-room-item { 0% { transform: translateY(10px) scale(0.8); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+.horror-escape-panel .r61-room-item { animation: r61-room-item 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+@keyframes r61-room-card { 0% { transform: translateX(-20px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+.horror-escape-panel .r61-room-card { animation: r61-room-card 0.5s ease-out; }
+@keyframes r61-puzzle-card { 0% { transform: perspective(500px) rotateX(90deg); opacity: 0; } 100% { transform: perspective(500px) rotateX(0); opacity: 1; } }
+.horror-escape-panel .r61-puzzle-card { animation: r61-puzzle-card 0.6s ease-out; }
+@keyframes r61-inventory-item { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+.horror-escape-panel .r61-inventory-item { animation: r61-inventory-item 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-daily-card { 0% { opacity: 0; transform: translateY(5px); } 100% { opacity: 1; transform: translateY(0); } }
+.horror-escape-panel .r61-daily-card { animation: r61-daily-card 0.5s ease-out; }
+@keyframes r61-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+.horror-escape-panel .r61-action-btn:active { animation: r61-action-btn 0.15s ease-in-out; }
+@keyframes r61-achievement-item { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+.horror-escape-panel .r61-achievement-item { animation: r61-achievement-item 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-ghost-flicker { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+.horror-escape-panel .r61-ghost-flicker { animation: r61-ghost-flicker 2s ease-in-out infinite; }
+@keyframes r61-door-creak { 0% { transform: perspective(500px) rotateY(-80deg); } 100% { transform: perspective(500px) rotateY(0); } }
+.horror-escape-panel .r61-door-creak { animation: r61-door-creak 0.8s ease-out; }
+@keyframes r61-heartbeat { 0%,100% { transform: scale(1); } 14% { transform: scale(1.15); } 28% { transform: scale(1); } 42% { transform: scale(1.1); } } 
+.horror-escape-panel .r61-heartbeat { animation: r61-heartbeat 1.5s ease-in-out infinite; }
+/* Round 61: Botanical Garden Animations */
+@keyframes r61-bt-stat { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.botanical-garden-panel .r61-bt-stat { animation: r61-bt-stat 0.3s ease-out; }
+@keyframes r61-plot-item { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.botanical-garden-panel .r61-plot-item { animation: r61-plot-item 0.25s cubic-bezier(0.34,1.56,0.64,1) both; }
+@keyframes r61-species-item { 0% { transform: translateX(10px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+.botanical-garden-panel .r61-species-item { animation: r61-species-item 0.3s ease-out; }
+@keyframes r61-leaf-grow { 0% { transform: scale(0) rotate(-45deg); } 100% { transform: scale(1) rotate(0); } }
+.botanical-garden-panel .r61-leaf-grow { animation: r61-leaf-grow 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-water-drop { 0% { transform: translateY(-5px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(5px); opacity: 0; } }
+.botanical-garden-panel .r61-water-drop { animation: r61-water-drop 2s ease-in-out infinite; }
+@keyframes r61-sun-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.botanical-garden-panel .r61-sun-rotate { animation: r61-sun-rotate 8s linear infinite; }
+@keyframes r61-seed-burst { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.botanical-garden-panel .r61-seed-burst { animation: r61-seed-burst 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-pest-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+.botanical-garden-panel .r61-pest-shake { animation: r61-pest-shake 0.3s ease-in-out infinite; }
+/* Round 61: Racing Circuit Animations */
+@keyframes r61-ra-stat { 0% { transform: scale(0.5) rotate(-10deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+.racing-circuit-panel .r61-ra-stat { animation: r61-ra-stat 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-vehicle-card { 0% { transform: translateX(-30px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+.racing-circuit-panel .r61-vehicle-card { animation: r61-vehicle-card 0.5s ease-out; }
+@keyframes r61-track-item { 0% { transform: perspective(500px) rotateX(30deg); opacity: 0; } 100% { transform: perspective(500px) rotateX(0); opacity: 1; } }
+.racing-circuit-panel .r61-track-item { animation: r61-track-item 0.4s ease-out; }
+@keyframes r61-race-active { 0%,100% { box-shadow: 0 0 5px rgba(249,115,22,0.3); } 50% { box-shadow: 0 0 15px rgba(249,115,22,0.6); } }
+.racing-circuit-panel .r61-race-active { animation: r61-race-active 1.5s ease-in-out infinite; }
+@keyframes r61-speed-lines { 0% { transform: translateX(0); opacity: 0.8; } 100% { transform: translateX(-20px); opacity: 0; } }
+.racing-circuit-panel .r61-speed-lines { animation: r61-speed-lines 0.5s linear infinite; }
+@keyframes r61-tire-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.racing-circuit-panel .r61-tire-spin { animation: r61-tire-spin 0.5s linear infinite; }
+@keyframes r61-boost-flash { 0% { box-shadow: 0 0 0 rgba(234,179,8,0); } 50% { box-shadow: 0 0 20px rgba(234,179,8,0.5); } 100% { box-shadow: 0 0 0 rgba(234,179,8,0); } }
+.racing-circuit-panel .r61-boost-flash { animation: r61-boost-flash 0.6s ease-out; }
+@keyframes r61-checkered-flag { 0% { background-position: 0 0; } 100% { background-position: 20px 20px; } }
+.racing-circuit-panel .r61-checkered-flag { animation: r61-checkered-flag 1s linear infinite; }
+@keyframes r61-podium-rise { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.racing-circuit-panel .r61-podium-rise { animation: r61-podium-rise 0.5s ease-out; }
+/* Round 61: Mythology Quest Animations */
+@keyframes r61-my-stat { 0% { transform: translateY(-10px) scale(0.8); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+.mythology-quest-panel .r61-my-stat { animation: r61-my-stat 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-hero-card { 0% { transform: scale(0.8) translateY(10px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+.mythology-quest-panel .r61-hero-card { animation: r61-hero-card 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-pantheon-item { 0% { transform: rotateY(90deg); opacity: 0; } 100% { transform: rotateY(0); opacity: 1; } }
+.mythology-quest-panel .r61-pantheon-item { animation: r61-pantheon-item 0.4s ease-out; }
+@keyframes r61-deity-item { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.mythology-quest-panel .r61-deity-item { animation: r61-deity-item 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes r61-quest-item { 0% { transform: translateX(10px) scale(0.9); opacity: 0; } 100% { transform: translateX(0) scale(1); opacity: 1; } }
+.mythology-quest-panel .r61-quest-item { animation: r61-quest-item 0.4s ease-out; }
+@keyframes r61-prophecy-card { 0%,100% { box-shadow: 0 0 5px rgba(139,92,246,0.3); } 50% { box-shadow: 0 0 15px rgba(139,92,246,0.6); } }
+.mythology-quest-panel .r61-prophecy-card { animation: r61-prophecy-card 2s ease-in-out infinite; }
+@keyframes r61-divine-glow { 0%,100% { box-shadow: 0 0 8px rgba(234,179,8,0.3); } 50% { box-shadow: 0 0 20px rgba(234,179,8,0.6); } }
+.mythology-quest-panel .r61-divine-glow { animation: r61-divine-glow 2s ease-in-out infinite; }
+@keyframes r61-lightning-strike { 0% { opacity: 0; } 10% { opacity: 1; } 20% { opacity: 0; } 30% { opacity: 0.7; } 40% { opacity: 0; } 100% { opacity: 0; } }
+.mythology-quest-panel .r61-lightning-strike { animation: r61-lightning-strike 3s ease-out infinite; }
+@keyframes r61-portal-swirl { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
+.mythology-quest-panel .r61-portal-swirl { animation: r61-portal-swirl 4s linear infinite; }
