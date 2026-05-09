@@ -213,6 +213,10 @@ import { heGetState, heResetState, heGetAllRooms, heGetCurrentRoom, heGetRoomPro
 import { btGetState, btResetState, btGetPlots, btGetPlotInfo, btPlantSeed, btRemovePlant, btWaterPlant, btFertilizePlant, btPrunePlant, btAdvanceGrowth, btCanHarvest, btHarvestPlant, btGetConditions, btGetSeason, btGetWeather, btGetLevel, btAddXP, btGetXPProgress, btGetBiomes, btGetAllSpecies, btGetSpeciesByCategory, btGetResearchTopics, btStartResearch, btGetResearchProgress, btGetRecipes, btCraftRemedy, btGetAchievements, btGetUnlockedAchievements, btCheckAchievements, btGetDailyTask, btCompleteDailyTask, btGetEncyclopedia, btDiscoverSpecies, btGetGardenStats, btGetTotalSpecies, btGetSeedBank, btGetSeedBankCapacity, btGetSpeciesByRarity, btGetCurrentStreak, btGetJournal, btGetEmptyPlots, btGetActivePestEvent, btGetSeasons, btGetWeathers, btGetGrowthStages } from '@/lib/botanical-garden-wire'
 import { raGetState, raResetState, raInit, raGetVehicles, raBuyVehicle, raSetActiveVehicle, raGetVehicleStats, raGetUpgrades, raUpgradeComponent, raGetUpgradeCost, raGetUpgradeEffect, raGetTracks, raGetTrackInfo, raGetTrackWords, raStartRace, raTypeWord, raUseBoost, raHitObstacle, raEndRace, raGetRaceStatus, raGetCurrentWord, raGetBoostStatus, raGetOpponents, raStartChampionship, raGetChampionshipStandings, raStartTimeTrial, raGetBestTime, raGetDailyRace, raStartDailyRace, raCompleteDaily, raGetLevel, raAddXP, raGetXPProgress, raGetWeather, raGetAchievements, raCheckAchievements, raGetRaceStats, raGetWinRate, raGetBestCombo, raGetTotalWordsTyped, raGetCoins, raSpendCoins, raGetGarage, raGetHint, raIsAchievementUnlocked, raGetUnlockedAchievements, raGetComponentNames, raGetAllWeathers } from '@/lib/racing-circuit-wire'
 import { myGetState, myResetState, myGetHeroClass, mySetHeroClass, myGetHeroClasses, myGetHeroStats, myGetLevel, myAddXP, myGetGold, myGetPantheons, mySetActivePantheon, myGetActivePantheon, myGetPantheonDeities, myGetDeities, myGetDeityInfo, myRequestBlessing, myGetActiveBlessings, myGetQuests, myGetAvailableQuests, myStartQuest, myCompleteQuest, myGetQuestRewards, myGetQuestProgress, myStartBattle, myPerformAttack, myGetBattleStatus, myGetCreatures, myTameCreature, myGetWeapons, myEquipWeapon, myGetEquippedWeapon, myUpgradeWeapon, myGetArtifacts, myCollectArtifact, myGetCollectedArtifacts, myGetSkillTree, myUnlockSkill, myGetUnlockedSkills, myGetAllianceLevel, myIncreaseAlliance, myGetEncyclopedia, myDiscoverEntry, myGetDailyQuest, myCompleteDaily, myGetProphecy, myFulfillProphecy, myGetAchievements, myCheckAchievements, myIsAchievementUnlocked, myGetUnlockedAchievements, myGetQuestStats, myGetBattlesWon, myGetCreaturesTamed, myGetTotalArtifacts, myGetAllianceLevels, myGetLoreDetails, myGetGameSummary } from '@/lib/mythology-quest-wire'
+import { dcGetState, dcResetState, dcGetLevel, dcAddXP, dcGetRank, dcGetReputation, dcGetAvailableCases, dcGetActiveCase, dcStartCase, dcCollectEvidence, dcGetCollectedEvidence, dcInterrogateSuspect, dcGetInterrogatedSuspects, dcEliminateSuspect, dcAnalyzeClues, dcAccuseSuspect, dcGetPhaseName, dcGetPartners, dcGetActivePartner, dcSetActivePartner, dcGetClueJournal, dcGetColdCases, dcGetDailyCase, dcCompleteDaily, dcGetStreak, dcGetBestStreak, dcGetCoins, dcGetRunHistory, dcGetStats, dcGetAchievements, dcCheckAchievements, dcIsAchievementUnlocked, dcGetUnlockedAchievements, dcGetCaseBoard, dcGetSuspects, dcGetHint, dcGetSolveRate } from '@/lib/detective-case-wire'
+import { ckGetState, ckResetState, ckGetLevel, ckGetChefTitle, ckGetCoins, ckGetCuisines, ckGetAllRecipes, ckGetAllIngredients, ckGetStations, ckStartCooking, ckGetDailyChallenge, ckCompleteDailyChallenge, ckGetAchievements, ckGetAllAchievements, ckCheckAchievement, ckGetUnlockedAchievements, ckGetStats, ckGetComboInfo, ckGetCurrentComboMultiplier, ckUpgradeStation, ckGetDailyMarket, ckBuyIngredient, ckGetOpponents, ckStartCompetition, ckGetCompetitionRecord, ckGetHint } from '@/lib/cooking-academy-wire'
+import { adGetState, adResetState, adGetLevel, adAddXP, adGetSites, adGetDailyDigSite, adClaimDailyBonus, adStartDig, adDig, adGetArtifacts, adStartRestoration, adGetRestorationPhase, adStartExpedition, adGetExpedition, adGetTools, adUpgradeTool, adGetResearchTopics, adStartResearch, adGetExhibits, adGetMuseumStats, adGetStats, adGetRivals, adGetJournal, adGetHint, adGetCoins, adGetPreservationScore, adGetSelectedTool, adSelectTool } from '@/lib/archaeology-dig-wire'
+import { mfGetState, mfResetState, mfGetLevel, mfAddXP, mfGetCareerStats, mfGetBandCoins, mfGetAllGenres, mfGetAllSongs, mfGetAllStages, mfGetBand, mfCreateBand, mfGetBandSkills, mfGetFanCount, mfGetSetlist, mfStartPerformance, mfGetPerformanceState, mfGetReputation, mfGetDailyGig, mfCompleteDailyGig, mfGetAllAchievements, mfCheckAchievement, mfGetUnlockedAchievements, mfGetTourState, mfGetEquipmentDef, mfGetMerchBooth, mfGetReviews, mfGetHint } from '@/lib/music-festival-wire'
 import {
   Play,
   RotateCcw,
@@ -1038,6 +1042,11 @@ export default function SnakeGame() {
   const [showBotanicalGardenPanel, setShowBotanicalGardenPanel] = useState(false)
   const [showRacingCircuitPanel, setShowRacingCircuitPanel] = useState(false)
   const [showMythologyQuestPanel, setShowMythologyQuestPanel] = useState(false)
+  // Round 62: Detective, Cooking, Archaeology, Music Festival panel states
+  const [showDetectivePanel, setShowDetectivePanel] = useState(false)
+  const [showCookingPanel, setShowCookingPanel] = useState(false)
+  const [showArchaeologyPanel, setShowArchaeologyPanel] = useState(false)
+  const [showMusicFestivalPanel, setShowMusicFestivalPanel] = useState(false)
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -8292,6 +8301,11 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowBotanicalGardenPanel(!showBotanicalGardenPanel)} variant="outline" className="border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/20 active:scale-95 transition-transform botanical-garden-btn" title="Botanical Garden">🌺 Garden</Button>
                     <Button onClick={() => setShowRacingCircuitPanel(!showRacingCircuitPanel)} variant="outline" className="border-orange-500/50 text-orange-300 hover:bg-orange-900/20 active:scale-95 transition-transform racing-circuit-btn" title="Racing Circuit">🏎️ Racing</Button>
                     <Button onClick={() => setShowMythologyQuestPanel(!showMythologyQuestPanel)} variant="outline" className="border-violet-500/50 text-violet-300 hover:bg-violet-900/20 active:scale-95 transition-transform mythology-quest-btn" title="Mythology Quest">⚡ Mythology</Button>
+                    {/* Round 62: Detective, Cooking, Archaeology, Music Festival Buttons */}
+                    <Button onClick={() => setShowDetectivePanel(!showDetectivePanel)} variant="outline" className="border-slate-500/50 text-slate-300 hover:bg-slate-900/20 active:scale-95 transition-transform detective-btn" title="Detective Case">🔍 Detective</Button>
+                    <Button onClick={() => setShowCookingPanel(!showCookingPanel)} variant="outline" className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-900/20 active:scale-95 transition-transform cooking-btn" title="Cooking Academy">🍳 Cooking</Button>
+                    <Button onClick={() => setShowArchaeologyPanel(!showArchaeologyPanel)} variant="outline" className="border-amber-600/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform archaeology-btn" title="Archaeology Dig">🏛️ Archaeology</Button>
+                    <Button onClick={() => setShowMusicFestivalPanel(!showMusicFestivalPanel)} variant="outline" className="border-pink-500/50 text-pink-300 hover:bg-pink-900/20 active:scale-95 transition-transform music-festival-btn" title="Music Festival">🎵 Music</Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -15509,6 +15523,117 @@ export default function SnakeGame() {
               <div className="flex gap-1.5 mb-3"><button onClick={() => { const q = myGetAvailableQuests(); if(q[0]) { myStartQuest(q[0].id); toast({ title: 'Quest started!' }) } }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r61-action-btn">Quest</button><button onClick={() => { myStartBattle('minotaur'); toast({ title: 'Battle!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r61-action-btn">Battle</button><button onClick={() => { if(myDeities[0]) { myRequestBlessing(myDeities[0].id); toast({ title: 'Blessing!' }) } }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r61-action-btn">Bless</button><button onClick={() => { myCompleteDaily(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r61-action-btn">Daily</button></div>
               <div className="text-[10px] text-violet-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({myAch.filter((a: any) => a.unlocked).length}/{myAch.length})</div>
               <div className="grid grid-cols-5 gap-1">{myAch.slice(0, 10).map((a: any, i: number) => (<div key={a.id || i} className={`p-1 rounded-lg border text-center r61-achievement-item ${a.unlocked ? 'border-violet-400 bg-violet-900/20' : 'border-slate-700 bg-slate-800/20'}`}><div className="text-[7px] font-bold text-violet-400">{a.name || `A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 62: Detective Case Panel */}
+      {showDetectivePanel && mounted && (() => {
+        const dcStats = dcGetStats()
+        const dcRank = dcGetRank()
+        const dcCases = dcGetAvailableCases()
+        const dcActive = dcGetActiveCase()
+        const dcAch = dcGetAchievements()
+        const dcDaily = dcGetDailyCase()
+        const dcBoard = dcActive ? dcGetCaseBoard() : null
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDetectivePanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🔍 Detective Case</h3><button onClick={() => setShowDetectivePanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{dcStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-slate-900/30 to-zinc-900/30 rounded-lg border border-slate-500/20 r62-dc-stat"><div className="text-[9px] text-slate-300">{s.label}</div><div className="text-xs font-bold text-slate-200">{s.value}</div></div>))}</div>
+              <div className="text-[10px] text-slate-300 font-semibold mb-1">{dcRank.emoji} {dcRank.name} · Rep {dcGetReputation()} · Streak {dcGetStreak()}</div>
+              {dcActive && <div className="p-2 bg-gradient-to-br from-slate-800/30 to-zinc-900/20 rounded-lg border border-slate-500/10 mb-2"><div className="text-[9px] font-bold text-slate-200">{dcActive.title}</div><div className="text-[7px] text-slate-400">{dcActive.category} · Phase: {dcGetPhaseName()}</div></div>}
+              {dcBoard && <div className="mb-2"><div className="text-[9px] text-slate-400 font-semibold mb-1">Suspects ({dcBoard.suspects.length})</div><div className="grid grid-cols-3 gap-1">{dcBoard.suspects.slice(0,6).map((s: any, i: number) => (<div key={i} className={`p-1 rounded border text-center text-[7px] ${s.eliminated ? 'border-green-500/30 bg-green-900/10 line-through' : 'border-slate-500/20 bg-slate-900/20'}`}>{s.name} <span className="text-amber-400">{s.evidenceCount > 0 ? `(${s.evidenceCount})` : ''}</span></div>))}</div></div>}
+              <div className="text-[10px] text-slate-300 font-semibold uppercase tracking-wider mb-1.5">Cases ({dcCases.length})</div>
+              <div className="grid grid-cols-2 gap-1 mb-3">{dcCases.slice(0,4).map((c: any, i: number) => (<div key={c.id || i} className="p-1.5 bg-gradient-to-br from-slate-900/20 to-zinc-900/20 rounded-lg border border-slate-500/10 r62-case-item"><div className="text-[9px] font-bold text-slate-200">{c.title}</div><div className="text-[7px] text-slate-400">{c.category} · ★{c.difficulty}</div></div>))}</div>
+              {dcDaily && <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-slate-900/30 rounded-lg border border-indigo-500/20 mb-3 r62-daily-card"><div className="text-[9px] font-bold text-indigo-200">Daily Case{dcDaily.completed ? ' ✓' : ''}</div><div className="text-[7px] text-indigo-300/70">×{dcDaily.bonusMultiplier} bonus multiplier</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { if(dcCases[0]) { dcStartCase(dcCases[0].id); toast({ title: 'Case started!' }) } }} className="flex-1 px-2 py-1.5 bg-slate-800/40 hover:bg-slate-700/50 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Investigate</button><button onClick={() => { dcCollectEvidence('ev-1'); toast({ title: 'Evidence collected!' }) }} className="flex-1 px-2 py-1.5 bg-blue-900/40 hover:bg-blue-800/50 text-blue-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Collect</button><button onClick={() => { const b = dcAnalyzeClues(); toast({ title: b ? `${b.deductions.length} deductions` : 'Need more evidence' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Analyze</button><button onClick={() => { dcCompleteDaily(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-indigo-900/40 hover:bg-indigo-800/50 text-indigo-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Daily</button></div>
+              <div className="text-[10px] text-slate-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({dcAch.filter((a: any) => a.unlocked).length}/{dcAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{dcAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r62-achievement-item ${a.unlocked ? 'border-slate-400 bg-slate-800/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-slate-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 62: Cooking Academy Panel */}
+      {showCookingPanel && mounted && (() => {
+        const ckStats = ckGetStats()
+        const ckRecipes = ckGetAllRecipes()
+        const ckCuisines = ckGetCuisines()
+        const ckDaily = ckGetDailyChallenge()
+        const ckAch = ckGetAchievements()
+        const ckCombo = ckGetCurrentComboMultiplier()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCookingPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">🍳 Cooking Academy</h3><button onClick={() => setShowCookingPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{ckStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-yellow-900/30 to-amber-900/30 rounded-lg border border-yellow-500/20 r62-ck-stat"><div className="text-[9px] text-yellow-300">{s.label}</div><div className="text-xs font-bold text-yellow-200">{s.value}</div></div>))}</div>
+              {ckCombo > 1 && <div className="text-[10px] text-orange-400 font-semibold mb-2">🔥 Combo ×{ckCombo}</div>}
+              <div className="text-[10px] text-yellow-300 font-semibold uppercase tracking-wider mb-1.5">Cuisines ({(ckCuisines||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">{(ckCuisines||[]).slice(0,8).map((c: any, i: number) => (<div key={c.id||i} className="p-1 rounded-lg border border-yellow-500/20 bg-yellow-900/10 text-center r62-cuisine-item"><div className="text-[10px]">{c.emoji||'🍽️'}</div><div className="text-[5px] text-yellow-300 truncate">{c.name||`C${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-yellow-300 font-semibold uppercase tracking-wider mb-1.5">Recipes ({(ckRecipes||[]).length})</div>
+              <div className="grid grid-cols-2 gap-1 mb-3">{(ckRecipes||[]).slice(0,4).map((r: any, i: number) => (<div key={r.id||i} className="p-1.5 bg-gradient-to-br from-yellow-900/20 to-amber-900/20 rounded-lg border border-yellow-500/10 r62-recipe-item"><div className="text-[9px] font-bold text-yellow-200">{r.name||`Recipe ${i+1}`}</div><div className="text-[7px] text-yellow-400">{r.cuisine||''} · ★{r.difficulty||1}</div></div>))}</div>
+              {ckDaily && <div className="p-2 bg-gradient-to-br from-orange-900/30 to-yellow-900/30 rounded-lg border border-orange-500/20 mb-3 r62-daily-card"><div className="text-[9px] font-bold text-orange-200">Daily: {ckDaily.title||'Challenge'}</div><div className="text-[7px] text-orange-300/70">{ckDaily.description||'Cook something special!'}</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { ckStartCooking(0); toast({ title: 'Cooking!' }) }} className="flex-1 px-2 py-1.5 bg-yellow-900/40 hover:bg-yellow-800/50 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Cook</button><button onClick={() => { ckUpgradeStation('stovetop'); toast({ title: 'Upgraded!' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Upgrade</button><button onClick={() => { ckBuyIngredient(0); toast({ title: 'Bought!' }) }} className="flex-1 px-2 py-1.5 bg-orange-900/40 hover:bg-orange-800/50 text-orange-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Shop</button><button onClick={() => { ckCompleteDailyChallenge(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Daily</button></div>
+              <div className="text-[10px] text-yellow-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({ckAch.filter((a: any) => a.unlocked).length}/{ckAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{ckAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r62-achievement-item ${a.unlocked ? 'border-yellow-400 bg-yellow-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-yellow-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 62: Archaeology Dig Panel */}
+      {showArchaeologyPanel && mounted && (() => {
+        const adStats = adGetStats()
+        const adSites = adGetSites()
+        const adArtifacts = adGetArtifacts()
+        const adTools = adGetTools()
+        const adDaily = adGetDailyDigSite()
+        const adAch = adGetAllAchievements()
+        const adPrestige = adGetMuseumStats()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowArchaeologyPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-600/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🏛️ Archaeology Dig</h3><button onClick={() => setShowArchaeologyPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{adStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-amber-900/30 to-stone-900/30 rounded-lg border border-amber-600/20 r62-ad-stat"><div className="text-[9px] text-amber-300">{s.label}</div><div className="text-xs font-bold text-amber-200">{s.value}</div></div>))}</div>
+              <div className="text-[10px] text-amber-300 font-semibold mb-1">Prestige: {adPrestige}/100</div>
+              <div className="flex-1 bg-slate-800 rounded-full h-1.5 mb-3"><div className="bg-gradient-to-r from-amber-600 to-yellow-500 h-1.5 rounded-full transition-all" style={{width: `${Math.min(adPrestige, 100)}%`}}></div></div>
+              <div className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mb-1.5">Sites ({(adSites||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">{(adSites||[]).slice(0,8).map((s: any, i: number) => (<div key={s.id||i} className={`p-1 rounded-lg border text-center r62-site-item ${s.unlocked ? 'border-amber-500/30 bg-amber-900/20' : 'border-slate-700/30 bg-slate-800/10'}`}><div className="text-[10px]">{s.emoji||'🏺'}</div><div className="text-[5px] text-amber-300 truncate">{s.name||`S${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mb-1.5">Artifacts ({(adArtifacts||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">{(adArtifacts||[]).slice(0,8).map((a: any, i: number) => (<div key={a.id||i} className="p-1 rounded-lg border border-amber-500/20 bg-amber-900/10 text-center r62-artifact-item"><div className="text-[8px]">{a.emoji||'🏺'}</div><div className="text-[5px] text-amber-300 truncate">{a.name||`A${i+1}`}</div><div className="text-[4px] text-amber-400">{a.rarity||'Common'}</div></div>))}</div>
+              {adDaily && <div className="p-2 bg-gradient-to-br from-stone-900/30 to-amber-900/30 rounded-lg border border-stone-500/20 mb-3 r62-daily-card"><div className="text-[9px] font-bold text-stone-200">Daily Dig: {adDaily.name||'Site'}</div><div className="text-[7px] text-stone-300/70">Bonus rewards available</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { adDig(0,0); toast({ title: 'Digging!' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Dig</button><button onClick={() => { adStartExcavation(0); toast({ title: 'Excavation started!' }) }} className="flex-1 px-2 py-1.5 bg-stone-800/40 hover:bg-stone-700/50 text-stone-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Excavate</button><button onClick={() => { adStartResearch(0); toast({ title: 'Researching!' }) }} className="flex-1 px-2 py-1.5 bg-orange-900/40 hover:bg-orange-800/50 text-orange-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Research</button><button onClick={() => { adClaimDailyBonus(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-yellow-900/40 hover:bg-yellow-800/50 text-yellow-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Daily</button></div>
+              <div className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({adAch.filter((a: any) => a.unlocked).length}/{adAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{adAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r62-achievement-item ${a.unlocked ? 'border-amber-500 bg-amber-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-amber-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 62: Music Festival Panel */}
+      {showMusicFestivalPanel && mounted && (() => {
+        const mfStats = mfGetStats()
+        const mfGenres = mfGetAllGenres()
+        const mfSongs = mfGetAllSongs()
+        const mfStages = mfGetAllStages()
+        const mfDaily = mfGetDailyGig()
+        const mfAch = mfGetAllAchievements()
+        const mfRep = mfGetReputation()
+        const mfBand = mfGetBand()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMusicFestivalPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🎵 Music Festival</h3><button onClick={() => setShowMusicFestivalPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{mfStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-pink-900/30 to-fuchsia-900/30 rounded-lg border border-pink-500/20 r62-mf-stat"><div className="text-[9px] text-pink-300">{s.label}</div><div className="text-xs font-bold text-pink-200">{s.value}</div></div>))}</div>
+              {mfBand && <div className="p-2 bg-gradient-to-br from-pink-900/20 to-fuchsia-900/20 rounded-lg border border-pink-500/10 mb-2 r62-band-card"><div className="text-[9px] font-bold text-pink-200">{mfBand.name||'Unnamed Band'}</div><div className="text-[7px] text-pink-400">Rep {mfRep} · Fans {mfGetFanCount()}</div></div>}
+              <div className="text-[10px] text-pink-300 font-semibold uppercase tracking-wider mb-1.5">Genres ({(mfGenres||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-2">{(mfGenres||[]).slice(0,8).map((g: any, i: number) => (<div key={g.id||i} className="p-1 rounded-lg border border-pink-500/20 bg-pink-900/10 text-center r62-genre-item"><div className="text-[10px]">{g.emoji||'🎵'}</div><div className="text-[5px] text-pink-300 truncate">{g.name||`G${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-pink-300 font-semibold uppercase tracking-wider mb-1.5">Stages ({(mfStages||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-2">{(mfStages||[]).slice(0,8).map((st: any, i: number) => (<div key={st.id||i} className={`p-1 rounded-lg border text-center r62-stage-item ${st.unlocked ? 'border-pink-400/30 bg-pink-900/20' : 'border-slate-700/30 bg-slate-800/10'}`}><div className="text-[10px]">{st.emoji||'🎤'}</div><div className="text-[5px] text-pink-300 truncate">{st.name||`S${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-pink-300 font-semibold uppercase tracking-wider mb-1.5">Songs ({(mfSongs||[]).length})</div>
+              <div className="grid grid-cols-2 gap-1 mb-3">{(mfSongs||[]).slice(0,4).map((s: any, i: number) => (<div key={s.id||i} className="p-1.5 bg-gradient-to-br from-pink-900/20 to-fuchsia-900/20 rounded-lg border border-pink-500/10 r62-song-item"><div className="text-[9px] font-bold text-pink-200">{s.title||`Song ${i+1}`}</div><div className="text-[7px] text-pink-400">{s.genre||''} · BPM {s.tempo||120}</div></div>))}</div>
+              {mfDaily && <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-pink-900/30 rounded-lg border border-fuchsia-500/20 mb-3 r62-daily-card"><div className="text-[9px] font-bold text-fuchsia-200">Daily Gig: {mfDaily.title||'Special Show'}</div><div className="text-[7px] text-fuchsia-300/70">Weather: {mfDaily.weather||'Clear'} · Bonus rewards</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { mfStartPerformance(0); toast({ title: 'Performing!' }) }} className="flex-1 px-2 py-1.5 bg-pink-900/40 hover:bg-pink-800/50 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Perform</button><button onClick={() => { mfCreateBand('My Band'); toast({ title: 'Band created!' }) }} className="flex-1 px-2 py-1.5 bg-fuchsia-900/40 hover:bg-fuchsia-800/50 text-fuchsia-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Band</button><button onClick={() => { toast({ title: mfGetHint() || 'Studio!' }) }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Write</button><button onClick={() => { mfCompleteDailyGig(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Daily</button></div>
+              <div className="text-[10px] text-pink-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({mfAch.filter((a: any) => a.unlocked).length}/{mfAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{mfAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r62-achievement-item ${a.unlocked ? 'border-pink-400 bg-pink-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-pink-400">{a.name||`A${i+1}`}</div></div>))}</div>
             </div>
           </div>
         )
