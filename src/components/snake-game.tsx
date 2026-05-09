@@ -197,6 +197,10 @@ import { evGetState, evResetState, evGetEvolutionPaths, evGetCurrentPath, evSetC
 import { alGetState, alResetState, alGetLabLevel, alGetLab, alAddLabXP, alGetRooms, alUnlockRoom, alGetLetterTiers, alGetSuccessRate, alGetTransmutationCost, alTransmuteLetters, alGetRecipes, alGetDiscoveredRecipes, alDiscoverRecipe, alGetPotions, alBrewPotion, alUsePotion, alGetElements, alGetElementMastery, alAddElementXP, alGetElementCombos, alCombineElements, alGetElixirs, alBrewElixir, alCollectElixir, alGetDailyChallenge as alGetDailyChallenge, alCompleteDailyChallenge, alGetAlchemyOverview, alGetLabDashboard, alGetRecipeCard, alGetElementCard, alGetElixirCard, alGetTransmutationHistory, alGetMaterials, alGetMaterialsCount, alSpendMaterial, alGetPotionEffects, alGetActiveBuffs, alGetAlchemyScore, alGetElementComboResults } from '@/lib/word-alchemy-wire'
 import { dgGetState, dgResetState, dgGetDungeons, dgGetDungeon, dgStartRun, dgEndRun, dgGetCurrentRun, dgGetCurrentFloor, dgEnterFloor, dgClearFloor, dgGetFloorType, dgGetFloorPuzzle, dgGetNextFloor, dgGetFloorMap, dgAttackMonster, dgTakeDamage, dgHeal, dgGetMonster, dgGetBoss, dgGetLoot, dgPickupLoot, dgEquipItem, dgGetInventory, dgDropItem, dgUsePotion as dgUsePotion, dgGetUpgrades, dgGetUpgradeCost, dgBuyUpgrade, dgGetPlayerStats, dgGetRunStats, dgGetDungeonStats, dgGetBestRun, dgGetTotalGoldEarned, dgGetRunHistory, dgGetDailyDungeon, dgCompleteDailyDungeon, dgGetDungeonOverview, dgGetDungeonDashboard, dgGetDungeonCard, dgGetFloorCard, dgGetMonsterCard } from '@/lib/puzzle-dungeon-wire'
 import { glGetState, glResetState, glGetGuild, glCreateGuild, glJoinGuild, glLeaveGuild, glDisbandGuild, glGetMembers, glGetMember, glKickMember, glPromoteMember, glDemoteMember, glGetRoles, glGetRolePermissions, glGetEmblems, glSetEmblem, glGetSettings, glUpdateSetting, glGetGuildLevel, glAddGuildXP, glGetWars, glStartWar, glGetWarResults, glGetWarHistory, glGetWarTrophies, glGetQuests, glStartQuest, glContributeToQuest, glGetChatMessages, glSendMessage, glGetUnreadCount, glGetRankings, glGetGuildRank, glGetAchievements, glUnlockAchievement, glGetApplications, glApplyToGuild, glAcceptApplication, glGetTopContributors, glGetContributionRank, glGetGuildStats, glGetWeeklyProgress, glGetAvailableGuilds, glSearchGuilds, glGetGuildCard, glGetMemberCard, glGetWarCard, glGetGuildOverview, glGetGuildDashboard, glGetGuildEmblem, glGetGuildMotto } from '@/lib/guild-system-wire'
+import { gnGetState, gnResetState, gnGetLab, gnGetLabLevel, gnAddLabXP, gnGetStations, gnIsStationUnlocked, gnGetGenes, gnGetGene, gnExtractGene, gnExtractRandom, gnSpliceGenes, gnGetSpliceResult, gnGetHybridRecipes, gnGetDiscoveredHybrids, gnGetMutations, gnInduceMutation, gnGetMutationRisk, gnGetVault, gnGetVaultCapacity, gnTradeGenes, gnGetDailyResearch, gnCompleteDailyResearch, gnGetResearchStreak, gnGetAchievements, gnCheckAchievements, gnGetGeneLabOverview, gnGetLabDashboard, gnGetGeneCard, gnGetStationCard, gnGetHybridCard, gnGetGeneStats, gnGetPurity, gnGetStability, gnGetActiveEffects, gnGetEquippedGenes, gnEquipGene, gnUnequipGene, gnPurifyGene, gnGetPurificationCost, gnGetTotalExtractions, gnGetTotalSplices, gnGetRarestGene, gnGetDNAPoints, gnGetGenePortfolio, gnGetExtractionRate, gnGetGeneByType, gnStashGene, gnUnstashGene, gnDestroyGene } from '@/lib/gene-lab-wire'
+import { lcGetState, lcResetState, lcGetChapters, lcGetChapter, lcGetEntries, lcGetEntry, lcGetEntriesByChapter, lcReadEntry, lcIsRead, lcGetReadEntries, lcDiscoverEntry, lcUnlockSecret, lcGetCharacters, lcGetCharacter, lcGetCharacterRelationships, lcGetTimeline, lcGetEvent, lcGetSecrets, lcGetTriviaQuestions, lcAnswerTrivia, lcGetDailyLore, lcGetDailyTrivia, lcGetReadingStreak, lcGetCodexOverview, lcGetCodexDashboard, lcGetChapterCard, lcGetEntryCard, lcGetCharacterCard, lcGetCompletionPercentage, lcGetLorePoints, lcGetMasteryRank, lcGetTotalWordsRead, lcGetReadingTime, lcGetFavoriteChapter, lcSearchLore, lcGetRelatedEntries, lcGetLoreRank, lcGetNextUnlock, lcGetAchievements, lcCheckAchievements } from '@/lib/lore-codex-wire'
+import { tpGetState, tpResetState, tpGetRange, tpGetRangeLevel, tpAddRangeXP, tpGetModes, tpStartSession, tpEndSession, tpShoot, tpMiss, tpGetCombo, tpResetCombo, tpGetTargets, tpSpawnTarget, tpGetTargetTypes, tpGetWeapons, tpGetWeapon, tpEquipWeapon, tpGetEquippedWeapon, tpGetScore, tpGetAccuracy, tpGetGrade, tpGetStats, tpGetBestScore, tpGetTotalShots, tpGetAchievements, tpCheckAchievements, tpGetDailyChallenge, tpCompleteDailyChallenge, tpGetDailyStreak, tpGetTargetPracticeOverview, tpGetRangeDashboard, tpGetModeCard, tpGetWeaponCard, tpGetTargetCard, tpGetLeaderboard, tpGetRank, tpGetReactionTime, tpGetShotsPerMinute, tpGetWeaponMastery, tpGetSessionHistory, tpGetRecentSessions, tpGetActiveSession, tpIsSessionActive, tpGetSessionTimer, tpDefeatBoss, tpGetBossWord, tpGetBossProgress, tpUpdateTargets } from '@/lib/target-practice-wire'
+import { cvGetState, cvResetState, cvGetCarnival, cvGetCarnivalLevel, cvAddTickets, cvGetAttractions, cvGetAttraction, cvPlayAttraction, cvSpinWheel, cvGetWheelResult, cvGetFreeSpins, cvGetSpinHistory, cvTossRing, cvGetRingTossState, cvGetPegs, cvWhackWord, cvWhackMiss, cvGetWhackAWordState, cvGetMoles, cvPopBalloon, cvGetBalloonPopState, cvGetBalloons, cvGetFortune, cvGetFortuneHistory, cvGetPrizes, cvRedeemPrize, cvGetPrizeCollection, cvGetTickets, cvGetTokens, cvSpendTickets, cvSpendTokens, cvGetEvent, cvGetEventLeaderboard, cvGetEventAchievements, cvGetAchievements, cvCheckAchievements, cvGetCarnivalOverview, cvGetCarnivalDashboard, cvGetAttractionCard, cvGetPrizeCard, cvGetWheelCard, cvGetStats, cvGetTotalGamesPlayed, cvGetBestScore as cvGetBestScore, cvGetCarnivalRank, cvGetNextPrizeUnlock, cvGetDailyBonus, cvClaimDailyBonus, cvGetSeasonProgress, cvGetSeasonPrizes, cvGetJackpot, cvUseFreeSpin } from '@/lib/carnival-wire'
 import {
   Play,
   RotateCcw,
@@ -1002,6 +1006,11 @@ export default function SnakeGame() {
   const [showAlchemyPanel, setShowAlchemyPanel] = useState(false)
   const [showDungeonPanel, setShowDungeonPanel] = useState(false)
   const [showGuildPanel, setShowGuildPanel] = useState(false)
+  // Round 58: Gene Lab, Lore Codex, Target Practice, Carnival panel states
+  const [showGeneLabPanel, setShowGeneLabPanel] = useState(false)
+  const [showLoreCodexPanel, setShowLoreCodexPanel] = useState(false)
+  const [showTargetPracticePanel, setShowTargetPracticePanel] = useState(false)
+  const [showCarnivalPanel, setShowCarnivalPanel] = useState(false)
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -8171,6 +8180,42 @@ export default function SnakeGame() {
                     >
                       🏛️ Guild
                     </Button>
+                    {/* Round 58: Gene Lab Button */}
+                    <Button
+                      onClick={() => setShowGeneLabPanel(!showGeneLabPanel)}
+                      variant="outline"
+                      className="border-fuchsia-500/50 text-fuchsia-400 hover:bg-fuchsia-900/20 active:scale-95 transition-transform genelab-btn"
+                      title="Gene Lab"
+                    >
+                      🧬 Gene Lab
+                    </Button>
+                    {/* Round 58: Lore Codex Button */}
+                    <Button
+                      onClick={() => setShowLoreCodexPanel(!showLoreCodexPanel)}
+                      variant="outline"
+                      className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-900/20 active:scale-95 transition-transform lore-btn"
+                      title="Lore Codex"
+                    >
+                      📜 Lore
+                    </Button>
+                    {/* Round 58: Target Practice Button */}
+                    <Button
+                      onClick={() => setShowTargetPracticePanel(!showTargetPracticePanel)}
+                      variant="outline"
+                      className="border-red-500/50 text-red-400 hover:bg-red-900/20 active:scale-95 transition-transform target-btn"
+                      title="Target Practice"
+                    >
+                      🎯 Target
+                    </Button>
+                    {/* Round 58: Carnival Button */}
+                    <Button
+                      onClick={() => setShowCarnivalPanel(!showCarnivalPanel)}
+                      variant="outline"
+                      className="border-pink-500/50 text-pink-400 hover:bg-pink-900/20 active:scale-95 transition-transform carnival-btn"
+                      title="Carnival"
+                    >
+                      🎪 Carnival
+                    </Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -14603,6 +14648,226 @@ export default function SnakeGame() {
                 <button onClick={() => { glSendMessage('Hello!'); toast({ title: 'Message sent!' }) }} className="flex-1 px-2 py-1.5 bg-sky-900/40 hover:bg-sky-800/50 text-sky-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Send Message</button>
                 <button onClick={() => { glStartWar(rankings[1]?.id || 'guild2'); toast({ title: 'War declared!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Start War</button>
                 <button onClick={() => { glStartQuest(quests[0]?.id || 'q1'); toast({ title: 'Quest started!' }) }} className="flex-1 px-2 py-1.5 bg-emerald-900/40 hover:bg-emerald-800/50 text-emerald-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Start Quest</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 58: Gene Lab Panel */}
+      {showGeneLabPanel && mounted && (() => {
+        const lab = gnGetLab()
+        const overview = gnGetGeneLabOverview()
+        const genes = gnGetGenes()
+        const stations = gnGetStations()
+        const hybrids = gnGetHybridRecipes()
+        const daily = gnGetDailyResearch()
+        const equipped = gnGetEquippedGenes()
+        const mutations = gnGetMutations()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGeneLabPanel(false)}>
+            <div className="bg-slate-900 border border-fuchsia-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-fuchsia-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2"><span className="text-lg">🧬</span><span className="text-sm font-bold text-fuchsia-400">Gene Lab</span></div>
+                <span className="text-[10px] text-slate-500">Lv.{lab.level || 1}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-purple-900/30 rounded-lg border border-fuchsia-500/20 r58-gene-stat"><div className="text-[9px] text-slate-400">Lab Level</div><div className="text-xs font-bold text-fuchsia-400">{lab.level || 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-purple-900/30 rounded-lg border border-fuchsia-500/20 r58-gene-stat"><div className="text-[9px] text-slate-400">Genes</div><div className="text-xs font-bold text-green-400">{genes.length || 0}/50</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-purple-900/30 rounded-lg border border-fuchsia-500/20 r58-gene-stat"><div className="text-[9px] text-slate-400">Hybrids</div><div className="text-xs font-bold text-yellow-400">{gnGetDiscoveredHybrids().length || 0}/{hybrids.length || 20}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-purple-900/30 rounded-lg border border-fuchsia-500/20 r58-gene-stat"><div className="text-[9px] text-slate-400">DNA Points</div><div className="text-xs font-bold text-cyan-400">{gnGetDNAPoints() || 0}</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Lab Stations</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {stations.slice(0, 8).map((s: any, i: number) => (
+                  <div key={s.id || i} className={`p-1 rounded-lg border text-center r58-station-item ${s.unlocked ? 'border-fuchsia-400 bg-fuchsia-900/30' : 'border-slate-700 bg-slate-800/30'}`}>
+                    <div className="text-[7px] font-bold text-fuchsia-300">{s.name || `S${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{s.unlocked ? 'Open' : `Lv.${s.unlockLevel || '?'}`}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Gene Vault ({gnGetVaultCapacity() - genes.length} slots)</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {genes.slice(0, 10).map((g: any, i: number) => (
+                  <div key={g.id || i} className="p-1 bg-slate-800/60 rounded-lg border border-fuchsia-500/20 text-center r58-gene-item">
+                    <div className="text-[8px] font-bold text-fuchsia-300">{g.name || `G${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{g.tier || 'Frag'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Equipped ({equipped.length}/3)</div>
+              <div className="grid grid-cols-3 gap-1 mb-3">
+                {equipped.slice(0, 3).map((g: any, i: number) => (
+                  <div key={g.id || i} className="p-1.5 bg-fuchsia-900/20 rounded-lg border border-fuchsia-400/30 r58-equipped-item">
+                    <div className="text-[8px] font-bold text-fuchsia-300">{g.name || `Slot${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{g.effect || ''}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { gnExtractRandom(); gnAddLabXP(10); toast({ title: 'Gene extracted!' }) }} className="flex-1 px-2 py-1.5 bg-fuchsia-900/40 hover:bg-fuchsia-800/50 text-fuchsia-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Extract</button>
+                <button onClick={() => { gnSpliceGenes('speed', 'venom'); toast({ title: 'Splicing!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Splice</button>
+                <button onClick={() => { gnInduceMutation('m1', 5); toast({ title: 'Mutation induced!' }) }} className="flex-1 px-2 py-1.5 bg-green-900/40 hover:bg-green-800/50 text-green-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Mutate</button>
+              </div>
+              <div className="p-2 bg-gradient-to-r from-fuchsia-900/30 to-purple-900/30 rounded-lg border border-fuchsia-500/20 r58-daily-card">
+                <div className="flex items-center justify-between">
+                  <div><div className="text-[9px] font-bold text-fuchsia-400">Daily Research</div><div className="text-[8px] text-slate-400">{daily.name || 'Gene Study'}</div></div>
+                  <button onClick={() => { gnCompleteDailyResearch(); toast({ title: 'Research done!' }) }} className="px-2 py-1 bg-fuchsia-800/60 hover:bg-fuchsia-700/60 text-fuchsia-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Complete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 58: Lore Codex Panel */}
+      {showLoreCodexPanel && mounted && (() => {
+        const overview = lcGetCodexOverview()
+        const chapters = lcGetChapters()
+        const characters = lcGetCharacters()
+        const daily = lcGetDailyLore()
+        const completion = lcGetCompletionPercentage()
+        const rank = lcGetMasteryRank()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLoreCodexPanel(false)}>
+            <div className="bg-slate-900 border border-yellow-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-yellow-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2"><span className="text-lg">📜</span><span className="text-sm font-bold text-yellow-400">Lore Codex</span></div>
+                <span className="text-[10px] text-slate-500">{rank || 'Novice'}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-amber-900/30 rounded-lg border border-yellow-500/20 r58-lore-stat"><div className="text-[9px] text-slate-400">Completion</div><div className="text-xs font-bold text-yellow-400">{completion || 0}%</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-amber-900/30 rounded-lg border border-yellow-500/20 r58-lore-stat"><div className="text-[9px] text-slate-400">Lore Points</div><div className="text-xs font-bold text-amber-400">{lcGetLorePoints() || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-amber-900/30 rounded-lg border border-yellow-500/20 r58-lore-stat"><div className="text-[9px] text-slate-400">Read</div><div className="text-xs font-bold text-green-400">{lcGetTotalWordsRead() || 0} words</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-amber-900/30 rounded-lg border border-yellow-500/20 r58-lore-stat"><div className="text-[9px] text-slate-400">Streak</div><div className="text-xs font-bold text-orange-400">{lcGetReadingStreak() || 0} days</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Chapters</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {chapters.slice(0, 8).map((ch: any, i: number) => (
+                  <div key={ch.id || i} className="p-1.5 bg-slate-800/60 rounded-lg border border-yellow-500/20 text-center r58-chapter-item">
+                    <div className="text-sm">{ch.icon || '📖'}</div>
+                    <div className="text-[6px] text-slate-400 truncate">{ch.title || `Ch${i + 1}`}</div>
+                    <div className="w-full h-1 bg-slate-700 rounded mt-0.5"><div className="h-full bg-yellow-500 rounded r58-chapter-fill" style={{ width: `${ch._readCount && ch._totalEntries ? (ch._readCount / ch._totalEntries * 100) : 0}%` }}></div></div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Characters ({characters.length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {characters.slice(0, 8).map((c: any, i: number) => (
+                  <div key={c.id || i} className="p-1 bg-slate-800/60 rounded-lg border border-yellow-500/20 text-center r58-char-item">
+                    <div className="text-sm">{c.portrait || '🎭'}</div>
+                    <div className="text-[6px] text-slate-400 truncate">{c.name || `Char${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="p-2 bg-gradient-to-r from-yellow-900/30 to-amber-900/30 rounded-lg border border-yellow-500/20 r58-daily-card">
+                <div className="flex items-center justify-between">
+                  <div><div className="text-[9px] font-bold text-yellow-400">Daily Lore</div><div className="text-[8px] text-slate-400">{daily?.title || 'Featured Entry'}</div></div>
+                  <button onClick={() => { if (daily) { lcReadEntry(daily.id || daily.entryId); toast({ title: 'Reading!' }) } }} className="px-2 py-1 bg-yellow-800/60 hover:bg-yellow-700/60 text-yellow-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Read</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 58: Target Practice Panel */}
+      {showTargetPracticePanel && mounted && (() => {
+        const overview = tpGetTargetPracticeOverview()
+        const modes = tpGetModes()
+        const weapons = tpGetWeapons()
+        const stats = tpGetStats()
+        const daily = tpGetDailyChallenge()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTargetPracticePanel(false)}>
+            <div className="bg-slate-900 border border-red-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-red-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2"><span className="text-lg">🎯</span><span className="text-sm font-bold text-red-400">Target Practice</span></div>
+                <span className="text-[10px] text-slate-500">Lv.{tpGetRangeLevel() || 1}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 r58-target-stat"><div className="text-[9px] text-slate-400">Accuracy</div><div className="text-xs font-bold text-red-400">{tpGetAccuracy() || 0}%</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 r58-target-stat"><div className="text-[9px] text-slate-400">Total Shots</div><div className="text-xs font-bold text-orange-400">{tpGetTotalShots() || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 r58-target-stat"><div className="text-[9px] text-slate-400">Best Grade</div><div className="text-xs font-bold text-yellow-400">{stats?.bestGrade || 'F'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 r58-target-stat"><div className="text-[9px] text-slate-400">Combo</div><div className="text-xs font-bold text-purple-400">{tpGetCombo() || 0}x</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Training Modes</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {modes.slice(0, 5).map((m: any, i: number) => (
+                  <button key={m.id || i} onClick={() => { tpStartSession(m.id || i); toast({ title: `${m.name || 'Mode'} started!` }) }} className="p-1.5 bg-slate-800/60 rounded-lg border border-red-500/20 text-center hover:border-red-400/50 transition-all active:scale-95 r58-mode-item">
+                    <div className="text-sm">{m.icon || ['🎯','🔤','⚡','🔍','👹'][i]}</div>
+                    <div className="text-[6px] text-slate-400 truncate">{m.name || `M${i + 1}`}</div>
+                  </button>
+                ))}
+              </div>
+              {tpIsSessionActive() && (
+                <div className="mb-3 p-2 bg-red-900/30 rounded-lg border border-red-500/30">
+                  <div className="text-[9px] text-red-400 font-semibold mb-1">Session Active — Score: {tpGetScore() || 0}</div>
+                  <div className="flex gap-1.5">
+                    <button onClick={() => { tpShoot('t1'); toast({ title: 'Hit!' }) }} className="flex-1 px-2 py-1 bg-green-900/40 hover:bg-green-800/50 text-green-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Shoot</button>
+                    <button onClick={() => { tpMiss(); toast({ title: 'Miss!' }) }} className="flex-1 px-2 py-1 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Miss</button>
+                    <button onClick={() => { tpEndSession(); toast({ title: 'Session ended!' }) }} className="flex-1 px-2 py-1 bg-slate-700/60 hover:bg-slate-600/60 text-slate-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">End</button>
+                  </div>
+                </div>
+              )}
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Weapons</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {weapons.slice(0, 8).map((w: any, i: number) => (
+                  <div key={w.id || i} className={`p-1 rounded-lg border text-center r58-weapon-item ${w.unlocked ? 'border-red-400 bg-red-900/30' : 'border-slate-700 bg-slate-800/30'}`}>
+                    <div className="text-[7px] font-bold text-red-300">{w.name || `W${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{w.unlocked ? 'Unlocked' : `Lv.${w.unlockLevel || '?'}`}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="p-2 bg-gradient-to-r from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 r58-daily-card">
+                <div className="flex items-center justify-between">
+                  <div><div className="text-[9px] font-bold text-red-400">Daily Challenge</div><div className="text-[8px] text-slate-400">{daily?.name || 'Score Attack'}</div></div>
+                  <button onClick={() => { tpCompleteDailyChallenge(); toast({ title: 'Challenge done!' }) }} className="px-2 py-1 bg-red-800/60 hover:bg-red-700/60 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Play</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 58: Carnival Panel */}
+      {showCarnivalPanel && mounted && (() => {
+        const carnival = cvGetCarnival()
+        const overview = cvGetCarnivalOverview()
+        const attractions = cvGetAttractions()
+        const prizes = cvGetPrizes()
+        const daily = cvGetDailyBonus()
+        const jackpot = cvGetJackpot()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCarnivalPanel(false)}>
+            <div className="bg-slate-900 border border-pink-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-pink-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2"><span className="text-lg">🎪</span><span className="text-sm font-bold text-pink-400">Carnival</span></div>
+                <span className="text-[10px] text-slate-500">Lv.{carnival.level || 1}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-rose-900/30 rounded-lg border border-pink-500/20 r58-carnival-stat"><div className="text-[9px] text-slate-400">Tickets</div><div className="text-xs font-bold text-pink-400">{cvGetTickets() || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-rose-900/30 rounded-lg border border-pink-500/20 r58-carnival-stat"><div className="text-[9px] text-slate-400">Jackpot</div><div className="text-xs font-bold text-yellow-400">{jackpot || 500}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-rose-900/30 rounded-lg border border-pink-500/20 r58-carnival-stat"><div className="text-[9px] text-slate-400">Prizes</div><div className="text-xs font-bold text-purple-400">{cvGetPrizeCollection().length || 0}/20</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-rose-900/30 rounded-lg border border-pink-500/20 r58-carnival-stat"><div className="text-[9px] text-slate-400">Games</div><div className="text-xs font-bold text-green-400">{cvGetTotalGamesPlayed() || 0}</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Attractions</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {attractions.slice(0, 8).map((a: any, i: number) => (
+                  <button key={a.id || i} onClick={() => { cvPlayAttraction(a.id || i); cvAddTickets(10); toast({ title: `${a.name || 'Game'}!` }) }} className="p-1.5 bg-slate-800/60 rounded-lg border border-pink-500/20 text-center hover:border-pink-400/50 transition-all active:scale-95 r58-attraction-item">
+                    <div className="text-sm">{a.icon || ['🎡','🎪','🔨','🎈','🔮','🦆','💪','🏃'][i]}</div>
+                    <div className="text-[6px] text-slate-400 truncate">{a.name || `A${i + 1}`}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { cvSpinWheel(); toast({ title: 'Spinning!' }) }} className="flex-1 px-2 py-1.5 bg-pink-900/40 hover:bg-pink-800/50 text-pink-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Spin Wheel</button>
+                <button onClick={() => { const f = cvGetFortune(); toast({ title: f?.text || 'Fortune told!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Fortune</button>
+                <button onClick={() => { cvClaimDailyBonus(); toast({ title: 'Bonus claimed!' }) }} className="flex-1 px-2 py-1.5 bg-yellow-900/40 hover:bg-yellow-800/50 text-yellow-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r58-action-btn">Daily</button>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Prize Collection ({cvGetPrizeCollection().length}/20)</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {prizes.slice(0, 10).map((p: any, i: number) => (
+                  <div key={p.id || i} className={`p-1 rounded-lg border text-center r58-prize-item ${p.owned ? 'border-pink-400 bg-pink-900/30' : 'border-slate-700 bg-slate-800/30'}`}>
+                    <div className="text-[7px] font-bold text-pink-300">{p.name || `P${i + 1}`}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

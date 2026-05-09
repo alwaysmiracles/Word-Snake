@@ -7110,3 +7110,144 @@
 /* R57-28: Snake evolution stage transition */
 @keyframes r57-stage-transition { 0% { transform: scale(1); filter: brightness(1); } 30% { transform: scale(1.2); filter: brightness(2); } 60% { transform: scale(0.9); filter: brightness(0.5); } 100% { transform: scale(1); filter: brightness(1); } }
 .evolution-panel .r57-stage-transition { animation: r57-stage-transition 0.8s ease-in-out; }
+
+/* ========== Round 58: Gene Lab, Lore Codex, Target Practice, Carnival ========== */
+
+/* R58-1: Gene Lab stat cell entrance pop */
+@keyframes r58-gene-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.genelab-panel .r58-gene-stat { animation: r58-gene-stat 0.4s ease-out both; }
+.genelab-panel .r58-gene-stat:nth-child(2) { animation-delay: 0.05s; }
+.genelab-panel .r58-gene-stat:nth-child(3) { animation-delay: 0.1s; }
+.genelab-panel .r58-gene-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R58-2: Lab station item scale entrance */
+@keyframes r58-station-item { 0% { opacity: 0; transform: scale(0.7); } 60% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+.genelab-panel .r58-station-item { animation: r58-station-item 0.35s ease-out both; }
+.genelab-panel .r58-station-item:nth-child(2) { animation-delay: 0.03s; }
+.genelab-panel .r58-station-item:nth-child(3) { animation-delay: 0.06s; }
+.genelab-panel .r58-station-item:nth-child(4) { animation-delay: 0.09s; }
+.genelab-panel .r58-station-item:nth-child(5) { animation-delay: 0.12s; }
+.genelab-panel .r58-station-item:nth-child(6) { animation-delay: 0.15s; }
+.genelab-panel .r58-station-item:nth-child(7) { animation-delay: 0.18s; }
+.genelab-panel .r58-station-item:nth-child(8) { animation-delay: 0.21s; }
+
+/* R58-3: Gene item float entrance */
+@keyframes r58-gene-item { 0% { opacity: 0; transform: translateY(8px) scale(0.85); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.genelab-panel .r58-gene-item { animation: r58-gene-item 0.3s ease-out both; }
+
+/* R58-4: Equipped gene item glow pulse */
+@keyframes r58-equipped-item { 0% { opacity: 0; transform: scale(0.9); box-shadow: 0 0 0 rgba(217, 70, 239, 0); } 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(217, 70, 239, 0.3); } }
+.genelab-panel .r58-equipped-item { animation: r58-equipped-item 0.4s ease-out both; }
+
+/* R58-5: DNA helix rotation infinite */
+@keyframes r58-dna-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.genelab-panel .r58-dna-rotate { animation: r58-dna-rotate 8s linear infinite; }
+
+/* R58-6: Mutation glow flash */
+@keyframes r58-mutation-flash { 0%, 100% { background-color: transparent; } 50% { background-color: rgba(34, 197, 94, 0.2); } }
+.genelab-panel .r58-mutation-flash { animation: r58-mutation-flash 1.2s ease-in-out; }
+
+/* R58-7: Lore Codex stat cell entrance */
+@keyframes r58-lore-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.lore-panel .r58-lore-stat { animation: r58-lore-stat 0.4s ease-out both; }
+.lore-panel .r58-lore-stat:nth-child(2) { animation-delay: 0.05s; }
+.lore-panel .r58-lore-stat:nth-child(3) { animation-delay: 0.1s; }
+.lore-panel .r58-lore-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R58-8: Chapter item slide in with glow */
+@keyframes r58-chapter-item { 0% { opacity: 0; transform: translateX(-10px) scale(0.95); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+.lore-panel .r58-chapter-item { animation: r58-chapter-item 0.35s ease-out both; }
+.lore-panel .r58-chapter-item:nth-child(2) { animation-delay: 0.04s; }
+.lore-panel .r58-chapter-item:nth-child(3) { animation-delay: 0.08s; }
+.lore-panel .r58-chapter-item:nth-child(4) { animation-delay: 0.12s; }
+
+/* R58-9: Chapter fill progress bar */
+@keyframes r58-chapter-fill { 0% { width: 0%; } 100% { width: var(--fill-width, 50%); } }
+.lore-panel .r58-chapter-fill { animation: r58-chapter-fill 0.6s ease-out both; }
+
+/* R58-10: Character item pop entrance */
+@keyframes r58-char-item { 0% { opacity: 0; transform: scale(0.6) rotate(-10deg); } 60% { transform: scale(1.1) rotate(3deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.lore-panel .r58-char-item { animation: r58-char-item 0.4s ease-out both; }
+
+/* R58-11: Page turn effect */
+@keyframes r58-page-turn { 0% { transform: perspective(400px) rotateY(90deg); opacity: 0; } 100% { transform: perspective(400px) rotateY(0deg); opacity: 1; } }
+.lore-panel .r58-page-turn { animation: r58-page-turn 0.6s ease-out; }
+
+/* R58-12: Target Practice stat cell entrance */
+@keyframes r58-target-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.target-panel .r58-target-stat { animation: r58-target-stat 0.4s ease-out both; }
+.target-panel .r58-target-stat:nth-child(2) { animation-delay: 0.05s; }
+.target-panel .r58-target-stat:nth-child(3) { animation-delay: 0.1s; }
+.target-panel .r58-target-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R58-13: Mode item bounce entrance */
+@keyframes r58-mode-item { 0% { opacity: 0; transform: translateY(10px) scale(0.8); } 60% { transform: translateY(-3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.target-panel .r58-mode-item { animation: r58-mode-item 0.4s ease-out both; }
+.target-panel .r58-mode-item:nth-child(2) { animation-delay: 0.05s; }
+.target-panel .r58-mode-item:nth-child(3) { animation-delay: 0.1s; }
+.target-panel .r58-mode-item:nth-child(4) { animation-delay: 0.15s; }
+.target-panel .r58-mode-item:nth-child(5) { animation-delay: 0.2s; }
+
+/* R58-14: Weapon item slide entrance */
+@keyframes r58-weapon-item { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+.target-panel .r58-weapon-item { animation: r58-weapon-item 0.3s ease-out both; }
+
+/* R58-15: Crosshair aim pulse infinite */
+@keyframes r58-crosshair-pulse { 0%, 100% { opacity: 0.4; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
+.target-panel .r58-crosshair-pulse { animation: r58-crosshair-pulse 1.5s ease-in-out infinite; }
+
+/* R58-16: Carnival stat cell entrance */
+@keyframes r58-carnival-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.carnival-panel .r58-carnival-stat { animation: r58-carnival-stat 0.4s ease-out both; }
+.carnival-panel .r58-carnival-stat:nth-child(2) { animation-delay: 0.05s; }
+.carnival-panel .r58-carnival-stat:nth-child(3) { animation-delay: 0.1s; }
+.carnival-panel .r58-carnival-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R58-17: Attraction item bounce entrance */
+@keyframes r58-attraction-item { 0% { opacity: 0; transform: translateY(8px) scale(0.85); } 60% { transform: translateY(-3px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.carnival-panel .r58-attraction-item { animation: r58-attraction-item 0.35s ease-out both; }
+.carnival-panel .r58-attraction-item:nth-child(2) { animation-delay: 0.04s; }
+.carnival-panel .r58-attraction-item:nth-child(3) { animation-delay: 0.08s; }
+.carnival-panel .r58-attraction-item:nth-child(4) { animation-delay: 0.12s; }
+
+/* R58-18: Prize item scale entrance */
+@keyframes r58-prize-item { 0% { opacity: 0; transform: scale(0.6); } 60% { transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+.carnival-panel .r58-prize-item { animation: r58-prize-item 0.35s ease-out both; }
+
+/* R58-19: Wheel spin infinite */
+@keyframes r58-wheel-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.carnival-panel .r58-wheel-spin { animation: r58-wheel-spin 3s linear infinite; }
+
+/* R58-20: Ticket counter bounce infinite */
+@keyframes r58-ticket-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.carnival-panel .r58-ticket-bounce { animation: r58-ticket-bounce 1s ease-in-out infinite; }
+
+/* R58-21: Jackpot glow pulse infinite */
+@keyframes r58-jackpot-glow { 0%, 100% { text-shadow: 0 0 4px rgba(234, 179, 8, 0.3); } 50% { text-shadow: 0 0 16px rgba(234, 179, 8, 0.8); } }
+.carnival-panel .r58-jackpot-glow { animation: r58-jackpot-glow 2s ease-in-out infinite; }
+
+/* R58-22: Gene purity shimmer */
+@keyframes r58-purity-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.genelab-panel .r58-purity-shimmer { background: linear-gradient(90deg, transparent 30%, rgba(217, 70, 239, 0.15) 50%, transparent 70%); background-size: 200% 100%; animation: r58-purity-shimmer 2s linear infinite; }
+
+/* R58-23: Lore book open effect */
+@keyframes r58-book-open { 0% { transform: scaleX(0); opacity: 0; } 50% { transform: scaleX(1.1); } 100% { transform: scaleX(1); opacity: 1; } }
+.lore-panel .r58-book-open { animation: r58-book-open 0.5s ease-out; }
+
+/* R58-24: Target hit flash */
+@keyframes r58-hit-flash { 0% { background-color: rgba(239, 68, 68, 0.5); } 100% { background-color: transparent; } }
+.target-panel .r58-hit-flash { animation: r58-hit-flash 0.3s ease-out; }
+
+/* R58-25: Carnival confetti infinite */
+@keyframes r58-confetti { 0% { transform: translateY(-10px) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(10px) rotate(360deg); opacity: 0; } }
+.carnival-panel .r58-confetti { animation: r58-confetti 2s ease-in-out infinite; }
+
+/* R58-26: Shared action button press */
+@keyframes r58-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+
+/* R58-27: Daily card shimmer infinite */
+@keyframes r58-daily-card { 0%, 100% { border-color: rgba(168, 85, 247, 0.2); } 50% { border-color: rgba(168, 85, 247, 0.5); } }
+
+/* R58-28: Gene double helix weave */
+@keyframes r58-helix-weave { 0% { transform: translateX(0) rotate(0deg); } 25% { transform: translateX(3px) rotate(5deg); } 75% { transform: translateX(-3px) rotate(-5deg); } 100% { transform: translateX(0) rotate(0deg); } }
+.genelab-panel .r58-helix-weave { animation: r58-helix-weave 3s ease-in-out infinite; }
