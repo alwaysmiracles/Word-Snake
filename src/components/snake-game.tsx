@@ -193,6 +193,10 @@ import { trInit, trStartRace, trEndRace, trResumeRace, trSubmitWord, trGetCurren
 import { thInit, thStartHunt, thAbandonHunt, thGetClue, thUseHint, thCheckAnswer, thGetRegions, thGetMapOverview, thGetStatsGrid, thGetCollectionGrid, thGetAchievementGrid, thGetDailyCard, thGetCompassHint, thGetHuntOverview, thGetStreak, thIsDailyCompleted, thGetDailyStreak, thGetAchievements, thCheckAchievements } from '@/lib/treasure-hunt-wire'
 import { msInit, msGetMuseumOverview, msGetHalls, msGetHallExhibits, msGetHallCompletion, msGetMuseumScore, msGetRecentExhibits, msCollectExhibit, msGetTours, msStartTour, msGetTourProgress, msCompleteTour, msRecordVisit, msGetVisitStats, msGetSouvenirs, msBuySouvenir, msGetMuseumCoins, msGetPhotoSpots, msCapturePhoto, msGetPhotoGallery, msGetFeaturedExhibit, msGetAudioGuide, msGetAchievements, msCheckAchievements, msGetMuseumLevel, msGetOverviewCard, msGetHallCard, msGetExhibitCard, msGetExhibitGrid, msGetTourCard, msGetStatsGrid, msGetShopCard, msGetPhotoSpotCard, msGetLevelCard } from '@/lib/achievement-museum-wire'
 import { arInit, arStartGame, arEndGame, arPauseGame, arResumeGame, arGetActiveGame, arIsGameActive, arFlipCard, arDestroyWord, arSortWord, arSubmitChainWord, arCatchLetter, arFindWord, arSolveAnagram, arSolveMath, arGetScore, arGetHighScores, arGetGameGrade, arGetAllHighScores, arGetTokens, arEarnTokens, arSpendTokens, arGetDailyChallenge, arStartDaily, arGetDailyProgress, arIsDailyCompleted, arGetAchievements, arCheckAchievements, arGetArcadeStats, arGetArcadeOverview, arGetGameCard, arGetGameGrid, arGetStatsGrid, arGetAchievementGrid, arGetLeaderboardCard, arGetDailyCard, arGetTokenCard, arGetGamesPlayed, arGetTotalTime, arGetWinRate } from '@/lib/mini-arcade-wire'
+import { evGetState, evResetState, evGetEvolutionPaths, evGetCurrentPath, evSetCurrentPath, evGetStageProgress, evAddXP, evEvolve, evGetAbilities, evUnlockAbility, evActivateAbility, evGetMutations, evRollMutation, evApplyMutation, evRemoveMutation, evGetMutationSynergy, evGetDNA, evCollectDNA, evCombineDNA, evGetEvolutionHistory, evGetEvolutionOverview, evGetEvolutionTree, evGetEvolutionDashboard, evGetPathStats, evResetPath, evGetActiveEffects, evGetPathCard, evGetAbilityCard, evGetMutationCard, evGetDNACard, evGetStageUpgrades, evGetTotalMutationsApplied, evGetRarestMutation, evHasSynergy, evGetSynergyDescription } from '@/lib/snake-evolution-wire'
+import { alGetState, alResetState, alGetLabLevel, alGetLab, alAddLabXP, alGetRooms, alUnlockRoom, alGetLetterTiers, alGetSuccessRate, alGetTransmutationCost, alTransmuteLetters, alGetRecipes, alGetDiscoveredRecipes, alDiscoverRecipe, alGetPotions, alBrewPotion, alUsePotion, alGetElements, alGetElementMastery, alAddElementXP, alGetElementCombos, alCombineElements, alGetElixirs, alBrewElixir, alCollectElixir, alGetDailyChallenge as alGetDailyChallenge, alCompleteDailyChallenge, alGetAlchemyOverview, alGetLabDashboard, alGetRecipeCard, alGetElementCard, alGetElixirCard, alGetTransmutationHistory, alGetMaterials, alGetMaterialsCount, alSpendMaterial, alGetPotionEffects, alGetActiveBuffs, alGetAlchemyScore, alGetElementComboResults } from '@/lib/word-alchemy-wire'
+import { dgGetState, dgResetState, dgGetDungeons, dgGetDungeon, dgStartRun, dgEndRun, dgGetCurrentRun, dgGetCurrentFloor, dgEnterFloor, dgClearFloor, dgGetFloorType, dgGetFloorPuzzle, dgGetNextFloor, dgGetFloorMap, dgAttackMonster, dgTakeDamage, dgHeal, dgGetMonster, dgGetBoss, dgGetLoot, dgPickupLoot, dgEquipItem, dgGetInventory, dgDropItem, dgUsePotion as dgUsePotion, dgGetUpgrades, dgGetUpgradeCost, dgBuyUpgrade, dgGetPlayerStats, dgGetRunStats, dgGetDungeonStats, dgGetBestRun, dgGetTotalGoldEarned, dgGetRunHistory, dgGetDailyDungeon, dgCompleteDailyDungeon, dgGetDungeonOverview, dgGetDungeonDashboard, dgGetDungeonCard, dgGetFloorCard, dgGetMonsterCard } from '@/lib/puzzle-dungeon-wire'
+import { glGetState, glResetState, glGetGuild, glCreateGuild, glJoinGuild, glLeaveGuild, glDisbandGuild, glGetMembers, glGetMember, glKickMember, glPromoteMember, glDemoteMember, glGetRoles, glGetRolePermissions, glGetEmblems, glSetEmblem, glGetSettings, glUpdateSetting, glGetGuildLevel, glAddGuildXP, glGetWars, glStartWar, glGetWarResults, glGetWarHistory, glGetWarTrophies, glGetQuests, glStartQuest, glContributeToQuest, glGetChatMessages, glSendMessage, glGetUnreadCount, glGetRankings, glGetGuildRank, glGetAchievements, glUnlockAchievement, glGetApplications, glApplyToGuild, glAcceptApplication, glGetTopContributors, glGetContributionRank, glGetGuildStats, glGetWeeklyProgress, glGetAvailableGuilds, glSearchGuilds, glGetGuildCard, glGetMemberCard, glGetWarCard, glGetGuildOverview, glGetGuildDashboard, glGetGuildEmblem, glGetGuildMotto } from '@/lib/guild-system-wire'
 import {
   Play,
   RotateCcw,
@@ -993,6 +997,11 @@ export default function SnakeGame() {
   const [showTreasureHuntPanel, setShowTreasureHuntPanel] = useState(false)
   const [showMuseumPanel, setShowMuseumPanel] = useState(false)
   const [showArcadePanel, setShowArcadePanel] = useState(false)
+  // Round 57: Snake Evolution, Word Alchemy, Puzzle Dungeon, Guild System panel states
+  const [showEvolutionPanel, setShowEvolutionPanel] = useState(false)
+  const [showAlchemyPanel, setShowAlchemyPanel] = useState(false)
+  const [showDungeonPanel, setShowDungeonPanel] = useState(false)
+  const [showGuildPanel, setShowGuildPanel] = useState(false)
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -8126,6 +8135,42 @@ export default function SnakeGame() {
                     >
                       🎮 Arcade
                     </Button>
+                    {/* Round 57: Snake Evolution Button */}
+                    <Button
+                      onClick={() => setShowEvolutionPanel(!showEvolutionPanel)}
+                      variant="outline"
+                      className="border-lime-500/50 text-lime-400 hover:bg-lime-900/20 active:scale-95 transition-transform evolution-btn"
+                      title="Snake Evolution"
+                    >
+                      🐍 Evolution
+                    </Button>
+                    {/* Round 57: Word Alchemy Button */}
+                    <Button
+                      onClick={() => setShowAlchemyPanel(!showAlchemyPanel)}
+                      variant="outline"
+                      className="border-amber-500/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform alchemy-btn"
+                      title="Word Alchemy"
+                    >
+                      ⚗️ Alchemy
+                    </Button>
+                    {/* Round 57: Puzzle Dungeon Button */}
+                    <Button
+                      onClick={() => setShowDungeonPanel(!showDungeonPanel)}
+                      variant="outline"
+                      className="border-violet-500/50 text-violet-400 hover:bg-violet-900/20 active:scale-95 transition-transform dungeon-btn"
+                      title="Puzzle Dungeon"
+                    >
+                      🏰 Dungeon
+                    </Button>
+                    {/* Round 57: Guild System Button */}
+                    <Button
+                      onClick={() => setShowGuildPanel(!showGuildPanel)}
+                      variant="outline"
+                      className="border-sky-500/50 text-sky-400 hover:bg-sky-900/20 active:scale-95 transition-transform guild-btn"
+                      title="Guild System"
+                    >
+                      🏛️ Guild
+                    </Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -14278,6 +14323,287 @@ export default function SnakeGame() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 57: Snake Evolution Panel */}
+      {showEvolutionPanel && mounted && (() => {
+        const dashboard = evGetEvolutionDashboard()
+        const paths = evGetEvolutionPaths()
+        const currentPath = evGetCurrentPath()
+        const overview = evGetEvolutionOverview()
+        const mutations = evGetMutations()
+        const dna = evGetDNA()
+        const history = evGetEvolutionHistory()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEvolutionPanel(false)}>
+            <div className="bg-slate-900 border border-lime-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-lime-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🐍</span>
+                  <span className="text-sm font-bold text-lime-400">Snake Evolution</span>
+                </div>
+                <span className="text-[10px] text-slate-500">{overview.totalAbilities || 0} abilities</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-emerald-900/30 rounded-lg border border-lime-500/20 r57-evolution-stat"><div className="text-[9px] text-slate-400">Current Path</div><div className="text-xs font-bold text-lime-400">{currentPath || 'None'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-emerald-900/30 rounded-lg border border-lime-500/20 r57-evolution-stat"><div className="text-[9px] text-slate-400">Stage</div><div className="text-xs font-bold text-emerald-400">{overview.stageName || 'Embryo'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-emerald-900/30 rounded-lg border border-lime-500/20 r57-evolution-stat"><div className="text-[9px] text-slate-400">Mutations</div><div className="text-xs font-bold text-yellow-400">{overview.activeMutations || 0}/{overview.maxMutations || 3}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-emerald-900/30 rounded-lg border border-lime-500/20 r57-evolution-stat"><div className="text-[9px] text-slate-400">DNA Collected</div><div className="text-xs font-bold text-cyan-400">{overview.dnaCollected || 0}/10</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Evolution Paths</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {paths.slice(0, 5).map((p: any) => (
+                  <button key={p.id || p.name} onClick={() => { evSetCurrentPath(p.id || p.name); toast({ title: `Path: ${p.name || p.id}` }) }} className={`p-1.5 rounded-lg border text-center transition-all active:scale-95 r57-path-item ${currentPath === (p.id || p.name) ? 'border-lime-400 bg-lime-900/40' : 'border-slate-700 bg-slate-800/40 hover:border-lime-600/50'}`}>
+                    <div className="text-sm">{p.icon || '🐍'}</div>
+                    <div className="text-[7px] text-slate-400 truncate">{p.name || p.id}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Active Mutations</div>
+              <div className="grid grid-cols-3 gap-1 mb-3">
+                {mutations.filter((m: any) => m.active).slice(0, 3).map((m: any, i: number) => (
+                  <div key={m.id || i} className="p-1.5 bg-slate-800/60 rounded-lg border border-purple-500/20 r57-mutation-item">
+                    <div className="text-[8px] font-bold text-purple-400">{m.name || m.id}</div>
+                    <div className="text-[7px] text-slate-500">{m.effect || m.description || ''}</div>
+                  </div>
+                ))}
+                {mutations.filter((m: any) => m.active).length < 3 && (
+                  <button onClick={() => { const mut = evRollMutation(); if (mut) { evApplyMutation(mut.id || mut.name); toast({ title: 'New mutation!' }) } }} className="p-1.5 bg-slate-800/40 rounded-lg border border-dashed border-purple-500/30 text-[8px] text-purple-400 hover:bg-purple-900/20 transition-all active:scale-95 r57-action-btn">Roll Mutation</button>
+                )}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { evAddXP(50); toast({ title: '+50 XP!' }) }} className="flex-1 px-2 py-1.5 bg-lime-900/40 hover:bg-lime-800/50 text-lime-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Add XP</button>
+                <button onClick={() => { evEvolve(); toast({ title: 'Evolution triggered!' }) }} className="flex-1 px-2 py-1.5 bg-emerald-900/40 hover:bg-emerald-800/50 text-emerald-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Evolve</button>
+                <button onClick={() => { evResetPath(); toast({ title: 'Path reset!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Reset</button>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">DNA Strands</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {dna.slice(0, 5).map((d: any, i: number) => (
+                  <div key={d.id || i} className={`p-1.5 rounded-lg border text-center r57-dna-item ${d.collected ? 'border-cyan-400 bg-cyan-900/30' : 'border-slate-700 bg-slate-800/30'}`}>
+                    <div className="text-xs">{d.icon || '🧬'}</div>
+                    <div className="text-[6px] text-slate-500">{d.name || `DNA${i + 1}`}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 57: Word Alchemy Panel */}
+      {showAlchemyPanel && mounted && (() => {
+        const lab = alGetLab()
+        const overview = alGetAlchemyOverview()
+        const rooms = alGetRooms()
+        const elements = alGetElements()
+        const recipes = alGetRecipes()
+        const elixirs = alGetElixirs()
+        const daily = alGetDailyChallenge()
+        const materials = alGetMaterials()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAlchemyPanel(false)}>
+            <div className="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-amber-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⚗️</span>
+                  <span className="text-sm font-bold text-amber-400">Word Alchemy</span>
+                </div>
+                <span className="text-[10px] text-slate-500">Lv.{lab.level || 1}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-lg border border-amber-500/20 r57-alchemy-stat"><div className="text-[9px] text-slate-400">Lab Level</div><div className="text-xs font-bold text-amber-400">{lab.level || 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-lg border border-amber-500/20 r57-alchemy-stat"><div className="text-[9px] text-slate-400">Recipes Found</div><div className="text-xs font-bold text-orange-400">{overview.discoveredCount || 0}/{overview.totalRecipes || 30}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-lg border border-amber-500/20 r57-alchemy-stat"><div className="text-[9px] text-slate-400">Potions</div><div className="text-xs font-bold text-purple-400">{overview.potionCount || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-lg border border-amber-500/20 r57-alchemy-stat"><div className="text-[9px] text-slate-400">Elixirs</div><div className="text-xs font-bold text-cyan-400">{overview.elixirCount || 0}/15</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Elements</div>
+              <div className="grid grid-cols-6 gap-1 mb-3">
+                {elements.slice(0, 6).map((el: any, i: number) => (
+                  <div key={el.id || i} className="p-1.5 bg-slate-800/60 rounded-lg border border-amber-500/20 text-center r57-element-item">
+                    <div className="text-sm">{el.icon || ['🔥','💧','🌿','💨','⚡','🌀'][i]}</div>
+                    <div className="text-[7px] text-slate-400 truncate">{el.name || `El${i + 1}`}</div>
+                    <div className="text-[6px] text-amber-500">Lv.{el.mastery || 0}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Lab Rooms</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {rooms.slice(0, 5).map((r: any, i: number) => (
+                  <div key={r.id || i} className={`p-1 rounded-lg border text-center r57-room-item ${r.unlocked ? 'border-amber-400 bg-amber-900/30' : 'border-slate-700 bg-slate-800/30'}`}>
+                    <div className="text-[7px] font-bold text-amber-400">{r.name || `Room${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{r.unlocked ? 'Open' : 'Locked'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Recipes ({overview.discoveredCount || 0}/{overview.totalRecipes || 30})</div>
+              <div className="grid grid-cols-3 gap-1 mb-3">
+                {recipes.slice(0, 6).map((r: any, i: number) => (
+                  <div key={r.id || i} className={`p-1.5 rounded-lg border text-center r57-recipe-item ${r.discovered ? 'border-purple-400 bg-purple-900/20' : 'border-slate-700 bg-slate-800/20'}`}>
+                    <div className="text-[8px] font-bold text-purple-300">{r.name || `Recipe${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">{r.discovered ? (r.potion || 'Known') : '???'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { alTransmuteLetters(['A', 'B']); alAddLabXP(10); toast({ title: 'Transmuted!' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Transmute</button>
+                <button onClick={() => { alDiscoverRecipe('r1'); toast({ title: 'Recipe discovered!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Discover</button>
+                <button onClick={() => { alBrewPotion('p1'); toast({ title: 'Brewing!' }) }} className="flex-1 px-2 py-1.5 bg-orange-900/40 hover:bg-orange-800/50 text-orange-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Brew</button>
+              </div>
+              <div className="p-2 bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-lg border border-amber-500/20 r57-daily-card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[9px] font-bold text-amber-400">Daily Challenge</div>
+                    <div className="text-[8px] text-slate-400">{daily.name || 'Transmute Quest'}</div>
+                  </div>
+                  <button onClick={() => { alCompleteDailyChallenge(); toast({ title: 'Challenge done!' }) }} className="px-2 py-1 bg-amber-800/60 hover:bg-amber-700/60 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Complete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 57: Puzzle Dungeon Panel */}
+      {showDungeonPanel && mounted && (() => {
+        const overview = dgGetDungeonOverview()
+        const dungeons = dgGetDungeons()
+        const stats = dgGetRunStats()
+        const upgrades = dgGetUpgrades()
+        const daily = dgGetDailyDungeon()
+        const currentRun = dgGetCurrentRun()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDungeonPanel(false)}>
+            <div className="bg-slate-900 border border-violet-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-violet-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🏰</span>
+                  <span className="text-sm font-bold text-violet-400">Puzzle Dungeon</span>
+                </div>
+                <span className="text-[10px] text-slate-500">{stats.totalRuns || 0} runs</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-purple-900/30 rounded-lg border border-violet-500/20 r57-dungeon-stat"><div className="text-[9px] text-slate-400">Best Floor</div><div className="text-xs font-bold text-violet-400">{stats.bestFloor || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-purple-900/30 rounded-lg border border-violet-500/20 r57-dungeon-stat"><div className="text-[9px] text-slate-400">Total Gold</div><div className="text-xs font-bold text-yellow-400">{dgGetTotalGoldEarned() || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-purple-900/30 rounded-lg border border-violet-500/20 r57-dungeon-stat"><div className="text-[9px] text-slate-400">Monsters Slain</div><div className="text-xs font-bold text-red-400">{stats.monstersDefeated || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-purple-900/30 rounded-lg border border-violet-500/20 r57-dungeon-stat"><div className="text-[9px] text-slate-400">Floors Cleared</div><div className="text-xs font-bold text-emerald-400">{stats.floorsCleared || 0}</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Dungeons</div>
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {dungeons.slice(0, 5).map((d: any, i: number) => (
+                  <div key={d.id || i} className="p-1.5 bg-slate-800/60 rounded-lg border border-violet-500/20 text-center r57-dungeon-item">
+                    <div className="text-sm">{d.icon || ['💎','🌑','🐉','☁️','🌀'][i]}</div>
+                    <div className="text-[7px] text-slate-400 truncate">{d.name || `D${i + 1}`}</div>
+                    <div className="text-[6px] text-violet-400">{d.floors || 10}F</div>
+                  </div>
+                ))}
+              </div>
+              {currentRun && (
+                <div className="mb-3 p-2 bg-violet-900/30 rounded-lg border border-violet-500/30">
+                  <div className="text-[9px] text-violet-400 font-semibold mb-1">Active Run</div>
+                  <div className="flex gap-1.5">
+                    <button onClick={() => { dgAttackMonster('word'); toast({ title: 'Attacked!' }) }} className="flex-1 px-2 py-1 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Attack</button>
+                    <button onClick={() => { dgClearFloor(); toast({ title: 'Floor cleared!' }) }} className="flex-1 px-2 py-1.5 bg-emerald-900/40 hover:bg-emerald-800/50 text-emerald-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Clear</button>
+                    <button onClick={() => { dgEndRun(); toast({ title: 'Run ended!' }) }} className="flex-1 px-2 py-1.5 bg-slate-700/60 hover:bg-slate-600/60 text-slate-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Flee</button>
+                  </div>
+                </div>
+              )}
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Meta Upgrades</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                {upgrades.slice(0, 8).map((u: any, i: number) => (
+                  <div key={u.id || i} className="p-1.5 bg-slate-800/40 rounded-lg border border-slate-700/50 text-center r57-upgrade-item">
+                    <div className="text-[8px] font-bold text-violet-300">{u.name || `Up${i + 1}`}</div>
+                    <div className="text-[6px] text-slate-500">Lv.{u.level || 0}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { dgStartRun(dungeons[0]?.id || 'crystal'); toast({ title: 'Dungeon entered!' }) }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Enter Dungeon</button>
+                <button onClick={() => { dgBuyUpgrade(upgrades[0]?.id || 'hp'); toast({ title: 'Upgraded!' }) }} className="flex-1 px-2 py-1.5 bg-yellow-900/40 hover:bg-yellow-800/50 text-yellow-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Upgrade</button>
+              </div>
+              <div className="p-2 bg-gradient-to-r from-violet-900/30 to-purple-900/30 rounded-lg border border-violet-500/20 r57-daily-card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[9px] font-bold text-violet-400">Daily Dungeon</div>
+                    <div className="text-[8px] text-slate-400">{daily.name || 'Special Run'}</div>
+                  </div>
+                  <button onClick={() => { dgCompleteDailyDungeon(); toast({ title: 'Daily complete!' }) }} className="px-2 py-1 bg-violet-800/60 hover:bg-violet-700/60 text-violet-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Play</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 57: Guild System Panel */}
+      {showGuildPanel && mounted && (() => {
+        const guild = glGetGuild()
+        const members = glGetMembers()
+        const overview = glGetGuildOverview()
+        const wars = glGetWars()
+        const quests = glGetQuests()
+        const rankings = glGetRankings()
+        const chat = glGetChatMessages()
+        const achievements = glGetAchievements()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGuildPanel(false)}>
+            <div className="bg-slate-900 border border-sky-500/30 rounded-2xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl shadow-sky-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🏛️</span>
+                  <span className="text-sm font-bold text-sky-400">{guild?.name || 'My Guild'}</span>
+                  {guild?.tag && <span className="text-[8px] px-1.5 py-0.5 bg-sky-900/40 text-sky-300 rounded font-mono">[{guild.tag}]</span>}
+                </div>
+                <span className="text-[10px] text-slate-500">Lv.{glGetGuildLevel() || 1}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-blue-900/30 rounded-lg border border-sky-500/20 r57-guild-stat"><div className="text-[9px] text-slate-400">Members</div><div className="text-xs font-bold text-sky-400">{members.length || 0}/30</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-blue-900/30 rounded-lg border border-sky-500/20 r57-guild-stat"><div className="text-[9px] text-slate-400">Guild Rank</div><div className="text-xs font-bold text-blue-400">#{glGetGuildRank() || '--'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-blue-900/30 rounded-lg border border-sky-500/20 r57-guild-stat"><div className="text-[9px] text-slate-400">War Wins</div><div className="text-xs font-bold text-red-400">{overview.warWins || 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-blue-900/30 rounded-lg border border-sky-500/20 r57-guild-stat"><div className="text-[9px] text-slate-400">Achievements</div><div className="text-xs font-bold text-yellow-400">{achievements.filter((a: any) => a.unlocked).length || 0}/12</div></div>
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Members ({members.length || 0})</div>
+              <div className="grid grid-cols-2 gap-1 mb-3 max-h-32 overflow-y-auto">
+                {members.slice(0, 8).map((m: any, i: number) => (
+                  <div key={m.id || i} className="p-1.5 bg-slate-800/60 rounded-lg border border-sky-500/20 r57-member-item">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[8px] font-bold text-sky-300">{m.name || `Player${i + 1}`}</span>
+                      <span className="text-[6px] px-1 py-0.5 bg-slate-700 rounded text-slate-400">{m.role || 'Member'}</span>
+                    </div>
+                    <div className="text-[7px] text-slate-500">Contrib: {m.contribution || 0}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Guild Wars</div>
+              <div className="grid grid-cols-2 gap-1 mb-3">
+                {wars.slice(0, 4).map((w: any, i: number) => (
+                  <div key={w.id || i} className="p-1.5 bg-slate-800/40 rounded-lg border border-red-500/20 r57-war-item">
+                    <div className="text-[8px] font-bold text-red-300">{w.opponent || 'Enemy'}</div>
+                    <div className="text-[6px] text-slate-500">{w.status || w.result || 'Pending'}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Guild Quests</div>
+              <div className="grid grid-cols-2 gap-1 mb-3">
+                {quests.slice(0, 4).map((q: any, i: number) => (
+                  <div key={q.id || i} className="p-1.5 bg-slate-800/40 rounded-lg border border-emerald-500/20 r57-quest-item">
+                    <div className="text-[8px] font-bold text-emerald-300">{q.name || `Quest${i + 1}`}</div>
+                    <div className="w-full h-1 bg-slate-700 rounded mt-1"><div className="h-full bg-emerald-500 rounded r57-quest-fill" style={{ width: `${q.progress || 0}%` }}></div></div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1.5">Recent Chat</div>
+              <div className="mb-3 max-h-24 overflow-y-auto">
+                {chat.slice(-5).map((c: any, i: number) => (
+                  <div key={c.id || i} className="mb-1 p-1 bg-slate-800/30 rounded r57-chat-item">
+                    <span className="text-[8px] font-bold text-sky-300">{c.author || 'Anon'}: </span>
+                    <span className="text-[8px] text-slate-400">{c.text || c.content || ''}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5">
+                <button onClick={() => { glSendMessage('Hello!'); toast({ title: 'Message sent!' }) }} className="flex-1 px-2 py-1.5 bg-sky-900/40 hover:bg-sky-800/50 text-sky-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Send Message</button>
+                <button onClick={() => { glStartWar(rankings[1]?.id || 'guild2'); toast({ title: 'War declared!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Start War</button>
+                <button onClick={() => { glStartQuest(quests[0]?.id || 'q1'); toast({ title: 'Quest started!' }) }} className="flex-1 px-2 py-1.5 bg-emerald-900/40 hover:bg-emerald-800/50 text-emerald-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r57-action-btn">Start Quest</button>
+              </div>
             </div>
           </div>
         )

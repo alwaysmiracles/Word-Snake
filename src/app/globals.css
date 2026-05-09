@@ -6939,3 +6939,174 @@
 /* R56-25: Arcade neon pulse */
 @keyframes r56-arcade-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 .arcade-panel .r56-arcade-pulse { animation: r56-arcade-pulse 1.5s ease-in-out infinite; }
+
+/* ========== Round 57: Snake Evolution, Word Alchemy, Puzzle Dungeon, Guild System ========== */
+
+/* R57-1: Evolution stat cell entrance pop */
+@keyframes r57-evolution-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.evolution-panel .r57-evolution-stat { animation: r57-evolution-stat 0.4s ease-out both; }
+.evolution-panel .r57-evolution-stat:nth-child(2) { animation-delay: 0.05s; }
+.evolution-panel .r57-evolution-stat:nth-child(3) { animation-delay: 0.1s; }
+.evolution-panel .r57-evolution-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R57-2: Path item slide in with glow */
+@keyframes r57-path-item { 0% { opacity: 0; transform: translateX(-12px) scale(0.9); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+.evolution-panel .r57-path-item { animation: r57-path-item 0.35s ease-out both; }
+.evolution-panel .r57-path-item:nth-child(2) { animation-delay: 0.04s; }
+.evolution-panel .r57-path-item:nth-child(3) { animation-delay: 0.08s; }
+.evolution-panel .r57-path-item:nth-child(4) { animation-delay: 0.12s; }
+.evolution-panel .r57-path-item:nth-child(5) { animation-delay: 0.16s; }
+
+/* R57-3: Mutation item pop entrance */
+@keyframes r57-mutation-item { 0% { opacity: 0; transform: scale(0.6) rotate(-5deg); } 50% { transform: scale(1.1) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.evolution-panel .r57-mutation-item { animation: r57-mutation-item 0.45s ease-out both; }
+
+/* R57-4: DNA item float entrance */
+@keyframes r57-dna-item { 0% { opacity: 0; transform: translateY(10px) scale(0.8); } 60% { transform: translateY(-3px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.evolution-panel .r57-dna-item { animation: r57-dna-item 0.4s ease-out both; }
+.evolution-panel .r57-dna-item:nth-child(2) { animation-delay: 0.05s; }
+.evolution-panel .r57-dna-item:nth-child(3) { animation-delay: 0.1s; }
+.evolution-panel .r57-dna-item:nth-child(4) { animation-delay: 0.15s; }
+.evolution-panel .r57-dna-item:nth-child(5) { animation-delay: 0.2s; }
+
+/* R57-5: Evolution action button press */
+@keyframes r57-evolution-action { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
+.evolution-panel .r57-action-btn:active { animation: r57-evolution-action 0.2s ease-in-out; }
+
+/* R57-6: Evolution glow pulse infinite */
+@keyframes r57-evolution-glow { 0%, 100% { box-shadow: 0 0 8px rgba(132, 204, 22, 0.2); } 50% { box-shadow: 0 0 20px rgba(132, 204, 22, 0.5); } }
+.evolution-panel .r57-evolution-glow { animation: r57-evolution-glow 2s ease-in-out infinite; }
+
+/* R57-7: Alchemy stat cell entrance pop */
+@keyframes r57-alchemy-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.alchemy-panel .r57-alchemy-stat { animation: r57-alchemy-stat 0.4s ease-out both; }
+.alchemy-panel .r57-alchemy-stat:nth-child(2) { animation-delay: 0.05s; }
+.alchemy-panel .r57-alchemy-stat:nth-child(3) { animation-delay: 0.1s; }
+.alchemy-panel .r57-alchemy-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R57-8: Element item rotate entrance */
+@keyframes r57-element-item { 0% { opacity: 0; transform: rotateY(90deg) scale(0.7); } 100% { opacity: 1; transform: rotateY(0deg) scale(1); } }
+.alchemy-panel .r57-element-item { animation: r57-element-item 0.4s ease-out both; }
+.alchemy-panel .r57-element-item:nth-child(2) { animation-delay: 0.05s; }
+.alchemy-panel .r57-element-item:nth-child(3) { animation-delay: 0.1s; }
+.alchemy-panel .r57-element-item:nth-child(4) { animation-delay: 0.15s; }
+.alchemy-panel .r57-element-item:nth-child(5) { animation-delay: 0.2s; }
+.alchemy-panel .r57-element-item:nth-child(6) { animation-delay: 0.25s; }
+
+/* R57-9: Room item slide in */
+@keyframes r57-room-item { 0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); } }
+.alchemy-panel .r57-room-item { animation: r57-room-item 0.35s ease-out both; }
+.alchemy-panel .r57-room-item:nth-child(2) { animation-delay: 0.04s; }
+.alchemy-panel .r57-room-item:nth-child(3) { animation-delay: 0.08s; }
+.alchemy-panel .r57-room-item:nth-child(4) { animation-delay: 0.12s; }
+.alchemy-panel .r57-room-item:nth-child(5) { animation-delay: 0.16s; }
+
+/* R57-10: Recipe item fade slide in */
+@keyframes r57-recipe-item { 0% { opacity: 0; transform: translateY(6px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.alchemy-panel .r57-recipe-item { animation: r57-recipe-item 0.35s ease-out both; }
+.alchemy-panel .r57-recipe-item:nth-child(2) { animation-delay: 0.04s; }
+.alchemy-panel .r57-recipe-item:nth-child(3) { animation-delay: 0.08s; }
+.alchemy-panel .r57-recipe-item:nth-child(4) { animation-delay: 0.12s; }
+.alchemy-panel .r57-recipe-item:nth-child(5) { animation-delay: 0.16s; }
+.alchemy-panel .r57-recipe-item:nth-child(6) { animation-delay: 0.2s; }
+
+/* R57-11: Alchemy daily card shimmer */
+@keyframes r57-daily-card { 0%, 100% { border-color: rgba(245, 158, 11, 0.2); } 50% { border-color: rgba(245, 158, 11, 0.5); } }
+.alchemy-panel .r57-daily-card { animation: r57-daily-card 2.5s ease-in-out infinite; }
+
+/* R57-12: Alchemy potion bubble float infinite */
+@keyframes r57-potion-bubble { 0% { transform: translateY(0) scale(1); opacity: 0.7; } 50% { transform: translateY(-4px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 0.7; } }
+.alchemy-panel .r57-potion-bubble { animation: r57-potion-bubble 1.8s ease-in-out infinite; }
+
+/* R57-13: Dungeon stat cell entrance pop */
+@keyframes r57-dungeon-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.dungeon-panel .r57-dungeon-stat { animation: r57-dungeon-stat 0.4s ease-out both; }
+.dungeon-panel .r57-dungeon-stat:nth-child(2) { animation-delay: 0.05s; }
+.dungeon-panel .r57-dungeon-stat:nth-child(3) { animation-delay: 0.1s; }
+.dungeon-panel .r57-dungeon-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R57-14: Dungeon item scale entrance */
+@keyframes r57-dungeon-item { 0% { opacity: 0; transform: scale(0.7); } 60% { transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+.dungeon-panel .r57-dungeon-item { animation: r57-dungeon-item 0.4s ease-out both; }
+.dungeon-panel .r57-dungeon-item:nth-child(2) { animation-delay: 0.05s; }
+.dungeon-panel .r57-dungeon-item:nth-child(3) { animation-delay: 0.1s; }
+.dungeon-panel .r57-dungeon-item:nth-child(4) { animation-delay: 0.15s; }
+.dungeon-panel .r57-dungeon-item:nth-child(5) { animation-delay: 0.2s; }
+
+/* R57-15: Dungeon upgrade item bounce entrance */
+@keyframes r57-upgrade-item { 0% { opacity: 0; transform: translateY(8px) scale(0.85); } 50% { transform: translateY(-2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.dungeon-panel .r57-upgrade-item { animation: r57-upgrade-item 0.4s ease-out both; }
+.dungeon-panel .r57-upgrade-item:nth-child(2) { animation-delay: 0.03s; }
+.dungeon-panel .r57-upgrade-item:nth-child(3) { animation-delay: 0.06s; }
+.dungeon-panel .r57-upgrade-item:nth-child(4) { animation-delay: 0.09s; }
+.dungeon-panel .r57-upgrade-item:nth-child(5) { animation-delay: 0.12s; }
+.dungeon-panel .r57-upgrade-item:nth-child(6) { animation-delay: 0.15s; }
+.dungeon-panel .r57-upgrade-item:nth-child(7) { animation-delay: 0.18s; }
+.dungeon-panel .r57-upgrade-item:nth-child(8) { animation-delay: 0.21s; }
+
+/* R57-16: Dungeon portal vortex infinite */
+@keyframes r57-portal-vortex { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.05); } 100% { transform: rotate(360deg) scale(1); } }
+.dungeon-panel .r57-portal-vortex { animation: r57-portal-vortex 4s linear infinite; }
+
+/* R57-17: Guild stat cell entrance pop */
+@keyframes r57-guild-stat { 0% { opacity: 0; transform: scale(0.8) translateY(8px); } 60% { transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.guild-panel .r57-guild-stat { animation: r57-guild-stat 0.4s ease-out both; }
+.guild-panel .r57-guild-stat:nth-child(2) { animation-delay: 0.05s; }
+.guild-panel .r57-guild-stat:nth-child(3) { animation-delay: 0.1s; }
+.guild-panel .r57-guild-stat:nth-child(4) { animation-delay: 0.15s; }
+
+/* R57-18: Guild member item slide in */
+@keyframes r57-member-item { 0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); } }
+.guild-panel .r57-member-item { animation: r57-member-item 0.3s ease-out both; }
+.guild-panel .r57-member-item:nth-child(2) { animation-delay: 0.04s; }
+.guild-panel .r57-member-item:nth-child(3) { animation-delay: 0.08s; }
+.guild-panel .r57-member-item:nth-child(4) { animation-delay: 0.12s; }
+.guild-panel .r57-member-item:nth-child(5) { animation-delay: 0.16s; }
+.guild-panel .r57-member-item:nth-child(6) { animation-delay: 0.2s; }
+.guild-panel .r57-member-item:nth-child(7) { animation-delay: 0.24s; }
+.guild-panel .r57-member-item:nth-child(8) { animation-delay: 0.28s; }
+
+/* R57-19: Guild war item pulse entrance */
+@keyframes r57-war-item { 0% { opacity: 0; transform: scale(0.85); } 60% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+.guild-panel .r57-war-item { animation: r57-war-item 0.4s ease-out both; }
+.guild-panel .r57-war-item:nth-child(2) { animation-delay: 0.06s; }
+.guild-panel .r57-war-item:nth-child(3) { animation-delay: 0.12s; }
+.guild-panel .r57-war-item:nth-child(4) { animation-delay: 0.18s; }
+
+/* R57-20: Guild quest fill progress bar */
+@keyframes r57-quest-fill { 0% { width: 0%; } 100% { width: var(--fill-width, 50%); } }
+.guild-panel .r57-quest-fill { animation: r57-quest-fill 0.8s ease-out both; }
+
+/* R57-21: Guild quest item slide in */
+@keyframes r57-quest-item { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+.guild-panel .r57-quest-item { animation: r57-quest-item 0.35s ease-out both; }
+.guild-panel .r57-quest-item:nth-child(2) { animation-delay: 0.06s; }
+.guild-panel .r57-quest-item:nth-child(3) { animation-delay: 0.12s; }
+.guild-panel .r57-quest-item:nth-child(4) { animation-delay: 0.18s; }
+
+/* R57-22: Guild chat item fade slide */
+@keyframes r57-chat-item { 0% { opacity: 0; transform: translateX(-6px); } 100% { opacity: 1; transform: translateX(0); } }
+.guild-panel .r57-chat-item { animation: r57-chat-item 0.25s ease-out both; }
+
+/* R57-23: Evolution DNA helix spin infinite */
+@keyframes r57-dna-helix { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.evolution-panel .r57-dna-helix { animation: r57-dna-helix 6s linear infinite; }
+
+/* R57-24: Alchemy transmute glow flash */
+@keyframes r57-transmute-flash { 0%, 100% { background-color: transparent; } 30% { background-color: rgba(245, 158, 11, 0.3); } 60% { background-color: rgba(168, 85, 247, 0.3); } }
+.alchemy-panel .r57-transmute-flash { animation: r57-transmute-flash 1.5s ease-in-out; }
+
+/* R57-25: Dungeon torch flicker infinite */
+@keyframes r57-torch-flicker { 0%, 100% { opacity: 0.8; filter: brightness(1); } 25% { opacity: 1; filter: brightness(1.2); } 50% { opacity: 0.7; filter: brightness(0.9); } 75% { opacity: 1; filter: brightness(1.1); } }
+.dungeon-panel .r57-torch-flicker { animation: r57-torch-flicker 0.8s ease-in-out infinite; }
+
+/* R57-26: Guild banner wave infinite */
+@keyframes r57-banner-wave { 0%, 100% { transform: skewX(0deg) scaleY(1); } 25% { transform: skewX(2deg) scaleY(1.02); } 75% { transform: skewX(-2deg) scaleY(0.98); } }
+.guild-panel .r57-banner-wave { animation: r57-banner-wave 3s ease-in-out infinite; }
+
+/* R57-27: Shared action button press effect (all R57 panels) */
+@keyframes r57-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+
+/* R57-28: Snake evolution stage transition */
+@keyframes r57-stage-transition { 0% { transform: scale(1); filter: brightness(1); } 30% { transform: scale(1.2); filter: brightness(2); } 60% { transform: scale(0.9); filter: brightness(0.5); } 100% { transform: scale(1); filter: brightness(1); } }
+.evolution-panel .r57-stage-transition { animation: r57-stage-transition 0.8s ease-in-out; }
