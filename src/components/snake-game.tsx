@@ -217,6 +217,11 @@ import { dcGetState, dcResetState, dcGetLevel, dcAddXP, dcGetRank, dcGetReputati
 import { ckGetState, ckResetState, ckGetLevel, ckGetChefTitle, ckGetCoins, ckGetCuisines, ckGetAllRecipes, ckGetAllIngredients, ckGetStations, ckStartCooking, ckGetDailyChallenge, ckCompleteDailyChallenge, ckGetAchievements, ckGetAllAchievements, ckCheckAchievement, ckGetUnlockedAchievements, ckGetStats, ckGetComboInfo, ckGetCurrentComboMultiplier, ckUpgradeStation, ckGetDailyMarket, ckBuyIngredient, ckGetOpponents, ckStartCompetition, ckGetCompetitionRecord, ckGetHint } from '@/lib/cooking-academy-wire'
 import { adGetState, adResetState, adGetLevel, adAddXP, adGetSites, adGetDailyDigSite, adClaimDailyBonus, adStartDig, adDig, adGetArtifacts, adStartRestoration, adGetRestorationPhase, adStartExpedition, adGetExpedition, adGetTools, adUpgradeTool, adGetResearchTopics, adStartResearch, adGetExhibits, adGetMuseumStats, adGetStats, adGetRivals, adGetJournal, adGetHint, adGetCoins, adGetPreservationScore, adGetSelectedTool, adSelectTool } from '@/lib/archaeology-dig-wire'
 import { mfGetState, mfResetState, mfGetLevel, mfAddXP, mfGetCareerStats, mfGetBandCoins, mfGetAllGenres, mfGetAllSongs, mfGetAllStages, mfGetBand, mfCreateBand, mfGetBandSkills, mfGetFanCount, mfGetSetlist, mfStartPerformance, mfGetPerformanceState, mfGetReputation, mfGetDailyGig, mfCompleteDailyGig, mfGetAllAchievements, mfCheckAchievement, mfGetUnlockedAchievements, mfGetTourState, mfGetEquipmentDef, mfGetMerchBooth, mfGetReviews, mfGetHint } from '@/lib/music-festival-wire'
+// Round 63: Fishing Harbor, Elemental Forge, Safari Expedition, Neon City
+import { fhGetState, fhResetState, fhGetLevel, fhAddXP, fhGetXpProgress, fhGetCoins, fhGetLocations, fhGetAllFishSpecies, fhGetBaits, fhGetRods, fhCastRod, fhReelIn, fhGetCatchResult, fhGetCurrentBait, fhSetBait, fhBuyBait, fhGetCurrentRod, fhEquipRod, fhGetWeather, fhGetWaterCondition, fhGetInventory, fhGetAquarium, fhGetEncyclopedia, fhDiscoveries, fhGetDailyChallenge, fhCompleteDaily, fhGetStreak, fhGetBestStreak, fhGetStats, fhGetAchievements, fhCheckAchievements, fhGetBestCatch, fhGetHint, fhGetFishByLocation, fhGetCurrentLocation, fhSetLocation, fhSellFish } from '@/lib/fishing-harbor-wire'
+import { efGetState, efResetState, efGetLevel, efAddXP, efGetXpProgress, efGetCoins, efGetElements, efGetElementMastery, efGetForgableItems, efGetItemsByCategory, efForgeItem, efGetForgeStations, efGetCurrentStation, efSetStation, efSetTemperature, efGetTemperature, efStartForge, efCancelForge, efGetActiveForge, efGetMaterials, efGetInventory, efBuyMaterial, efSellMaterial, efGetReactions, efTriggerReaction, efGetEnhancements, efEnhanceItem, efGetDailyChallenge, efCompleteDaily, efGetStreak, efGetBestStreak, efGetStats, efGetAchievements, efCheckAchievements, efGetHint, efGetOptimalTemperature } from '@/lib/elemental-forge-wire'
+import { sxGetState, sxResetState, sxGetLevel, sxAddXP, sxGetXpProgress, sxGetCoins, sxGetBiomes, sxGetAnimals, sxGetAnimalsByBiome, sxSpotAnimal, sxGetSpotted, sxStartExpedition, sxEndExpedition, sxGetExpeditionProgress, sxTakePhoto, sxGetPhotoGallery, sxGetBestPhotos, sxGetCameras, sxGetCurrentCamera, sxEquipCamera, sxUpgradeCamera, sxGetVehicles, sxGetCurrentVehicle, sxSetVehicle, sxGetGuides, sxGetCurrentGuide, sxHireGuide, sxGetWeather, sxAdvanceWeather, sxGetTimeOfDay, sxGetTracks, sxFollowTracks, sxIdentifyCall, sxGetEncyclopedia, sxDiscoveries, sxGetDailyChallenge, sxCompleteDaily, sxGetStreak, sxGetBestStreak, sxGetStats, sxGetAchievements, sxCheckAchievements, sxGetRunHistory, sxGetHint } from '@/lib/safari-expedition-wire'
+import { ncGetState, ncResetState, ncGetLevel, ncAddXP, ncGetXpProgress, ncGetCredits, ncGetDistricts, ncGetSystems, ncGetSystemsByDistrict, ncStartHack, ncBreachFirewall, ncDecrypt, ncExtractData, ncGetHackResult, ncAbortHack, ncGetCyberdecks, ncGetCurrentCyberdeck, ncEquipCyberdeck, ncGetSkills, ncGetSkillLevel, ncAddSkillXP, ncGetAugmentations, ncInstallAugmentation, ncUpgradeAugmentation, ncGetContacts, ncGetCurrentContact, ncHireContact, ncGetMarketItems, ncBuyItem, ncSellItem, ncGetReputation, ncGetFactionStanding, ncGetIntelligence, ncDecodeFragment, ncGetConspiracyProgress, ncGetDailyChallenge, ncCompleteDaily, ncGetStreak, ncGetBestStreak, ncGetStats, ncGetAchievements, ncCheckAchievements, ncGetRunHistory, ncGetHint, ncGetInventory, ncGetHackChance, ncGetLevelTitle } from '@/lib/neon-city-wire'
 import {
   Play,
   RotateCcw,
@@ -1047,6 +1052,11 @@ export default function SnakeGame() {
   const [showCookingPanel, setShowCookingPanel] = useState(false)
   const [showArchaeologyPanel, setShowArchaeologyPanel] = useState(false)
   const [showMusicFestivalPanel, setShowMusicFestivalPanel] = useState(false)
+  // Round 63: Fishing Harbor, Elemental Forge, Safari Expedition, Neon City panel states
+  const [showFishingHarborPanel, setShowFishingHarborPanel] = useState(false)
+  const [showElementalForgePanel, setShowElementalForgePanel] = useState(false)
+  const [showSafariExpeditionPanel, setShowSafariExpeditionPanel] = useState(false)
+  const [showNeonCityPanel, setShowNeonCityPanel] = useState(false)
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -8306,6 +8316,11 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowCookingPanel(!showCookingPanel)} variant="outline" className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-900/20 active:scale-95 transition-transform cooking-btn" title="Cooking Academy">🍳 Cooking</Button>
                     <Button onClick={() => setShowArchaeologyPanel(!showArchaeologyPanel)} variant="outline" className="border-amber-600/50 text-amber-400 hover:bg-amber-900/20 active:scale-95 transition-transform archaeology-btn" title="Archaeology Dig">🏛️ Archaeology</Button>
                     <Button onClick={() => setShowMusicFestivalPanel(!showMusicFestivalPanel)} variant="outline" className="border-pink-500/50 text-pink-300 hover:bg-pink-900/20 active:scale-95 transition-transform music-festival-btn" title="Music Festival">🎵 Music</Button>
+                    {/* Round 63: Fishing Harbor, Elemental Forge, Safari Expedition, Neon City Buttons */}
+                    <Button onClick={() => setShowFishingHarborPanel(!showFishingHarborPanel)} variant="outline" className="border-sky-500/50 text-sky-300 hover:bg-sky-900/20 active:scale-95 transition-transform fishing-harbor-btn" title="Fishing Harbor">🎣 Fishing</Button>
+                    <Button onClick={() => setShowElementalForgePanel(!showElementalForgePanel)} variant="outline" className="border-orange-500/50 text-orange-300 hover:bg-orange-900/20 active:scale-95 transition-transform elemental-forge-btn" title="Elemental Forge">🔥 Forge</Button>
+                    <Button onClick={() => setShowSafariExpeditionPanel(!showSafariExpeditionPanel)} variant="outline" className="border-lime-500/50 text-lime-300 hover:bg-lime-900/20 active:scale-95 transition-transform safari-expedition-btn" title="Safari Expedition">🦁 Safari</Button>
+                    <Button onClick={() => setShowNeonCityPanel(!showNeonCityPanel)} variant="outline" className="border-cyan-400/50 text-cyan-300 hover:bg-cyan-900/20 active:scale-95 transition-transform neon-city-btn" title="Neon City">🌃 Neon</Button>
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -15634,6 +15649,120 @@ export default function SnakeGame() {
               <div className="flex gap-1.5 mb-3"><button onClick={() => { mfStartPerformance(0); toast({ title: 'Performing!' }) }} className="flex-1 px-2 py-1.5 bg-pink-900/40 hover:bg-pink-800/50 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Perform</button><button onClick={() => { mfCreateBand('My Band'); toast({ title: 'Band created!' }) }} className="flex-1 px-2 py-1.5 bg-fuchsia-900/40 hover:bg-fuchsia-800/50 text-fuchsia-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Band</button><button onClick={() => { toast({ title: mfGetHint() || 'Studio!' }) }} className="flex-1 px-2 py-1.5 bg-violet-900/40 hover:bg-violet-800/50 text-violet-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Write</button><button onClick={() => { mfCompleteDailyGig(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r62-action-btn">Daily</button></div>
               <div className="text-[10px] text-pink-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({mfAch.filter((a: any) => a.unlocked).length}/{mfAch.length})</div>
               <div className="grid grid-cols-5 gap-1">{mfAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r62-achievement-item ${a.unlocked ? 'border-pink-400 bg-pink-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-pink-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 63: Fishing Harbor Panel */}
+      {showFishingHarborPanel && mounted && (() => {
+        const fhStats = fhGetStats()
+        const fhLocations = fhGetLocations()
+        const fhSpecies = fhGetAllFishSpecies()
+        const fhBaits = fhGetBaits()
+        const fhDaily = fhGetDailyChallenge()
+        const fhAch = fhGetAchievements()
+        const fhBest = fhGetBestCatch()
+        const fhWeather = fhGetWeather()
+        const fhWater = fhGetWaterCondition()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFishingHarborPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">🎣 Fishing Harbor</h3><button onClick={() => setShowFishingHarborPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{fhStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-sky-900/30 to-blue-900/30 rounded-lg border border-sky-500/20 r63-fh-stat"><div className="text-[9px] text-sky-300">{s.label}</div><div className="text-xs font-bold text-sky-200">{s.value}</div></div>))}</div>
+              <div className="text-[10px] text-sky-300 font-semibold mb-1">{fhWeather.emoji||'☀️'} {fhWeather.name||fhWeather} · {fhWater.emoji||'🌊'} {fhWater.name||fhWater} · Streak {fhGetStreak()}</div>
+              {fhBest && <div className="p-1.5 bg-gradient-to-br from-sky-800/30 to-blue-900/20 rounded-lg border border-sky-500/10 mb-2"><div className="text-[9px] font-bold text-sky-200">Best: {fhBest.name} ({fhBest.weight}kg)</div></div>}
+              <div className="text-[10px] text-sky-300 font-semibold uppercase tracking-wider mb-1.5">Locations ({(fhLocations||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">{(fhLocations||[]).slice(0,8).map((l: any, i: number) => (<div key={l.id||i} className={`p-1 rounded-lg border text-center r63-location-item ${l.unlocked ? 'border-sky-500/30 bg-sky-900/20' : 'border-slate-700/30 bg-slate-800/10'}`}><div className="text-[10px]">{l.emoji||'📍'}</div><div className="text-[5px] text-sky-300 truncate">{l.name||`L${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-sky-300 font-semibold uppercase tracking-wider mb-1.5">Species ({(fhSpecies||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">{(fhSpecies||[]).slice(0,8).map((f: any, i: number) => (<div key={f.id||i} className="p-1 rounded-lg border border-sky-500/20 bg-sky-900/10 text-center r63-fish-item"><div className="text-[8px]">{f.emoji||'🐟'}</div><div className="text-[5px] text-sky-300 truncate">{f.name||`F${i+1}`}</div><div className="text-[4px] text-sky-400">{f.rarity||'Common'}</div></div>))}</div>
+              {fhDaily && <div className="p-2 bg-gradient-to-br from-blue-900/30 to-sky-900/30 rounded-lg border border-blue-500/20 mb-3 r63-daily-card"><div className="text-[9px] font-bold text-blue-200">Daily: {fhDaily.title||'Special Catch'}</div><div className="text-[7px] text-blue-300/70">×{fhDaily.bonusMultiplier||2} bonus multiplier</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { fhCastRod(); toast({ title: 'Cast!' }) }} className="flex-1 px-2 py-1.5 bg-sky-900/40 hover:bg-sky-800/50 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Cast</button><button onClick={() => { fhReelIn(); toast({ title: 'Reeling!' }) }} className="flex-1 px-2 py-1.5 bg-blue-900/40 hover:bg-blue-800/50 text-blue-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Reel</button><button onClick={() => { fhBuyBait(0); toast({ title: 'Bought!' }) }} className="flex-1 px-2 py-1.5 bg-indigo-900/40 hover:bg-indigo-800/50 text-indigo-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Bait</button><button onClick={() => { fhCompleteDaily(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-teal-900/40 hover:bg-teal-800/50 text-teal-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Daily</button></div>
+              <div className="text-[10px] text-sky-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({fhAch.filter((a: any) => a.unlocked).length}/{fhAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{fhAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r63-achievement-item ${a.unlocked ? 'border-sky-400 bg-sky-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-sky-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 63: Elemental Forge Panel */}
+      {showElementalForgePanel && mounted && (() => {
+        const efStats = efGetStats()
+        const efElements = efGetElements()
+        const efItems = efGetForgableItems()
+        const efStations = efGetForgeStations()
+        const efDaily = efGetDailyChallenge()
+        const efAch = efGetAchievements()
+        const efActive = efGetActiveForge()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowElementalForgePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🔥 Elemental Forge</h3><button onClick={() => setShowElementalForgePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{efStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-lg border border-orange-500/20 r63-ef-stat"><div className="text-[9px] text-orange-300">{s.label}</div><div className="text-xs font-bold text-orange-200">{s.value}</div></div>))}</div>
+              {efActive && <div className="p-1.5 bg-gradient-to-br from-orange-800/30 to-red-900/20 rounded-lg border border-orange-500/10 mb-2"><div className="text-[9px] font-bold text-orange-200">Forging: {efActive.itemName||'Item'}</div><div className="text-[7px] text-orange-400">Temp: {efGetTemperature()}° · Optimal: {efGetOptimalTemperature()}°</div></div>}
+              <div className="text-[10px] text-orange-300 font-semibold uppercase tracking-wider mb-1.5">Elements ({(efElements||[]).length})</div>
+              <div className="grid grid-cols-6 gap-1 mb-2">{(efElements||[]).slice(0,6).map((e: any, i: number) => (<div key={e.id||i} className="p-1 rounded-lg border border-orange-500/20 bg-orange-900/10 text-center r63-element-item"><div className="text-[10px]">{e.emoji||'⚛️'}</div><div className="text-[4px] text-orange-300">Lv{efGetElementMastery(e.id||e.name||'')||0}</div></div>))}</div>
+              <div className="text-[10px] text-orange-300 font-semibold uppercase tracking-wider mb-1.5">Items ({(efItems||[]).length})</div>
+              <div className="grid grid-cols-2 gap-1 mb-3">{(efItems||[]).slice(0,4).map((item: any, i: number) => (<div key={item.id||i} className="p-1.5 bg-gradient-to-br from-orange-900/20 to-red-900/20 rounded-lg border border-orange-500/10 r63-item-item"><div className="text-[9px] font-bold text-orange-200">{item.name||`Item ${i+1}`}</div><div className="text-[7px] text-orange-400">{item.category||''} · {item.rarity||'Common'}</div></div>))}</div>
+              {efDaily && <div className="p-2 bg-gradient-to-br from-red-900/30 to-orange-900/30 rounded-lg border border-red-500/20 mb-3 r63-daily-card"><div className="text-[9px] font-bold text-red-200">Daily: {efDaily.title||'Special Forge'}</div><div className="text-[7px] text-red-300/70">Bonus materials available</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { efStartForge(0); toast({ title: 'Forging!' }) }} className="flex-1 px-2 py-1.5 bg-orange-900/40 hover:bg-orange-800/50 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Forge</button><button onClick={() => { efSetTemperature(1500); toast({ title: 'Temp set!' }) }} className="flex-1 px-2 py-1.5 bg-red-900/40 hover:bg-red-800/50 text-red-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Temp</button><button onClick={() => { efTriggerReaction(0); toast({ title: 'Reaction!' }) }} className="flex-1 px-2 py-1.5 bg-amber-900/40 hover:bg-amber-800/50 text-amber-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">React</button><button onClick={() => { efCompleteDaily(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-yellow-900/40 hover:bg-yellow-800/50 text-yellow-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Daily</button></div>
+              <div className="text-[10px] text-orange-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({efAch.filter((a: any) => a.unlocked).length}/{efAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{efAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r63-achievement-item ${a.unlocked ? 'border-orange-400 bg-orange-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-orange-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 63: Safari Expedition Panel */}
+      {showSafariExpeditionPanel && mounted && (() => {
+        const sxStats = sxGetStats()
+        const sxBiomes = sxGetBiomes()
+        const sxAnimals = sxGetAnimals()
+        const sxPhotos = sxGetBestPhotos()
+        const sxDaily = sxGetDailyChallenge()
+        const sxAch = sxGetAchievements()
+        const sxWeather = sxGetWeather()
+        const sxTime = sxGetTimeOfDay()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSafariExpeditionPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🦁 Safari Expedition</h3><button onClick={() => setShowSafariExpeditionPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{sxStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-lime-900/30 to-green-900/30 rounded-lg border border-lime-500/20 r63-sx-stat"><div className="text-[9px] text-lime-300">{s.label}</div><div className="text-xs font-bold text-lime-200">{s.value}</div></div>))}</div>
+              <div className="text-[10px] text-lime-300 font-semibold mb-1">{sxWeather.emoji||'☀️'} {sxWeather.name||sxWeather} · {sxTime.emoji||'🌅'} {sxTime.name||sxTime} · Streak {sxGetStreak()}</div>
+              <div className="text-[10px] text-lime-300 font-semibold uppercase tracking-wider mb-1.5">Biomes ({(sxBiomes||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-2">{(sxBiomes||[]).slice(0,8).map((b: any, i: number) => (<div key={b.id||i} className={`p-1 rounded-lg border text-center r63-biome-item ${b.unlocked ? 'border-lime-500/30 bg-lime-900/20' : 'border-slate-700/30 bg-slate-800/10'}`}><div className="text-[10px]">{b.emoji||'🌿'}</div><div className="text-[5px] text-lime-300 truncate">{b.name||`B${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-lime-300 font-semibold uppercase tracking-wider mb-1.5">Animals ({(sxAnimals||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-3">{(sxAnimals||[]).slice(0,8).map((a: any, i: number) => (<div key={a.id||i} className="p-1 rounded-lg border border-lime-500/20 bg-lime-900/10 text-center r63-animal-item"><div className="text-[8px]">{a.emoji||'🐾'}</div><div className="text-[5px] text-lime-300 truncate">{a.name||`A${i+1}`}</div><div className="text-[4px] text-lime-400">{a.rarity||'Common'}</div></div>))}</div>
+              {sxDaily && <div className="p-2 bg-gradient-to-br from-green-900/30 to-lime-900/30 rounded-lg border border-green-500/20 mb-3 r63-daily-card"><div className="text-[9px] font-bold text-green-200">Daily: {sxDaily.title||'Expedition'}</div><div className="text-[7px] text-green-300/70">×{sxDaily.bonusMultiplier||2} bonus multiplier</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { sxStartExpedition(); toast({ title: 'Expedition started!' }) }} className="flex-1 px-2 py-1.5 bg-lime-900/40 hover:bg-lime-800/50 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Explore</button><button onClick={() => { sxSpotAnimal(0); toast({ title: 'Spotted!' }) }} className="flex-1 px-2 py-1.5 bg-green-900/40 hover:bg-green-800/50 text-green-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Spot</button><button onClick={() => { sxTakePhoto(0); toast({ title: 'Photo taken!' }) }} className="flex-1 px-2 py-1.5 bg-emerald-900/40 hover:bg-emerald-800/50 text-emerald-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Photo</button><button onClick={() => { sxCompleteDaily(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-teal-900/40 hover:bg-teal-800/50 text-teal-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Daily</button></div>
+              <div className="text-[10px] text-lime-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({sxAch.filter((a: any) => a.unlocked).length}/{sxAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{sxAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r63-achievement-item ${a.unlocked ? 'border-lime-400 bg-lime-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-lime-400">{a.name||`A${i+1}`}</div></div>))}</div>
+            </div>
+          </div>
+        )
+      })()}
+      {/* Round 63: Neon City Panel */}
+      {showNeonCityPanel && mounted && (() => {
+        const ncStats = ncGetStats()
+        const ncDistricts = ncGetDistricts()
+        const ncSystems = ncGetSystems()
+        const ncSkills = ncGetSkills()
+        const ncDaily = ncGetDailyChallenge()
+        const ncAch = ncGetAchievements()
+        const ncRep = ncGetReputation()
+        const ncHack = ncGetHackResult()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNeonCityPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🌃 Neon City</h3><button onClick={() => setShowNeonCityPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-4 gap-1.5 mb-3">{ncStats.slice(0,4).map((s: any, i: number) => (<div key={i} className="p-2 bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-lg border border-cyan-400/20 r63-nc-stat"><div className="text-[9px] text-cyan-300">{s.label}</div><div className="text-xs font-bold text-cyan-200">{s.value}</div></div>))}</div>
+              <div className="text-[10px] text-cyan-300 font-semibold mb-1">Rep: {ncRep} · {ncGetLevelTitle()||'Runner'} · Streak {ncGetStreak()}</div>
+              {ncHack && <div className="p-1.5 bg-gradient-to-br from-cyan-800/30 to-purple-900/20 rounded-lg border border-cyan-500/10 mb-2"><div className="text-[9px] font-bold text-cyan-200">{ncHack.systemName||'System'} — {ncHack.phase||'Idle'}</div><div className="text-[7px] text-cyan-400">Chance: {Math.round((ncGetHackChance()||0)*100)}%</div></div>}
+              <div className="text-[10px] text-cyan-300 font-semibold uppercase tracking-wider mb-1.5">Districts ({(ncDistricts||[]).length})</div>
+              <div className="grid grid-cols-4 gap-1 mb-2">{(ncDistricts||[]).slice(0,8).map((d: any, i: number) => (<div key={d.id||i} className={`p-1 rounded-lg border text-center r63-district-item ${d.unlocked ? 'border-cyan-400/30 bg-cyan-900/20' : 'border-slate-700/30 bg-slate-800/10'}`}><div className="text-[10px]">{d.emoji||'🏙️'}</div><div className="text-[5px] text-cyan-300 truncate">{d.name||`D${i+1}`}</div></div>))}</div>
+              <div className="text-[10px] text-cyan-300 font-semibold uppercase tracking-wider mb-1.5">Skills ({(ncSkills||[]).length})</div>
+              <div className="grid grid-cols-6 gap-1 mb-3">{(ncSkills||[]).slice(0,6).map((s: any, i: number) => (<div key={s.id||i} className="p-1 rounded-lg border border-cyan-400/20 bg-cyan-900/10 text-center r63-skill-item"><div className="text-[8px]">{s.emoji||'⚡'}</div><div className="text-[4px] text-cyan-300">Lv{ncGetSkillLevel(s.id||s.name||'')}</div></div>))}</div>
+              {ncDaily && <div className="p-2 bg-gradient-to-br from-purple-900/30 to-cyan-900/30 rounded-lg border border-purple-500/20 mb-3 r63-daily-card"><div className="text-[9px] font-bold text-purple-200">Daily Run: {ncDaily.title||'Infiltration'}</div><div className="text-[7px] text-purple-300/70">×{ncDaily.bonusMultiplier||2} bonus credits</div></div>}
+              <div className="flex gap-1.5 mb-3"><button onClick={() => { ncStartHack(0); toast({ title: 'Hacking!' }) }} className="flex-1 px-2 py-1.5 bg-cyan-900/40 hover:bg-cyan-800/50 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Hack</button><button onClick={() => { ncBreachFirewall(); toast({ title: 'Breached!' }) }} className="flex-1 px-2 py-1.5 bg-purple-900/40 hover:bg-purple-800/50 text-purple-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Breach</button><button onClick={() => { ncExtractData(); toast({ title: 'Extracted!' }) }} className="flex-1 px-2 py-1.5 bg-blue-900/40 hover:bg-blue-800/50 text-blue-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Extract</button><button onClick={() => { ncCompleteDaily(); toast({ title: 'Daily done!' }) }} className="flex-1 px-2 py-1.5 bg-indigo-900/40 hover:bg-indigo-800/50 text-indigo-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r63-action-btn">Daily</button></div>
+              <div className="text-[10px] text-cyan-300 font-semibold uppercase tracking-wider mb-1.5">Achievements ({ncAch.filter((a: any) => a.unlocked).length}/{ncAch.length})</div>
+              <div className="grid grid-cols-5 gap-1">{ncAch.slice(0,10).map((a: any, i: number) => (<div key={a.id||i} className={`p-1 rounded-lg border text-center r63-achievement-item ${a.unlocked ? 'border-cyan-400 bg-cyan-900/20' : 'border-slate-700 bg-slate-800/10'}`}><div className="text-[7px] font-bold text-cyan-400">{a.name||`A${i+1}`}</div></div>))}</div>
             </div>
           </div>
         )

@@ -890,8 +890,7 @@ export function glUpdateSetting(key: keyof GuildSettings, value: unknown): boole
   const validKeys: (keyof GuildSettings)[] = ["isPublic", "joinRequirement", "levelRequirement", "memberLimit", "moto"];
   if (!validKeys.includes(key)) return false;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (guild.settings as any)[key] = value;
+  (guild.settings as Record<string, unknown>)[key] = value;
 
   if (key === "memberLimit") {
     guild.settings.memberLimit = clamp(guild.settings.memberLimit, 5, 30);

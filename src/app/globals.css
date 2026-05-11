@@ -7565,3 +7565,82 @@
 .music-festival-panel .r62-spotlight { animation: r62-spotlight 3s ease-in-out infinite; }
 @keyframes r62-equalizer { 0%,100% { height: 4px; } 50% { height: 16px; } }
 .music-festival-panel .r62-equalizer { animation: r62-equalizer 0.8s ease-in-out infinite; }
+
+/* === Round 63: Fishing Harbor Animations === */
+@keyframes r63-fh-stat { 0% { opacity:0; transform: translateY(-8px); } 100% { opacity:1; transform: translateY(0); } }
+.fishing-harbor-panel .r63-fh-stat { animation: r63-fh-stat 0.3s ease-out; }
+@keyframes r63-location-item { 0% { opacity:0; transform: scale(0.8); } 100% { opacity:1; transform: scale(1); } }
+.fishing-harbor-panel .r63-location-item { animation: r63-location-item 0.3s ease-out; }
+@keyframes r63-fish-item { 0% { opacity:0; transform: translateX(-12px); } 100% { opacity:1; transform: translateX(0); } }
+.fishing-harbor-panel .r63-fish-item { animation: r63-fish-item 0.35s ease-out; }
+@keyframes r63-cast-line { 0% { transform: translateY(0); opacity:1; } 100% { transform: translateY(20px); opacity:0; } }
+.fishing-harbor-panel .r63-cast-line { animation: r63-cast-line 0.5s ease-in infinite; }
+@keyframes r63-wave-sway { 0%,100% { transform: translateX(0); } 25% { transform: translateX(3px); } 75% { transform: translateX(-3px); } }
+.fishing-harbor-panel .r63-wave-sway { animation: r63-wave-sway 2s ease-in-out infinite; }
+@keyframes r63-bobber-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.fishing-harbor-panel .r63-bobber-float { animation: r63-bobber-float 1.5s ease-in-out infinite; }
+@keyframes r63-splash { 0% { transform: scale(0); opacity:1; } 100% { transform: scale(2); opacity:0; } }
+.fishing-harbor-panel .r63-splash { animation: r63-splash 0.6s ease-out; }
+@keyframes r63-reel-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.fishing-harbor-panel .r63-reel-spin { animation: r63-reel-spin 0.8s linear infinite; }
+/* Fishing Harbor infinite animations */
+@keyframes r63-water-shimmer { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.fishing-harbor-panel .r63-water-shimmer { animation: r63-water-shimmer 4s ease-in-out infinite; }
+@keyframes r63-fish-jump { 0%,80%,100% { transform: translateY(0) rotate(0deg); } 40% { transform: translateY(-15px) rotate(-10deg); } }
+.fishing-harbor-panel .r63-fish-jump { animation: r63-fish-jump 2.5s ease-in-out infinite; }
+
+/* === Round 63: Elemental Forge Animations === */
+@keyframes r63-ef-stat { 0% { opacity:0; transform: translateY(-8px); } 100% { opacity:1; transform: translateY(0); } }
+.elemental-forge-panel .r63-ef-stat { animation: r63-ef-stat 0.3s ease-out; }
+@keyframes r63-element-item { 0% { opacity:0; transform: rotateY(90deg); } 100% { opacity:1; transform: rotateY(0deg); } }
+.elemental-forge-panel .r63-element-item { animation: r63-element-item 0.35s ease-out; }
+@keyframes r63-item-item { 0% { opacity:0; transform: scale(0.7) rotate(-5deg); } 100% { opacity:1; transform: scale(1) rotate(0deg); } }
+.elemental-forge-panel .r63-item-item { animation: r63-item-item 0.35s ease-out; }
+@keyframes r63-forge-sparks { 0% { opacity:1; transform: translateY(0) scale(1); } 100% { opacity:0; transform: translateY(-20px) scale(0.3); } }
+.elemental-forge-panel .r63-forge-sparks { animation: r63-forge-sparks 0.4s ease-out infinite; }
+@keyframes r63-ember-rise { 0% { opacity:1; transform: translateY(0); } 100% { opacity:0; transform: translateY(-30px); } }
+.elemental-forge-panel .r63-ember-rise { animation: r63-ember-rise 1.2s ease-out infinite; }
+@keyframes r63-molten-glow { 0%,100% { box-shadow: 0 0 4px rgba(255,100,0,0.3); } 50% { box-shadow: 0 0 12px rgba(255,100,0,0.6); } }
+.elemental-forge-panel .r63-molten-glow { animation: r63-molten-glow 2s ease-in-out infinite; }
+@keyframes r63-hammer-strike { 0%,100% { transform: rotate(0deg); } 20% { transform: rotate(-30deg); } 40% { transform: rotate(10deg); } }
+.elemental-forge-panel .r63-hammer-strike { animation: r63-hammer-strike 0.6s ease-in-out infinite; }
+
+/* === Round 63: Safari Expedition Animations === */
+@keyframes r63-sx-stat { 0% { opacity:0; transform: translateY(-8px); } 100% { opacity:1; transform: translateY(0); } }
+.safari-expedition-panel .r63-sx-stat { animation: r63-sx-stat 0.3s ease-out; }
+@keyframes r63-biome-item { 0% { opacity:0; transform: scale(0.8); } 100% { opacity:1; transform: scale(1); } }
+.safari-expedition-panel .r63-biome-item { animation: r63-biome-item 0.3s ease-out; }
+@keyframes r63-animal-item { 0% { opacity:0; transform: translateX(-12px); } 100% { opacity:1; transform: translateX(0); } }
+.safari-expedition-panel .r63-animal-item { animation: r63-animal-item 0.35s ease-out; }
+@keyframes r63-camera-flash { 0% { opacity:1; } 100% { opacity:0; } }
+.safari-expedition-panel .r63-camera-flash { animation: r63-camera-flash 0.3s ease-out; }
+@keyframes r63-binoculars { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+.safari-expedition-panel .r63-binoculars { animation: r63-binoculars 2s ease-in-out infinite; }
+@keyframes r63-animal-run { 0% { transform: translateX(-20px); } 100% { transform: translateX(20px); } }
+.safari-expedition-panel .r63-animal-run { animation: r63-animal-run 1.5s ease-in-out infinite alternate; }
+@keyframes r63-grass-sway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.safari-expedition-panel .r63-grass-sway { animation: r63-grass-sway 2.5s ease-in-out infinite; }
+
+/* === Round 63: Neon City Animations === */
+@keyframes r63-nc-stat { 0% { opacity:0; transform: translateY(-8px); } 100% { opacity:1; transform: translateY(0); } }
+.neon-city-panel .r63-nc-stat { animation: r63-nc-stat 0.3s ease-out; }
+@keyframes r63-district-item { 0% { opacity:0; transform: scale(0.8); } 100% { opacity:1; transform: scale(1); } }
+.neon-city-panel .r63-district-item { animation: r63-district-item 0.3s ease-out; }
+@keyframes r63-skill-item { 0% { opacity:0; transform: scale(0.7); } 100% { opacity:1; transform: scale(1); } }
+.neon-city-panel .r63-skill-item { animation: r63-skill-item 0.25s ease-out; }
+@keyframes r63-neon-pulse { 0%,100% { text-shadow: 0 0 4px currentColor; } 50% { text-shadow: 0 0 16px currentColor, 0 0 32px currentColor; } }
+.neon-city-panel .r63-neon-pulse { animation: r63-neon-pulse 2s ease-in-out infinite; }
+@keyframes r63-glitch { 0%,100% { transform: translate(0); } 20% { transform: translate(-2px, 1px); } 40% { transform: translate(2px, -1px); } 60% { transform: translate(-1px, -2px); } 80% { transform: translate(1px, 2px); } }
+.neon-city-panel .r63-glitch { animation: r63-glitch 0.3s ease-in-out infinite; }
+@keyframes r63-data-stream { 0% { transform: translateY(-100%); opacity:0; } 10% { opacity:1; } 90% { opacity:1; } 100% { transform: translateY(100%); opacity:0; } }
+.neon-city-panel .r63-data-stream { animation: r63-data-stream 2s linear infinite; }
+@keyframes r63-scan-line { 0% { top: -2px; } 100% { top: 100%; } }
+.neon-city-panel .r63-scan-line { animation: r63-scan-line 3s linear infinite; }
+@keyframes r63-cyber-glow { 0%,100% { box-shadow: 0 0 4px rgba(0,255,255,0.2); } 50% { box-shadow: 0 0 16px rgba(0,255,255,0.5), 0 0 32px rgba(128,0,255,0.3); } }
+.neon-city-panel .r63-cyber-glow { animation: r63-cyber-glow 2.5s ease-in-out infinite; }
+@keyframes r63-action-btn { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+.fishing-harbor-panel .r63-action-btn, .elemental-forge-panel .r63-action-btn, .safari-expedition-panel .r63-action-btn, .neon-city-panel .r63-action-btn { animation: r63-action-btn 0.15s ease-out; }
+@keyframes r63-achievement-item { 0% { opacity:0; transform: scale(0.6); } 100% { opacity:1; transform: scale(1); } }
+.fishing-harbor-panel .r63-achievement-item, .elemental-forge-panel .r63-achievement-item, .safari-expedition-panel .r63-achievement-item, .neon-city-panel .r63-achievement-item { animation: r63-achievement-item 0.3s ease-out; }
+@keyframes r63-daily-card { 0%,100% { border-color: rgba(99,102,241,0.2); } 50% { border-color: rgba(99,102,241,0.5); } }
+.fishing-harbor-panel .r63-daily-card, .elemental-forge-panel .r63-daily-card, .safari-expedition-panel .r63-daily-card, .neon-city-panel .r63-daily-card { animation: r63-daily-card 3s ease-in-out infinite; }

@@ -1321,7 +1321,7 @@ export function ckGetDailyMarket(): MarketItem[] {
   const seed = ckSimpleHash(today);
   const items: MarketItem[] = [];
   const shuffledIngredients = [...CK_INGREDIENTS].sort(() => {
-    seed + 1;
+    void seed;
     return Math.random() - 0.5;
   });
   const dailyItems = shuffledIngredients.slice(0, 15);
