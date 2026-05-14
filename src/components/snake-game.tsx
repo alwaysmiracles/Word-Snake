@@ -456,10 +456,14 @@ import useReaperGamble from '@/lib/reaper-gamble-wire'
 import useQuartzCraft from '@/lib/quartz-craft-wire'
 import useSkyValkyrie from '@/lib/sky-valkyrie-wire'
 import useWitchCoven from '@/lib/witch-coven-wire'
-import useRavenTower from '@/lib/raven-tower-wire'
 import useNetherWorld from '@/lib/nether-world-wire'
 import useDragonRider from '@/lib/dragon-rider-wire'
 import useVampireLair from '@/lib/vampire-lair-wire'
+// Round 74: Phoenix Watch, Star Crusader, Thunder Nest, Warp Lane
+import usePhoenixWatch from '@/lib/phoenix-watch-wire'
+import useStarCrusader from '@/lib/star-crusader-wire'
+import useThunderNest from '@/lib/thunder-nest-wire'
+import useWarpLane from '@/lib/warp-lane-wire'
 
 import {
   Play,
@@ -1529,10 +1533,15 @@ export default function SnakeGame() {
   const [showQuartzCraftPanel, setShowQuartzCraftPanel] = useState(false)
   const [showSkyValkyriePanel, setShowSkyValkyriePanel] = useState(false)
   const [showWitchCovenPanel, setShowWitchCovenPanel] = useState(false)
-  const [showRavenTowerPanel, setShowRavenTowerPanel] = useState(false)
+  // r74 duplicate removed — showRavenTowerPanel already declared above (line 1454)
   const [showNetherWorldPanel, setShowNetherWorldPanel] = useState(false)
   const [showDragonRiderPanel, setShowDragonRiderPanel] = useState(false)
   const [showVampireLairPanel, setShowVampireLairPanel] = useState(false)
+  // Round 74: Phoenix Watch, Star Crusader, Thunder Nest, Warp Lane panel states
+  const [showPhoenixWatchPanel, setShowPhoenixWatchPanel] = useState(false)
+  const [showStarCrusaderPanel, setShowStarCrusaderPanel] = useState(false)
+  const [showThunderNestPanel, setShowThunderNestPanel] = useState(false)
+  const [showWarpLanePanel, setShowWarpLanePanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1884,10 +1893,15 @@ export default function SnakeGame() {
   const qzAPI = useQuartzCraft()
   const skylAPI = useSkyValkyrie()
   const wcAPI = useWitchCoven()
-  const rvAPI = useRavenTower()
+  // rvAPI removed — using existing rtAPI from useRavenTower() at line 1819
   const nwAPI = useNetherWorld()
-  const drAPI = useDragonRider()
-  const vbAPI = useVampireLair()
+  const drgAPI = useDragonRider()
+  const vmpAPI = useVampireLair()
+  // Round 74 hooks
+  const pwAPI = usePhoenixWatch()
+  const crusAPI = useStarCrusader()
+  const thnAPI = useThunderNest()
+  const warpAPI = useWarpLane()
 
 
   // Easter egg active effects display state
@@ -9175,7 +9189,7 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowQuillArchivePanel(!showQuillArchivePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r68-qa-btn" title="Quill Archive">🪶 QuiArc</Button>
                     {/* Round 69: batch 6 wires */}
                     <Button onClick={() => setShowRainbowBridgePanel(!showRainbowBridgePanel)} variant="outline" className="border-rainbow-400/50 text-rainbow-200 hover:bg-rainbow-900/20 active:scale-95 transition-transform r69-rb-btn" title="Rainbow Bridge">🌈 RainBri</Button>
-                    <Button onClick={() => setShowRavenTowerPanel(!showRavenTowerPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r69-rt-btn" title="Raven Tower">🏰 RavTow</Button>
+                    {/* Raven Tower button moved to r74 section below */}
                     <Button onClick={() => setShowRosewoodManorPanel(!showRosewoodManorPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r69-rm-btn" title="Rosewood Manor">🏠 RosMan</Button>
                     <Button onClick={() => setShowRuneRiverPanel(!showRuneRiverPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r69-rr-btn" title="Rune River">🏞️ RunRiv</Button>
                     <Button onClick={() => setShowRuneSanctuaryPanel(!showRuneSanctuaryPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r69-rs-btn" title="Rune Sanctuary">🏛️ RunSan</Button>
@@ -9257,6 +9271,11 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowNetherWorldPanel(!showNetherWorldPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r74-nw-btn" title="Nether World">🌑 NetherWrld</Button>
                     <Button onClick={() => setShowDragonRiderPanel(!showDragonRiderPanel)} variant="outline" className="orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r74-dr-btn" title="Dragon Rider">🐉 DragonRdr</Button>
                     <Button onClick={() => setShowVampireLairPanel(!showVampireLairPanel)} variant="outline" className="border-rose-500/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r74-vb-btn" title="Vampire Lair">🧛 VampLair</Button>
+                    {/* Round 74: Phoenix Watch, Star Crusader, Thunder Nest, Warp Lane */}
+                    <Button onClick={() => setShowPhoenixWatchPanel(!showPhoenixWatchPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r74-pw-btn" title="Phoenix Watch">🔥 PhoeWatch</Button>
+                    <Button onClick={() => setShowStarCrusaderPanel(!showStarCrusaderPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r74-sc-btn" title="Star Crusader">⭐ StarCru</Button>
+                    <Button onClick={() => setShowThunderNestPanel(!showThunderNestPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r74-tn-btn" title="Thunder Nest">⚡ ThunNest</Button>
+                    <Button onClick={() => setShowWarpLanePanel(!showWarpLanePanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r74-wl-btn" title="Warp Lane">🌀 WarpLane</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -19427,23 +19446,7 @@ export default function SnakeGame() {
         )
       })()}
 
-      {showRavenTowerPanel && mounted && (() => {
-        const state = rtAPI
-        return (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRavenTowerPanel(false)}>
-            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🏰 Raven Tower</h3><button onClick={() => setShowRavenTowerPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
-              <div className="grid grid-cols-2 gap-1.5 mb-3">
-                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r69-rt-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
-                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r69-rt-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🏰</div></div>
-              </div>
-              <div className="flex gap-1.5 mb-3">
-                <button onClick={() => { toast({ title: 'Raven Tower reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rt-action">Reset</button>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
+      {/* Raven Tower panel moved to r74 section below */}
 
       {showRosewoodManorPanel && mounted && (() => {
         const state = rmAPI
@@ -20869,7 +20872,7 @@ export default function SnakeGame() {
       })()}
 
       {showRavenTowerPanel && mounted && (() => {
-        const rvState = rvAPI
+        const rvState = rtAPI
         return (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRavenTowerPanel(false)}>
             <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -20905,7 +20908,7 @@ export default function SnakeGame() {
       })()}
 
       {showDragonRiderPanel && mounted && (() => {
-        const drState = drAPI
+        const drState = drgAPI
         return (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDragonRiderPanel(false)}>
             <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -20923,7 +20926,7 @@ export default function SnakeGame() {
       })()}
 
       {showVampireLairPanel && mounted && (() => {
-        const vbState = vbAPI
+        const vbState = vmpAPI
         return (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVampireLairPanel(false)}>
             <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -20939,3 +20942,87 @@ export default function SnakeGame() {
           </div>
         )
       })()}
+
+      {showPhoenixWatchPanel && mounted && (() => {
+        const pwState = pwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPhoenixWatchPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🔥 Phoenix Watch</h3><button onClick={() => setShowPhoenixWatchPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r74-pw-stat"><div className="text-[9px] text-amber-300">Guardian Lv</div><div className="text-xs font-bold text-amber-200">{typeof pwState === 'object' && pwState !== null ? (pwState.guardianLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r74-pw-stat"><div className="text-[9px] text-amber-300">Rebirths</div><div className="text-xs font-bold text-amber-200">{typeof pwState === 'object' && pwState !== null ? (pwState.rebirthCount || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r74-pw-stat"><div className="text-[9px] text-amber-300">Towers</div><div className="text-xs font-bold text-amber-200">{typeof pwState === 'object' && pwState !== null ? ((pwState.watchtowers || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r74-pw-stat"><div className="text-[9px] text-amber-300">Feathers</div><div className="text-xs font-bold text-amber-200">{typeof pwState === 'object' && pwState !== null ? ((pwState.feathers || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Phoenix Watch reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-pw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showStarCrusaderPanel && mounted && (() => {
+        const scState = crusAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStarCrusaderPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">⭐ Star Crusader</h3><button onClick={() => setShowStarCrusaderPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r74-sc-stat"><div className="text-[9px] text-cyan-300">Crusader Lv</div><div className="text-xs font-bold text-cyan-200">{typeof scState === 'object' && scState !== null ? (scState.crusaderLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r74-sc-stat"><div className="text-[9px] text-cyan-300">Fleet</div><div className="text-xs font-bold text-cyan-200">{typeof scState === 'object' && scState !== null ? ((scState.fleet || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r74-sc-stat"><div className="text-[9px] text-cyan-300">Systems</div><div className="text-xs font-bold text-cyan-200">{typeof scState === 'object' && scState !== null ? ((scState.exploredSystems || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r74-sc-stat"><div className="text-[9px] text-cyan-300">Credits</div><div className="text-xs font-bold text-cyan-200">{typeof scState === 'object' && scState !== null ? (scState.credits || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Star Crusader reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-sc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showThunderNestPanel && mounted && (() => {
+        const tnState = thnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowThunderNestPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">⚡ Thunder Nest</h3><button onClick={() => setShowThunderNestPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r74-tn-stat"><div className="text-[9px] text-yellow-300">Master Lv</div><div className="text-xs font-bold text-yellow-200">{typeof tnState === 'object' && tnState !== null ? (tnState.masterLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r74-tn-stat"><div className="text-[9px] text-yellow-300">Eagles</div><div className="text-xs font-bold text-yellow-200">{typeof tnState === 'object' && tnState !== null ? ((tnState.eagles || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r74-tn-stat"><div className="text-[9px] text-yellow-300">Nests</div><div className="text-xs font-bold text-yellow-200">{typeof tnState === 'object' && tnState !== null ? ((tnState.nests || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r74-tn-stat"><div className="text-[9px] text-yellow-300">Prey</div><div className="text-xs font-bold text-yellow-200">{typeof tnState === 'object' && tnState !== null ? (tnState.totalPrey || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Thunder Nest reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-tn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showWarpLanePanel && mounted && (() => {
+        const wlState = warpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWarpLanePanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🌀 Warp Lane</h3><button onClick={() => setShowWarpLanePanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r74-wl-stat"><div className="text-[9px] text-violet-300">Racer Lv</div><div className="text-xs font-bold text-violet-200">{typeof wlState === 'object' && wlState !== null ? (wlState.racerLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r74-wl-stat"><div className="text-[9px] text-violet-300">Ships</div><div className="text-xs font-bold text-violet-200">{typeof wlState === 'object' && wlState !== null ? ((wlState.ships || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r74-wl-stat"><div className="text-[9px] text-violet-300">Wins</div><div className="text-xs font-bold text-violet-200">{typeof wlState === 'object' && wlState !== null ? (wlState.totalWins || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r74-wl-stat"><div className="text-[9px] text-violet-300">Credits</div><div className="text-xs font-bold text-violet-200">{typeof wlState === 'object' && wlState !== null ? (wlState.credits || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Warp Lane reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-wl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+    </div>
+  )
+}

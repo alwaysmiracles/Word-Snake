@@ -7906,3 +7906,67 @@
 .r73-potion-brew { animation: r73-potion-brew 2s ease-in-out infinite; }
 @keyframes r73-moon-glow { 0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.3); } 50% { box-shadow: 0 0 28px rgba(168,85,247,0.6), 0 0 56px rgba(147,51,234,0.2); } }
 .r73-moon-glow { animation: r73-moon-glow 3s ease-in-out infinite; }
+
+/* Round 74: Phoenix Watch animations (7) */
+@keyframes r74-pw-stat { from { opacity: 0; transform: translateY(8px) rotate(-3deg); } to { opacity: 1; transform: translateY(0) rotate(0deg); } }
+.r74-pw-stat { animation: r74-pw-stat 0.4s ease-out; }
+@keyframes r74-pw-btn { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+.r74-pw-btn { animation: r74-pw-btn 0.25s ease-out; }
+@keyframes r74-pw-action { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.r74-pw-action { animation: r74-pw-action 0.3s ease-out; }
+@keyframes r74-pw-achievement { from { opacity: 0; transform: rotate(-180deg) scale(0); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r74-pw-achievement { animation: r74-pw-achievement 0.5s ease-out; }
+@keyframes r74-phoenix-rebirth { 0%, 100% { filter: brightness(1) saturate(1); } 25% { filter: brightness(1.5) saturate(1.3); } 50% { filter: brightness(2) saturate(0.5); } 75% { filter: brightness(1.2) saturate(1.1); } }
+.r74-phoenix-rebirth { animation: r74-phoenix-rebirth 2s ease-in-out infinite; }
+@keyframes r74-flame-guard { 0%, 100% { box-shadow: 0 0 8px rgba(245,158,11,0.3); } 50% { box-shadow: 0 0 24px rgba(245,158,11,0.6), 0 0 48px rgba(217,119,6,0.2); } }
+.r74-flame-guard { animation: r74-flame-guard 2.5s ease-in-out infinite; }
+@keyframes r74-feather-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(20px) rotate(360deg); opacity: 0; } }
+.r74-feather-fall { animation: r74-feather-fall 3s ease-in-out infinite; }
+
+/* Round 74: Star Crusader animations (7) */
+@keyframes r74-sc-stat { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.r74-sc-stat { animation: r74-sc-stat 0.4s ease-out; }
+@keyframes r74-sc-btn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+.r74-sc-btn { animation: r74-sc-btn 0.25s ease-out; }
+@keyframes r74-sc-action { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.r74-sc-action { animation: r74-sc-action 0.3s ease-out; }
+@keyframes r74-sc-achievement { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.r74-sc-achievement { animation: r74-sc-achievement 0.5s ease-out; }
+@keyframes r74-star-cruise { 0%, 100% { filter: hue-rotate(0deg) brightness(1); } 33% { filter: hue-rotate(20deg) brightness(1.1); } 66% { filter: hue-rotate(-15deg) brightness(0.95); } }
+.r74-star-cruise { animation: r74-star-cruise 4s ease-in-out infinite; }
+@keyframes r74-warp-jump { 0% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(1.5); opacity: 0.5; } 100% { transform: scaleX(1); opacity: 1; } }
+.r74-warp-jump { animation: r74-warp-jump 1.5s ease-in-out infinite; }
+@keyframes r74-shield-pulse { 0%, 100% { box-shadow: 0 0 6px rgba(6,182,212,0.2); } 50% { box-shadow: 0 0 20px rgba(6,182,212,0.5), 0 0 40px rgba(8,145,178,0.15); } }
+.r74-shield-pulse { animation: r74-shield-pulse 2s ease-in-out infinite; }
+
+/* Round 74: Thunder Nest animations (7) */
+@keyframes r74-tn-stat { from { opacity: 0; transform: translateY(6px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.r74-tn-stat { animation: r74-tn-stat 0.4s ease-out; }
+@keyframes r74-tn-btn { from { opacity: 0; transform: rotate(-5deg) scale(0.8); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r74-tn-btn { animation: r74-tn-btn 0.3s ease-out; }
+@keyframes r74-tn-action { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+.r74-tn-action { animation: r74-tn-action 0.3s ease-out; }
+@keyframes r74-tn-achievement { from { opacity: 0; transform: scale(0.5) rotate(10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r74-tn-achievement { animation: r74-tn-achievement 0.5s ease-out; }
+@keyframes r74-lightning-strike { 0%, 90%, 100% { opacity: 0; } 92% { opacity: 1; } 94% { opacity: 0; } 96% { opacity: 0.7; } 98% { opacity: 0; } }
+.r74-lightning-strike { animation: r74-lightning-strike 3s ease-in-out infinite; }
+@keyframes r74-storm-gather { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(0.7); } }
+.r74-storm-gather { animation: r74-storm-gather 2s ease-in-out infinite; }
+@keyframes r74-eagle-soar { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+.r74-eagle-soar { animation: r74-eagle-soar 3s ease-in-out infinite; }
+
+/* Round 74: Warp Lane animations (7) */
+@keyframes r74-wl-stat { from { opacity: 0; transform: scale(0.8) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.r74-wl-stat { animation: r74-wl-stat 0.35s ease-out; }
+@keyframes r74-wl-btn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+.r74-wl-btn { animation: r74-wl-btn 0.3s ease-out; }
+@keyframes r74-wl-action { from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); } }
+.r74-wl-action { animation: r74-wl-action 0.25s ease-out; }
+@keyframes r74-wl-achievement { from { opacity: 0; transform: rotate(90deg) scale(0); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r74-wl-achievement { animation: r74-wl-achievement 0.5s ease-out; }
+@keyframes r74-hyperspace { 0% { filter: blur(0px) brightness(1); } 50% { filter: blur(2px) brightness(1.5); } 100% { filter: blur(0px) brightness(1); } }
+.r74-hyperspace { animation: r74-hyperspace 2s ease-in-out infinite; }
+@keyframes r74-nebula-drift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.r74-nebula-drift { animation: r74-nebula-drift 5s ease-in-out infinite; }
+@keyframes r74-warp-tunnel { 0% { transform: perspective(100px) rotateX(0deg); } 100% { transform: perspective(100px) rotateX(360deg); } }
+.r74-warp-tunnel { animation: r74-warp-tunnel 4s linear infinite; }
