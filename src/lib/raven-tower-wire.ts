@@ -1,1917 +1,2740 @@
 /**
- * Raven Tower Wire — A dark gothic tower mini-game for Word Snake
+ * Raven Tower Wire (渡鸦塔) — A dark gothic tower defense game
  *
- * Command 35 ravens across 7 dark arts, explore 8 tower floors,
- * collect 30 shadow/feather materials, build 25 tower structures,
- * unlock 22 raven abilities, discover 15 legendary dark relics,
- * face 12 tower events, and ascend through 8 titles from Raven
- * Fledgling to Tower Deity — backed by a Zustand store with
- * persist middleware.
+ * 8 tower floors (Dungeon → Observatory), 10 raven types, 8 traps,
+ * 4 wall upgrades, 12 dark magic spells, 12 monster types, boss
+ * encounters every 5 waves, 15 achievements, Tower Keeper levels 1–45,
+ * and daily dark assault challenges.
  *
- * Storage key: raven-tower-wire
- * Prefix: rt / RT_
+ * All named exports use the `rv` prefix.
+ * Default export: `useRavenTower(initialState?)` — uses only `useState`.
  */
 
-import { useMemo } from 'react'
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
 // SECTION 1: TYPES & INTERFACES
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
 
-export type RtDarkArt =
-  | 'shadowmancy'
-  | 'bloodmagic'
-  | 'soulbinding'
-  | 'cursecraft'
-  | 'necromancy'
-  | 'darkalchemy'
-  | 'voidweaving'
+export type RavenType =
+  | 'shadow'
+  | 'storm'
+  | 'fire'
+  | 'ice'
+  | 'death'
+  | 'blood'
+  | 'void'
+  | 'bone'
+  | 'hex'
+  | 'soul';
 
-export type RtRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+export type FloorId =
+  | 'dungeon'
+  | 'catacombs'
+  | 'blood_cellar'
+  | 'soul_gallery'
+  | 'curse_vault'
+  | 'necropolis'
+  | 'alchemy_spire'
+  | 'observatory';
 
-export type RtTitleId =
-  | 'title_raven_fledgling'
-  | 'title_shadow_apprentice'
-  | 'title_dark_flockmaster'
-  | 'title_curse_weaver'
-  | 'title_tower_keeper'
-  | 'title_soul_archon'
-  | 'title_abyss_lord'
-  | 'title_tower_deity'
+export type TrapType =
+  | 'shadow_snare'
+  | 'bone_spike'
+  | 'blood_pit'
+  | 'frost_field'
+  | 'hex_circle'
+  | 'void_rift'
+  | 'fire_brazier'
+  | 'soul_chain';
 
-export interface RtDarkArtDef {
-  readonly id: RtDarkArt
-  readonly name: string
-  readonly color: string
-  readonly description: string
+export type WallType =
+  | 'stone'
+  | 'iron'
+  | 'obsidian'
+  | 'void_barrier';
+
+export type SpellId =
+  | 'shadow_veil'
+  | 'blood_boil'
+  | 'frost_nova'
+  | 'fire_storm'
+  | 'death_grip'
+  | 'soul_drain'
+  | 'void_blast'
+  | 'bone_army'
+  | 'hex_bomb'
+  | 'storm_call'
+  | 'dark_heal'
+  | 'raven_swarm';
+
+export type MonsterType =
+  | 'goblin'
+  | 'skeleton'
+  | 'ghost'
+  | 'demon'
+  | 'vampire'
+  | 'wraith'
+  | 'troll'
+  | 'lich'
+  | 'gargoyle'
+  | 'banshee'
+  | 'shadow_wyrm'
+  | 'tower_boss';
+
+export type AchievementId =
+  | 'first_blood'
+  | 'wave_10'
+  | 'wave_25'
+  | 'wave_50'
+  | 'first_boss_kill'
+  | 'all_floors_unlocked'
+  | 'all_ravens_unlocked'
+  | 'master_of_shadows'
+  | 'ice_cold_killer'
+  | 'fire_storm_master'
+  | 'dark_healer'
+  | 'trap_lord'
+  | 'wall_of_steel'
+  | 'keeper_level_30'
+  | 'daily_assault_victor';
+
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
+export interface RavenDef {
+  readonly id: RavenType;
+  readonly name: string;
+  readonly description: string;
+  readonly element: string;
+  readonly baseDamage: number;
+  readonly baseHealth: number;
+  readonly speed: number;
+  readonly range: number;
+  readonly unlockLevel: number;
+  readonly abilityName: string;
+  readonly abilityDescription: string;
+  readonly cooldown: number;
+  readonly rarity: Rarity;
 }
 
-export interface RtRavenSpecies {
-  readonly id: string
-  readonly name: string
-  readonly darkArt: RtDarkArt
-  readonly rarity: RtRarity
-  readonly shadowPower: number
-  readonly bloodPower: number
-  readonly agility: number
-  readonly description: string
-  readonly abilities: string[]
+export interface FloorDef {
+  readonly id: FloorId;
+  readonly name: string;
+  readonly description: string;
+  readonly depth: number;
+  readonly unlockLevel: number;
+  readonly baseHp: number;
+  readonly enemiesPerWave: number;
+  readonly monsterPool: readonly MonsterType[];
+  readonly bossType: MonsterType;
+  readonly bgGradient: string;
 }
 
-export interface RtRavenInstance {
-  readonly id: string
-  speciesId: string
-  name: string
-  level: number
-  xp: number
-  shadowPower: number
-  bloodPower: number
-  agility: number
-  loyalty: number
-  hunger: number
-  boundAt: number
+export interface TrapDef {
+  readonly id: TrapType;
+  readonly name: string;
+  readonly description: string;
+  readonly damage: number;
+  readonly slowFactor: number;
+  readonly duration: number;
+  readonly cost: number;
+  readonly unlockLevel: number;
+  readonly icon: string;
 }
 
-export interface RtFloorDef {
-  readonly id: string
-  readonly name: string
-  readonly description: string
-  readonly depth: number
-  readonly dangerLevel: number
-  readonly requiredTitle: RtTitleId
-  readonly darkArt: RtDarkArt
-  readonly bgGradient: string
-  readonly ambientColor: string
+export interface WallDef {
+  readonly id: WallType;
+  readonly name: string;
+  readonly description: string;
+  readonly hp: number;
+  readonly cost: number;
+  readonly unlockLevel: number;
+  readonly icon: string;
 }
 
-export interface RtMaterialDef {
-  readonly id: string
-  readonly name: string
-  readonly emoji: string
-  readonly type: 'shadow' | 'feather' | 'bone' | 'relic_shard' | 'essence'
-  readonly rarity: RtRarity
-  readonly shadowBonus: number
-  readonly bloodBonus: number
-  readonly value: number
-  readonly description: string
+export interface SpellDef {
+  readonly id: SpellId;
+  readonly name: string;
+  readonly description: string;
+  readonly damage: number;
+  readonly manaCost: number;
+  readonly cooldown: number;
+  readonly aoeRadius: number;
+  readonly unlockLevel: number;
+  readonly icon: string;
 }
 
-export interface RtStructureDef {
-  readonly id: string
-  readonly name: string
-  readonly emoji: string
-  readonly category: 'raven_roost' | 'shadow_chamber' | 'blood_lab' | 'dark_altar' | 'relic_vault'
-  readonly maxLevel: number
-  readonly baseEffect: number
-  readonly effectPerLevel: number
-  readonly baseCost: number
-  readonly costMultiplier: number
-  readonly description: string
+export interface MonsterDef {
+  readonly id: MonsterType;
+  readonly name: string;
+  readonly description: string;
+  readonly baseHp: number;
+  readonly baseDamage: number;
+  readonly speed: number;
+  readonly armor: number;
+  readonly soulShardDrop: number;
+  readonly darkCrystalDrop: number;
+  readonly isBoss: boolean;
+  readonly icon: string;
 }
 
-export interface RtStructureInstance {
-  readonly id: string
-  structureDefId: string
-  level: number
-  builtAt: number
+export interface AchievementDef {
+  readonly id: AchievementId;
+  readonly name: string;
+  readonly description: string;
+  readonly icon: string;
+  readonly reward: { readonly darkCrystals: number; readonly soulShards: number };
 }
 
-export interface RtAbilityDef {
-  readonly id: string
-  readonly name: string
-  readonly emoji: string
-  readonly darkArt: RtDarkArt
-  readonly type: 'active' | 'passive'
-  readonly rarity: RtRarity
-  readonly energyCost: number
-  readonly cooldown: number
-  readonly power: number
-  readonly description: string
+export interface DeployedRaven {
+  readonly instanceId: string;
+  readonly ravenType: RavenType;
+  readonly level: number;
+  readonly currentHp: number;
+  readonly maxHp: number;
+  readonly currentCooldown: number;
+  readonly kills: number;
 }
 
-export interface RtAchievementDef {
-  readonly id: string
-  readonly name: string
-  readonly emoji: string
-  readonly description: string
-  readonly condition: string
-  readonly reward: { gold: number; renown: number }
+export interface DeployedTrap {
+  readonly instanceId: string;
+  readonly trapType: TrapType;
+  readonly remainingDuration: number;
+  readonly charges: number;
+  readonly position: number;
 }
 
-export interface RtTitleDef {
-  readonly id: RtTitleId
-  readonly name: string
-  readonly emoji: string
-  readonly minRenown: number
-  readonly minRavens: number
-  readonly description: string
+export interface WaveState {
+  readonly waveNumber: number;
+  readonly enemiesRemaining: number;
+  readonly isBossWave: boolean;
+  readonly currentFloor: FloorId;
+  readonly isComplete: boolean;
 }
 
-export interface RtRelicDef {
-  readonly id: string
-  readonly name: string
-  readonly emoji: string
-  readonly rarity: RtRarity
-  readonly darkArt: RtDarkArt
-  readonly shadowBoost: number
-  readonly bloodBoost: number
-  readonly agilityBoost: number
-  readonly value: number
-  readonly description: string
+export interface DailyAssault {
+  readonly date: string;
+  readonly isActive: boolean;
+  readonly wavesCompleted: number;
+  readonly totalWaves: number;
+  readonly bonusMultiplier: number;
+  readonly isComplete: boolean;
+  readonly darkCrystalsEarned: number;
+  readonly soulShardsEarned: number;
 }
 
-export interface RtEventDef {
-  readonly id: string
-  readonly name: string
-  readonly emoji: string
-  readonly durationTurns: number
-  readonly effectType: 'buff' | 'debuff' | 'special'
-  readonly effectDescription: string
-  readonly description: string
+export interface RavenTowerState {
+  readonly darkCrystals: number;
+  readonly soulShards: number;
+  readonly mana: number;
+  readonly maxMana: number;
+  readonly keeperLevel: number;
+  readonly keeperXp: number;
+  readonly xpToNextLevel: number;
+  readonly currentFloor: FloorId;
+  readonly floorLevels: Readonly<Record<FloorId, number>>;
+  readonly unlockedRavens: readonly RavenType[];
+  readonly unlockedSpells: readonly SpellId[];
+  readonly unlockedFloors: readonly FloorId[];
+  readonly unlockedTraps: readonly TrapType[];
+  readonly unlockedWalls: readonly WallType[];
+  readonly achievements: readonly AchievementId[];
+  readonly deployedRavens: readonly DeployedRaven[];
+  readonly deployedTraps: readonly DeployedTrap[];
+  readonly currentWave: WaveState;
+  readonly totalKills: number;
+  readonly totalWavesCompleted: number;
+  readonly bossKills: number;
+  readonly highestWave: number;
+  readonly dailyAssault: DailyAssault;
+  readonly wallType: WallType;
+  readonly wallHp: number;
+  readonly wallMaxHp: number;
+  readonly shieldAmount: number;
 }
 
-export interface RtStoreState {
-  ravens: RtRavenInstance[]
-  floors: string[]
-  materials: { materialId: string; count: number }[]
-  structures: RtStructureInstance[]
-  abilities: string[]
-  achievements: string[]
-  relics: string[]
-  currentTitle: RtTitleId
-  gold: number
-  renown: number
-  totalBound: number
-  totalHarvested: number
-  totalBuilt: number
-  totalEventsFaced: number
-  activeEvent: RtEventDef | null
-  eventTurnsRemaining: number
-  activeFloor: string | null
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 2: CONSTANTS — FLOOR DEFINITIONS (8 floors)
+// ═══════════════════════════════════════════════════════════════════════════
 
-export interface RtStoreActions {
-  rtBindRaven: (speciesId: string) => boolean
-  rtReleaseRaven: (ravenId: string) => boolean
-  rtFeedRaven: (ravenId: string) => boolean
-  rtHarvestFeather: (ravenId: string) => boolean
-  rtBuildStructure: (structureDefId: string) => boolean
-  rtUpgradeStructure: (structureId: string) => boolean
-  rtExploreFloor: (floorId: string) => RtEventDef | null
-  rtCollectRelic: (relicId: string) => boolean
-  rtUnlockAbility: (abilityId: string) => boolean
-  rtUnlockTitle: (titleId: RtTitleId) => boolean
-  rtClaimAchievement: (achievementId: string) => boolean
-  rtTradeMaterial: (materialId: string, count: number) => number
-  rtEndEvent: () => void
-  rtResetEvent: () => void
-}
-
-export interface RtFullStore extends RtStoreState, RtStoreActions {}
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 2: COLOR THEME CONSTANTS (8 colors)
-// ═══════════════════════════════════════════════════════════════════
-
-export const RT_RAVEN_BLACK: string = '#1C1C1C'
-export const RT_SHADOW_PURPLE: string = '#4A0E4E'
-export const RT_MOONLIGHT_SILVER: string = '#C0C0C0'
-export const RT_BLOOD_RED: string = '#8B0000'
-export const RT_BONE_WHITE: string = '#FFFFF0'
-export const RT_MIDNIGHT_BLUE: string = '#191970'
-export const RT_DARK_GREEN: string = '#006400'
-export const RT_GOTHIC_GOLD: string = '#8B6914'
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 3: DARK ART DEFINITIONS (7 dark arts)
-// ═══════════════════════════════════════════════════════════════════
-
-export const RT_DARK_ARTS: readonly RtDarkArtDef[] = [
+export const RV_FLOOR_DEFS: readonly FloorDef[] = [
   {
-    id: 'shadowmancy',
-    name: 'Shadowmancy',
-    color: RT_RAVEN_BLACK,
-    description:
-      'The art of bending shadows to your will. Shadowmancy ravens can slip between darkness and light, striking from unseen angles.',
-  },
-  {
-    id: 'bloodmagic',
-    name: 'Blood Magic',
-    color: RT_BLOOD_RED,
-    description:
-      'Ancient and forbidden, blood magic ravens draw power from life essence itself. Their crimson feathers drip with dark vitality.',
-  },
-  {
-    id: 'soulbinding',
-    name: 'Soul Binding',
-    color: RT_MOONLIGHT_SILVER,
-    description:
-      'Ravens that forge bonds between living souls and the ethereal realm. They channel spiritual energy through spectral chains.',
-  },
-  {
-    id: 'cursecraft',
-    name: 'Cursecraft',
-    color: RT_SHADOW_PURPLE,
-    description:
-      'Masters of hexes and jinxes. Cursecraft ravens weave intricate patterns of misfortune around their targets.',
-  },
-  {
-    id: 'necromancy',
-    name: 'Necromancy',
-    color: RT_DARK_GREEN,
-    description:
-      'Ravens that commune with the dead and command skeletal forces. They serve as messengers between the living and the departed.',
-  },
-  {
-    id: 'darkalchemy',
-    name: 'Dark Alchemy',
-    color: RT_GOTHIC_GOLD,
-    description:
-      'Ravens versed in transmutation and forbidden elixirs. Their feathers shimmer with metallic, transformative energy.',
-  },
-  {
-    id: 'voidweaving',
-    name: 'Void Weaving',
-    color: RT_MIDNIGHT_BLUE,
-    description:
-      'The rarest and most dangerous art. Voidweaving ravens can tear holes in reality itself, pulling power from the abyss.',
-  },
-]
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 4: DARK ART SYNERGY TABLE
-// ═══════════════════════════════════════════════════════════════════
-
-const RT_SYNERGY_MAP: Record<RtDarkArt, RtDarkArt[]> = {
-  shadowmancy: ['bloodmagic', 'soulbinding'],
-  bloodmagic: ['necromancy', 'cursecraft'],
-  soulbinding: ['voidweaving', 'shadowmancy'],
-  cursecraft: ['shadowmancy', 'darkalchemy'],
-  necromancy: ['bloodmagic', 'soulbinding'],
-  darkalchemy: ['cursecraft', 'voidweaving'],
-  voidweaving: ['soulbinding', 'darkalchemy'],
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 5: RT_RAVENS — 35 Raven Species (5 per dark art, one each rarity)
-// ═══════════════════════════════════════════════════════════════════
-
-export const RT_RAVENS: readonly RtRavenSpecies[] = [
-  // ── Shadowmancy Ravens (5) ─────────────────────────────────
-  {
-    id: 'shade_dusk_crow',
-    name: 'Dusk Crow',
-    darkArt: 'shadowmancy',
-    rarity: 'common',
-    shadowPower: 14,
-    bloodPower: 6,
-    agility: 20,
-    description:
-      'A common crow wrapped in twilight shadows. It can dim candles with a thought and blend into any darkness.',
-    abilities: ['ab_shadow_glide'],
-  },
-  {
-    id: 'shade_gloom_raven',
-    name: 'Gloom Raven',
-    darkArt: 'shadowmancy',
-    rarity: 'uncommon',
-    shadowPower: 28,
-    bloodPower: 12,
-    agility: 30,
-    description:
-      'A raven that radiates an aura of gloom. Its shadow extends far beyond its body, creating zones of blindness.',
-    abilities: ['ab_shadow_glide', 'ab_gloom_aura'],
-  },
-  {
-    id: 'shade_umbral_specter',
-    name: 'Umbral Specter',
-    darkArt: 'shadowmancy',
-    rarity: 'rare',
-    shadowPower: 50,
-    bloodPower: 20,
-    agility: 42,
-    description:
-      'A raven that exists primarily in shadow form. It can pass through solid walls when in total darkness.',
-    abilities: ['ab_shadow_glide', 'ab_gloom_aura', 'ab_phase_shadow'],
-  },
-  {
-    id: 'shade_eclipse_lord',
-    name: 'Eclipse Lord',
-    darkArt: 'shadowmancy',
-    rarity: 'epic',
-    shadowPower: 85,
-    bloodPower: 35,
-    agility: 55,
-    description:
-      'A massive raven that blots out the moon. When it spreads its wings, entire rooms fall into supernatural darkness.',
-    abilities: ['ab_shadow_glide', 'ab_gloom_aura', 'ab_phase_shadow', 'ab_eclipse_wings'],
-  },
-  {
-    id: 'shade_void_herald',
-    name: 'Void Herald',
-    darkArt: 'shadowmancy',
-    rarity: 'legendary',
-    shadowPower: 130,
-    bloodPower: 55,
-    agility: 70,
-    description:
-      'The ultimate shadow raven, herald of the void between worlds. It can consume light itself and create permanent shadows.',
-    abilities: ['ab_shadow_glide', 'ab_gloom_aura', 'ab_phase_shadow', 'ab_eclipse_wings', 'ab_void_call'],
-  },
-
-  // ── Blood Magic Ravens (5) ────────────────────────────────
-  {
-    id: 'blood_crimson_spy',
-    name: 'Crimson Spy',
-    darkArt: 'bloodmagic',
-    rarity: 'common',
-    shadowPower: 8,
-    bloodPower: 18,
-    agility: 16,
-    description:
-      'A small blood-red raven that can taste fear in the air. It tracks prey by sensing their heartbeat.',
-    abilities: ['ab_blood_sense'],
-  },
-  {
-    id: 'blood_gore_talon',
-    name: 'Gore Talon',
-    darkArt: 'bloodmagic',
-    rarity: 'uncommon',
-    shadowPower: 15,
-    bloodPower: 35,
-    agility: 24,
-    description:
-      'A raven with talons stained permanently crimson. It draws strength from every wound it inflicts.',
-    abilities: ['ab_blood_sense', 'ab_siphon_strike'],
-  },
-  {
-    id: 'blood_hemomancer',
-    name: 'Hemomancer Raven',
-    darkArt: 'bloodmagic',
-    rarity: 'rare',
-    shadowPower: 25,
-    bloodPower: 58,
-    agility: 35,
-    description:
-      'A raven that can control blood itself, forming razor-sharp constructs from spilled life essence.',
-    abilities: ['ab_blood_sense', 'ab_siphon_strike', 'ab_crimson_construct'],
-  },
-  {
-    id: 'blood_sanguine_king',
-    name: 'Sanguine King',
-    darkArt: 'bloodmagic',
-    rarity: 'epic',
-    shadowPower: 40,
-    bloodPower: 90,
-    agility: 45,
-    description:
-      'A towering raven drenched in dark vitality. It can resurrect fallen allies by returning stolen blood.',
-    abilities: ['ab_blood_sense', 'ab_siphon_strike', 'ab_crimson_construct', 'ab_blood_pact'],
-  },
-  {
-    id: 'blood_carmine_god',
-    name: 'Carmine God',
-    darkArt: 'bloodmagic',
-    rarity: 'legendary',
-    shadowPower: 60,
-    bloodPower: 140,
-    agility: 58,
-    description:
-      'A god of blood in raven form. It controls every drop of blood within a mile radius, turning enemies against themselves.',
-    abilities: ['ab_blood_sense', 'ab_siphon_strike', 'ab_crimson_construct', 'ab_blood_pact', 'ab_vitality_storm'],
-  },
-
-  // ── Soul Binding Ravens (5) ───────────────────────────────
-  {
-    id: 'soul_whisper_wraith',
-    name: 'Whisper Wraith',
-    darkArt: 'soulbinding',
-    rarity: 'common',
-    shadowPower: 10,
-    bloodPower: 10,
-    agility: 18,
-    description:
-      'A pale raven that carries whispers of the dead. It can relay messages between the living and departed.',
-    abilities: ['ab_soul_whisper'],
-  },
-  {
-    id: 'soul_ethereal_binder',
-    name: 'Ethereal Binder',
-    darkArt: 'soulbinding',
-    rarity: 'uncommon',
-    shadowPower: 18,
-    bloodPower: 18,
-    agility: 28,
-    description:
-      'A translucent raven that forges spectral chains between souls. Bound targets share their strength.',
-    abilities: ['ab_soul_whisper', 'ab_spectral_chain'],
-  },
-  {
-    id: 'soul_phantom_flock',
-    name: 'Phantom Flock',
-    darkArt: 'soulbinding',
-    rarity: 'rare',
-    shadowPower: 30,
-    bloodPower: 30,
-    agility: 40,
-    description:
-      'A raven that splits into a flock of phantom copies. Each phantom carries a fragment of a captured soul.',
-    abilities: ['ab_soul_whisper', 'ab_spectral_chain', 'ab_phantom_split'],
-  },
-  {
-    id: 'soul_spirit_sovereign',
-    name: 'Spirit Sovereign',
-    darkArt: 'soulbinding',
-    rarity: 'epic',
-    shadowPower: 48,
-    bloodPower: 48,
-    agility: 52,
-    description:
-      'A raven crowned with ethereal light. It commands an army of bound spirits that do its bidding without question.',
-    abilities: ['ab_soul_whisper', 'ab_spectral_chain', 'ab_phantom_split', 'ab_spirit_army'],
-  },
-  {
-    id: 'soul_anima_deity',
-    name: 'Anima Deity',
-    darkArt: 'soulbinding',
-    rarity: 'legendary',
-    shadowPower: 70,
-    bloodPower: 70,
-    agility: 65,
-    description:
-      'The deity of souls in raven form. It can bind entire armies of spirits, grant immortality, and sever souls from bodies.',
-    abilities: ['ab_soul_whisper', 'ab_spectral_chain', 'ab_phantom_split', 'ab_spirit_army', 'ab_anima_eruption'],
-  },
-
-  // ── Cursecraft Ravens (5) ─────────────────────────────────
-  {
-    id: 'curse_hex_crow',
-    name: 'Hex Crow',
-    darkArt: 'cursecraft',
-    rarity: 'common',
-    shadowPower: 12,
-    bloodPower: 8,
-    agility: 22,
-    description:
-      'A crow that caws in patterns that carry minor hexes. Those who hear it suffer from bad luck for hours.',
-    abilities: ['ab_minor_hex'],
-  },
-  {
-    id: 'curse_jinx_raven',
-    name: 'Jinx Raven',
-    darkArt: 'cursecraft',
-    rarity: 'uncommon',
-    shadowPower: 24,
-    bloodPower: 14,
-    agility: 32,
-    description:
-      'A raven whose feathers are inscribed with curse sigils. It can lay persistent jinxes that follow targets.',
-    abilities: ['ab_minor_hex', 'ab_persistent_jinx'],
-  },
-  {
-    id: 'curse_bane_herald',
-    name: 'Bane Herald',
-    darkArt: 'cursecraft',
-    rarity: 'rare',
-    shadowPower: 42,
-    bloodPower: 22,
-    agility: 38,
-    description:
-      'A raven that announces doom wherever it lands. Its curses weaken defenses and drain magical energy.',
-    abilities: ['ab_minor_hex', 'ab_persistent_jinx', 'ab_bane_mark'],
-  },
-  {
-    id: 'curse_maledict_elder',
-    name: 'Maledict Elder',
-    darkArt: 'cursecraft',
-    rarity: 'epic',
-    shadowPower: 68,
-    bloodPower: 32,
-    agility: 48,
-    description:
-      'An ancient raven that has accumulated centuries of curse knowledge. Its gaze alone can seal magical abilities.',
-    abilities: ['ab_minor_hex', 'ab_persistent_jinx', 'ab_bane_mark', 'ab_malison_gaze'],
-  },
-  {
-    id: 'curse_doom_sovereign',
-    name: 'Doom Sovereign',
-    darkArt: 'cursecraft',
-    rarity: 'legendary',
-    shadowPower: 105,
-    bloodPower: 50,
-    agility: 62,
-    description:
-      'The supreme curse raven. Its voice carries a doom that cannot be lifted by any magic. Entire kingdoms have fallen to its caw.',
-    abilities: ['ab_minor_hex', 'ab_persistent_jinx', 'ab_bane_mark', 'ab_malison_gaze', 'ab_apocalypse_hex'],
-  },
-
-  // ── Necromancy Ravens (5) ─────────────────────────────────
-  {
-    id: 'necro_bone_messenger',
-    name: 'Bone Messenger',
-    darkArt: 'necromancy',
-    rarity: 'common',
-    shadowPower: 10,
-    bloodPower: 14,
-    agility: 14,
-    description:
-      'A raven with bones visible through translucent flesh. It carries messages to and from the underworld.',
-    abilities: ['ab_death_whisper'],
-  },
-  {
-    id: 'necro_skeletal_flock',
-    name: 'Skeletal Flock',
-    darkArt: 'necromancy',
-    rarity: 'uncommon',
-    shadowPower: 20,
-    bloodPower: 28,
-    agility: 22,
-    description:
-      'A raven that commands a flock of skeletal bird constructs. The constructs fight relentlessly and feel no pain.',
-    abilities: ['ab_death_whisper', 'ab_bone_summon'],
-  },
-  {
-    id: 'necro_grave_caller',
-    name: 'Grave Caller',
-    darkArt: 'necromancy',
-    rarity: 'rare',
-    shadowPower: 35,
-    bloodPower: 45,
-    agility: 30,
-    description:
-      'A raven that can wake the dead from their graves. Its caw opens cracks in the earth from which skeletal hands emerge.',
-    abilities: ['ab_death_whisper', 'ab_bone_summon', 'ab_grave_rise'],
-  },
-  {
-    id: 'necro_lich_guardian',
-    name: 'Lich Guardian',
-    darkArt: 'necromancy',
-    rarity: 'epic',
-    shadowPower: 55,
-    bloodPower: 72,
-    agility: 40,
-    description:
-      'An immortal raven bound to undeath. It can absorb souls to heal itself and raise powerful undead servants.',
-    abilities: ['ab_death_whisper', 'ab_bone_summon', 'ab_grave_rise', 'ab_soul_reap'],
-  },
-  {
-    id: 'necro_death_lord',
-    name: 'Death Lord Raven',
-    darkArt: 'necromancy',
-    rarity: 'legendary',
-    shadowPower: 85,
-    bloodPower: 110,
-    agility: 52,
-    description:
-      'A raven that is death incarnate. Wherever it lands, the dead rise and the living wither. It cannot be truly destroyed.',
-    abilities: ['ab_death_whisper', 'ab_bone_summon', 'ab_grave_rise', 'ab_soul_reap', 'ab_apotheosis'],
-  },
-
-  // ── Dark Alchemy Ravens (5) ───────────────────────────────
-  {
-    id: 'alch_gilded_scout',
-    name: 'Gilded Scout',
-    darkArt: 'darkalchemy',
-    rarity: 'common',
-    shadowPower: 8,
-    bloodPower: 12,
-    agility: 24,
-    description:
-      'A raven with metallic golden feathers. It can transmute small objects and detect precious metals underground.',
-    abilities: ['ab_gold_sense'],
-  },
-  {
-    id: 'alch_venom_brewer',
-    name: 'Venom Brewer',
-    darkArt: 'darkalchemy',
-    rarity: 'uncommon',
-    shadowPower: 16,
-    bloodPower: 30,
-    agility: 26,
-    description:
-      'A raven that secretes alchemical venom from its beak. It can brew deadly poisons from common ingredients.',
-    abilities: ['ab_gold_sense', 'ab_venom_brew'],
-  },
-  {
-    id: 'alch_transmute_sage',
-    name: 'Transmute Sage',
-    darkArt: 'darkalchemy',
-    rarity: 'rare',
-    shadowPower: 28,
-    bloodPower: 48,
-    agility: 36,
-    description:
-      'A raven sage that can transmute matter on a larger scale. It turns lead to gold and enemies to stone.',
-    abilities: ['ab_gold_sense', 'ab_venom_brew', 'ab_matter_shift'],
-  },
-  {
-    id: 'alch_elixir_archon',
-    name: 'Elixir Archon',
-    darkArt: 'darkalchemy',
-    rarity: 'epic',
-    shadowPower: 42,
-    bloodPower: 75,
-    agility: 44,
-    description:
-      'A raven that brews elixirs of immense power. It can grant temporary invincibility or transmute entire rooms.',
-    abilities: ['ab_gold_sense', 'ab_venom_brew', 'ab_matter_shift', 'ab_elixir_rain'],
-  },
-  {
-    id: 'alch_philosopher_bird',
-    name: 'Philosopher Bird',
-    darkArt: 'darkalchemy',
-    rarity: 'legendary',
-    shadowPower: 65,
-    bloodPower: 115,
-    agility: 55,
-    description:
-      'The legendary Philosopher Bird said to possess the secret of immortality. Its tears can resurrect the dead and grant eternal life.',
-    abilities: ['ab_gold_sense', 'ab_venom_brew', 'ab_matter_shift', 'ab_elixir_rain', 'ab_immortal_transmute'],
-  },
-
-  // ── Void Weaving Ravens (5) ───────────────────────────────
-  {
-    id: 'void_rift_scout',
-    name: 'Rift Scout',
-    darkArt: 'voidweaving',
-    rarity: 'common',
-    shadowPower: 16,
-    bloodPower: 8,
-    agility: 18,
-    description:
-      'A raven with eyes that peer into the void. It can create tiny tears in space to store small objects.',
-    abilities: ['ab_rift_glimpse'],
-  },
-  {
-    id: 'void_abyss_glider',
-    name: 'Abyss Glider',
-    darkArt: 'voidweaving',
-    rarity: 'uncommon',
-    shadowPower: 30,
-    bloodPower: 16,
-    agility: 34,
-    description:
-      'A raven that glides through tears in reality. It can teleport short distances and pull objects through void rifts.',
-    abilities: ['ab_rift_glimpse', 'ab_void_step'],
-  },
-  {
-    id: 'void_nexus_weaver',
-    name: 'Nexus Weaver',
-    darkArt: 'voidweaving',
-    rarity: 'rare',
-    shadowPower: 52,
-    bloodPower: 26,
-    agility: 42,
-    description:
-      'A raven that weaves nexus points between realities. It can create stable portals and summon creatures from the abyss.',
-    abilities: ['ab_rift_glimpse', 'ab_void_step', 'ab_nexus_portal'],
-  },
-  {
-    id: 'void_dimension_lord',
-    name: 'Dimension Lord',
-    darkArt: 'voidweaving',
-    rarity: 'epic',
-    shadowPower: 78,
-    bloodPower: 40,
-    agility: 50,
-    description:
-      'A raven that rules a pocket dimension of pure void. It can banish enemies to its domain and trap them forever.',
-    abilities: ['ab_rift_glimpse', 'ab_void_step', 'ab_nexus_portal', 'ab_dimensional_banish'],
-  },
-  {
-    id: 'void_abyss_god',
-    name: 'Abyss God Raven',
-    darkArt: 'voidweaving',
-    rarity: 'legendary',
-    shadowPower: 120,
-    bloodPower: 60,
-    agility: 64,
-    description:
-      'The god of the abyss in raven form. It can unmake reality itself, opening gates to the infinite void that consumes all.',
-    abilities: ['ab_rift_glimpse', 'ab_void_step', 'ab_nexus_portal', 'ab_dimensional_banish', 'ab_abyss_unmake'],
-  },
-]
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 6: RT_FLOORS — 8 Tower Floors
-// ═══════════════════════════════════════════════════════════════════
-
-export const RT_FLOORS: readonly RtFloorDef[] = [
-  {
-    id: 'floor_crypt_entrance',
-    name: 'Crypt Entrance',
-    description:
-      'The crumbling entrance to the Raven Tower. Weakened wards allow passage to the curious and the bold. Common ravens gather here.',
+    id: 'dungeon',
+    name: 'Dungeon',
+    description: 'The darkest depths of the tower, where goblins and skeletons lurk in the eternal gloom.',
     depth: 0,
-    dangerLevel: 1,
-    requiredTitle: 'title_raven_fledgling',
-    darkArt: 'shadowmancy',
-    bgGradient: 'linear-gradient(180deg, #1C1C1C 0%, #4A0E4E 50%, #191970 100%)',
-    ambientColor: RT_RAVEN_BLACK,
+    unlockLevel: 1,
+    baseHp: 200,
+    enemiesPerWave: 5,
+    monsterPool: ['goblin', 'skeleton', 'ghost'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #0a0a0a 0%, #1a0a2e 50%, #0d0d1a 100%)',
   },
   {
-    id: 'floor_blood_cellar',
-    name: 'Blood Cellar',
-    description:
-      'A damp cellar stained with centuries of dark rituals. Blood magic ravens are drawn to the copper scent that permeates the stone.',
+    id: 'catacombs',
+    name: 'Catacombs',
+    description: 'Twisting passages filled with restless dead and cursed bones that whisper in the dark.',
     depth: 1,
-    dangerLevel: 2,
-    requiredTitle: 'title_raven_fledgling',
-    darkArt: 'bloodmagic',
-    bgGradient: 'linear-gradient(180deg, #8B0000 0%, #1C1C1C 50%, #4A0E4E 100%)',
-    ambientColor: RT_BLOOD_RED,
+    unlockLevel: 5,
+    baseHp: 350,
+    enemiesPerWave: 6,
+    monsterPool: ['skeleton', 'ghost', 'wraith'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 50%, #0d0d1a 100%)',
   },
   {
-    id: 'floor_soul_gallery',
-    name: 'Soul Gallery',
-    description:
-      'A vast hall lined with portraits whose eyes follow visitors. The trapped spirits whisper secrets to soulbinding ravens.',
+    id: 'blood_cellar',
+    name: 'Blood Cellar',
+    description: 'A cellar stained crimson by centuries of dark rituals. Vampires prowl among the barrels.',
     depth: 2,
-    dangerLevel: 3,
-    requiredTitle: 'title_shadow_apprentice',
-    darkArt: 'soulbinding',
-    bgGradient: 'linear-gradient(180deg, #C0C0C0 0%, #1C1C1C 50%, #4A0E4E 100%)',
-    ambientColor: RT_MOONLIGHT_SILVER,
+    unlockLevel: 10,
+    baseHp: 500,
+    enemiesPerWave: 7,
+    monsterPool: ['vampire', 'ghost', 'demon'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #2d0a0a 0%, #4a0e0e 50%, #1a0a0a 100%)',
   },
   {
-    id: 'floor_curse_vault',
-    name: 'Curse Vault',
-    description:
-      'A sealed vault where the tower\'s most dangerous curses are stored. The air crackles with malevolent energy.',
+    id: 'soul_gallery',
+    name: 'Soul Gallery',
+    description: 'Portraits of trapped souls line the walls. Wraiths drift between the frames, seeking escape.',
     depth: 3,
-    dangerLevel: 4,
-    requiredTitle: 'title_dark_flockmaster',
-    darkArt: 'cursecraft',
-    bgGradient: 'linear-gradient(180deg, #4A0E4E 0%, #8B0000 50%, #1C1C1C 100%)',
-    ambientColor: RT_SHADOW_PURPLE,
+    unlockLevel: 15,
+    baseHp: 700,
+    enemiesPerWave: 8,
+    monsterPool: ['wraith', 'ghost', 'banshee'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #1a1a2e 0%, #0e2a4a 50%, #0d1a2d 100%)',
   },
   {
-    id: 'floor_necropolis',
-    name: 'Necropolis',
-    description:
-      'An indoor graveyard where the tower\'s necromancers buried their experiments. Undead roam freely among the tombstones.',
+    id: 'curse_vault',
+    name: 'Curse Vault',
+    description: 'Sealed chambers of concentrated hex energy. The air crackles with misfortune and dark intent.',
     depth: 4,
-    dangerLevel: 5,
-    requiredTitle: 'title_curse_weaver',
-    darkArt: 'necromancy',
-    bgGradient: 'linear-gradient(180deg, #006400 0%, #1C1C1C 50%, #8B0000 100%)',
-    ambientColor: RT_DARK_GREEN,
+    unlockLevel: 20,
+    baseHp: 900,
+    enemiesPerWave: 9,
+    monsterPool: ['demon', 'wraith', 'gargoyle'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #2e0a2e 0%, #4a1e4a 50%, #1a0d1a 100%)',
   },
   {
-    id: 'floor_alchemy_spire',
-    name: 'Alchemy Spire',
-    description:
-      'A soaring spire filled with bubbling cauldrons and transmutation circles. Dark alchemy ravens conduct forbidden experiments here.',
+    id: 'necropolis',
+    name: 'Necropolis',
+    description: 'An indoor graveyard of towering tombstones. Liches command armies of risen dead.',
     depth: 5,
-    dangerLevel: 6,
-    requiredTitle: 'title_tower_keeper',
-    darkArt: 'darkalchemy',
-    bgGradient: 'linear-gradient(180deg, #8B6914 0%, #006400 50%, #1C1C1C 100%)',
-    ambientColor: RT_GOTHIC_GOLD,
+    unlockLevel: 28,
+    baseHp: 1200,
+    enemiesPerWave: 10,
+    monsterPool: ['skeleton', 'lich', 'troll'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #0a1a0a 0%, #1a3a1a 50%, #0d0d0d 100%)',
   },
   {
-    id: 'floor_void_sanctum',
-    name: 'Void Sanctum',
-    description:
-      'A chamber where reality itself is thin. Void rifts shimmer in the corners, and abyssal whispers fill the air.',
+    id: 'alchemy_spire',
+    name: 'Alchemy Spire',
+    description: 'A soaring spire of bubbling cauldrons. Trolls guard the passages to forbidden knowledge.',
     depth: 6,
-    dangerLevel: 7,
-    requiredTitle: 'title_soul_archon',
-    darkArt: 'voidweaving',
-    bgGradient: 'linear-gradient(180deg, #191970 0%, #4A0E4E 50%, #C0C0C0 100%)',
-    ambientColor: RT_MIDNIGHT_BLUE,
+    unlockLevel: 36,
+    baseHp: 1500,
+    enemiesPerWave: 11,
+    monsterPool: ['demon', 'troll', 'shadow_wyrm'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #1a1a0a 0%, #3a2a0a 50%, #0d0d0d 100%)',
   },
   {
-    id: 'floor_tower_throne',
-    name: 'Tower Throne',
-    description:
-      'The pinnacle of the Raven Tower. All dark arts converge here, and the Tower Deity holds court over the abyss.',
+    id: 'observatory',
+    name: 'Observatory',
+    description: 'The pinnacle of the Raven Tower. All dark arts converge under an endless starless sky.',
     depth: 7,
-    dangerLevel: 8,
-    requiredTitle: 'title_abyss_lord',
-    darkArt: 'shadowmancy',
-    bgGradient: 'linear-gradient(180deg, #8B6914 0%, #4A0E4E 50%, #191970 100%)',
-    ambientColor: RT_GOTHIC_GOLD,
+    unlockLevel: 42,
+    baseHp: 2000,
+    enemiesPerWave: 12,
+    monsterPool: ['demon', 'lich', 'shadow_wyrm', 'banshee'],
+    bossType: 'tower_boss',
+    bgGradient: 'linear-gradient(180deg, #0a0a1a 0%, #1a0a3a 50%, #2a1a4a 100%)',
   },
-]
+] as const;
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 7: RT_MATERIALS — 30 Shadow/Feather/Bone Materials
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 3: CONSTANTS — RAVEN DEFINITIONS (10 raven types)
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const RT_MATERIALS: readonly RtMaterialDef[] = [
-  // Common (8)
-  { id: 'mat_dusk_feather', name: 'Dusk Feather', emoji: '🪶', type: 'feather', rarity: 'common', shadowBonus: 2, bloodBonus: 1, value: 10, description: 'A feather shed by a dusk crow at twilight. It fades between light and dark.' },
-  { id: 'mat_shadow_essence', name: 'Shadow Essence', emoji: '💧', type: 'shadow', rarity: 'common', shadowBonus: 5, bloodBonus: 0, value: 15, description: 'Bottled essence of pure shadow, harvested from dark corners of the tower.' },
-  { id: 'mat_bone_shard', name: 'Bone Shard', emoji: '🦴', type: 'bone', rarity: 'common', shadowBonus: 1, bloodBonus: 3, value: 12, description: 'A small shard of bone from an animated skeleton. Still faintly warm.' },
-  { id: 'mat_crimson_drop', name: 'Crimson Drop', emoji: '🩸', type: 'essence', rarity: 'common', shadowBonus: 0, bloodBonus: 5, value: 18, description: 'A drop of blood-infused essence that pulses with dark vitality.' },
-  { id: 'mat_crow_quill', name: 'Crow Quill', emoji: '✒️', type: 'feather', rarity: 'common', shadowBonus: 3, bloodBonus: 2, value: 14, description: 'A jet-black quill from a common crow. Useful for writing curse sigils.' },
-  { id: 'mat_soul_thread', name: 'Soul Thread', emoji: '🧵', type: 'relic_shard', rarity: 'common', shadowBonus: 4, bloodBonus: 2, value: 16, description: 'A gossamer thread of soul energy. It hums faintly when touched.' },
-  { id: 'mat_ash_claw', name: 'Ash Claw', emoji: '🦅', type: 'bone', rarity: 'common', shadowBonus: 2, bloodBonus: 2, value: 12, description: 'A claw that crumbles to ash when squeezed. Undead ravens drop these.' },
-  { id: 'mat_raven_eye', name: 'Raven Eye', emoji: '👁️', type: 'shadow', rarity: 'common', shadowBonus: 6, bloodBonus: 0, value: 20, description: 'A preserved raven eye that still sees into the spirit world.' },
+export const RV_RAVEN_DEFS: readonly RavenDef[] = [
+  {
+    id: 'shadow',
+    name: 'Shadow Raven',
+    description: 'A raven woven from living darkness. It strikes from unseen angles and blinds enemies with shadow.',
+    element: 'Darkness',
+    baseDamage: 18,
+    baseHealth: 120,
+    speed: 14,
+    range: 5,
+    unlockLevel: 1,
+    abilityName: 'Shadow Veil',
+    abilityDescription: 'Cloaks all allied ravens in shadow, making them untargetable for 3 seconds.',
+    cooldown: 5,
+    rarity: 'common',
+  },
+  {
+    id: 'storm',
+    name: 'Storm Raven',
+    description: 'Feathers crackle with lightning. It summons thunderbolts that chain between enemies.',
+    element: 'Lightning',
+    baseDamage: 22,
+    baseHealth: 100,
+    speed: 18,
+    range: 6,
+    unlockLevel: 1,
+    abilityName: 'Thunder Strike',
+    abilityDescription: 'Calls down a lightning bolt that chains to 3 nearby enemies, stunning them briefly.',
+    cooldown: 4,
+    rarity: 'common',
+  },
+  {
+    id: 'fire',
+    name: 'Fire Raven',
+    description: 'A raven of living flame. Its attacks leave burning ground that damages enemies over time.',
+    element: 'Fire',
+    baseDamage: 28,
+    baseHealth: 90,
+    speed: 12,
+    range: 4,
+    unlockLevel: 5,
+    abilityName: 'Inferno Dive',
+    abilityDescription: 'Dives into a group of enemies, exploding in a ring of fire that burns for 4 seconds.',
+    cooldown: 6,
+    rarity: 'uncommon',
+  },
+  {
+    id: 'ice',
+    name: 'Ice Raven',
+    description: 'Frost crystallizes on its wings. It freezes enemies solid and shatters them with sonic cries.',
+    element: 'Ice',
+    baseDamage: 15,
+    baseHealth: 130,
+    speed: 10,
+    range: 5,
+    unlockLevel: 8,
+    abilityName: 'Cryogenic Pulse',
+    abilityDescription: 'Emits a pulse of absolute cold, freezing all enemies in range for 2 seconds.',
+    cooldown: 7,
+    rarity: 'uncommon',
+  },
+  {
+    id: 'death',
+    name: 'Death Raven',
+    description: 'An omen of doom. Its touch drains life force, transferring it to allied ravens.',
+    element: 'Death',
+    baseDamage: 24,
+    baseHealth: 110,
+    speed: 13,
+    range: 4,
+    unlockLevel: 12,
+    abilityName: 'Soul Reaper',
+    abilityDescription: 'Marks a target for death. After 3 seconds the target takes massive damage and heals all allies.',
+    cooldown: 8,
+    rarity: 'rare',
+  },
+  {
+    id: 'blood',
+    name: 'Blood Raven',
+    description: 'Crimson feathers drip with dark vitality. It can siphon blood from enemies to restore allies.',
+    element: 'Blood',
+    baseDamage: 20,
+    baseHealth: 140,
+    speed: 11,
+    range: 3,
+    unlockLevel: 16,
+    abilityName: 'Blood Pact',
+    abilityDescription: 'Drains health from all enemies in range and distributes it evenly among allied ravens.',
+    cooldown: 6,
+    rarity: 'rare',
+  },
+  {
+    id: 'void',
+    name: 'Void Raven',
+    description: 'A raven that tears holes in reality. It banishes enemies to the void between dimensions.',
+    element: 'Void',
+    baseDamage: 35,
+    baseHealth: 80,
+    speed: 16,
+    range: 7,
+    unlockLevel: 22,
+    abilityName: 'Dimensional Rift',
+    abilityDescription: 'Opens a rift that pulls all enemies toward its center, then banishes them for 3 seconds.',
+    cooldown: 10,
+    rarity: 'epic',
+  },
+  {
+    id: 'bone',
+    name: 'Bone Raven',
+    description: 'Constructed from the remains of fallen warriors. It summons skeletal minions to fight alongside.',
+    element: 'Bone',
+    baseDamage: 16,
+    baseHealth: 160,
+    speed: 8,
+    range: 3,
+    unlockLevel: 26,
+    abilityName: 'Raise Dead',
+    abilityDescription: 'Summons 3 skeletal ravens that fight for 5 seconds before collapsing into bone dust.',
+    cooldown: 9,
+    rarity: 'epic',
+  },
+  {
+    id: 'hex',
+    name: 'Hex Raven',
+    description: 'Its feathers are inscribed with ancient curse sigils. Enemies near it suffer weakening hexes.',
+    element: 'Curse',
+    baseDamage: 30,
+    baseHealth: 95,
+    speed: 15,
+    range: 6,
+    unlockLevel: 32,
+    abilityName: 'Cascade Hex',
+    abilityDescription: 'Casts a hex that jumps between 5 enemies, reducing their armor and speed by 50% for 4 seconds.',
+    cooldown: 8,
+    rarity: 'legendary',
+  },
+  {
+    id: 'soul',
+    name: 'Soul Raven',
+    description: 'The rarest of all ravens, forged from captured souls. It can bind spirits and command ethereal forces.',
+    element: 'Soul',
+    baseDamage: 40,
+    baseHealth: 100,
+    speed: 20,
+    range: 8,
+    unlockLevel: 38,
+    abilityName: 'Spirit Tempest',
+    abilityDescription: 'Unleashes a tempest of vengeful spirits that damage all enemies and shield all allies for 5 seconds.',
+    cooldown: 12,
+    rarity: 'legendary',
+  },
+] as const;
 
-  // Uncommon (7)
-  { id: 'mat_gloom_plume', name: 'Gloom Plume', emoji: '🪶', type: 'feather', rarity: 'uncommon', shadowBonus: 12, bloodBonus: 4, value: 80, description: 'A feather that radiates an aura of gloom. Shadowmancers prize these.' },
-  { id: 'mat_blood_vial', name: 'Enchanted Blood Vial', emoji: '🧪', type: 'essence', rarity: 'uncommon', shadowBonus: 5, bloodBonus: 15, value: 90, description: 'A vial of blood that glows red in the dark. It amplifies blood magic rituals.' },
-  { id: 'mat_spectral_bone', name: 'Spectral Bone', emoji: '💀', type: 'bone', rarity: 'uncommon', shadowBonus: 8, bloodBonus: 10, value: 75, description: 'A translucent bone from a ghost raven. It phases in and out of visibility.' },
-  { id: 'mat_hex_crystal', name: 'Hex Crystal', emoji: '🔮', type: 'relic_shard', rarity: 'uncommon', shadowBonus: 10, bloodBonus: 6, value: 85, description: 'A crystal formed from concentrated curse energy. It vibrates with malice.' },
-  { id: 'mat_grave_dust', name: 'Grave Dust', emoji: '🌾', type: 'shadow', rarity: 'uncommon', shadowBonus: 14, bloodBonus: 3, value: 70, description: 'Dust gathered from the Necropolis floor. Necromancers use it to raise the dead.' },
-  { id: 'mat_alchemy_feather', name: 'Gilded Alchemy Feather', emoji: '✨', type: 'feather', rarity: 'uncommon', shadowBonus: 6, bloodBonus: 12, value: 82, description: 'A feather with a metallic golden sheen. It transmutes anything it touches.' },
-  { id: 'mat_rift_shard', name: 'Rift Shard', emoji: '💠', type: 'relic_shard', rarity: 'uncommon', shadowBonus: 15, bloodBonus: 5, value: 88, description: 'A shard of reality torn from a void rift. It hums with dimensional energy.' },
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 4: CONSTANTS — TRAP DEFINITIONS (8 trap types)
+// ═══════════════════════════════════════════════════════════════════════════
 
-  // Rare (6)
-  { id: 'mat_eclipse_feather', name: 'Eclipse Feather', emoji: '🌑', type: 'feather', rarity: 'rare', shadowBonus: 25, bloodBonus: 12, value: 350, description: 'A feather that absorbs all light. Eclipse ravens shed only one per century.' },
-  { id: 'mat_sanguine_heart', name: 'Sanguine Heart', emoji: '❤️‍🔥', type: 'essence', rarity: 'rare', shadowBonus: 10, bloodBonus: 30, value: 400, description: 'The still-beating heart of a blood magic construct. It pumps dark blood endlessly.' },
-  { id: 'mat_soul_crystal', name: 'Soul Crystal', emoji: '💎', type: 'relic_shard', rarity: 'rare', shadowBonus: 20, bloodBonus: 18, value: 380, description: 'A crystal containing a trapped soul. The soul whispers prophecies from within.' },
-  { id: 'mat_curse_totem', name: 'Curse Totem', emoji: '🗿', type: 'bone', rarity: 'rare', shadowBonus: 28, bloodBonus: 15, value: 360, description: 'A bone totem carved with ancient curse sigils. It radiates waves of misfortune.' },
-  { id: 'mat_lich_phylactery', name: 'Lich Phylactery Shard', emoji: '⚱️', type: 'relic_shard', rarity: 'rare', shadowBonus: 22, bloodBonus: 22, value: 420, description: 'A fragment of a lich\'s phylactery. It pulses with unholy necromantic energy.' },
-  { id: 'mat_void_pearl', name: 'Void Pearl', emoji: '🔮', type: 'shadow', rarity: 'rare', shadowBonus: 30, bloodBonus: 10, value: 390, description: 'A pearl formed in the abyss between dimensions. Staring into it reveals other worlds.' },
+export const RV_TRAP_DEFS: readonly TrapDef[] = [
+  {
+    id: 'shadow_snare',
+    name: 'Shadow Snare',
+    description: 'A net of living darkness that entangles enemies, reducing their speed drastically.',
+    damage: 5,
+    slowFactor: 0.4,
+    duration: 8,
+    cost: 30,
+    unlockLevel: 1,
+    icon: '🕸️',
+  },
+  {
+    id: 'bone_spike',
+    name: 'Bone Spike',
+    description: 'Skeletal spikes erupt from the ground, impaling enemies that step on them.',
+    damage: 25,
+    slowFactor: 0,
+    duration: 6,
+    cost: 50,
+    unlockLevel: 3,
+    icon: '🦴',
+  },
+  {
+    id: 'blood_pit',
+    name: 'Blood Pit',
+    description: 'A pool of cursed blood that continuously damages and weakens enemies wading through.',
+    damage: 15,
+    slowFactor: 0.3,
+    duration: 10,
+    cost: 60,
+    unlockLevel: 6,
+    icon: '🩸',
+  },
+  {
+    id: 'frost_field',
+    name: 'Frost Field',
+    description: 'An area of supernatural cold that freezes enemies solid upon contact.',
+    damage: 10,
+    slowFactor: 0.7,
+    duration: 5,
+    cost: 45,
+    unlockLevel: 9,
+    icon: '❄️',
+  },
+  {
+    id: 'hex_circle',
+    name: 'Hex Circle',
+    description: 'A drawn circle of curse sigils that strips armor from enemies within its bounds.',
+    damage: 8,
+    slowFactor: 0.2,
+    duration: 12,
+    cost: 70,
+    unlockLevel: 14,
+    icon: '🔮',
+  },
+  {
+    id: 'void_rift',
+    name: 'Void Rift',
+    description: 'A tear in reality that slowly pulls enemies toward its center, dealing void damage.',
+    damage: 30,
+    slowFactor: 0.5,
+    duration: 8,
+    cost: 90,
+    unlockLevel: 20,
+    icon: '🌀',
+  },
+  {
+    id: 'fire_brazier',
+    name: 'Fire Brazier',
+    description: 'A hellfire brazier that launches fireballs at enemies passing nearby.',
+    damage: 35,
+    slowFactor: 0,
+    duration: 10,
+    cost: 80,
+    unlockLevel: 25,
+    icon: '🔥',
+  },
+  {
+    id: 'soul_chain',
+    name: 'Soul Chain',
+    description: 'Ethereal chains that link enemies together, causing damage to spread between them.',
+    damage: 20,
+    slowFactor: 0.35,
+    duration: 7,
+    cost: 100,
+    unlockLevel: 30,
+    icon: '⛓️',
+  },
+] as const;
 
-  // Epic (5)
-  { id: 'mat_void_herald_feather', name: 'Void Herald Plume', emoji: '🪶', type: 'feather', rarity: 'epic', shadowBonus: 45, bloodBonus: 25, value: 1500, description: 'A massive plume from a Void Herald raven. It contains a fragment of the void itself.' },
-  { id: 'mat_carmine_blood', name: 'Carmine God Essence', emoji: '🍷', type: 'essence', rarity: 'epic', shadowBonus: 20, bloodBonus: 55, value: 1800, description: 'Essence of divine blood magic. A single drop can resurrect the recently dead.' },
-  { id: 'mat_anima_shard', name: 'Anima Shard', emoji: '🌟', type: 'relic_shard', rarity: 'epic', shadowBonus: 35, bloodBonus: 35, value: 1700, description: 'A shard of pure anima energy from the Soul Sovereign. It can bind any soul.' },
-  { id: 'mat_doom_sigil', name: 'Doom Sovereign Sigil', emoji: '☠️', type: 'bone', rarity: 'epic', shadowBonus: 50, bloodBonus: 20, value: 1600, description: 'A sigil bearing the mark of the Doom Sovereign. It curses all who touch it.' },
-  { id: 'mat_philosopher_tear', name: 'Philosopher Bird Tear', emoji: '💧', type: 'essence', rarity: 'epic', shadowBonus: 25, bloodBonus: 40, value: 1900, description: 'A tear from the Philosopher Bird. It can transmute lead to gold and grant visions.' },
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 5: CONSTANTS — WALL DEFINITIONS (4 wall types)
+// ═══════════════════════════════════════════════════════════════════════════
 
-  // Legendary (4)
-  { id: 'mat_tower_deity_plume', name: 'Tower Deity Plume', emoji: '👑', type: 'feather', rarity: 'legendary', shadowBonus: 60, bloodBonus: 60, value: 8000, description: 'The supreme feather of the Tower Deity. It commands all dark arts and bends reality.' },
-  { id: 'mat_abyss_core', name: 'Abyss Core', emoji: '🕳️', type: 'shadow', rarity: 'legendary', shadowBonus: 80, bloodBonus: 40, value: 10000, description: 'A crystallized fragment of the abyss itself. It contains infinite void energy.' },
-  { id: 'mat_death_lord_skull', name: 'Death Lord Skull', emoji: '💀', type: 'bone', rarity: 'legendary', shadowBonus: 50, bloodBonus: 70, value: 9000, description: 'The skull of the Death Lord raven. It still speaks prophecies of doom.' },
-  { id: 'mat_immortal_elixir', name: 'Immortal Elixir', emoji: '⚗️', type: 'essence', rarity: 'legendary', shadowBonus: 40, bloodBonus: 50, value: 12000, description: 'The legendary elixir of immortality. One sip grants eternal life and mastery of all arts.' },
-]
+export const RV_WALL_DEFS: readonly WallDef[] = [
+  {
+    id: 'stone',
+    name: 'Stone Wall',
+    description: 'Basic stone fortification. Provides minimal protection against the undead horde.',
+    hp: 500,
+    cost: 100,
+    unlockLevel: 1,
+    icon: '🧱',
+  },
+  {
+    id: 'iron',
+    name: 'Iron Wall',
+    description: 'Reinforced iron plating. Wards off physical attacks and resists curses.',
+    hp: 1000,
+    cost: 300,
+    unlockLevel: 10,
+    icon: '🔩',
+  },
+  {
+    id: 'obsidian',
+    name: 'Obsidian Wall',
+    description: 'Wall forged from volcanic obsidian. Absorbs dark magic and reflects hexes.',
+    hp: 2000,
+    cost: 700,
+    unlockLevel: 22,
+    icon: '🖤',
+  },
+  {
+    id: 'void_barrier',
+    name: 'Void Barrier',
+    description: 'A shimmering barrier of pure void energy. Nearly indestructible and phases attackers.',
+    hp: 4000,
+    cost: 1500,
+    unlockLevel: 35,
+    icon: '🌀',
+  },
+] as const;
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 8: RT_STRUCTURES — 25 Tower Structures (upgradeable to L10)
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 6: CONSTANTS — SPELL DEFINITIONS (12 spells)
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const RT_STRUCTURES: readonly RtStructureDef[] = [
-  // ── Raven Roosts (7) ───────────────────────────────────────
-  { id: 'str_shadow_roost', name: 'Shadow Roost', emoji: '🏚️', category: 'raven_roost', maxLevel: 10, baseEffect: 2, effectPerLevel: 1, baseCost: 50, costMultiplier: 1.4, description: 'A darkened roost where shadowmancy ravens rest and regenerate their dark power.' },
-  { id: 'str_blood_perch', name: 'Blood Perch', emoji: '🩸', category: 'raven_roost', maxLevel: 10, baseEffect: 3, effectPerLevel: 1, baseCost: 80, costMultiplier: 1.5, description: 'A perch stained with ritual blood that empowers blood magic ravens.' },
-  { id: 'str_soul_nest', name: 'Soul Nest', emoji: '👻', category: 'raven_roost', maxLevel: 10, baseEffect: 3, effectPerLevel: 2, baseCost: 100, costMultiplier: 1.5, description: 'A nest woven from spectral threads where soulbinding ravens commune with spirits.' },
-  { id: 'str_hex_eyrie', name: 'Hex Eyrie', emoji: '🔮', category: 'raven_roost', maxLevel: 10, baseEffect: 4, effectPerLevel: 2, baseCost: 120, costMultiplier: 1.5, description: 'A cursed eyrie high in the tower where cursecraft ravens sharpen their hexes.' },
-  { id: 'str_bone_aerie', name: 'Bone Aerie', emoji: '☠️', category: 'raven_roost', maxLevel: 10, baseEffect: 4, effectPerLevel: 2, baseCost: 140, costMultiplier: 1.6, description: 'An aerie built from bones of the dead where necromancy ravens command skeletal flocks.' },
-  { id: 'str_gilded_cage', name: 'Gilded Cage', emoji: '⚙️', category: 'raven_roost', maxLevel: 10, baseEffect: 3, effectPerLevel: 2, baseCost: 110, costMultiplier: 1.5, description: 'A golden cage where dark alchemy ravens brew their transmutative concoctions.' },
-  { id: 'str_void_perch', name: 'Void Perch', emoji: '🌀', category: 'raven_roost', maxLevel: 10, baseEffect: 5, effectPerLevel: 2, baseCost: 180, costMultiplier: 1.6, description: 'A perch that hovers in a void rift where voidweaving ravens draw abyssal power.' },
+export const RV_SPELL_DEFS: readonly SpellDef[] = [
+  {
+    id: 'shadow_veil',
+    name: 'Shadow Veil',
+    description: 'Shrouds the entire floor in impenetrable darkness, making enemies unable to attack for 3 seconds.',
+    damage: 0,
+    manaCost: 15,
+    cooldown: 8,
+    aoeRadius: 10,
+    unlockLevel: 1,
+    icon: '🌑',
+  },
+  {
+    id: 'blood_boil',
+    name: 'Blood Boil',
+    description: 'Causes the blood of all enemies in range to boil, dealing heavy damage over 4 seconds.',
+    damage: 60,
+    manaCost: 25,
+    cooldown: 6,
+    aoeRadius: 4,
+    unlockLevel: 3,
+    icon: '🩸',
+  },
+  {
+    id: 'frost_nova',
+    name: 'Frost Nova',
+    description: 'An explosion of absolute cold that freezes all nearby enemies solid for 3 seconds.',
+    damage: 30,
+    manaCost: 20,
+    cooldown: 7,
+    aoeRadius: 5,
+    unlockLevel: 5,
+    icon: '❄️',
+  },
+  {
+    id: 'fire_storm',
+    name: 'Fire Storm',
+    description: 'Rains hellfire across a wide area, dealing massive damage to all enemies caught within.',
+    damage: 90,
+    manaCost: 40,
+    cooldown: 10,
+    aoeRadius: 7,
+    unlockLevel: 8,
+    icon: '🔥',
+  },
+  {
+    id: 'death_grip',
+    name: 'Death Grip',
+    description: 'A spectral hand reaches from the ground and crushes a single powerful enemy.',
+    damage: 150,
+    manaCost: 50,
+    cooldown: 12,
+    aoeRadius: 1,
+    unlockLevel: 12,
+    icon: '💀',
+  },
+  {
+    id: 'soul_drain',
+    name: 'Soul Drain',
+    description: 'Rips fragments of soul energy from all enemies, healing all ravens by the damage dealt.',
+    damage: 40,
+    manaCost: 30,
+    cooldown: 8,
+    aoeRadius: 6,
+    unlockLevel: 15,
+    icon: '👻',
+  },
+  {
+    id: 'void_blast',
+    name: 'Void Blast',
+    description: 'Concentrates void energy into a devastating explosion that banishes enemies from reality.',
+    damage: 120,
+    manaCost: 55,
+    cooldown: 14,
+    aoeRadius: 6,
+    unlockLevel: 20,
+    icon: '🕳️',
+  },
+  {
+    id: 'bone_army',
+    name: 'Bone Army',
+    description: 'Raises an army of skeletal warriors that fight alongside your ravens for 8 seconds.',
+    damage: 20,
+    manaCost: 45,
+    cooldown: 15,
+    aoeRadius: 8,
+    unlockLevel: 25,
+    icon: '☠️',
+  },
+  {
+    id: 'hex_bomb',
+    name: 'Hex Bomb',
+    description: 'Detonates a concentrated hex that reduces all enemy armor to zero in a massive blast.',
+    damage: 70,
+    manaCost: 35,
+    cooldown: 9,
+    aoeRadius: 8,
+    unlockLevel: 30,
+    icon: '🔮',
+  },
+  {
+    id: 'storm_call',
+    name: 'Storm Call',
+    description: 'Summons a thunderstorm that strikes random enemies with lightning for 6 seconds.',
+    damage: 50,
+    manaCost: 45,
+    cooldown: 11,
+    aoeRadius: 9,
+    unlockLevel: 34,
+    icon: '⚡',
+  },
+  {
+    id: 'dark_heal',
+    name: 'Dark Heal',
+    description: 'Channels dark energy to fully restore all ravens to full health and grant temporary shield.',
+    damage: 0,
+    manaCost: 60,
+    cooldown: 18,
+    aoeRadius: 10,
+    unlockLevel: 38,
+    icon: '💚',
+  },
+  {
+    id: 'raven_swarm',
+    name: 'Raven Swarm',
+    description: 'Summons a massive swarm of shadow ravens that devour all enemies on the floor.',
+    damage: 200,
+    manaCost: 80,
+    cooldown: 25,
+    aoeRadius: 10,
+    unlockLevel: 42,
+    icon: '🐦‍⬛',
+  },
+] as const;
 
-  // ── Shadow Chambers (6) ────────────────────────────────────
-  { id: 'str_dusk_room', name: 'Dusk Chamber', emoji: '🌑', category: 'shadow_chamber', maxLevel: 10, baseEffect: 5, effectPerLevel: 3, baseCost: 100, costMultiplier: 1.5, description: 'A chamber of eternal dusk that strengthens shadowmancy abilities and heals shadow ravens.' },
-  { id: 'str_blood_sanctum', name: 'Blood Sanctum', emoji: '🩸', category: 'shadow_chamber', maxLevel: 10, baseEffect: 8, effectPerLevel: 4, baseCost: 250, costMultiplier: 1.6, description: 'A sanctum where blood rituals amplify the power of all blood magic in the tower.' },
-  { id: 'str_spirit_vault', name: 'Spirit Vault', emoji: '👻', category: 'shadow_chamber', maxLevel: 10, baseEffect: 10, effectPerLevel: 5, baseCost: 400, costMultiplier: 1.7, description: 'A vault containing bound spirits that boost soulbinding power and provide spectral scouts.' },
-  { id: 'str_curse_library', name: 'Curse Library', emoji: '📜', category: 'shadow_chamber', maxLevel: 10, baseEffect: 12, effectPerLevel: 6, baseCost: 600, costMultiplier: 1.8, description: 'A library of forbidden curse tomes that enhances cursecraft abilities and unlocks new hex patterns.' },
-  { id: 'str_death_hall', name: 'Hall of the Dead', emoji: '⚰️', category: 'shadow_chamber', maxLevel: 10, baseEffect: 15, effectPerLevel: 7, baseCost: 900, costMultiplier: 1.9, description: 'A hall lined with sarcophagi that empowers necromancy and provides a steady supply of undead servants.' },
-  { id: 'str_void_observatory', name: 'Void Observatory', emoji: '🔭', category: 'shadow_chamber', maxLevel: 10, baseEffect: 14, effectPerLevel: 7, baseCost: 850, costMultiplier: 1.9, description: 'An observatory that peers into the void. It reveals secrets of other dimensions and empowers voidweaving.' },
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 7: CONSTANTS — MONSTER DEFINITIONS (12 monster types)
+// ═══════════════════════════════════════════════════════════════════════════
 
-  // ── Blood Labs (5) ─────────────────────────────────────────
-  { id: 'str_basic_lab', name: 'Basic Blood Lab', emoji: '🧪', category: 'blood_lab', maxLevel: 10, baseEffect: 5, effectPerLevel: 3, baseCost: 120, costMultiplier: 1.5, description: 'A simple laboratory for extracting and refining basic dark essences from materials.' },
-  { id: 'str_alchemy_bench', name: 'Dark Alchemy Bench', emoji: '⚗️', category: 'blood_lab', maxLevel: 10, baseEffect: 10, effectPerLevel: 5, baseCost: 300, costMultiplier: 1.6, description: 'An advanced bench for combining dark materials into powerful elixirs and poisons.' },
-  { id: 'str_soul_extractor', name: 'Soul Extractor', emoji: '🔬', category: 'blood_lab', maxLevel: 10, baseEffect: 15, effectPerLevel: 7, baseCost: 500, costMultiplier: 1.7, description: 'A device that extracts soul energy from defeated enemies and stores it for later use.' },
-  { id: 'str_curse_forge', name: 'Curse Forge', emoji: '🔨', category: 'blood_lab', maxLevel: 10, baseEffect: 20, effectPerLevel: 10, baseCost: 800, costMultiplier: 1.8, description: 'A forge that shapes curse energy into physical weapons and totems of immense power.' },
-  { id: 'str_abyss_crucible', name: 'Abyss Crucible', emoji: '🌋', category: 'blood_lab', maxLevel: 10, baseEffect: 25, effectPerLevel: 12, baseCost: 1200, costMultiplier: 2.0, description: 'The ultimate creation tool. It can synthesize legendary materials from abyssal energy and raw components.' },
+export const RV_MONSTER_DEFS: readonly MonsterDef[] = [
+  {
+    id: 'goblin',
+    name: 'Cave Goblin',
+    description: 'Small, numerous, and vicious. Goblins swarm in packs and overwhelm defenses with sheer numbers.',
+    baseHp: 40,
+    baseDamage: 5,
+    speed: 8,
+    armor: 0,
+    soulShardDrop: 1,
+    darkCrystalDrop: 1,
+    isBoss: false,
+    icon: '👺',
+  },
+  {
+    id: 'skeleton',
+    name: 'Skeleton Warrior',
+    description: 'Animated bones armed with rusted weapons. They feel no pain and never stop advancing.',
+    baseHp: 60,
+    baseDamage: 8,
+    speed: 5,
+    armor: 3,
+    soulShardDrop: 2,
+    darkCrystalDrop: 1,
+    isBoss: false,
+    icon: '💀',
+  },
+  {
+    id: 'ghost',
+    name: 'Wailing Ghost',
+    description: 'Ethereal spirits that phase through physical defenses. Only magic can harm them.',
+    baseHp: 30,
+    baseDamage: 12,
+    speed: 10,
+    armor: 0,
+    soulShardDrop: 3,
+    darkCrystalDrop: 2,
+    isBoss: false,
+    icon: '👻',
+  },
+  {
+    id: 'demon',
+    name: 'Lesser Demon',
+    description: 'Imps and fiends from the lower planes. They burn with chaotic energy and hit hard.',
+    baseHp: 100,
+    baseDamage: 18,
+    speed: 7,
+    armor: 5,
+    soulShardDrop: 4,
+    darkCrystalDrop: 3,
+    isBoss: false,
+    icon: '😈',
+  },
+  {
+    id: 'vampire',
+    name: 'Crypt Vampire',
+    description: 'Undead nobles that heal themselves by draining life from ravens and the tower wall.',
+    baseHp: 120,
+    baseDamage: 15,
+    speed: 9,
+    armor: 4,
+    soulShardDrop: 5,
+    darkCrystalDrop: 3,
+    isBoss: false,
+    icon: '🧛',
+  },
+  {
+    id: 'wraith',
+    name: 'Shadow Wraith',
+    description: 'Formless terrors born from pure darkness. They drain mana from spellcasters on contact.',
+    baseHp: 80,
+    baseDamage: 20,
+    speed: 12,
+    armor: 2,
+    soulShardDrop: 6,
+    darkCrystalDrop: 4,
+    isBoss: false,
+    icon: '👤',
+  },
+  {
+    id: 'troll',
+    name: 'Cursed Troll',
+    description: 'Massive brutes that regenerate health rapidly. They smash through defenses with brute force.',
+    baseHp: 250,
+    baseDamage: 25,
+    speed: 4,
+    armor: 10,
+    soulShardDrop: 7,
+    darkCrystalDrop: 5,
+    isBoss: false,
+    icon: '👹',
+  },
+  {
+    id: 'lich',
+    name: 'Tower Lich',
+    description: 'Undead sorcerers of terrible power. They cast dark magic that weakens your ravens.',
+    baseHp: 180,
+    baseDamage: 30,
+    speed: 6,
+    armor: 6,
+    soulShardDrop: 8,
+    darkCrystalDrop: 6,
+    isBoss: false,
+    icon: '🧙',
+  },
+  {
+    id: 'gargoyle',
+    name: 'Stone Gargoyle',
+    description: 'Living stone statues that fly over traps and land among your ravens with crushing force.',
+    baseHp: 200,
+    baseDamage: 22,
+    speed: 11,
+    armor: 15,
+    soulShardDrop: 6,
+    darkCrystalDrop: 5,
+    isBoss: false,
+    icon: '🗿',
+  },
+  {
+    id: 'banshee',
+    name: 'Death Banshee',
+    description: 'Spectral harbingers whose scream stuns all ravens in range. They move terrifyingly fast.',
+    baseHp: 70,
+    baseDamage: 35,
+    speed: 14,
+    armor: 0,
+    soulShardDrop: 9,
+    darkCrystalDrop: 7,
+    isBoss: false,
+    icon: '😱',
+  },
+  {
+    id: 'shadow_wyrm',
+    name: 'Shadow Wyrm',
+    description: 'A serpentine horror from the void. It consumes ravens whole and regenerates from shadow.',
+    baseHp: 300,
+    baseDamage: 40,
+    speed: 8,
+    armor: 12,
+    soulShardDrop: 10,
+    darkCrystalDrop: 8,
+    isBoss: false,
+    icon: '🐉',
+  },
+  {
+    id: 'tower_boss',
+    name: 'Tower Guardian',
+    description: 'The ancient guardian of this floor. A colossal entity of dark magic that tests all who ascend.',
+    baseHp: 1000,
+    baseDamage: 50,
+    speed: 3,
+    armor: 20,
+    soulShardDrop: 25,
+    darkCrystalDrop: 15,
+    isBoss: true,
+    icon: '👑',
+  },
+] as const;
 
-  // ── Dark Altars (4) ────────────────────────────────────────
-  { id: 'str_shadow_altar', name: 'Shadow Altar', emoji: '🕯️', category: 'dark_altar', maxLevel: 10, baseEffect: 8, effectPerLevel: 4, baseCost: 200, costMultiplier: 1.5, description: 'An altar of black stone that amplifies shadowmancy rituals and dark ceremonies.' },
-  { id: 'str_blood_altar', name: 'Blood Sacrifice Altar', emoji: '⛧', category: 'dark_altar', maxLevel: 10, baseEffect: 12, effectPerLevel: 6, baseCost: 450, costMultiplier: 1.7, description: 'An altar stained with ancient blood offerings. It powers blood magic and grants dark boons.' },
-  { id: 'str_soul_altar', name: 'Soul Binding Altar', emoji: '⛓️', category: 'dark_altar', maxLevel: 10, baseEffect: 18, effectPerLevel: 8, baseCost: 700, costMultiplier: 1.8, description: 'A massive altar ringed with soul chains. It binds powerful entities and grants dominion over spirits.' },
-  { id: 'str_void_altar', name: 'Abyss Gateway Altar', emoji: '🌀', category: 'dark_altar', maxLevel: 10, baseEffect: 25, effectPerLevel: 12, baseCost: 1500, costMultiplier: 2.0, description: 'The supreme altar. It opens a gateway to the abyss, granting access to limitless dark power.' },
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 8: CONSTANTS — ACHIEVEMENT DEFINITIONS (15 achievements)
+// ═══════════════════════════════════════════════════════════════════════════
 
-  // ── Relic Vaults (3) ───────────────────────────────────────
-  { id: 'str_relic_display', name: 'Relic Display Case', emoji: '🖼️', category: 'relic_vault', maxLevel: 10, baseEffect: 10, effectPerLevel: 5, baseCost: 300, costMultiplier: 1.5, description: 'A cursed display case that amplifies the passive effects of stored dark relics.' },
-  { id: 'str_sacred_vault', name: 'Cursed Relic Vault', emoji: '🔒', category: 'relic_vault', maxLevel: 10, baseEffect: 18, effectPerLevel: 8, baseCost: 600, costMultiplier: 1.7, description: 'A magically sealed vault preserved by dark enchantments. It protects and enhances relic power.' },
-  { id: 'str_abyss_shrine', name: 'Abyss Shrine', emoji: '🗡️', category: 'relic_vault', maxLevel: 10, baseEffect: 30, effectPerLevel: 15, baseCost: 2000, costMultiplier: 2.0, description: 'A shrine to the abyss that can restore, upgrade, and even evolve legendary relics placed within.' },
-]
+export const RV_ACHIEVEMENT_DEFS: readonly AchievementDef[] = [
+  {
+    id: 'first_blood',
+    name: 'First Blood',
+    description: 'Defeat your first enemy in the Raven Tower.',
+    icon: '🩸',
+    reward: { darkCrystals: 50, soulShards: 20 },
+  },
+  {
+    id: 'wave_10',
+    name: 'Wave Breaker',
+    description: 'Survive 10 waves on any floor.',
+    icon: '🌊',
+    reward: { darkCrystals: 100, soulShards: 50 },
+  },
+  {
+    id: 'wave_25',
+    name: 'Veteran Defender',
+    description: 'Survive 25 waves total across all floors.',
+    icon: '⚔️',
+    reward: { darkCrystals: 200, soulShards: 100 },
+  },
+  {
+    id: 'wave_50',
+    name: 'Legendary Sentinel',
+    description: 'Survive 50 waves total. True mastery of tower defense.',
+    icon: '🏅',
+    reward: { darkCrystals: 500, soulShards: 250 },
+  },
+  {
+    id: 'first_boss_kill',
+    name: 'Boss Slayer',
+    description: 'Defeat a Tower Guardian boss for the first time.',
+    icon: '💀',
+    reward: { darkCrystals: 150, soulShards: 75 },
+  },
+  {
+    id: 'all_floors_unlocked',
+    name: 'Tower Explorer',
+    description: 'Unlock all 8 floors of the Raven Tower.',
+    icon: '🏰',
+    reward: { darkCrystals: 300, soulShards: 150 },
+  },
+  {
+    id: 'all_ravens_unlocked',
+    name: 'Master of Ravens',
+    description: 'Unlock all 10 raven types.',
+    icon: '🐦‍⬛',
+    reward: { darkCrystals: 400, soulShards: 200 },
+  },
+  {
+    id: 'master_of_shadows',
+    name: 'Master of Shadows',
+    description: 'Kill 100 enemies using Shadow Ravens.',
+    icon: '🌑',
+    reward: { darkCrystals: 200, soulShards: 100 },
+  },
+  {
+    id: 'ice_cold_killer',
+    name: 'Ice Cold Killer',
+    description: 'Freeze 50 enemies using Ice Raven abilities.',
+    icon: '🧊',
+    reward: { darkCrystals: 200, soulShards: 100 },
+  },
+  {
+    id: 'fire_storm_master',
+    name: 'Firestorm Master',
+    description: 'Deal 5000 total damage with Fire Ravens.',
+    icon: '🔥',
+    reward: { darkCrystals: 250, soulShards: 125 },
+  },
+  {
+    id: 'dark_healer',
+    name: 'Dark Healer',
+    description: 'Heal ravens for 2000 total HP using Soul Drain or Dark Heal.',
+    icon: '💚',
+    reward: { darkCrystals: 200, soulShards: 100 },
+  },
+  {
+    id: 'trap_lord',
+    name: 'Trap Lord',
+    description: 'Deploy 50 traps across all floors.',
+    icon: '🕸️',
+    reward: { darkCrystals: 300, soulShards: 150 },
+  },
+  {
+    id: 'wall_of_steel',
+    name: 'Wall of Steel',
+    description: 'Upgrade to an Obsidian Wall or higher.',
+    icon: '🧱',
+    reward: { darkCrystals: 250, soulShards: 125 },
+  },
+  {
+    id: 'keeper_level_30',
+    name: 'Veteran Keeper',
+    description: 'Reach Tower Keeper level 30.',
+    icon: '⭐',
+    reward: { darkCrystals: 400, soulShards: 200 },
+  },
+  {
+    id: 'daily_assault_victor',
+    name: 'Assault Victor',
+    description: 'Complete a daily dark assault challenge.',
+    icon: '🏆',
+    reward: { darkCrystals: 500, soulShards: 300 },
+  },
+] as const;
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 9: RT_ABILITIES — 22 Raven Abilities
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 9: LOOKUP MAPS
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const RT_ABILITIES: readonly RtAbilityDef[] = [
-  { id: 'ab_shadow_glide', name: 'Shadow Glide', emoji: '🌑', darkArt: 'shadowmancy', type: 'active', rarity: 'common', energyCost: 5, cooldown: 30, power: 15, description: 'Glide through shadows, becoming invisible to enemies for a short duration.' },
-  { id: 'ab_blood_sense', name: 'Blood Sense', emoji: '🩸', darkArt: 'bloodmagic', type: 'active', rarity: 'common', energyCost: 6, cooldown: 35, power: 18, description: 'Sense the heartbeat and location of all living creatures within range.' },
-  { id: 'ab_soul_whisper', name: 'Soul Whisper', emoji: '👻', darkArt: 'soulbinding', type: 'active', rarity: 'common', energyCost: 7, cooldown: 40, power: 12, description: 'Whisper to spirits, gaining information and temporary spectral protection.' },
-  { id: 'ab_minor_hex', name: 'Minor Hex', emoji: '🔮', darkArt: 'cursecraft', type: 'active', rarity: 'common', energyCost: 8, cooldown: 45, power: 20, description: 'Place a minor hex on a target, reducing their luck and combat effectiveness.' },
-  { id: 'ab_death_whisper', name: 'Death Whisper', emoji: '💀', darkArt: 'necromancy', type: 'active', rarity: 'common', energyCost: 10, cooldown: 50, power: 14, description: 'Whisper to the dead, raising skeletal birds that fight alongside your flock.' },
-  { id: 'ab_gold_sense', name: 'Gold Sense', emoji: '✨', darkArt: 'darkalchemy', type: 'active', rarity: 'common', energyCost: 5, cooldown: 25, power: 10, description: 'Detect precious metals and hidden treasures within the tower walls.' },
-  { id: 'ab_rift_glimpse', name: 'Rift Glimpse', emoji: '🌀', darkArt: 'voidweaving', type: 'active', rarity: 'common', energyCost: 8, cooldown: 40, power: 16, description: 'Glimpse through a void rift to see hidden areas and detect invisible threats.' },
-  { id: 'ab_gloom_aura', name: 'Gloom Aura', emoji: '🌫️', darkArt: 'shadowmancy', type: 'active', rarity: 'uncommon', energyCost: 15, cooldown: 60, power: 28, description: 'Emit an aura of supernatural gloom that blinds enemies and weakens light-based magic.' },
-  { id: 'ab_siphon_strike', name: 'Siphon Strike', emoji: '💉', darkArt: 'bloodmagic', type: 'active', rarity: 'uncommon', energyCost: 18, cooldown: 70, power: 32, description: 'Strike with blood-soaked talons that drain life force from the target.' },
-  { id: 'ab_spectral_chain', name: 'Spectral Chain', emoji: '⛓️', darkArt: 'soulbinding', type: 'active', rarity: 'uncommon', energyCost: 16, cooldown: 65, power: 25, description: 'Forge spectral chains that bind a target\'s soul, preventing escape and reducing power.' },
-  { id: 'ab_persistent_jinx', name: 'Persistent Jinx', emoji: '💫', darkArt: 'cursecraft', type: 'active', rarity: 'uncommon', energyCost: 20, cooldown: 80, power: 30, description: 'Place a persistent jinx that follows the target, causing escalating bad fortune.' },
-  { id: 'ab_bone_summon', name: 'Bone Summon', emoji: '🦴', darkArt: 'necromancy', type: 'active', rarity: 'uncommon', energyCost: 22, cooldown: 90, power: 28, description: 'Summon skeletal constructs from nearby remains to fight as temporary allies.' },
-  { id: 'ab_venom_brew', name: 'Venom Brew', emoji: '🧪', darkArt: 'darkalchemy', type: 'active', rarity: 'uncommon', energyCost: 14, cooldown: 55, power: 26, description: 'Brew a potent venom from gathered materials that can be applied to weapons or traps.' },
-  { id: 'ab_void_step', name: 'Void Step', emoji: '🌀', darkArt: 'voidweaving', type: 'active', rarity: 'uncommon', energyCost: 18, cooldown: 75, power: 30, description: 'Step through a void rift to teleport a short distance, bypassing obstacles and enemies.' },
-  { id: 'ab_phase_shadow', name: 'Phase Shadow', emoji: '👤', darkArt: 'shadowmancy', type: 'active', rarity: 'rare', energyCost: 28, cooldown: 120, power: 48, description: 'Phase completely into shadow form, becoming intangible and able to pass through solid matter.' },
-  { id: 'ab_crimson_construct', name: 'Crimson Construct', emoji: '🗿', darkArt: 'bloodmagic', type: 'active', rarity: 'rare', energyCost: 32, cooldown: 130, power: 52, description: 'Form a construct from hardened blood that fights autonomously and explodes on destruction.' },
-  { id: 'ab_phantom_split', name: 'Phantom Split', emoji: '👥', darkArt: 'soulbinding', type: 'active', rarity: 'rare', energyCost: 25, cooldown: 110, power: 42, description: 'Split into multiple phantom copies that confuse enemies and attack simultaneously.' },
-  { id: 'ab_bane_mark', name: 'Bane Mark', emoji: '☠️', darkArt: 'cursecraft', type: 'active', rarity: 'rare', energyCost: 30, cooldown: 120, power: 50, description: 'Mark a target with an ancient bane that amplifies all future curses and drains their magic.' },
-  { id: 'ab_grave_rise', name: 'Grave Rise', emoji: '⚰️', darkArt: 'necromancy', type: 'active', rarity: 'rare', energyCost: 35, cooldown: 140, power: 55, description: 'Raise a powerful undead servant from a nearby grave that persists until destroyed.' },
-  { id: 'ab_matter_shift', name: 'Matter Shift', emoji: '⚗️', darkArt: 'darkalchemy', type: 'active', rarity: 'rare', energyCost: 28, cooldown: 115, power: 45, description: 'Transmute matter in the environment, turning walls to glass or enemies to stone temporarily.' },
-  { id: 'ab_eclipse_wings', name: 'Eclipse Wings', emoji: '🌑', darkArt: 'shadowmancy', type: 'active', rarity: 'epic', energyCost: 45, cooldown: 240, power: 78, description: 'Spread wings of pure darkness that blot out all light in a massive area, empowering all shadow allies.' },
-  { id: 'ab_nexus_portal', name: 'Nexus Portal', emoji: '🌀', darkArt: 'voidweaving', type: 'active', rarity: 'epic', energyCost: 50, cooldown: 300, power: 85, description: 'Open a stable nexus portal that allows travel between two points and summons abyssal creatures.' },
-]
+const rvRavenMap: Readonly<Record<RavenType, RavenDef>> = RV_RAVEN_DEFS.reduce(
+  (acc, r) => ({ ...acc, [r.id]: r }),
+  {} as Record<RavenType, RavenDef>
+);
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 10: RT_ACHIEVEMENTS — 18 Achievements
-// ═══════════════════════════════════════════════════════════════════
+const rvFloorMap: Readonly<Record<FloorId, FloorDef>> = RV_FLOOR_DEFS.reduce(
+  (acc, f) => ({ ...acc, [f.id]: f }),
+  {} as Record<FloorId, FloorDef>
+);
 
-export const RT_ACHIEVEMENTS: readonly RtAchievementDef[] = [
-  { id: 'ach_first_bind', name: 'First Binding', emoji: '🦅', description: 'Bind your first raven to the tower.', condition: 'bind_1', reward: { gold: 50, renown: 10 } },
-  { id: 'ach_five_bound', name: 'Flock Forming', emoji: '🐦‍⬛', description: 'Bind 5 different ravens.', condition: 'bind_5', reward: { gold: 200, renown: 40 } },
-  { id: 'ach_first_harvest', name: 'Feather Collector', emoji: '🪶', description: 'Harvest feathers for the first time.', condition: 'harvest_1', reward: { gold: 80, renown: 15 } },
-  { id: 'ach_ten_harvests', name: 'Master Plucker', emoji: '🧵', description: 'Harvest materials 10 times.', condition: 'harvest_10', reward: { gold: 300, renown: 60 } },
-  { id: 'ach_first_build', name: 'Dark Foundation', emoji: '🏗️', description: 'Build your first tower structure.', condition: 'build_1', reward: { gold: 100, renown: 20 } },
-  { id: 'ach_five_builds', name: 'Tower Architect', emoji: '🏚️', description: 'Build 5 different tower structures.', condition: 'build_5', reward: { gold: 500, renown: 80 } },
-  { id: 'ach_floor_explore', name: 'Floor Explorer', emoji: '🗺️', description: 'Explore 4 different tower floors.', condition: 'floor_4', reward: { gold: 400, renown: 50 } },
-  { id: 'ach_all_floors', name: 'Tower Cartographer', emoji: '🏰', description: 'Explore all 8 tower floors.', condition: 'floor_8', reward: { gold: 2000, renown: 200 } },
-  { id: 'ach_rare_bind', name: 'Rare Catch', emoji: '💎', description: 'Bind a rare raven.', condition: 'rare_bind', reward: { gold: 500, renown: 100 } },
-  { id: 'ach_epic_bind', name: 'Epic Discovery', emoji: '🌟', description: 'Bind an epic raven.', condition: 'epic_bind', reward: { gold: 1500, renown: 250 } },
-  { id: 'ach_legendary_bind', name: 'Legendary Binder', emoji: '👑', description: 'Bind a legendary raven.', condition: 'legendary_bind', reward: { gold: 5000, renown: 500 } },
-  { id: 'ach_first_relic', name: 'Relic Finder', emoji: '🏺', description: 'Discover your first dark relic.', condition: 'relic_1', reward: { gold: 300, renown: 60 } },
-  { id: 'ach_five_relics', name: 'Relic Hunter', emoji: '🔍', description: 'Collect 5 different relics.', condition: 'relic_5', reward: { gold: 1000, renown: 150 } },
-  { id: 'ach_first_event', name: 'Event Survivor', emoji: '⚡', description: 'Survive your first tower event.', condition: 'event_1', reward: { gold: 200, renown: 30 } },
-  { id: 'ach_ten_events', name: 'Event Veteran', emoji: '🏅', description: 'Survive 10 tower events.', condition: 'event_10', reward: { gold: 800, renown: 120 } },
-  { id: 'ach_upgrade_max', name: 'Master Builder', emoji: '🔨', description: 'Upgrade any structure to level 10.', condition: 'upgrade_10', reward: { gold: 2000, renown: 200 } },
-  { id: 'ach_all_arts', name: 'Dark Art Master', emoji: '🌈', description: 'Bind at least one raven of each dark art.', condition: 'all_arts', reward: { gold: 3000, renown: 300 } },
-  { id: 'ach_max_title', name: 'Tower Deity', emoji: '👑', description: 'Reach the title of Tower Deity.', condition: 'max_title', reward: { gold: 10000, renown: 1000 } },
-]
+const rvTrapMap: Readonly<Record<TrapType, TrapDef>> = RV_TRAP_DEFS.reduce(
+  (acc, t) => ({ ...acc, [t.id]: t }),
+  {} as Record<TrapType, TrapDef>
+);
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 11: RT_TITLES — 8 Titles
-// ═══════════════════════════════════════════════════════════════════
+const rvWallMap: Readonly<Record<WallType, WallDef>> = RV_WALL_DEFS.reduce(
+  (acc, w) => ({ ...acc, [w.id]: w }),
+  {} as Record<WallType, WallDef>
+);
 
-export const RT_TITLES: readonly RtTitleDef[] = [
-  { id: 'title_raven_fledgling', name: 'Raven Fledgling', emoji: '🐣', minRenown: 0, minRavens: 0, description: 'A novice who has just begun their journey into the dark arts of the Raven Tower.' },
-  { id: 'title_shadow_apprentice', name: 'Shadow Apprentice', emoji: '🌑', minRenown: 50, minRavens: 3, description: 'An apprentice who can bind common ravens and perform basic shadow rituals.' },
-  { id: 'title_dark_flockmaster', name: 'Dark Flockmaster', emoji: '🐦‍⬛', minRenown: 200, minRavens: 7, description: 'A skilled master of a growing dark flock. The ravens obey without question.' },
-  { id: 'title_curse_weaver', name: 'Curse Weaver', emoji: '🔮', minRenown: 500, minRavens: 12, description: 'A powerful weaver of curses whose hexes are feared throughout the tower.' },
-  { id: 'title_tower_keeper', name: 'Tower Keeper', emoji: '🏚️', minRenown: 1200, minRavens: 18, description: 'A keeper of the tower\'s deepest secrets, entrusted with guarding its forbidden floors.' },
-  { id: 'title_soul_archon', name: 'Soul Archon', emoji: '👻', minRenown: 2500, minRavens: 24, description: 'An archon who commands souls and bends spirits to their iron will.' },
-  { id: 'title_abyss_lord', name: 'Abyss Lord', emoji: '🌀', minRenown: 5000, minRavens: 30, description: 'A lord of the abyss who commands the void and all its terrible inhabitants.' },
-  { id: 'title_tower_deity', name: 'Tower Deity', emoji: '👑', minRenown: 10000, minRavens: 35, description: 'The supreme Tower Deity, master of all dark arts and sovereign of the Raven Tower.' },
-]
+const rvSpellMap: Readonly<Record<SpellId, SpellDef>> = RV_SPELL_DEFS.reduce(
+  (acc, s) => ({ ...acc, [s.id]: s }),
+  {} as Record<SpellId, SpellDef>
+);
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 12: RT_RELICS — 15 Legendary Dark Relics
-// ═══════════════════════════════════════════════════════════════════
+const rvMonsterMap: Readonly<Record<MonsterType, MonsterDef>> = RV_MONSTER_DEFS.reduce(
+  (acc, m) => ({ ...acc, [m.id]: m }),
+  {} as Record<MonsterType, MonsterDef>
+);
 
-export const RT_RELICS: readonly RtRelicDef[] = [
-  { id: 'relic_shadow_crown', name: 'Crown of Shadows', emoji: '👑', rarity: 'epic', darkArt: 'shadowmancy', shadowBoost: 20, bloodBoost: 15, agilityBoost: 10, value: 2000, description: 'A crown woven from living shadows. It grants dominion over all darkness in the tower.' },
-  { id: 'relic_blood_chalice', name: 'Blood Chalice', emoji: '🍷', rarity: 'epic', darkArt: 'bloodmagic', shadowBoost: 10, bloodBoost: 35, agilityBoost: 5, value: 2200, description: 'A chalice that never empties. Drinking from it grants immense blood magic power.' },
-  { id: 'relic_soul_mirror', name: 'Soul Mirror', emoji: '🪞', rarity: 'rare', darkArt: 'soulbinding', shadowBoost: 12, bloodBoost: 12, agilityBoost: 18, value: 800, description: 'A mirror that reflects the souls of those who gaze into it. It reveals hidden truths.' },
-  { id: 'relic_hex_staff', name: 'Hex Staff', emoji: '🪄', rarity: 'rare', darkArt: 'cursecraft', shadowBoost: 8, bloodBoost: 20, agilityBoost: 12, value: 750, description: 'A staff inscribed with hex sigils. It amplifies curse power and extends range.' },
-  { id: 'relic_death_mask', name: 'Death Mask', emoji: '🎭', rarity: 'epic', darkArt: 'necromancy', shadowBoost: 25, bloodBoost: 18, agilityBoost: 15, value: 2500, description: 'A mask that allows the wearer to see and command the dead. Undead recognize the wearer as their master.' },
-  { id: 'relic_alchemy_ring', name: 'Philosopher Ring', emoji: '💍', rarity: 'epic', darkArt: 'darkalchemy', shadowBoost: 15, bloodBoost: 15, agilityBoost: 25, value: 2400, description: 'A ring that enhances transmutation. It can turn base materials into precious substances.' },
-  { id: 'relic_void_compass', name: 'Void Compass', emoji: '🧭', rarity: 'epic', darkArt: 'voidweaving', shadowBoost: 18, bloodBoost: 10, agilityBoost: 22, value: 2300, description: 'A compass that points toward void rifts. It guides its bearer through dimensional tears.' },
-  { id: 'relic_shadowblade', name: 'Shadowblade', emoji: '🗡️', rarity: 'legendary', darkArt: 'shadowmancy', shadowBoost: 45, bloodBoost: 20, agilityBoost: 25, value: 8000, description: 'A blade forged from solidified shadow. It cuts through any defense and cannot be blocked.' },
-  { id: 'relic_sanguine_scepter', name: 'Sanguine Scepter', emoji: '⚜️', rarity: 'legendary', darkArt: 'bloodmagic', shadowBoost: 20, bloodBoost: 50, agilityBoost: 15, value: 9500, description: 'A scepter that controls all blood within range. It can command enemies\' blood against them.' },
-  { id: 'relic_anima_orb', name: 'Anima Orb', emoji: '🔮', rarity: 'legendary', darkArt: 'soulbinding', shadowBoost: 30, bloodBoost: 30, agilityBoost: 30, value: 8500, description: 'An orb containing millions of captured souls. It grants omniscience and spiritual dominance.' },
-  { id: 'relic_malediction_tome', name: 'Tome of Malediction', emoji: '📖', rarity: 'legendary', darkArt: 'cursecraft', shadowBoost: 40, bloodBoost: 25, agilityBoost: 20, value: 10000, description: 'The ultimate curse grimoire. It contains every curse ever devised and can invent new ones.' },
-  { id: 'relic_necronomicon', name: 'Necronomicon Fragment', emoji: '📜', rarity: 'legendary', darkArt: 'necromancy', shadowBoost: 35, bloodBoost: 35, agilityBoost: 25, value: 9000, description: 'A fragment of the legendary Necronomicon. It grants mastery over life and death itself.' },
-  { id: 'relic_immortal_vial', name: 'Immortal Vial', emoji: '⚗️', rarity: 'legendary', darkArt: 'darkalchemy', shadowBoost: 25, bloodBoost: 40, agilityBoost: 35, value: 11000, description: 'A vial containing the elixir of immortality. It can grant eternal life to its bearer.' },
-  { id: 'relic_abyss_key', name: 'Key to the Abyss', emoji: '🗝️', rarity: 'legendary', darkArt: 'voidweaving', shadowBoost: 50, bloodBoost: 30, agilityBoost: 40, value: 12000, description: 'A key that opens the gates of the abyss itself. It grants unlimited access to void energy.' },
-  { id: 'relic_tower_heart', name: 'Heart of the Tower', emoji: '🖤', rarity: 'epic', darkArt: 'shadowmancy', shadowBoost: 22, bloodBoost: 22, agilityBoost: 18, value: 2600, description: 'The crystallized heart of the Raven Tower. It resonates with all dark arts equally.' },
-]
+const rvAchievementMap: Readonly<Record<AchievementId, AchievementDef>> = RV_ACHIEVEMENT_DEFS.reduce(
+  (acc, a) => ({ ...acc, [a.id]: a }),
+  {} as Record<AchievementId, AchievementDef>
+);
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 13: RT_EVENTS — 12 Tower Events
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 10: XP & LEVELING CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const RT_EVENTS: readonly RtEventDef[] = [
-  { id: 'evt_shadow_surge', name: 'Shadow Surge', emoji: '🌑', durationTurns: 5, effectType: 'buff', effectDescription: 'Shadowmancy raven power doubled. Dark corners reveal secrets.', description: 'A surge of shadow energy floods the tower, empowering shadow ravens and revealing hidden passages.' },
-  { id: 'evt_blood_moon', name: 'Blood Moon Rising', emoji: '🩸', durationTurns: 4, effectType: 'buff', effectDescription: 'Blood magic ravens gain +50% power. All healing doubled.', description: 'The moon turns crimson, amplifying blood magic to unprecedented levels across the tower.' },
-  { id: 'evt_soul_storm', name: 'Soul Storm', emoji: '👻', durationTurns: 3, effectType: 'special', effectDescription: 'Soulbinding ravens triple power. Free soul materials appear.', description: 'A storm of displaced souls sweeps through the tower, providing rare soulbinding materials.' },
-  { id: 'evt_curse_epidemic', name: 'Curse Epidemic', emoji: '☠️', durationTurns: 3, effectType: 'debuff', effectDescription: 'All ravens lose 25% loyalty. Curse materials available.', description: 'An ancient curse reactivates, spreading through the tower and affecting all ravens within.' },
-  { id: 'evt_grave_awakening', name: 'Grave Awakening', emoji: '⚰️', durationTurns: 5, effectType: 'buff', effectDescription: 'Necromancy ravens gain +60% power. Free undead allies.', description: 'The dead rise throughout the tower. Necromancy ravens can command vast skeletal armies.' },
-  { id: 'evt_alchemical_bloom', name: 'Alchemical Bloom', emoji: '⚗️', durationTurns: 4, effectType: 'buff', effectDescription: 'Material harvest doubled. Alchemy ravens gain +40% power.', description: 'A rare bloom of alchemical energy fills the tower, making transmutation effortless.' },
-  { id: 'evt_void_tear', name: 'Void Tear', emoji: '🌀', durationTurns: 2, effectType: 'special', effectDescription: 'Voidweaving ravens triple power. Random void portals open.', description: 'A massive tear in reality opens in the tower, releasing abyssal energy and strange creatures.' },
-  { id: 'evt_tower_quake', name: 'Tower Quake', emoji: '💥', durationTurns: 2, effectType: 'debuff', effectDescription: 'Lose 10% gold. Hidden rooms revealed on all floors.', description: 'The tower shakes violently, damaging structures but revealing secret chambers long sealed.' },
-  { id: 'evt_raven_migration', name: 'Dark Raven Migration', emoji: '🦅', durationTurns: 6, effectType: 'buff', effectDescription: 'Binding chance doubled. Rare ravens appear on all floors.', description: 'Thousands of dark ravens migrate to the tower. The perfect time to bind new species.' },
-  { id: 'evt_abyss_whisper', name: 'Abyss Whisper', emoji: '👁️', durationTurns: 3, effectType: 'special', effectDescription: 'Renown gain doubled. Relic discovery chance increased.', description: 'The abyss whispers secrets of hidden relics and forgotten treasures throughout the tower.' },
-  { id: 'evt_dark_festival', name: 'Festival of Dark Arts', emoji: '🎭', durationTurns: 5, effectType: 'buff', effectDescription: 'All raven loyalty restored. All dark arts gain +20% power.', description: 'A rare festival where all dark arts are celebrated. Ravens are inspired and loyal.' },
-  { id: 'evt_tower_siege', name: 'Tower Under Siege', emoji: '🏰', durationTurns: 4, effectType: 'debuff', effectDescription: 'Defense reduced. Epic materials drop from invaders.', description: 'Outside forces besiege the tower. Defeating invaders yields rare and epic materials.' },
-]
+const RV_BASE_XP = 100;
+const RV_XP_GROWTH = 1.18;
+const RV_MAX_LEVEL = 45;
+const RV_MANA_PER_LEVEL = 5;
+const RV_MANA_BASE = 30;
+const RV_FLOOR_UPGRADE_XP = 50;
+const RV_KILL_XP = 10;
+const RV_BOSS_KILL_XP = 50;
+const RV_WAVE_COMPLETE_XP = 25;
+const RV_DAILY_ASSAULT_BONUS_XP = 100;
+const RV_ASSAULT_TOTAL_WAVES = 10;
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 14: INTERNAL CONSTANTS
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 11: PURE HELPER FUNCTIONS (all rv prefix)
+// ═══════════════════════════════════════════════════════════════════════════
 
-const RT_MAX_RAVEN_LEVEL = 50
-const RT_MAX_STRUCTURE_LEVEL = 10
-const RT_INITIAL_GOLD = 200
-const RT_INITIAL_RENOWN = 0
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 15: HELPER FUNCTIONS (hoisted with `function`)
-// ═══════════════════════════════════════════════════════════════════
-
-function rtXpForLevel(level: number): number {
-  return Math.floor(80 * Math.pow(1.25, level - 1))
+export function rvXpForLevel(level: number): number {
+  return Math.floor(RV_BASE_XP * Math.pow(RV_XP_GROWTH, level - 1));
 }
 
-function rtCalcStats(species: RtRavenSpecies, level: number) {
-  const growth = 1 + (level - 1) * 0.12
+export function rvMaxManaForLevel(level: number): number {
+  return RV_MANA_BASE + level * RV_MANA_PER_LEVEL;
+}
+
+export function rvGetRavenDef(type: RavenType): RavenDef {
+  return rvRavenMap[type];
+}
+
+export function rvGetFloorDef(id: FloorId): FloorDef {
+  return rvFloorMap[id];
+}
+
+export function rvGetTrapDef(id: TrapType): TrapDef {
+  return rvTrapMap[id];
+}
+
+export function rvGetWallDef(id: WallType): WallDef {
+  return rvWallMap[id];
+}
+
+export function rvGetSpellDef(id: SpellId): SpellDef {
+  return rvSpellMap[id];
+}
+
+export function rvGetMonsterDef(id: MonsterType): MonsterDef {
+  return rvMonsterMap[id];
+}
+
+export function rvGetAchievementDef(id: AchievementId): AchievementDef {
+  return rvAchievementMap[id];
+}
+
+export function rvIsBossWave(waveNumber: number): boolean {
+  return waveNumber > 0 && waveNumber % 5 === 0;
+}
+
+export function rvScaledMonsterHp(baseHp: number, waveNumber: number, floorLevel: number): number {
+  const waveScale = 1 + (waveNumber - 1) * 0.12;
+  const floorScale = 1 + floorLevel * 0.08;
+  return Math.floor(baseHp * waveScale * floorScale);
+}
+
+export function rvScaledMonsterDamage(baseDamage: number, waveNumber: number): number {
+  const waveScale = 1 + (waveNumber - 1) * 0.08;
+  return Math.floor(baseDamage * waveScale);
+}
+
+export function rvRavenDamage(raven: RavenDef, ravenLevel: number): number {
+  const levelBonus = 1 + (ravenLevel - 1) * 0.15;
+  return Math.floor(raven.baseDamage * levelBonus);
+}
+
+export function rvRavenMaxHp(raven: RavenDef, ravenLevel: number): number {
+  const levelBonus = 1 + (ravenLevel - 1) * 0.12;
+  return Math.floor(raven.baseHealth * levelBonus);
+}
+
+export function rvRavenManaCost(raven: RavenDef, ravenLevel: number): number {
+  return Math.max(5, Math.floor(raven.baseDamage * 0.5 * (1 + ravenLevel * 0.1)));
+}
+
+export function rvSpellDamage(spell: SpellDef, keeperLevel: number): number {
+  if (spell.damage === 0) return 0;
+  const levelBonus = 1 + (keeperLevel - 1) * 0.05;
+  return Math.floor(spell.damage * levelBonus);
+}
+
+export function rvTrapTotalDamage(trap: TrapDef, floorLevel: number): number {
+  const ticks = Math.ceil(trap.duration);
+  const scaledDamage = trap.damage * (1 + floorLevel * 0.05);
+  return Math.floor(scaledDamage * ticks);
+}
+
+export function rvWallEffectiveHp(wall: WallDef, floorLevel: number): number {
+  return Math.floor(wall.hp * (1 + floorLevel * 0.1));
+}
+
+export function rvMonsterRewards(monster: MonsterDef, waveNumber: number): { darkCrystals: number; soulShards: number } {
+  const waveMultiplier = 1 + (waveNumber - 1) * 0.05;
+  const bossMultiplier = monster.isBoss ? 3 : 1;
   return {
-    shadowPower: Math.floor(species.shadowPower * growth),
-    bloodPower: Math.floor(species.bloodPower * growth),
-    agility: Math.floor(species.agility * growth),
+    darkCrystals: Math.floor(monster.darkCrystalDrop * waveMultiplier * bossMultiplier),
+    soulShards: Math.floor(monster.soulShardDrop * waveMultiplier * bossMultiplier),
+  };
+}
+
+export function rvWaveEnemyCount(floorDef: FloorDef, waveNumber: number): number {
+  const base = floorDef.enemiesPerWave;
+  const waveBonus = Math.floor((waveNumber - 1) / 3);
+  const bossBonus = rvIsBossWave(waveNumber) ? -2 : 0;
+  return Math.max(1, base + waveBonus + bossBonus);
+}
+
+export function rvFloorUpgradeCost(floorLevel: number): number {
+  return Math.floor(100 * Math.pow(1.5, floorLevel - 1));
+}
+
+export function rvRavenLevelUpCost(ravenLevel: number): number {
+  return Math.floor(50 * Math.pow(1.6, ravenLevel - 1));
+}
+
+export function rvWallUpgradeCost(currentWall: WallType): number {
+  const wallOrder: readonly WallType[] = ['stone', 'iron', 'obsidian', 'void_barrier'];
+  const currentIndex = wallOrder.indexOf(currentWall);
+  if (currentIndex >= wallOrder.length - 1) return Infinity;
+  return rvWallMap[wallOrder[currentIndex + 1]].cost;
+}
+
+export function rvNextWallType(currentWall: WallType): WallType | null {
+  const wallOrder: readonly WallType[] = ['stone', 'iron', 'obsidian', 'void_barrier'];
+  const currentIndex = wallOrder.indexOf(currentWall);
+  if (currentIndex >= wallOrder.length - 1) return null;
+  return wallOrder[currentIndex + 1];
+}
+
+export function rvCanUpgradeFloor(state: RavenTowerState): boolean {
+  const floor = rvFloorMap[state.currentFloor];
+  const currentLevel = state.floorLevels[state.currentFloor];
+  return currentLevel < 10;
+}
+
+export function rvAvailableRavens(keeperLevel: number): readonly RavenType[] {
+  return RV_RAVEN_DEFS.filter(r => r.unlockLevel <= keeperLevel).map(r => r.id);
+}
+
+export function rvAvailableSpells(keeperLevel: number): readonly SpellId[] {
+  return RV_SPELL_DEFS.filter(s => s.unlockLevel <= keeperLevel).map(s => s.id);
+}
+
+export function rvAvailableTraps(keeperLevel: number): readonly TrapType[] {
+  return RV_TRAP_DEFS.filter(t => t.unlockLevel <= keeperLevel).map(t => t.id);
+}
+
+export function rvAvailableWalls(keeperLevel: number): readonly WallType[] {
+  return RV_WALL_DEFS.filter(w => w.unlockLevel <= keeperLevel).map(w => w.id);
+}
+
+export function rvAvailableFloors(keeperLevel: number): readonly FloorId[] {
+  return RV_FLOOR_DEFS.filter(f => f.unlockLevel <= keeperLevel).map(f => f.id);
+}
+
+export function rvCheckAchievement(state: RavenTowerState, id: AchievementId): boolean {
+  return state.achievements.includes(id);
+}
+
+export function rvGetKeeperTitle(keeperLevel: number): string {
+  if (keeperLevel >= 42) return 'Tower Deity';
+  if (keeperLevel >= 35) return 'Abyss Lord';
+  if (keeperLevel >= 28) return 'Soul Archon';
+  if (keeperLevel >= 22) return 'Tower Keeper';
+  if (keeperLevel >= 15) return 'Curse Weaver';
+  if (keeperLevel >= 10) return 'Dark Flockmaster';
+  if (keeperLevel >= 5) return 'Shadow Apprentice';
+  return 'Raven Fledgling';
+}
+
+export function rvDailyAssaultMultiplier(wavesCompleted: number): number {
+  return 1 + wavesCompleted * 0.15;
+}
+
+export function rvDailyAssaultReward(wavesCompleted: number, monsterCount: number): { darkCrystals: number; soulShards: number } {
+  const base = wavesCompleted * 20;
+  const multiplier = rvDailyAssaultMultiplier(wavesCompleted);
+  return {
+    darkCrystals: Math.floor(base * multiplier * 1.5),
+    soulShards: Math.floor(base * multiplier),
+  };
+}
+
+export function rvTotalAchievementRewards(achievements: readonly AchievementId[]): { darkCrystals: number; soulShards: number } {
+  let darkCrystals = 0;
+  let soulShards = 0;
+  for (const id of achievements) {
+    const def = rvAchievementMap[id];
+    darkCrystals += def.reward.darkCrystals;
+    soulShards += def.reward.soulShards;
   }
+  return { darkCrystals, soulShards };
 }
 
-let _rtIdCounter = 0
-function rtGenerateId(): string {
-  _rtIdCounter += 1
-  return `rt_${_rtIdCounter.toString(36)}_${(Date.now() % 1000000).toString(36)}`
+export function rvDefensePower(ravens: readonly DeployedRaven[], traps: readonly DeployedTrap[]): number {
+  let ravenPower = 0;
+  for (const r of ravens) {
+    const def = rvRavenMap[r.ravenType];
+    ravenPower += rvRavenDamage(def, r.level) * (1 + r.level * 0.1);
+  }
+  let trapPower = 0;
+  for (const t of traps) {
+    const def = rvTrapMap[t.trapType];
+    trapPower += rvTrapTotalDamage(def, 5) * (t.charges / 3);
+  }
+  return Math.floor(ravenPower + trapPower);
 }
 
-function rtFindSpecies(id: string): RtRavenSpecies | undefined {
-  return RT_RAVENS.find((s) => s.id === id)
+export function rvThreatLevel(waveNumber: number, floorLevel: number): number {
+  const base = waveNumber * 2;
+  const floorMod = floorLevel * 3;
+  const bossMod = rvIsBossWave(waveNumber) ? 15 : 0;
+  return Math.min(100, Math.floor(base + floorMod + bossMod));
 }
 
-function rtFindFloor(id: string): RtFloorDef | undefined {
-  return RT_FLOORS.find((z) => z.id === id)
+export function rvEffectiveShield(state: RavenTowerState): number {
+  return state.shieldAmount;
 }
 
-function rtFindMaterial(id: string): RtMaterialDef | undefined {
-  return RT_MATERIALS.find((m) => m.id === id)
+export function rvWallHealthPercent(state: RavenTowerState): number {
+  if (state.wallMaxHp <= 0) return 0;
+  return Math.floor((state.wallHp / state.wallMaxHp) * 100);
 }
 
-function rtFindStructureDef(id: string): RtStructureDef | undefined {
-  return RT_STRUCTURES.find((s) => s.id === id)
+export function rvManaPercent(state: RavenTowerState): number {
+  if (state.maxMana <= 0) return 0;
+  return Math.floor((state.mana / state.maxMana) * 100);
 }
 
-function rtFindAbility(id: string): RtAbilityDef | undefined {
-  return RT_ABILITIES.find((a) => a.id === id)
+export function rvXpPercent(state: RavenTowerState): number {
+  if (state.xpToNextLevel <= 0) return 100;
+  return Math.floor((state.keeperXp / state.xpToNextLevel) * 100);
 }
 
-function rtFindRelic(id: string): RtRelicDef | undefined {
-  return RT_RELICS.find((r) => r.id === id)
+export function rvRavenSurvivalPercent(ravens: readonly DeployedRaven[]): number {
+  if (ravens.length === 0) return 100;
+  const alive = ravens.filter(r => r.currentHp > 0).length;
+  return Math.floor((alive / ravens.length) * 100);
 }
 
-function rtFindAchievement(id: string): RtAchievementDef | undefined {
-  return RT_ACHIEVEMENTS.find((a) => a.id === id)
+export function rvKillEfficiency(totalKills: number, wavesCompleted: number): number {
+  if (wavesCompleted <= 0) return 0;
+  return Math.floor(totalKills / wavesCompleted * 10) / 10;
 }
 
-function rtFindTitle(id: RtTitleId): RtTitleDef | undefined {
-  return RT_TITLES.find((t) => t.id === id)
+export function rvBossesDefeatedPerHour(bossKills: number, _hoursPlayed: number): number {
+  if (_hoursPlayed <= 0) return 0;
+  return Math.floor(bossKills / _hoursPlayed * 10) / 10;
 }
 
-function rtRarityMultiplier(rarity: RtRarity): number {
+export function rvResourceScore(state: RavenTowerState): number {
+  return state.darkCrystals * 2 + state.soulShards * 5;
+}
+
+export function rvOverallPowerScore(state: RavenTowerState): number {
+  const ravenScore = state.unlockedRavens.length * 100;
+  const spellScore = state.unlockedSpells.length * 80;
+  const trapScore = state.unlockedTraps.length * 50;
+  const floorScore = state.unlockedFloors.length * 60;
+  const achievementScore = state.achievements.length * 120;
+  const levelScore = state.keeperLevel * 30;
+  const killScore = state.totalKills * 2;
+  const bossScore = state.bossKills * 50;
+  return ravenScore + spellScore + trapScore + floorScore + achievementScore + levelScore + killScore + bossScore;
+}
+
+export function rvRarityColor(rarity: Rarity): string {
   switch (rarity) {
-    case 'common': return 1
-    case 'uncommon': return 2
-    case 'rare': return 5
-    case 'epic': return 10
-    case 'legendary': return 25
-    default: return 1
+    case 'common': return '#a0a0a0';
+    case 'uncommon': return '#2ecc71';
+    case 'rare': return '#3498db';
+    case 'epic': return '#9b59b6';
+    case 'legendary': return '#f1c40f';
   }
 }
 
-function rtRarityColor(rarity: RtRarity): string {
-  switch (rarity) {
-    case 'common': return '#9ca3af'
-    case 'uncommon': return '#34d399'
-    case 'rare': return '#60a5fa'
-    case 'epic': return '#a78bfa'
-    case 'legendary': return '#fbbf24'
-    default: return '#9ca3af'
+export function rvElementIcon(element: string): string {
+  switch (element) {
+    case 'Darkness': return '🌑';
+    case 'Lightning': return '⚡';
+    case 'Fire': return '🔥';
+    case 'Ice': return '❄️';
+    case 'Death': return '💀';
+    case 'Blood': return '🩸';
+    case 'Void': return '🌀';
+    case 'Bone': return '🦴';
+    case 'Curse': return '🔮';
+    case 'Soul': return '👻';
+    default: return '🐦‍⬛';
   }
 }
 
-function rtDarkArtColor(art: RtDarkArt): string {
-  switch (art) {
-    case 'shadowmancy': return RT_RAVEN_BLACK
-    case 'bloodmagic': return RT_BLOOD_RED
-    case 'soulbinding': return RT_MOONLIGHT_SILVER
-    case 'cursecraft': return RT_SHADOW_PURPLE
-    case 'necromancy': return RT_DARK_GREEN
-    case 'darkalchemy': return RT_GOTHIC_GOLD
-    case 'voidweaving': return RT_MIDNIGHT_BLUE
-    default: return '#888888'
+export function rvFloorIcon(floorId: FloorId): string {
+  switch (floorId) {
+    case 'dungeon': return '🏚️';
+    case 'catacombs': return '⚰️';
+    case 'blood_cellar': return '🩸';
+    case 'soul_gallery': return '🖼️';
+    case 'curse_vault': return '📜';
+    case 'necropolis': return '☠️';
+    case 'alchemy_spire': return '⚗️';
+    case 'observatory': return '🔭';
   }
 }
 
-export function rtCheckSynergy(attacker: RtDarkArt, defender: RtDarkArt): number {
-  const advantages = RT_SYNERGY_MAP[attacker]
-  if (advantages?.includes(defender)) return 1.4
-  const disadvantages = RT_SYNERGY_MAP[defender]
-  if (disadvantages?.includes(attacker)) return 0.7
-  return 1.0
+export function rvMonsterHpBar(current: number, max: number): string {
+  if (max <= 0) return '[██████████] 100%';
+  const pct = Math.max(0, Math.min(100, Math.floor((current / max) * 100)));
+  const filled = Math.floor(pct / 10);
+  const empty = 10 - filled;
+  return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${pct}%`;
 }
 
-function rtCalcStructureUpgradeCost(def: RtStructureDef, currentLevel: number): number {
-  return Math.floor(def.baseCost * Math.pow(def.costMultiplier, currentLevel))
+export function rvCooldownDisplay(current: number, max: number): string {
+  if (max <= 0 || current <= 0) return 'READY';
+  return `${current}s`;
 }
 
-function rtCalcMaxTitle(renown: number, ravenCount: number): RtTitleId {
-  let bestId: RtTitleId = 'title_raven_fledgling'
-  for (const title of RT_TITLES) {
-    if (renown >= title.minRenown && ravenCount >= title.minRavens) {
-      bestId = title.id
-    }
-  }
-  return bestId
+export function rvFormatResources(darkCrystals: number, soulShards: number): string {
+  return `💎 ${darkCrystals}  🔮 ${soulShards}`;
 }
 
-function rtCheckAchievementCondition(
-  condition: string,
-  state: RtStoreState
-): boolean {
-  switch (condition) {
-    case 'bind_1':
-      return state.totalBound >= 1
-    case 'bind_5':
-      return state.totalBound >= 5
-    case 'harvest_1':
-      return state.totalHarvested >= 1
-    case 'harvest_10':
-      return state.totalHarvested >= 10
-    case 'build_1':
-      return state.totalBuilt >= 1
-    case 'build_5':
-      return state.totalBuilt >= 5
-    case 'floor_4':
-      return state.floors.length >= 4
-    case 'floor_8':
-      return state.floors.length >= 8
-    case 'rare_bind':
-      return state.ravens.some((s) => {
-        const sp = rtFindSpecies(s.speciesId)
-        return sp && (sp.rarity === 'rare' || sp.rarity === 'epic' || sp.rarity === 'legendary')
-      })
-    case 'epic_bind':
-      return state.ravens.some((s) => {
-        const sp = rtFindSpecies(s.speciesId)
-        return sp && (sp.rarity === 'epic' || sp.rarity === 'legendary')
-      })
-    case 'legendary_bind':
-      return state.ravens.some((s) => {
-        const sp = rtFindSpecies(s.speciesId)
-        return sp && sp.rarity === 'legendary'
-      })
-    case 'relic_1':
-      return state.relics.length >= 1
-    case 'relic_5':
-      return state.relics.length >= 5
-    case 'event_1':
-      return state.totalEventsFaced >= 1
-    case 'event_10':
-      return state.totalEventsFaced >= 10
-    case 'upgrade_10':
-      return state.structures.some((s) => s.level >= 10)
-    case 'all_arts': {
-      const arts = new Set<RtDarkArt>()
-      for (const s of state.ravens) {
-        const sp = rtFindSpecies(s.speciesId)
-        if (sp) arts.add(sp.darkArt)
-      }
-      return arts.size >= 7
-    }
-    case 'max_title':
-      return state.currentTitle === 'title_tower_deity'
-    default:
-      return false
-  }
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 12: STATE REDUCER FUNCTIONS (pure, rv prefix)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function rvInitialState(): RavenTowerState {
+  return {
+    darkCrystals: 200,
+    soulShards: 100,
+    mana: RV_MANA_BASE,
+    maxMana: RV_MANA_BASE,
+    keeperLevel: 1,
+    keeperXp: 0,
+    xpToNextLevel: rvXpForLevel(2),
+    currentFloor: 'dungeon',
+    floorLevels: {
+      dungeon: 1,
+      catacombs: 0,
+      blood_cellar: 0,
+      soul_gallery: 0,
+      curse_vault: 0,
+      necropolis: 0,
+      alchemy_spire: 0,
+      observatory: 0,
+    },
+    unlockedRavens: ['shadow', 'storm'] as const,
+    unlockedSpells: ['shadow_veil'] as const,
+    unlockedFloors: ['dungeon'] as const,
+    unlockedTraps: ['shadow_snare'] as const,
+    unlockedWalls: ['stone'] as const,
+    achievements: [] as const,
+    deployedRavens: [],
+    deployedTraps: [],
+    currentWave: {
+      waveNumber: 0,
+      enemiesRemaining: 0,
+      isBossWave: false,
+      currentFloor: 'dungeon',
+      isComplete: true,
+    },
+    totalKills: 0,
+    totalWavesCompleted: 0,
+    bossKills: 0,
+    highestWave: 0,
+    dailyAssault: {
+      date: '',
+      isActive: false,
+      wavesCompleted: 0,
+      totalWaves: RV_ASSAULT_TOTAL_WAVES,
+      bonusMultiplier: 1,
+      isComplete: false,
+      darkCrystalsEarned: 0,
+      soulShardsEarned: 0,
+    },
+    wallType: 'stone',
+    wallHp: rvWallMap['stone'].hp,
+    wallMaxHp: rvWallMap['stone'].hp,
+    shieldAmount: 0,
+  };
 }
 
-function rtPickRandomEvent(): RtEventDef {
-  const idx = Math.floor(Math.random() * RT_EVENTS.length)
-  return RT_EVENTS[idx]
-}
+export function rvAddXp(state: RavenTowerState, amount: number): RavenTowerState {
+  let newLevel = state.keeperLevel;
+  let newXp = state.keeperXp + amount;
+  let newXpToNext = state.xpToNextLevel;
+  let newMana = state.mana;
+  let newMaxMana = state.maxMana;
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 16: ZUSTAND STORE WITH PERSIST
-// ═══════════════════════════════════════════════════════════════════
-
-const useRtStore = create<RtFullStore>()(
-  persist(
-    (set, get) => ({
-      // ── Initial State ──────────────────────────────────────────
-      ravens: [] as RtRavenInstance[],
-      floors: [] as string[],
-      materials: [] as { materialId: string; count: number }[],
-      structures: [] as RtStructureInstance[],
-      abilities: [] as string[],
-      achievements: [] as string[],
-      relics: [] as string[],
-      currentTitle: 'title_raven_fledgling' as RtTitleId,
-      gold: RT_INITIAL_GOLD,
-      renown: RT_INITIAL_RENOWN,
-      totalBound: 0,
-      totalHarvested: 0,
-      totalBuilt: 0,
-      totalEventsFaced: 0,
-      activeEvent: null as RtEventDef | null,
-      eventTurnsRemaining: 0,
-      activeFloor: null as string | null,
-
-      // ── rtBindRaven ───────────────────────────────────────────
-      rtBindRaven: (speciesId: string): boolean => {
-        const species = rtFindSpecies(speciesId)
-        if (!species) return false
-        const cost = Math.floor(50 * rtRarityMultiplier(species.rarity))
-        const state = get()
-        if (state.gold < cost) return false
-        const stats = rtCalcStats(species, 1)
-        const newRaven: RtRavenInstance = {
-          id: rtGenerateId(),
-          speciesId,
-          name: species.name,
-          level: 1,
-          xp: 0,
-          shadowPower: stats.shadowPower,
-          bloodPower: stats.bloodPower,
-          agility: stats.agility,
-          loyalty: 80,
-          hunger: 70,
-          boundAt: Date.now(),
-        }
-        set((prev) => {
-          const updated = {
-            ravens: [...prev.ravens, newRaven],
-            gold: prev.gold - cost,
-            totalBound: prev.totalBound + 1,
-            renown: prev.renown + rtRarityMultiplier(species.rarity) * 5,
-            currentTitle: rtCalcMaxTitle(
-              prev.renown + rtRarityMultiplier(species.rarity) * 5,
-              prev.ravens.length + 1
-            ),
-          }
-          return updated
-        })
-        return true
-      },
-
-      // ── rtReleaseRaven ────────────────────────────────────────
-      rtReleaseRaven: (ravenId: string): boolean => {
-        const state = get()
-        const exists = state.ravens.find((s) => s.id === ravenId)
-        if (!exists) return false
-        const species = rtFindSpecies(exists.speciesId)
-        const refund = species ? Math.floor(25 * rtRarityMultiplier(species.rarity)) : 10
-        set((prev) => ({
-          ravens: prev.ravens.filter((s) => s.id !== ravenId),
-          gold: prev.gold + refund,
-          currentTitle: rtCalcMaxTitle(prev.renown, prev.ravens.length - 1),
-        }))
-        return true
-      },
-
-      // ── rtFeedRaven ───────────────────────────────────────────
-      rtFeedRaven: (ravenId: string): boolean => {
-        const feedCost = 10
-        const state = get()
-        if (state.gold < feedCost) return false
-        set((prev) => {
-          const ravens = prev.ravens.map((s) => {
-            if (s.id !== ravenId) return s
-            const newXp = s.xp + 20
-            const xpNeeded = rtXpForLevel(s.level)
-            let newLevel = s.level
-            let currentXp = newXp
-            if (currentXp >= xpNeeded && s.level < RT_MAX_RAVEN_LEVEL) {
-              newLevel = s.level + 1
-              currentXp = newXp - xpNeeded
-            }
-            const species = rtFindSpecies(s.speciesId)
-            const stats = species ? rtCalcStats(species, newLevel) : { shadowPower: s.shadowPower, bloodPower: s.bloodPower, agility: s.agility }
-            return {
-              ...s,
-              level: newLevel,
-              xp: currentXp,
-              shadowPower: stats.shadowPower,
-              bloodPower: stats.bloodPower,
-              agility: stats.agility,
-              loyalty: Math.min(100, s.loyalty + 10),
-              hunger: Math.min(100, s.hunger + 20),
-            }
-          })
-          return { ravens, gold: prev.gold - feedCost, renown: prev.renown + 2 }
-        })
-        return true
-      },
-
-      // ── rtHarvestFeather ──────────────────────────────────────
-      rtHarvestFeather: (ravenId: string): boolean => {
-        const state = get()
-        const raven = state.ravens.find((s) => s.id === ravenId)
-        if (!raven) return false
-        if (raven.hunger < 20) return false
-        const species = rtFindSpecies(raven.speciesId)
-        if (!species) return false
-        const materialId = `mat_${species.darkArt}_${species.rarity}_feather`
-        const existingMaterial = state.materials.find((m) => m.materialId === materialId)
-        const amount = Math.ceil(raven.shadowPower / 10)
-        set((prev) => ({
-          materials: existingMaterial
-            ? prev.materials.map((m) => (m.materialId === materialId ? { ...m, count: m.count + amount } : m))
-            : [...prev.materials, { materialId, count: amount }],
-          totalHarvested: prev.totalHarvested + 1,
-          renown: prev.renown + 3,
-          ravens: prev.ravens.map((s) =>
-            s.id === ravenId ? { ...s, hunger: Math.max(0, s.hunger - 20) } : s
-          ),
-        }))
-        return true
-      },
-
-      // ── rtBuildStructure ──────────────────────────────────────
-      rtBuildStructure: (structureDefId: string): boolean => {
-        const def = rtFindStructureDef(structureDefId)
-        if (!def) return false
-        const state = get()
-        if (state.gold < def.baseCost) return false
-        const alreadyBuilt = state.structures.find((s) => s.structureDefId === structureDefId)
-        if (alreadyBuilt) return false
-        const newStructure: RtStructureInstance = {
-          id: rtGenerateId(),
-          structureDefId,
-          level: 1,
-          builtAt: Date.now(),
-        }
-        set((prev) => ({
-          structures: [...prev.structures, newStructure],
-          gold: prev.gold - def.baseCost,
-          totalBuilt: prev.totalBuilt + 1,
-          renown: prev.renown + 10,
-        }))
-        return true
-      },
-
-      // ── rtUpgradeStructure ────────────────────────────────────
-      rtUpgradeStructure: (structureId: string): boolean => {
-        const state = get()
-        const structure = state.structures.find((s) => s.id === structureId)
-        if (!structure) return false
-        if (structure.level >= RT_MAX_STRUCTURE_LEVEL) return false
-        const def = rtFindStructureDef(structure.structureDefId)
-        if (!def) return false
-        const cost = rtCalcStructureUpgradeCost(def, structure.level)
-        if (state.gold < cost) return false
-        set((prev) => ({
-          structures: prev.structures.map((s) =>
-            s.id === structureId ? { ...s, level: s.level + 1 } : s
-          ),
-          gold: prev.gold - cost,
-          renown: prev.renown + Math.floor(def.effectPerLevel * 2),
-        }))
-        return true
-      },
-
-      // ── rtExploreFloor ────────────────────────────────────────
-      rtExploreFloor: (floorId: string): RtEventDef | null => {
-        const floor = rtFindFloor(floorId)
-        if (!floor) return null
-        const state = get()
-        const requiredTitleIdx = RT_TITLES.findIndex((t) => t.id === floor.requiredTitle)
-        const currentTitleIdx = RT_TITLES.findIndex((t) => t.id === state.currentTitle)
-        if (currentTitleIdx < requiredTitleIdx) return null
-        const newFloors = state.floors.includes(floorId) ? state.floors : [...state.floors, floorId]
-        const event = rtPickRandomEvent()
-        set((prev) => ({
-          floors: newFloors,
-          activeFloor: floorId,
-          activeEvent: event,
-          eventTurnsRemaining: event.durationTurns,
-          totalEventsFaced: prev.totalEventsFaced + 1,
-          renown: prev.renown + 5,
-        }))
-        return event
-      },
-
-      // ── rtCollectRelic ────────────────────────────────────────
-      rtCollectRelic: (relicId: string): boolean => {
-        const relic = rtFindRelic(relicId)
-        if (!relic) return false
-        const state = get()
-        if (state.relics.includes(relicId)) return false
-        set((prev) => ({
-          relics: [...prev.relics, relicId],
-          renown: prev.renown + Math.floor(rtRarityMultiplier(relic.rarity) * 20),
-          currentTitle: rtCalcMaxTitle(
-            prev.renown + Math.floor(rtRarityMultiplier(relic.rarity) * 20),
-            prev.ravens.length
-          ),
-        }))
-        return true
-      },
-
-      // ── rtUnlockAbility ───────────────────────────────────────
-      rtUnlockAbility: (abilityId: string): boolean => {
-        const ability = rtFindAbility(abilityId)
-        if (!ability) return false
-        const state = get()
-        if (state.abilities.includes(abilityId)) return false
-        const cost = Math.floor(100 * rtRarityMultiplier(ability.rarity))
-        if (state.gold < cost) return false
-        set((prev) => ({
-          abilities: [...prev.abilities, abilityId],
-          gold: prev.gold - cost,
-        }))
-        return true
-      },
-
-      // ── rtUnlockTitle ─────────────────────────────────────────
-      rtUnlockTitle: (titleId: RtTitleId): boolean => {
-        const title = rtFindTitle(titleId)
-        if (!title) return false
-        const state = get()
-        if (state.renown < title.minRenown) return false
-        if (state.ravens.length < title.minRavens) return false
-        set((prev) => ({ currentTitle: titleId }))
-        return true
-      },
-
-      // ── rtClaimAchievement ────────────────────────────────────
-      rtClaimAchievement: (achievementId: string): boolean => {
-        const achievement = rtFindAchievement(achievementId)
-        if (!achievement) return false
-        const state = get()
-        if (state.achievements.includes(achievementId)) return false
-        if (!rtCheckAchievementCondition(achievement.condition, state)) return false
-        set((prev) => ({
-          achievements: [...prev.achievements, achievementId],
-          gold: prev.gold + achievement.reward.gold,
-          renown: prev.renown + achievement.reward.renown,
-          currentTitle: rtCalcMaxTitle(
-            prev.renown + achievement.reward.renown,
-            prev.ravens.length
-          ),
-        }))
-        return true
-      },
-
-      // ── rtTradeMaterial ───────────────────────────────────────
-      rtTradeMaterial: (materialId: string, count: number): number => {
-        const material = rtFindMaterial(materialId)
-        if (!material) return 0
-        const state = get()
-        const owned = state.materials.find((m) => m.materialId === materialId)
-        if (!owned || owned.count < count) return 0
-        const goldEarned = material.value * count
-        set((prev) => ({
-          materials:
-            owned.count - count <= 0
-              ? prev.materials.filter((m) => m.materialId !== materialId)
-              : prev.materials.map((m) => (m.materialId === materialId ? { ...m, count: m.count - count } : m)),
-          gold: prev.gold + goldEarned,
-        }))
-        return goldEarned
-      },
-
-      // ── rtEndEvent ────────────────────────────────────────────
-      rtEndEvent: () => {
-        set({ activeEvent: null, eventTurnsRemaining: 0 })
-      },
-
-      // ── rtResetEvent ──────────────────────────────────────────
-      rtResetEvent: () => {
-        const event = rtPickRandomEvent()
-        set({ activeEvent: event, eventTurnsRemaining: event.durationTurns })
-      },
-    }),
-    {
-      name: 'raven-tower-wire',
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
-)
-
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 17: MAIN HOOK — useRavenTower()
-// ═══════════════════════════════════════════════════════════════════
-
-export default function useRavenTower(): RtAPI {
-  const store = useRtStore()
-
-  // ── Computed: Owned ravens with species info ────────────────
-  const rtOwnedRavens = useMemo(() => {
-    return store.ravens.map((s) => {
-      const species = rtFindSpecies(s.speciesId)
-      return {
-        ...s,
-        species,
-        artColor: species ? rtDarkArtColor(species.darkArt) : '#888888',
-        rarityColor: species ? rtRarityColor(species.rarity) : '#888888',
-      }
-    })
-  }, [store])
-
-  // ── Computed: Available raven species to bind ───────────────
-  const rtAvailableSpecies = useMemo(() => {
-    return RT_RAVENS.filter((sp) => {
-      const cost = Math.floor(50 * rtRarityMultiplier(sp.rarity))
-      return store.gold >= cost
-    })
-  }, [store])
-
-  // ── Computed: Current title details ─────────────────────────
-  const rtCurrentTitleDetail = useMemo(() => {
-    return rtFindTitle(store.currentTitle) ?? RT_TITLES[0]
-  }, [store])
-
-  // ── Computed: Next title info ───────────────────────────────
-  const rtNextTitle = useMemo(() => {
-    const currentIdx = RT_TITLES.findIndex((t) => t.id === store.currentTitle)
-    if (currentIdx >= RT_TITLES.length - 1) return null
-    return RT_TITLES[currentIdx + 1]
-  }, [store])
-
-  // ── Computed: Active floor details ──────────────────────────
-  const rtActiveFloorDetail = useMemo(() => {
-    if (!store.activeFloor) return null
-    return rtFindFloor(store.activeFloor) ?? null
-  }, [store])
-
-  // ── Computed: Unexplored floors ─────────────────────────────
-  const rtUnexploredFloors = useMemo(() => {
-    return RT_FLOORS.filter((z) => !store.floors.includes(z.id))
-  }, [store])
-
-  // ── Computed: Structures with defs ──────────────────────────
-  const rtBuiltStructures = useMemo(() => {
-    return store.structures.map((s) => {
-      const def = rtFindStructureDef(s.structureDefId)
-      return { ...s, def }
-    })
-  }, [store])
-
-  // ── Computed: Unlockable abilities ──────────────────────────
-  const rtUnlockableAbilities = useMemo(() => {
-    return RT_ABILITIES.filter((a) => {
-      if (store.abilities.includes(a.id)) return false
-      const cost = Math.floor(100 * rtRarityMultiplier(a.rarity))
-      return store.gold >= cost
-    })
-  }, [store])
-
-  // ── Computed: Owned relics with defs ────────────────────────
-  const rtOwnedRelics = useMemo(() => {
-    return store.relics.map((rId) => {
-      const def = rtFindRelic(rId)
-      return def ?? null
-    }).filter((r): r is RtRelicDef => r !== null)
-  }, [store])
-
-  // ── Computed: Unclaimed achievements ────────────────────────
-  const rtUnclaimedAchievements = useMemo(() => {
-    return RT_ACHIEVEMENTS.filter((a) => {
-      if (store.achievements.includes(a.id)) return false
-      return rtCheckAchievementCondition(a.condition, store)
-    })
-  }, [store])
-
-  // ── Computed: Materials with defs ───────────────────────────
-  const rtInventoryMaterials = useMemo(() => {
-    return store.materials.map((m) => {
-      const def = rtFindMaterial(m.materialId)
-      return { ...m, def }
-    })
-  }, [store])
-
-  // ── Computed: Total structure effect bonus ──────────────────
-  const rtTotalStructureEffect = useMemo(() => {
-    let totalEffect = 0
-    for (const s of store.structures) {
-      const def = rtFindStructureDef(s.structureDefId)
-      if (def) {
-        totalEffect += def.baseEffect + def.effectPerLevel * (s.level - 1)
-      }
-    }
-    return totalEffect
-  }, [store])
-
-  // ── Computed: Average raven level ───────────────────────────
-  const rtAverageRavenLevel = useMemo(() => {
-    if (store.ravens.length === 0) return 0
-    const total = store.ravens.reduce((sum, s) => sum + s.level, 0)
-    return Math.floor(total / store.ravens.length)
-  }, [store])
-
-  // ── Computed: Total raven power ─────────────────────────────
-  const rtTotalRavenPower = useMemo(() => {
-    return store.ravens.reduce(
-      (sum, s) => sum + s.shadowPower + s.bloodPower + s.agility,
-      0
-    )
-  }, [store])
-
-  // ── Computed: Dark art distribution ─────────────────────────
-  const rtDarkArtDistribution = useMemo(() => {
-    const counts: Record<RtDarkArt, number> = {
-      shadowmancy: 0, bloodmagic: 0, soulbinding: 0, cursecraft: 0,
-      necromancy: 0, darkalchemy: 0, voidweaving: 0,
-    }
-    for (const s of store.ravens) {
-      const sp = rtFindSpecies(s.speciesId)
-      if (sp) counts[sp.darkArt]++
-    }
-    return counts
-  }, [store])
-
-  // ── Computed: Rarity distribution ───────────────────────────
-  const rtRarityDistribution = useMemo(() => {
-    const counts: Record<RtRarity, number> = {
-      common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0,
-    }
-    for (const s of store.ravens) {
-      const sp = rtFindSpecies(s.speciesId)
-      if (sp) counts[sp.rarity]++
-    }
-    return counts
-  }, [store])
-
-  // ── Computed: Ravens by rarity ──────────────────────────────
-  const rtRavensByRarity = useMemo(() => {
-    const groups: Record<RtRarity, RtRavenInstance[]> = {
-      common: [], uncommon: [], rare: [], epic: [], legendary: [],
-    }
-    for (const s of store.ravens) {
-      const sp = rtFindSpecies(s.speciesId)
-      if (sp) groups[sp.rarity].push(s)
-    }
-    return groups
-  }, [store])
-
-  // ── Computed: Ravens by dark art ────────────────────────────
-  const rtRavensByDarkArt = useMemo(() => {
-    const groups: Record<RtDarkArt, RtRavenInstance[]> = {
-      shadowmancy: [], bloodmagic: [], soulbinding: [], cursecraft: [],
-      necromancy: [], darkalchemy: [], voidweaving: [],
-    }
-    for (const s of store.ravens) {
-      const sp = rtFindSpecies(s.speciesId)
-      if (sp) groups[sp.darkArt].push(s)
-    }
-    return groups
-  }, [store])
-
-  // ── Computed: Progress to next title ────────────────────────
-  const rtTitleProgress = useMemo(() => {
-    const next = rtNextTitle
-    if (!next) return { percent: 100, renownNeeded: 0, ravensNeeded: 0 }
-    const renownProgress = Math.min(100, (store.renown / next.minRenown) * 100)
-    const ravenProgress = Math.min(100, (store.ravens.length / next.minRavens) * 100)
-    return {
-      percent: Math.floor((renownProgress + ravenProgress) / 2),
-      renownNeeded: Math.max(0, next.minRenown - store.renown),
-      ravensNeeded: Math.max(0, next.minRavens - store.ravens.length),
-    }
-  }, [store, rtNextTitle])
-
-  // ── Computed: Rare materials count ──────────────────────────
-  const rtRareMaterialCount = useMemo(() => {
-    let count = 0
-    for (const m of store.materials) {
-      const def = rtFindMaterial(m.materialId)
-      if (def && (def.rarity === 'rare' || def.rarity === 'epic' || def.rarity === 'legendary')) {
-        count += m.count
-      }
-    }
-    return count
-  }, [store])
-
-  // ── Computed: Hungry ravens ─────────────────────────────────
-  const rtHungryRavens = useMemo(() => {
-    return store.ravens.filter((s) => s.hunger < 30)
-  }, [store])
-
-  // ── Computed: Disloyal ravens ───────────────────────────────
-  const rtDisloyalRavens = useMemo(() => {
-    return store.ravens.filter((s) => s.loyalty < 30)
-  }, [store])
-
-  // ── Computed: Total relic boost ─────────────────────────────
-  const rtTotalRelicBoost = useMemo(() => {
-    let shadowBoost = 0
-    let bloodBoost = 0
-    let agilityBoost = 0
-    for (const rId of store.relics) {
-      const relic = rtFindRelic(rId)
-      if (relic) {
-        shadowBoost += relic.shadowBoost
-        bloodBoost += relic.bloodBoost
-        agilityBoost += relic.agilityBoost
-      }
-    }
-    return { shadowBoost, bloodBoost, agilityBoost }
-  }, [store])
-
-  // ═════════════════════════════════════════════════════════════
-  // Return rtAPI object
-  // ═════════════════════════════════════════════════════════════
-
-  const rtAPI: RtAPI = {
-    // ── Direct constants ──────────────────────────────────────
-    RT_RAVEN_BLACK,
-    RT_SHADOW_PURPLE,
-    RT_MOONLIGHT_SILVER,
-    RT_BLOOD_RED,
-    RT_BONE_WHITE,
-    RT_MIDNIGHT_BLUE,
-    RT_DARK_GREEN,
-    RT_GOTHIC_GOLD,
-    RT_DARK_ARTS,
-    RT_RAVENS,
-    RT_FLOORS,
-    RT_MATERIALS,
-    RT_STRUCTURES,
-    RT_ABILITIES,
-    RT_ACHIEVEMENTS,
-    RT_TITLES,
-    RT_RELICS,
-    RT_EVENTS,
-    rtCheckSynergy,
-
-    // ── Store state ───────────────────────────────────────────
-    ravens: store.ravens,
-    floors: store.floors,
-    materials: store.materials,
-    structures: store.structures,
-    abilities: store.abilities,
-    achievements: store.achievements,
-    relics: store.relics,
-    currentTitle: store.currentTitle,
-    gold: store.gold,
-    renown: store.renown,
-    totalBound: store.totalBound,
-    totalHarvested: store.totalHarvested,
-    totalBuilt: store.totalBuilt,
-    totalEventsFaced: store.totalEventsFaced,
-    activeEvent: store.activeEvent,
-    eventTurnsRemaining: store.eventTurnsRemaining,
-    activeFloor: store.activeFloor,
-
-    // ── Store actions ─────────────────────────────────────────
-    rtBindRaven: store.rtBindRaven,
-    rtReleaseRaven: store.rtReleaseRaven,
-    rtFeedRaven: store.rtFeedRaven,
-    rtHarvestFeather: store.rtHarvestFeather,
-    rtBuildStructure: store.rtBuildStructure,
-    rtUpgradeStructure: store.rtUpgradeStructure,
-    rtExploreFloor: store.rtExploreFloor,
-    rtCollectRelic: store.rtCollectRelic,
-    rtUnlockAbility: store.rtUnlockAbility,
-    rtUnlockTitle: store.rtUnlockTitle,
-    rtClaimAchievement: store.rtClaimAchievement,
-    rtTradeMaterial: store.rtTradeMaterial,
-    rtEndEvent: store.rtEndEvent,
-    rtResetEvent: store.rtResetEvent,
-
-    // ── Computed getters ──────────────────────────────────────
-    rtOwnedRavens,
-    rtAvailableSpecies,
-    rtCurrentTitleDetail,
-    rtNextTitle,
-    rtActiveFloorDetail,
-    rtUnexploredFloors,
-    rtBuiltStructures,
-    rtUnlockableAbilities,
-    rtOwnedRelics,
-    rtUnclaimedAchievements,
-    rtInventoryMaterials,
-    rtTotalStructureEffect,
-    rtAverageRavenLevel,
-    rtTotalRavenPower,
-    rtDarkArtDistribution,
-    rtRarityDistribution,
-    rtRavensByRarity,
-    rtRavensByDarkArt,
-    rtTitleProgress,
-    rtRareMaterialCount,
-    rtHungryRavens,
-    rtDisloyalRavens,
-    rtTotalRelicBoost,
+  while (newXp >= newXpToNext && newLevel < RV_MAX_LEVEL) {
+    newXp -= newXpToNext;
+    newLevel += 1;
+    newXpToNext = rvXpForLevel(newLevel + 1);
+    newMaxMana = rvMaxManaForLevel(newLevel);
+    newMana = newMaxMana;
   }
 
-  return rtAPI
+  if (newLevel >= RV_MAX_LEVEL) {
+    newXp = 0;
+    newXpToNext = 1;
+  }
+
+  const newUnlockedRavens = [...state.unlockedRavens];
+  for (const raven of RV_RAVEN_DEFS) {
+    if (raven.unlockLevel <= newLevel && !newUnlockedRavens.includes(raven.id)) {
+      newUnlockedRavens.push(raven.id);
+    }
+  }
+
+  const newUnlockedSpells = [...state.unlockedSpells];
+  for (const spell of RV_SPELL_DEFS) {
+    if (spell.unlockLevel <= newLevel && !newUnlockedSpells.includes(spell.id)) {
+      newUnlockedSpells.push(spell.id);
+    }
+  }
+
+  const newUnlockedTraps = [...state.unlockedTraps];
+  for (const trap of RV_TRAP_DEFS) {
+    if (trap.unlockLevel <= newLevel && !newUnlockedTraps.includes(trap.id)) {
+      newUnlockedTraps.push(trap.id);
+    }
+  }
+
+  const newUnlockedWalls = [...state.unlockedWalls];
+  for (const wall of RV_WALL_DEFS) {
+    if (wall.unlockLevel <= newLevel && !newUnlockedWalls.includes(wall.id)) {
+      newUnlockedWalls.push(wall.id);
+    }
+  }
+
+  const newUnlockedFloors = [...state.unlockedFloors];
+  for (const floor of RV_FLOOR_DEFS) {
+    if (floor.unlockLevel <= newLevel && !newUnlockedFloors.includes(floor.id)) {
+      newUnlockedFloors.push(floor.id);
+    }
+  }
+
+  return {
+    ...state,
+    keeperLevel: newLevel,
+    keeperXp: newXp,
+    xpToNextLevel: newXpToNext,
+    mana: newMana,
+    maxMana: newMaxMana,
+    unlockedRavens: newUnlockedRavens,
+    unlockedSpells: newUnlockedSpells,
+    unlockedTraps: newUnlockedTraps,
+    unlockedWalls: newUnlockedWalls,
+    unlockedFloors: newUnlockedFloors,
+  };
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// SECTION 18: RTAPI TYPE DEFINITION
-// ═══════════════════════════════════════════════════════════════════
+export function rvAddResources(
+  state: RavenTowerState,
+  darkCrystals: number,
+  soulShards: number
+): RavenTowerState {
+  return {
+    ...state,
+    darkCrystals: state.darkCrystals + darkCrystals,
+    soulShards: state.soulShards + soulShards,
+  };
+}
 
-export interface RtAPI {
-  // Direct constants
-  readonly RT_RAVEN_BLACK: string
-  readonly RT_SHADOW_PURPLE: string
-  readonly RT_MOONLIGHT_SILVER: string
-  readonly RT_BLOOD_RED: string
-  readonly RT_BONE_WHITE: string
-  readonly RT_MIDNIGHT_BLUE: string
-  readonly RT_DARK_GREEN: string
-  readonly RT_GOTHIC_GOLD: string
-  readonly RT_DARK_ARTS: readonly RtDarkArtDef[]
-  readonly RT_RAVENS: readonly RtRavenSpecies[]
-  readonly RT_FLOORS: readonly RtFloorDef[]
-  readonly RT_MATERIALS: readonly RtMaterialDef[]
-  readonly RT_STRUCTURES: readonly RtStructureDef[]
-  readonly RT_ABILITIES: readonly RtAbilityDef[]
-  readonly RT_ACHIEVEMENTS: readonly RtAchievementDef[]
-  readonly RT_TITLES: readonly RtTitleDef[]
-  readonly RT_RELICS: readonly RtRelicDef[]
-  readonly RT_EVENTS: readonly RtEventDef[]
-  readonly rtCheckSynergy: (attacker: RtDarkArt, defender: RtDarkArt) => number
+export function rvSpendResources(
+  state: RavenTowerState,
+  darkCrystals: number,
+  soulShards: number
+): RavenTowerState | null {
+  if (state.darkCrystals < darkCrystals || state.soulShards < soulShards) return null;
+  return {
+    ...state,
+    darkCrystals: state.darkCrystals - darkCrystals,
+    soulShards: state.soulShards - soulShards,
+  };
+}
 
-  // Store state
-  readonly ravens: RtRavenInstance[]
-  readonly floors: string[]
-  readonly materials: { materialId: string; count: number }[]
-  readonly structures: RtStructureInstance[]
-  readonly abilities: string[]
-  readonly achievements: string[]
-  readonly relics: string[]
-  readonly currentTitle: RtTitleId
-  readonly gold: number
-  readonly renown: number
-  readonly totalBound: number
-  readonly totalHarvested: number
-  readonly totalBuilt: number
-  readonly totalEventsFaced: number
-  readonly activeEvent: RtEventDef | null
-  readonly eventTurnsRemaining: number
-  readonly activeFloor: string | null
+export function rvSpendMana(state: RavenTowerState, amount: number): RavenTowerState | null {
+  if (state.mana < amount) return null;
+  return { ...state, mana: state.mana - amount };
+}
 
-  // Store actions
-  rtBindRaven: (speciesId: string) => boolean
-  rtReleaseRaven: (ravenId: string) => boolean
-  rtFeedRaven: (ravenId: string) => boolean
-  rtHarvestFeather: (ravenId: string) => boolean
-  rtBuildStructure: (structureDefId: string) => boolean
-  rtUpgradeStructure: (structureId: string) => boolean
-  rtExploreFloor: (floorId: string) => RtEventDef | null
-  rtCollectRelic: (relicId: string) => boolean
-  rtUnlockAbility: (abilityId: string) => boolean
-  rtUnlockTitle: (titleId: RtTitleId) => boolean
-  rtClaimAchievement: (achievementId: string) => boolean
-  rtTradeMaterial: (materialId: string, count: number) => number
-  rtEndEvent: () => void
-  rtResetEvent: () => void
+export function rvRegenMana(state: RavenTowerState, amount: number): RavenTowerState {
+  return { ...state, mana: Math.min(state.maxMana, state.mana + amount) };
+}
 
-  // Computed getters
-  readonly rtOwnedRavens: readonly (RtRavenInstance & { species: RtRavenSpecies | undefined; artColor: string; rarityColor: string })[]
-  readonly rtAvailableSpecies: readonly RtRavenSpecies[]
-  readonly rtCurrentTitleDetail: RtTitleDef
-  readonly rtNextTitle: RtTitleDef | null
-  readonly rtActiveFloorDetail: RtFloorDef | null
-  readonly rtUnexploredFloors: readonly RtFloorDef[]
-  readonly rtBuiltStructures: readonly (RtStructureInstance & { def: RtStructureDef | undefined })[]
-  readonly rtUnlockableAbilities: readonly RtAbilityDef[]
-  readonly rtOwnedRelics: readonly RtRelicDef[]
-  readonly rtUnclaimedAchievements: readonly RtAchievementDef[]
-  readonly rtInventoryMaterials: readonly ({ materialId: string; count: number; def: RtMaterialDef | undefined })[]
-  readonly rtTotalStructureEffect: number
-  readonly rtAverageRavenLevel: number
-  readonly rtTotalRavenPower: number
-  readonly rtDarkArtDistribution: Record<RtDarkArt, number>
-  readonly rtRarityDistribution: Record<RtRarity, number>
-  readonly rtRavensByRarity: Record<RtRarity, RtRavenInstance[]>
-  readonly rtRavensByDarkArt: Record<RtDarkArt, RtRavenInstance[]>
-  readonly rtTitleProgress: { percent: number; renownNeeded: number; ravensNeeded: number }
-  readonly rtRareMaterialCount: number
-  readonly rtHungryRavens: readonly RtRavenInstance[]
-  readonly rtDisloyalRavens: readonly RtRavenInstance[]
-  readonly rtTotalRelicBoost: { shadowBoost: number; bloodBoost: number; agilityBoost: number }
+export function rvAscendFloor(state: RavenTowerState, floorId: FloorId): RavenTowerState | null {
+  if (!state.unlockedFloors.includes(floorId)) return null;
+  const wallDef = rvWallMap[state.wallType];
+  const floorDef = rvFloorMap[floorId];
+  const floorLevel = state.floorLevels[floorId];
+  return {
+    ...state,
+    currentFloor: floorId,
+    deployedRavens: [],
+    deployedTraps: [],
+    currentWave: {
+      waveNumber: 0,
+      enemiesRemaining: 0,
+      isBossWave: false,
+      currentFloor: floorId,
+      isComplete: true,
+    },
+    wallHp: rvWallEffectiveHp(wallDef, floorLevel),
+    wallMaxHp: rvWallEffectiveHp(wallDef, floorLevel),
+    shieldAmount: 0,
+    mana: state.maxMana,
+  };
+}
+
+export function rvUpgradeFloor(state: RavenTowerState): RavenTowerState | null {
+  const floorId = state.currentFloor;
+  const currentLevel = state.floorLevels[floorId];
+  if (currentLevel >= 10) return null;
+  const cost = rvFloorUpgradeCost(currentLevel);
+  const result = rvSpendResources(state, cost, 0);
+  if (!result) return null;
+  const newFloorLevels = { ...result.floorLevels, [floorId]: currentLevel + 1 };
+  return rvAddXp({ ...result, floorLevels: newFloorLevels }, RV_FLOOR_UPGRADE_XP);
+}
+
+export function rvUnlockRaven(state: RavenTowerState, type: RavenType): RavenTowerState | null {
+  if (state.unlockedRavens.includes(type)) return null;
+  const def = rvRavenMap[type];
+  if (state.keeperLevel < def.unlockLevel) return null;
+  const cost = Math.floor(100 * (1 + RV_RAVEN_DEFS.filter(r => state.unlockedRavens.includes(r.id)).length * 0.3));
+  const result = rvSpendResources(state, cost, 0);
+  if (!result) return null;
+  return { ...result, unlockedRavens: [...result.unlockedRavens, type] };
+}
+
+export function rvDeployRaven(state: RavenTowerState, ravenType: RavenType): RavenTowerState | null {
+  if (!state.unlockedRavens.includes(ravenType)) return null;
+  if (state.currentWave.isComplete && state.currentWave.waveNumber === 0) {
+    const def = rvRavenMap[ravenType];
+    const ravenLevel = Math.min(10, Math.floor(state.keeperLevel / 5) + 1);
+    const maxHp = rvRavenMaxHp(def, ravenLevel);
+    const deployed: DeployedRaven = {
+      instanceId: `${ravenType}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      ravenType,
+      level: ravenLevel,
+      currentHp: maxHp,
+      maxHp,
+      currentCooldown: 0,
+      kills: 0,
+    };
+    if (state.deployedRavens.length >= 6) return null;
+    return { ...state, deployedRavens: [...state.deployedRavens, deployed] };
+  }
+  return null;
+}
+
+export function rvRecallRaven(state: RavenTowerState, instanceId: string): RavenTowerState {
+  return {
+    ...state,
+    deployedRavens: state.deployedRavens.filter(r => r.instanceId !== instanceId),
+  };
+}
+
+export function rvDeployTrap(state: RavenTowerState, trapType: TrapType, position: number): RavenTowerState | null {
+  if (!state.unlockedTraps.includes(trapType)) return null;
+  const def = rvTrapMap[trapType];
+  const result = rvSpendResources(state, def.cost, 0);
+  if (!result) return null;
+  if (result.deployedTraps.length >= 8) return null;
+  const deployed: DeployedTrap = {
+    instanceId: `${trapType}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    trapType,
+    remainingDuration: def.duration,
+    charges: 3,
+    position,
+  };
+  return { ...result, deployedTraps: [...result.deployedTraps, deployed] };
+}
+
+export function rvCastSpell(state: RavenTowerState, spellId: SpellId): RavenTowerState | null {
+  if (!state.unlockedSpells.includes(spellId)) return null;
+  const def = rvSpellMap[spellId];
+  const manaResult = rvSpendMana(state, def.manaCost);
+  if (!manaResult) return null;
+  const isHeal = spellId === 'dark_heal';
+  let newRavens = manaResult.deployedRavens;
+  if (isHeal) {
+    newRavens = newRavens.map(r => ({
+      ...r,
+      currentHp: r.maxHp,
+    }));
+  }
+  const shieldGain = spellId === 'dark_heal' ? 50 : 0;
+  return {
+    ...manaResult,
+    deployedRavens: newRavens,
+    shieldAmount: manaResult.shieldAmount + shieldGain,
+  };
+}
+
+export function rvStartWave(state: RavenTowerState): RavenTowerState {
+  const floorDef = rvFloorMap[state.currentFloor];
+  const newWaveNum = state.currentWave.waveNumber + 1;
+  const isBoss = rvIsBossWave(newWaveNum);
+  const enemyCount = rvWaveEnemyCount(floorDef, newWaveNum);
+  return {
+    ...state,
+    currentWave: {
+      waveNumber: newWaveNum,
+      enemiesRemaining: enemyCount,
+      isBossWave: isBoss,
+      currentFloor: state.currentFloor,
+      isComplete: false,
+    },
+  };
+}
+
+export function rvEnemyKilled(state: RavenTowerState, monsterType: MonsterType): RavenTowerState {
+  const monsterDef = rvMonsterMap[monsterType];
+  const rewards = rvMonsterRewards(monsterDef, state.currentWave.waveNumber);
+  const isBoss = monsterDef.isBoss;
+  const newXp = isBoss ? RV_BOSS_KILL_XP : RV_KILL_XP;
+  const newEnemiesRemaining = Math.max(0, state.currentWave.enemiesRemaining - 1);
+  const waveComplete = newEnemiesRemaining === 0;
+
+  const newState: RavenTowerState = {
+    ...state,
+    totalKills: state.totalKills + 1,
+    bossKills: state.bossKills + (isBoss ? 1 : 0),
+    currentWave: {
+      ...state.currentWave,
+      enemiesRemaining: newEnemiesRemaining,
+      isComplete: waveComplete,
+    },
+  };
+
+  const withResources = rvAddResources(newState, rewards.darkCrystals, rewards.soulShards);
+  const withXp = rvAddXp(withResources, newXp);
+  let final = withXp;
+
+  if (waveComplete) {
+    const newHighest = Math.max(state.highestWave, state.currentWave.waveNumber);
+    final = rvAddXp(
+      { ...final, totalWavesCompleted: final.totalWavesCompleted + 1, highestWave: newHighest },
+      RV_WAVE_COMPLETE_XP
+    );
+  }
+
+  return rvCheckAndGrantAchievements(final);
+}
+
+export function rvDamageWall(state: RavenTowerState, damage: number): RavenTowerState {
+  let remainingDamage = damage;
+
+  if (state.shieldAmount > 0) {
+    const absorbed = Math.min(state.shieldAmount, remainingDamage);
+    remainingDamage -= absorbed;
+  }
+
+  const newShield = Math.max(0, state.shieldAmount - damage);
+  const newWallHp = Math.max(0, state.wallHp - remainingDamage);
+  const manaRegen = Math.floor(damage * 0.1);
+
+  return {
+    ...state,
+    wallHp: newWallHp,
+    shieldAmount: newShield,
+    mana: Math.min(state.maxMana, state.mana + manaRegen),
+  };
+}
+
+export function rvHealWall(state: RavenTowerState, amount: number): RavenTowerState {
+  const cost = Math.floor(amount * 0.5);
+  const result = rvSpendResources(state, cost, 0);
+  if (!result) return state;
+  return {
+    ...result,
+    wallHp: Math.min(result.wallMaxHp, result.wallHp + amount),
+  };
+}
+
+export function rvUpgradeWall(state: RavenTowerState): RavenTowerState | null {
+  const nextWall = rvNextWallType(state.wallType);
+  if (!nextWall) return null;
+  if (!state.unlockedWalls.includes(nextWall)) return null;
+  const cost = rvWallMap[nextWall].cost;
+  const result = rvSpendResources(state, cost, 0);
+  if (!result) return null;
+  const newWallDef = rvWallMap[nextWall];
+  const floorLevel = state.floorLevels[state.currentFloor];
+  const newMaxHp = rvWallEffectiveHp(newWallDef, floorLevel);
+  return {
+    ...result,
+    wallType: nextWall,
+    wallHp: newMaxHp,
+    wallMaxHp: newMaxHp,
+  };
+}
+
+export function rvAddShield(state: RavenTowerState, amount: number): RavenTowerState {
+  return { ...state, shieldAmount: state.shieldAmount + amount };
+}
+
+export function rvStartDailyAssault(state: RavenTowerState, date: string): RavenTowerState {
+  return {
+    ...state,
+    dailyAssault: {
+      date,
+      isActive: true,
+      wavesCompleted: 0,
+      totalWaves: RV_ASSAULT_TOTAL_WAVES,
+      bonusMultiplier: 1,
+      isComplete: false,
+      darkCrystalsEarned: 0,
+      soulShardsEarned: 0,
+    },
+    currentWave: {
+      waveNumber: 0,
+      enemiesRemaining: 0,
+      isBossWave: false,
+      currentFloor: state.currentFloor,
+      isComplete: true,
+    },
+    deployedRavens: [],
+    deployedTraps: [],
+    mana: state.maxMana,
+  };
+}
+
+export function rvCompleteAssaultWave(state: RavenTowerState): RavenTowerState {
+  const assault = state.dailyAssault;
+  if (!assault.isActive) return state;
+
+  const newWavesCompleted = assault.wavesCompleted + 1;
+  const reward = rvDailyAssaultReward(newWavesCompleted, 8);
+  const newMultiplier = rvDailyAssaultMultiplier(newWavesCompleted);
+  const isComplete = newWavesCompleted >= assault.totalWaves;
+
+  const newState: RavenTowerState = {
+    ...state,
+    dailyAssault: {
+      ...assault,
+      wavesCompleted: newWavesCompleted,
+      bonusMultiplier: newMultiplier,
+      isComplete,
+      darkCrystalsEarned: assault.darkCrystalsEarned + reward.darkCrystals,
+      soulShardsEarned: assault.soulShardsEarned + reward.soulShards,
+      isActive: !isComplete,
+    },
+  };
+
+  const withResources = rvAddResources(newState, reward.darkCrystals, reward.soulShards);
+  const withXp = rvAddXp(withResources, RV_DAILY_ASSAULT_BONUS_XP);
+
+  if (isComplete) {
+    return rvCheckAndGrantAchievements(withXp);
+  }
+
+  return withXp;
+}
+
+export function rvClaimAchievement(state: RavenTowerState, id: AchievementId): RavenTowerState | null {
+  if (state.achievements.includes(id)) return null;
+  const def = rvAchievementMap[id];
+  const withResources = rvAddResources(state, def.reward.darkCrystals, def.reward.soulShards);
+  return {
+    ...withResources,
+    achievements: [...withResources.achievements, id],
+  };
+}
+
+export function rvCheckAndGrantAchievements(state: RavenTowerState): RavenTowerState {
+  const pending: AchievementId[] = [];
+
+  if (state.totalKills >= 1 && !state.achievements.includes('first_blood')) {
+    pending.push('first_blood');
+  }
+  if (state.totalWavesCompleted >= 10 && !state.achievements.includes('wave_10')) {
+    pending.push('wave_10');
+  }
+  if (state.totalWavesCompleted >= 25 && !state.achievements.includes('wave_25')) {
+    pending.push('wave_25');
+  }
+  if (state.totalWavesCompleted >= 50 && !state.achievements.includes('wave_50')) {
+    pending.push('wave_50');
+  }
+  if (state.bossKills >= 1 && !state.achievements.includes('first_boss_kill')) {
+    pending.push('first_boss_kill');
+  }
+  if (state.unlockedFloors.length >= 8 && !state.achievements.includes('all_floors_unlocked')) {
+    pending.push('all_floors_unlocked');
+  }
+  if (state.unlockedRavens.length >= 10 && !state.achievements.includes('all_ravens_unlocked')) {
+    pending.push('all_ravens_unlocked');
+  }
+  if (state.keeperLevel >= 30 && !state.achievements.includes('keeper_level_30')) {
+    pending.push('keeper_level_30');
+  }
+  if (state.dailyAssault.isComplete && !state.achievements.includes('daily_assault_victor')) {
+    pending.push('daily_assault_victor');
+  }
+
+  const shadowRaven = state.deployedRavens.find(r => r.ravenType === 'shadow');
+  if (shadowRaven && shadowRaven.kills >= 100 && !state.achievements.includes('master_of_shadows')) {
+    pending.push('master_of_shadows');
+  }
+
+  if (state.unlockedWalls.includes('obsidian') && !state.achievements.includes('wall_of_steel')) {
+    pending.push('wall_of_steel');
+  }
+
+  if (state.deployedTraps.length >= 50 && !state.achievements.includes('trap_lord')) {
+    pending.push('trap_lord');
+  }
+
+  let result = state;
+  for (const id of pending) {
+    const claimed = rvClaimAchievement(result, id);
+    if (claimed) result = claimed;
+  }
+
+  return result;
+}
+
+export function rvResetFloor(state: RavenTowerState): RavenTowerState {
+  const wallDef = rvWallMap[state.wallType];
+  const floorLevel = state.floorLevels[state.currentFloor];
+  const newMaxHp = rvWallEffectiveHp(wallDef, floorLevel);
+  return {
+    ...state,
+    deployedRavens: [],
+    deployedTraps: [],
+    currentWave: {
+      waveNumber: 0,
+      enemiesRemaining: 0,
+      isBossWave: false,
+      currentFloor: state.currentFloor,
+      isComplete: true,
+    },
+    wallHp: newMaxHp,
+    wallMaxHp: newMaxHp,
+    shieldAmount: 0,
+    mana: state.maxMana,
+  };
+}
+
+export function rvLevelUpRaven(state: RavenTowerState, instanceId: string): RavenTowerState | null {
+  const raven = state.deployedRavens.find(r => r.instanceId === instanceId);
+  if (!raven) return null;
+  if (raven.level >= 10) return null;
+  const cost = rvRavenLevelUpCost(raven.level);
+  const result = rvSpendResources(state, cost, 0);
+  if (!result) return null;
+  const def = rvRavenMap[raven.ravenType];
+  const newLevel = raven.level + 1;
+  const newMaxHp = rvRavenMaxHp(def, newLevel);
+  return {
+    ...result,
+    deployedRavens: result.deployedRavens.map(r =>
+      r.instanceId === instanceId
+        ? { ...r, level: newLevel, maxHp: newMaxHp, currentHp: newMaxHp }
+        : r
+    ),
+  };
+}
+
+export function rvHealRaven(state: RavenTowerState, instanceId: string, amount: number): RavenTowerState {
+  return {
+    ...state,
+    deployedRavens: state.deployedRavens.map(r =>
+      r.instanceId === instanceId
+        ? { ...r, currentHp: Math.min(r.maxHp, r.currentHp + amount) }
+        : r
+    ),
+  };
+}
+
+export function rvHealAllRavens(state: RavenTowerState, amount: number): RavenTowerState {
+  return {
+    ...state,
+    deployedRavens: state.deployedRavens.map(r => ({
+      ...r,
+      currentHp: Math.min(r.maxHp, r.currentHp + amount),
+    })),
+  };
+}
+
+export function rvDamageRaven(state: RavenTowerState, instanceId: string, damage: number): RavenTowerState {
+  const raven = state.deployedRavens.find(r => r.instanceId === instanceId);
+  if (!raven) return state;
+  let remaining = damage;
+  if (state.shieldAmount > 0) {
+    const absorbed = Math.min(state.shieldAmount, remaining);
+    remaining -= absorbed;
+  }
+  return {
+    ...state,
+    shieldAmount: Math.max(0, state.shieldAmount - damage),
+    deployedRavens: state.deployedRavens.map(r =>
+      r.instanceId === instanceId
+        ? { ...r, currentHp: Math.max(0, r.currentHp - remaining) }
+        : r
+    ),
+  };
+}
+
+export function rvRemoveDeadRavens(state: RavenTowerState): RavenTowerState {
+  return {
+    ...state,
+    deployedRavens: state.deployedRavens.filter(r => r.currentHp > 0),
+  };
+}
+
+export function rvTickTraps(state: RavenTowerState): RavenTowerState {
+  return {
+    ...state,
+    deployedTraps: state.deployedTraps
+      .map(t => ({
+        ...t,
+        remainingDuration: t.remainingDuration - 1,
+      }))
+      .filter(t => t.remainingDuration > 0 && t.charges > 0),
+  };
+}
+
+export function rvConsumeTrapCharge(state: RavenTowerState, instanceId: string): RavenTowerState {
+  return {
+    ...state,
+    deployedTraps: state.deployedTraps.map(t =>
+      t.instanceId === instanceId
+        ? { ...t, charges: t.charges - 1 }
+        : t
+    ).filter(t => t.charges > 0),
+  };
+}
+
+export function rvTickCooldowns(state: RavenTowerState): RavenTowerState {
+  return {
+    ...state,
+    deployedRavens: state.deployedRavens.map(r => ({
+      ...r,
+      currentCooldown: Math.max(0, r.currentCooldown - 1),
+    })),
+  };
+}
+
+export function rvResetTower(state: RavenTowerState): RavenTowerState {
+  const fresh = rvInitialState();
+  return { ...fresh, darkCrystals: state.darkCrystals, soulShards: state.soulShards };
+}
+
+export function rvGrantCheatResources(state: RavenTowerState, amount: number): RavenTowerState {
+  return rvAddResources(state, amount, Math.floor(amount * 0.5));
+}
+
+export function rvSetKeeperLevel(state: RavenTowerState, level: number): RavenTowerState {
+  if (level < 1 || level > RV_MAX_LEVEL) return state;
+  const target = rvInitialState();
+  let current = target;
+  const levelDiff = level - 1;
+  if (levelDiff > 0) {
+    current = rvAddXp(current, rvXpForLevel(2) * levelDiff + 99999);
+  }
+  return {
+    ...current,
+    darkCrystals: state.darkCrystals,
+    soulShards: state.soulShards,
+    keeperLevel: Math.min(level, RV_MAX_LEVEL),
+    xpToNextLevel: level >= RV_MAX_LEVEL ? 1 : rvXpForLevel(level + 1),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 13: DERIVED / DISPLAY HELPERS (all rv prefix)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function rvGetCurrentFloor(state: RavenTowerState): FloorDef {
+  return rvFloorMap[state.currentFloor];
+}
+
+export function rvGetCurrentWall(state: RavenTowerState): WallDef {
+  return rvWallMap[state.wallType];
+}
+
+export function rvGetDeployedRavenDefs(state: RavenTowerState): ReadonlyArray<RavenDef & { instanceId: string; level: number; currentHp: number; maxHp: number; currentCooldown: number; kills: number }> {
+  return state.deployedRavens.map(r => ({
+    ...rvRavenMap[r.ravenType],
+    instanceId: r.instanceId,
+    level: r.level,
+    currentHp: r.currentHp,
+    maxHp: r.maxHp,
+    currentCooldown: r.currentCooldown,
+    kills: r.kills,
+  }));
+}
+
+export function rvGetDeployedTrapDefs(state: RavenTowerState): ReadonlyArray<TrapDef & { instanceId: string; remainingDuration: number; charges: number; position: number }> {
+  return state.deployedTraps.map(t => ({
+    ...rvTrapMap[t.trapType],
+    instanceId: t.instanceId,
+    remainingDuration: t.remainingDuration,
+    charges: t.charges,
+    position: t.position,
+  }));
+}
+
+export function rvGetUnlockedRavenDefs(state: RavenTowerState): readonly RavenDef[] {
+  return state.unlockedRavens.map(r => rvRavenMap[r]);
+}
+
+export function rvGetUnlockedSpellDefs(state: RavenTowerState): readonly SpellDef[] {
+  return state.unlockedSpells.map(s => rvSpellMap[s]);
+}
+
+export function rvGetUnlockedTrapDefs(state: RavenTowerState): readonly TrapDef[] {
+  return state.unlockedTraps.map(t => rvTrapMap[t]);
+}
+
+export function rvGetUnlockedWallDefs(state: RavenTowerState): readonly WallDef[] {
+  return state.unlockedWalls.map(w => rvWallMap[w]);
+}
+
+export function rvGetUnlockedFloorDefs(state: RavenTowerState): readonly FloorDef[] {
+  return state.unlockedFloors.map(f => rvFloorMap[f]);
+}
+
+export function rvGetLockedRavens(state: RavenTowerState): readonly RavenDef[] {
+  return RV_RAVEN_DEFS.filter(r => !state.unlockedRavens.includes(r.id));
+}
+
+export function rvGetLockedSpells(state: RavenTowerState): readonly SpellDef[] {
+  return RV_SPELL_DEFS.filter(s => !state.unlockedSpells.includes(s.id));
+}
+
+export function rvGetLockedFloors(state: RavenTowerState): readonly FloorDef[] {
+  return RV_FLOOR_DEFS.filter(f => !state.unlockedFloors.includes(f.id));
+}
+
+export function rvCanAffordRaven(state: RavenTowerState, type: RavenType): boolean {
+  if (state.unlockedRavens.includes(type)) return false;
+  const count = state.unlockedRavens.length;
+  const cost = Math.floor(100 * (1 + count * 0.3));
+  return state.darkCrystals >= cost;
+}
+
+export function rvCanAffordTrap(state: RavenTowerState, trapType: TrapType): boolean {
+  const def = rvTrapMap[trapType];
+  return state.darkCrystals >= def.cost;
+}
+
+export function rvCanAffordWallUpgrade(state: RavenTowerState): boolean {
+  const nextWall = rvNextWallType(state.wallType);
+  if (!nextWall) return false;
+  if (!state.unlockedWalls.includes(nextWall)) return false;
+  return state.darkCrystals >= rvWallMap[nextWall].cost;
+}
+
+export function rvCanAffordFloorUpgrade(state: RavenTowerState): boolean {
+  const currentLevel = state.floorLevels[state.currentFloor];
+  if (currentLevel >= 10) return false;
+  const cost = rvFloorUpgradeCost(currentLevel);
+  return state.darkCrystals >= cost;
+}
+
+export function rvCanAffordSpell(state: RavenTowerState, spellId: SpellId): boolean {
+  const def = rvSpellMap[spellId];
+  return state.mana >= def.manaCost;
+}
+
+export function rvCanDeployRaven(state: RavenTowerState): boolean {
+  return state.deployedRavens.length < 6;
+}
+
+export function rvCanDeployTrap(state: RavenTowerState): boolean {
+  return state.deployedTraps.length < 8;
+}
+
+export function rvIsFloorMaxed(state: RavenTowerState, floorId: FloorId): boolean {
+  return state.floorLevels[floorId] >= 10;
+}
+
+export function rvIsWallMaxed(state: RavenTowerState): boolean {
+  return state.wallType === 'void_barrier';
+}
+
+export function rvIsKeeperMaxLevel(state: RavenTowerState): boolean {
+  return state.keeperLevel >= RV_MAX_LEVEL;
+}
+
+export function rvIsWaveActive(state: RavenTowerState): boolean {
+  return !state.currentWave.isComplete;
+}
+
+export function rvIsDailyAssaultActive(state: RavenTowerState): boolean {
+  return state.dailyAssault.isActive;
+}
+
+export function rvIsDailyAssaultComplete(state: RavenTowerState): boolean {
+  return state.dailyAssault.isComplete;
+}
+
+export function rvGetDailyAssaultProgress(state: RavenTowerState): number {
+  if (state.dailyAssault.totalWaves <= 0) return 0;
+  return Math.floor((state.dailyAssault.wavesCompleted / state.dailyAssault.totalWaves) * 100);
+}
+
+export function rvRavenCapacityUsed(state: RavenTowerState): number {
+  return state.deployedRavens.length;
+}
+
+export function rvRavenCapacityMax(): number {
+  return 6;
+}
+
+export function rvTrapCapacityUsed(state: RavenTowerState): number {
+  return state.deployedTraps.length;
+}
+
+export function rvTrapCapacityMax(): number {
+  return 8;
+}
+
+export function rvGetSummaryStats(state: RavenTowerState): Readonly<{
+  keeperTitle: string;
+  keeperLevel: number;
+  unlockedRavens: number;
+  unlockedSpells: number;
+  unlockedFloors: number;
+  totalKills: number;
+  bossKills: number;
+  totalWavesCompleted: number;
+  highestWave: number;
+  achievements: number;
+  powerScore: number;
+  darkCrystals: number;
+  soulShards: number;
+}> {
+  return {
+    keeperTitle: rvGetKeeperTitle(state.keeperLevel),
+    keeperLevel: state.keeperLevel,
+    unlockedRavens: state.unlockedRavens.length,
+    unlockedSpells: state.unlockedSpells.length,
+    unlockedFloors: state.unlockedFloors.length,
+    totalKills: state.totalKills,
+    bossKills: state.bossKills,
+    totalWavesCompleted: state.totalWavesCompleted,
+    highestWave: state.highestWave,
+    achievements: state.achievements.length,
+    powerScore: rvOverallPowerScore(state),
+    darkCrystals: state.darkCrystals,
+    soulShards: state.soulShards,
+  };
+}
+
+export function rvGetFloorSummary(state: RavenTowerState, floorId: FloorId): Readonly<{
+  name: string;
+  level: number;
+  maxLevel: number;
+  isUnlocked: boolean;
+  isMaxed: boolean;
+  icon: string;
+  description: string;
+}> {
+  const def = rvFloorMap[floorId];
+  const level = state.floorLevels[floorId];
+  return {
+    name: def.name,
+    level,
+    maxLevel: 10,
+    isUnlocked: state.unlockedFloors.includes(floorId),
+    isMaxed: level >= 10,
+    icon: rvFloorIcon(floorId),
+    description: def.description,
+  };
+}
+
+export function rvGetWaveInfo(state: RavenTowerState): Readonly<{
+  waveNumber: number;
+  enemiesRemaining: number;
+  isBossWave: boolean;
+  isComplete: boolean;
+  floor: string;
+}> {
+  return {
+    waveNumber: state.currentWave.waveNumber,
+    enemiesRemaining: state.currentWave.enemiesRemaining,
+    isBossWave: state.currentWave.isBossWave,
+    isComplete: state.currentWave.isComplete,
+    floor: rvFloorMap[state.currentFloor].name,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 14: ADDITIONAL BATTLE & STRATEGY FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function rvCalculateDps(state: RavenTowerState): number {
+  let totalDps = 0;
+  for (const r of state.deployedRavens) {
+    const def = rvRavenMap[r.ravenType];
+    const damage = rvRavenDamage(def, r.level);
+    const attacksPerSecond = r.currentCooldown > 0 ? 0.5 : 1;
+    totalDps += damage * attacksPerSecond;
+  }
+  for (const t of state.deployedTraps) {
+    const def = rvTrapMap[t.trapType];
+    totalDps += def.damage * (1 + state.floorLevels[state.currentFloor] * 0.05) * 0.3;
+  }
+  return Math.floor(totalDps);
+}
+
+export function rvCalculateTankiness(state: RavenTowerState): number {
+  let totalHp = state.wallHp;
+  totalHp += state.shieldAmount;
+  for (const r of state.deployedRavens) {
+    totalHp += r.currentHp;
+  }
+  return totalHp;
+}
+
+export function rvWaveDifficultyRating(waveNumber: number, floorLevel: number, isBoss: boolean): string {
+  const raw = waveNumber * 2 + floorLevel * 3 + (isBoss ? 20 : 0);
+  if (raw >= 80) return 'NIGHTMARE';
+  if (raw >= 60) return 'HORRIFYING';
+  if (raw >= 40) return 'DANGEROUS';
+  if (raw >= 25) return 'CHALLENGING';
+  if (raw >= 12) return 'MODERATE';
+  return 'EASY';
+}
+
+export function rvOptimalRavenForMonster(monsterType: MonsterType): RavenType {
+  const def = rvMonsterMap[monsterType];
+  if (def.speed >= 12) return 'ice';
+  if (def.armor >= 10) return 'hex';
+  if (def.baseHp >= 200) return 'fire';
+  if (def.isBoss) return 'death';
+  return 'storm';
+}
+
+export function rvGetCounterStrategy(monsterType: MonsterType): string {
+  const def = rvMonsterMap[monsterType];
+  const optimal = rvOptimalRavenForMonster(monsterType);
+  const ravenDef = rvRavenMap[optimal];
+  if (def.armor >= 10) {
+    return `Deploy ${ravenDef.name} to strip armor with ${ravenDef.abilityName}. Use Hex Circle traps to weaken further.`;
+  }
+  if (def.speed >= 12) {
+    return `Deploy ${ravenDef.name} to freeze with ${ravenDef.abilityName}. Frost Field traps will slow them further.`;
+  }
+  if (def.isBoss) {
+    return `Deploy ${ravenDef.name} and use Death Grip spell. Bone Army can distract while damage is dealt.`;
+  }
+  if (def.baseHp >= 200) {
+    return `Deploy ${ravenDef.name} for sustained AOE damage. Fire Brazier traps add extra burn.`;
+  }
+  return `Shadow Ravens and Storm Ravens work well. Shadow Snares slow them for easy kills.`;
+}
+
+export function rvSimulateBattleRound(
+  state: RavenTowerState,
+  monsterType: MonsterType,
+  waveNumber: number
+): Readonly<{
+  damageToMonster: number;
+  damageToWall: number;
+  ravensLost: number;
+  monstersSlain: number;
+}> {
+  const monsterDef = rvMonsterMap[monsterType];
+  const scaledHp = rvScaledMonsterHp(monsterDef.baseHp, waveNumber, state.floorLevels[state.currentFloor]);
+  const scaledDmg = rvScaledMonsterDamage(monsterDef.baseDamage, waveNumber);
+
+  let damageToMonster = 0;
+  let damageToWall = 0;
+  let ravensLost = 0;
+
+  for (const r of state.deployedRavens) {
+    if (r.currentHp <= 0) {
+      ravensLost++;
+      continue;
+    }
+    const ravenDef = rvRavenMap[r.ravenType];
+    const ravenDmg = rvRavenDamage(ravenDef, r.level);
+    damageToMonster += ravenDmg;
+    damageToWall += scaledDmg * 0.5;
+  }
+
+  for (const t of state.deployedTraps) {
+    const trapDef = rvTrapMap[t.trapType];
+    damageToMonster += trapDef.damage * (1 + state.floorLevels[state.currentFloor] * 0.05);
+  }
+
+  const monstersSlain = Math.floor(damageToMonster / Math.max(1, scaledHp));
+
+  return {
+    damageToMonster,
+    damageToWall: Math.floor(damageToWall),
+    ravensLost,
+    monstersSlain: Math.min(monstersSlain, 5),
+  };
+}
+
+export function rvRecommendFormation(state: RavenTowerState): readonly RavenType[] {
+  const floor = rvFloorMap[state.currentFloor];
+  const monsterPool = floor.monsterPool;
+  const scores: { type: RavenType; score: number }[] = [];
+
+  for (const raven of state.unlockedRavens) {
+    let score = 0;
+    for (const monsterType of monsterPool) {
+      const optimal = rvOptimalRavenForMonster(monsterType);
+      if (raven === optimal) score += 3;
+      const def = rvMonsterMap[monsterType];
+      const ravenDef = rvRavenMap[raven];
+      if (ravenDef.baseDamage > def.armor) score += 1;
+      if (ravenDef.speed > def.speed) score += 1;
+    }
+    scores.push({ type: raven, score });
+  }
+
+  scores.sort((a, b) => b.score - a.score);
+  return scores.slice(0, 6).map(s => s.type);
+}
+
+export function rvGetBattleLogPreview(state: RavenTowerState): string {
+  const floor = rvGetCurrentFloor(state);
+  const wave = rvGetWaveInfo(state);
+  const ravenCount = state.deployedRavens.length;
+  const trapCount = state.deployedTraps.length;
+  const dps = rvCalculateDps(state);
+  const title = rvGetKeeperTitle(state.keeperLevel);
+
+  if (wave.isComplete && wave.waveNumber === 0) {
+    return `[${title}] Standing ready on ${floor.name}. ${ravenCount} ravens deployed, ${trapCount} traps set. DPS: ${dps}. Awaiting command to begin.`;
+  }
+  if (wave.isComplete) {
+    return `[${title}] Wave ${wave.waveNumber} on ${floor.name} complete! ${wave.enemiesRemaining === 0 ? 'All enemies vanquished.' : ''} Prepare for the next assault.`;
+  }
+  if (wave.isBossWave) {
+    return `[${title}] ⚠️ BOSS WAVE ${wave.waveNumber} on ${floor.name}! ${wave.enemiesRemaining} enemies remain. The Tower Guardian approaches!`;
+  }
+  return `[${title}] Wave ${wave.waveNumber} on ${floor.name} in progress. ${wave.enemiesRemaining} enemies remaining. DPS: ${dps}.`;
+}
+
+export function rvRavenAbilityReady(raven: DeployedRaven): boolean {
+  return raven.currentCooldown <= 0;
+}
+
+export function rvRavenPowerLevel(raven: DeployedRaven): number {
+  const def = rvRavenMap[raven.ravenType];
+  const damage = rvRavenDamage(def, raven.level);
+  const hp = raven.currentHp;
+  return damage + hp;
+}
+
+export function rvGetStrongestRaven(state: RavenTowerState): DeployedRaven | null {
+  if (state.deployedRavens.length === 0) return null;
+  return state.deployedRavens.reduce((best, r) =>
+    rvRavenPowerLevel(r) > rvRavenPowerLevel(best) ? r : best
+  );
+}
+
+export function rvGetWeakestRaven(state: RavenTowerState): DeployedRaven | null {
+  if (state.deployedRavens.length === 0) return null;
+  return state.deployedRavens.reduce((weakest, r) =>
+    rvRavenPowerLevel(r) < rvRavenPowerLevel(weakest) ? r : weakest
+  );
+}
+
+export function rvAverageRavenLevel(state: RavenTowerState): number {
+  if (state.deployedRavens.length === 0) return 0;
+  const total = state.deployedRavens.reduce((sum, r) => sum + r.level, 0);
+  return Math.floor((total / state.deployedRavens.length) * 10) / 10;
+}
+
+export function rvTotalTrapDamage(state: RavenTowerState): number {
+  let total = 0;
+  for (const t of state.deployedTraps) {
+    const def = rvTrapMap[t.trapType];
+    total += rvTrapTotalDamage(def, state.floorLevels[state.currentFloor]);
+  }
+  return total;
+}
+
+export function rvMostEffectiveTrapForFloor(floorId: FloorId): TrapType {
+  const floor = rvFloorMap[floorId];
+  const monsterPool = floor.monsterPool;
+  const trapScores: { trap: TrapType; score: number }[] = [];
+
+  for (const trap of RV_TRAP_DEFS) {
+    let score = 0;
+    for (const monsterType of monsterPool) {
+      const monster = rvMonsterMap[monsterType];
+      if (monster.speed >= 10 && trap.slowFactor > 0) score += 3;
+      if (monster.armor >= 5 && trap.damage > 20) score += 2;
+      if (monster.baseHp >= 150 && trap.damage > 25) score += 2;
+      score += trap.slowFactor * 2;
+    }
+    trapScores.push({ trap: trap.id, score });
+  }
+
+  trapScores.sort((a, b) => b.score - a.score);
+  return trapScores[0]?.trap ?? 'shadow_snare';
+}
+
+export function rvMostEffectiveSpellForWave(waveNumber: number, isBoss: boolean): SpellId {
+  if (isBoss) return 'death_grip';
+  if (waveNumber <= 5) return 'blood_boil';
+  if (waveNumber <= 15) return 'frost_nova';
+  if (waveNumber <= 25) return 'fire_storm';
+  if (waveNumber <= 35) return 'void_blast';
+  return 'raven_swarm';
+}
+
+export function rvEstimateWavesSurvivable(state: RavenTowerState): number {
+  const dps = rvCalculateDps(state);
+  const tankiness = rvCalculateTankiness(state);
+  const floorLevel = state.floorLevels[state.currentFloor];
+  const avgMonsterHp = 80 * (1 + floorLevel * 0.08);
+  const avgMonsterDmg = 15;
+
+  if (dps <= 0) return 0;
+  const timeToKillOne = avgMonsterHp / dps;
+  const enemiesPerWave = rvFloorMap[state.currentFloor].enemiesPerWave;
+  const timePerWave = timeToKillOne * enemiesPerWave;
+  const hitsPerWave = enemiesPerWave * avgMonsterDmg;
+  const wavesBeforeDeath = tankiness / Math.max(1, hitsPerWave);
+
+  return Math.max(0, Math.floor(wavesBeforeDeath));
+}
+
+export function rvGetRank(state: RavenTowerState): string {
+  const score = rvOverallPowerScore(state);
+  if (score >= 10000) return 'S+';
+  if (score >= 7000) return 'S';
+  if (score >= 5000) return 'A+';
+  if (score >= 3500) return 'A';
+  if (score >= 2500) return 'B+';
+  if (score >= 1500) return 'B';
+  if (score >= 800) return 'C';
+  if (score >= 400) return 'D';
+  return 'F';
+}
+
+export function rvGetNextUnlockHint(state: RavenTowerState): string {
+  const nextRaven = RV_RAVEN_DEFS.find(r => !state.unlockedRavens.includes(r.id));
+  if (nextRaven) return `Next raven: ${nextRaven.name} (Level ${nextRaven.unlockLevel})`;
+  const nextSpell = RV_SPELL_DEFS.find(s => !state.unlockedSpells.includes(s.id));
+  if (nextSpell) return `Next spell: ${nextSpell.name} (Level ${nextSpell.unlockLevel})`;
+  const nextFloor = RV_FLOOR_DEFS.find(f => !state.unlockedFloors.includes(f.id));
+  if (nextFloor) return `Next floor: ${nextFloor.name} (Level ${nextFloor.unlockLevel})`;
+  return 'All content unlocked!';
+}
+
+export function rvGetTowerProgress(state: RavenTowerState): number {
+  const floorProgress = state.unlockedFloors.length / RV_FLOOR_DEFS.length;
+  const ravenProgress = state.unlockedRavens.length / RV_RAVEN_DEFS.length;
+  const spellProgress = state.unlockedSpells.length / RV_SPELL_DEFS.length;
+  const achievementProgress = state.achievements.length / RV_ACHIEVEMENT_DEFS.length;
+  const levelProgress = state.keeperLevel / RV_MAX_LEVEL;
+  return Math.floor(((floorProgress + ravenProgress + spellProgress + achievementProgress + levelProgress) / 5) * 100);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION 15: DEFAULT EXPORT — useRavenTower HOOK (React import only here)
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { useState } from 'react';
+
+export interface UseRavenTowerReturn {
+  state: RavenTowerState;
+  rvAddXp: (amount: number) => void;
+  rvAddResources: (darkCrystals: number, soulShards: number) => void;
+  rvSpendResources: (darkCrystals: number, soulShards: number) => boolean;
+  rvSpendMana: (amount: number) => boolean;
+  rvRegenMana: (amount: number) => void;
+  rvAscendFloor: (floorId: FloorId) => boolean;
+  rvUpgradeFloor: () => boolean;
+  rvUnlockRaven: (type: RavenType) => boolean;
+  rvDeployRaven: (ravenType: RavenType) => boolean;
+  rvRecallRaven: (instanceId: string) => void;
+  rvDeployTrap: (trapType: TrapType, position: number) => boolean;
+  rvCastSpell: (spellId: SpellId) => boolean;
+  rvStartWave: () => void;
+  rvEnemyKilled: (monsterType: MonsterType) => void;
+  rvDamageWall: (damage: number) => void;
+  rvHealWall: (amount: number) => void;
+  rvUpgradeWall: () => boolean;
+  rvAddShield: (amount: number) => void;
+  rvStartDailyAssault: (date: string) => void;
+  rvCompleteAssaultWave: () => void;
+  rvClaimAchievement: (id: AchievementId) => boolean;
+  rvResetFloor: () => void;
+  rvLevelUpRaven: (instanceId: string) => boolean;
+  rvHealRaven: (instanceId: string, amount: number) => void;
+  rvHealAllRavens: (amount: number) => void;
+  rvDamageRaven: (instanceId: string, damage: number) => void;
+  rvRemoveDeadRavens: () => void;
+  rvTickTraps: () => void;
+  rvConsumeTrapCharge: (instanceId: string) => void;
+  rvTickCooldowns: () => void;
+  rvResetTower: () => void;
+  rvGrantCheatResources: (amount: number) => void;
+  rvSetKeeperLevel: (level: number) => void;
+}
+
+export default function useRavenTower(initialState?: RavenTowerState): UseRavenTowerReturn {
+  const [state, setState] = useState<RavenTowerState>(initialState ?? rvInitialState());
+
+  const addXp = (amount: number) => setState(prev => rvAddXp(prev, amount));
+  const addResources = (darkCrystals: number, soulShards: number) =>
+    setState(prev => rvAddResources(prev, darkCrystals, soulShards));
+  const spendResources = (darkCrystals: number, soulShards: number) => {
+    const result = rvSpendResources(state, darkCrystals, soulShards);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const spendMana = (amount: number) => {
+    const result = rvSpendMana(state, amount);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const regenMana = (amount: number) => setState(prev => rvRegenMana(prev, amount));
+  const ascendFloor = (floorId: FloorId) => {
+    const result = rvAscendFloor(state, floorId);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const upgradeFloor = () => {
+    const result = rvUpgradeFloor(state);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const unlockRaven = (type: RavenType) => {
+    const result = rvUnlockRaven(state, type);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const deployRaven = (ravenType: RavenType) => {
+    const result = rvDeployRaven(state, ravenType);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const recallRaven = (instanceId: string) => setState(prev => rvRecallRaven(prev, instanceId));
+  const deployTrap = (trapType: TrapType, position: number) => {
+    const result = rvDeployTrap(state, trapType, position);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const castSpell = (spellId: SpellId) => {
+    const result = rvCastSpell(state, spellId);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const startWave = () => setState(prev => rvStartWave(prev));
+  const enemyKilled = (monsterType: MonsterType) => setState(prev => rvEnemyKilled(prev, monsterType));
+  const damageWall = (damage: number) => setState(prev => rvDamageWall(prev, damage));
+  const healWall = (amount: number) => setState(prev => rvHealWall(prev, amount));
+  const upgradeWall = () => {
+    const result = rvUpgradeWall(state);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const addShield = (amount: number) => setState(prev => rvAddShield(prev, amount));
+  const startDailyAssault = (date: string) => setState(prev => rvStartDailyAssault(prev, date));
+  const completeAssaultWave = () => setState(prev => rvCompleteAssaultWave(prev));
+  const claimAchievement = (id: AchievementId) => {
+    const result = rvClaimAchievement(state, id);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const resetFloor = () => setState(prev => rvResetFloor(prev));
+  const levelUpRaven = (instanceId: string) => {
+    const result = rvLevelUpRaven(state, instanceId);
+    if (result) setState(result);
+    return result !== null;
+  };
+  const healRaven = (instanceId: string, amount: number) =>
+    setState(prev => rvHealRaven(prev, instanceId, amount));
+  const healAllRavens = (amount: number) => setState(prev => rvHealAllRavens(prev, amount));
+  const damageRaven = (instanceId: string, damage: number) =>
+    setState(prev => rvDamageRaven(prev, instanceId, damage));
+  const removeDeadRavens = () => setState(prev => rvRemoveDeadRavens(prev));
+  const tickTraps = () => setState(prev => rvTickTraps(prev));
+  const consumeTrapCharge = (instanceId: string) =>
+    setState(prev => rvConsumeTrapCharge(prev, instanceId));
+  const tickCooldowns = () => setState(prev => rvTickCooldowns(prev));
+  const resetTower = () => setState(prev => rvResetTower(prev));
+  const grantCheatResources = (amount: number) =>
+    setState(prev => rvGrantCheatResources(prev, amount));
+  const setKeeperLevel = (level: number) =>
+    setState(prev => rvSetKeeperLevel(prev, level));
+
+  return {
+    state,
+    rvAddXp: addXp,
+    rvAddResources: addResources,
+    rvSpendResources: spendResources,
+    rvSpendMana: spendMana,
+    rvRegenMana: regenMana,
+    rvAscendFloor: ascendFloor,
+    rvUpgradeFloor: upgradeFloor,
+    rvUnlockRaven: unlockRaven,
+    rvDeployRaven: deployRaven,
+    rvRecallRaven: recallRaven,
+    rvDeployTrap: deployTrap,
+    rvCastSpell: castSpell,
+    rvStartWave: startWave,
+    rvEnemyKilled: enemyKilled,
+    rvDamageWall: damageWall,
+    rvHealWall: healWall,
+    rvUpgradeWall: upgradeWall,
+    rvAddShield: addShield,
+    rvStartDailyAssault: startDailyAssault,
+    rvCompleteAssaultWave: completeAssaultWave,
+    rvClaimAchievement: claimAchievement,
+    rvResetFloor: resetFloor,
+    rvLevelUpRaven: levelUpRaven,
+    rvHealRaven: healRaven,
+    rvHealAllRavens: healAllRavens,
+    rvDamageRaven: damageRaven,
+    rvRemoveDeadRavens: removeDeadRavens,
+    rvTickTraps: tickTraps,
+    rvConsumeTrapCharge: consumeTrapCharge,
+    rvTickCooldowns: tickCooldowns,
+    rvResetTower: resetTower,
+    rvGrantCheatResources: grantCheatResources,
+    rvSetKeeperLevel: setKeeperLevel,
+  };
 }

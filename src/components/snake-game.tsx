@@ -456,6 +456,10 @@ import useReaperGamble from '@/lib/reaper-gamble-wire'
 import useQuartzCraft from '@/lib/quartz-craft-wire'
 import useSkyValkyrie from '@/lib/sky-valkyrie-wire'
 import useWitchCoven from '@/lib/witch-coven-wire'
+import useRavenTower from '@/lib/raven-tower-wire'
+import useNetherWorld from '@/lib/nether-world-wire'
+import useDragonRider from '@/lib/dragon-rider-wire'
+import useVampireLair from '@/lib/vampire-lair-wire'
 
 import {
   Play,
@@ -1525,6 +1529,10 @@ export default function SnakeGame() {
   const [showQuartzCraftPanel, setShowQuartzCraftPanel] = useState(false)
   const [showSkyValkyriePanel, setShowSkyValkyriePanel] = useState(false)
   const [showWitchCovenPanel, setShowWitchCovenPanel] = useState(false)
+  const [showRavenTowerPanel, setShowRavenTowerPanel] = useState(false)
+  const [showNetherWorldPanel, setShowNetherWorldPanel] = useState(false)
+  const [showDragonRiderPanel, setShowDragonRiderPanel] = useState(false)
+  const [showVampireLairPanel, setShowVampireLairPanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1876,6 +1884,10 @@ export default function SnakeGame() {
   const qzAPI = useQuartzCraft()
   const skylAPI = useSkyValkyrie()
   const wcAPI = useWitchCoven()
+  const rvAPI = useRavenTower()
+  const nwAPI = useNetherWorld()
+  const drAPI = useDragonRider()
+  const vbAPI = useVampireLair()
 
 
   // Easter egg active effects display state
@@ -9241,6 +9253,10 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowQuartzCraftPanel(!showQuartzCraftPanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r73-qz-btn" title="Quartz Craft">💎 QrtCraft</Button>
                     <Button onClick={() => setShowSkyValkyriePanel(!showSkyValkyriePanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r73-sk-btn" title="Sky Valkyrie">⚡ SkyValk</Button>
                     <Button onClick={() => setShowWitchCovenPanel(!showWitchCovenPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r73-wc-btn" title="Witch Coven">🧹 WitchCov</Button>
+                    <Button onClick={() => setShowRavenTowerPanel(!showRavenTowerPanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r74-rv-btn" title="Raven Tower">🏴 RavenTower</Button>
+                    <Button onClick={() => setShowNetherWorldPanel(!showNetherWorldPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r74-nw-btn" title="Nether World">🌑 NetherWrld</Button>
+                    <Button onClick={() => setShowDragonRiderPanel(!showDragonRiderPanel)} variant="outline" className="orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r74-dr-btn" title="Dragon Rider">🐉 DragonRdr</Button>
+                    <Button onClick={() => setShowVampireLairPanel(!showVampireLairPanel)} variant="outline" className="border-rose-500/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r74-vb-btn" title="Vampire Lair">🧛 VampLair</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -20851,6 +20867,75 @@ export default function SnakeGame() {
           </div>
         )
       })()}
-    </div>
-  )
-}
+
+      {showRavenTowerPanel && mounted && (() => {
+        const rvState = rvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRavenTowerPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">🏴 Raven Tower</h3><button onClick={() => setShowRavenTowerPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r74-rv-stat"><div className="text-[9px] text-indigo-300">Keeper Lv</div><div className="text-xs font-bold text-indigo-200">{typeof rvState === 'object' && rvState !== null ? (rvState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r74-rv-stat"><div className="text-[9px] text-indigo-300">Soul Shards</div><div className="text-xs font-bold text-indigo-200">{typeof rvState === 'object' && rvState !== null ? (rvState.soulShards || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Raven Tower reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-rv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNetherWorldPanel && mounted && (() => {
+        const nwState = nwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNetherWorldPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🌑 Nether World</h3><button onClick={() => setShowNetherWorldPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r74-nw-stat"><div className="text-[9px] text-emerald-300">Wraith Lv</div><div className="text-xs font-bold text-emerald-200">{typeof nwState === 'object' && nwState !== null ? (nwState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r74-nw-stat"><div className="text-[9px] text-emerald-300">Realms</div><div className="text-xs font-bold text-emerald-200">{typeof nwState === 'object' && nwState !== null ? ((nwState.realmsExplored || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nether World reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-nw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDragonRiderPanel && mounted && (() => {
+        const drState = drAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDragonRiderPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🐉 Dragon Rider</h3><button onClick={() => setShowDragonRiderPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r74-dr-stat"><div className="text-[9px] text-orange-300">Rider Lv</div><div className="text-xs font-bold text-orange-200">{typeof drState === 'object' && drState !== null ? (drState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r74-dr-stat"><div className="text-[9px] text-orange-300">Dragons</div><div className="text-xs font-bold text-orange-200">{typeof drState === 'object' && drState !== null ? ((drState.dragons || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dragon Rider reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-dr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showVampireLairPanel && mounted && (() => {
+        const vbState = vbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVampireLairPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🧛 Vampire Lair</h3><button onClick={() => setShowVampireLairPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r74-vb-stat"><div className="text-[9px] text-rose-300">Vampire Lv</div><div className="text-xs font-bold text-rose-200">{typeof vbState === 'object' && vbState !== null ? (vbState.stats?.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r74-vb-stat"><div className="text-[9px] text-rose-300">Blood Pool</div><div className="text-xs font-bold text-rose-200">{typeof vbState === 'object' && vbState !== null ? (vbState.bloodPool?.amount || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Vampire Lair reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-vb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
