@@ -448,6 +448,10 @@ import useGemCrusher from '@/lib/gem-crusher-wire'
 import useFrostFury from '@/lib/frost-fury-wire'
 import useDawnTower from '@/lib/dawn-tower-wire'
 import useFlamePainter from '@/lib/flame-painter-wire'
+import useSphinxRiddle from '@/lib/sphinx-riddle-wire'
+import useLeviathanDepths from '@/lib/leviathan-depths-wire'
+import useBloodDiamond from '@/lib/blood-diamond-wire'
+import useManaNexus from '@/lib/mana-nexus-wire'
 
 import {
   Play,
@@ -1509,6 +1513,10 @@ export default function SnakeGame() {
   const [showFrostFuryPanel, setShowFrostFuryPanel] = useState(false)
   const [showDawnTowerPanel, setShowDawnTowerPanel] = useState(false)
   const [showFlamePainterPanel, setShowFlamePainterPanel] = useState(false)
+  const [showSphinxRiddlePanel, setShowSphinxRiddlePanel] = useState(false)
+  const [showLeviathanDepthsPanel, setShowLeviathanDepthsPanel] = useState(false)
+  const [showBloodDiamondPanel, setShowBloodDiamondPanel] = useState(false)
+  const [showManaNexusPanel, setShowManaNexusPanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1852,6 +1860,10 @@ export default function SnakeGame() {
   const ffAPI = useFrostFury()
   const dtAPI = useDawnTower()
   const fpAPI = useFlamePainter()
+  const sprAPI = useSphinxRiddle()
+  const epAPI = useLeviathanDepths()
+  const bdAPI = useBloodDiamond()
+  const mnAPI = useManaNexus()
 
 
   // Easter egg active effects display state
@@ -9209,6 +9221,10 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowFrostFuryPanel(!showFrostFuryPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r71-ff-btn" title="Frost Fury">❄️ FrosFur</Button>
                     <Button onClick={() => setShowDawnTowerPanel(!showDawnTowerPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r71-dt-btn" title="Dawn Tower">🌅 DawTow</Button>
                     <Button onClick={() => setShowFlamePainterPanel(!showFlamePainterPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r71-fp-btn" title="Flame Painter">🔥 FlaPai</Button>
+                    <Button onClick={() => setShowSphinxRiddlePanel(!showSphinxRiddlePanel)} variant="outline" className="border-amber-500/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r72-sp-btn" title="Sphinx Riddle">🗿 SphinRid</Button>
+                    <Button onClick={() => setShowLeviathanDepthsPanel(!showLeviathanDepthsPanel)} variant="outline" className="border-blue-500/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r72-ep-btn" title="Leviathan Depths">🌊 LeviDep</Button>
+                    <Button onClick={() => setShowBloodDiamondPanel(!showBloodDiamondPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r72-bd-btn" title="Blood Diamond">💎 BloDia</Button>
+                    <Button onClick={() => setShowManaNexusPanel(!showManaNexusPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r72-mn-btn" title="Mana Nexus">✨ ManNex</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -20670,6 +20686,78 @@ export default function SnakeGame() {
         </div>
               <div className="flex gap-1.5 mb-3">
                 <button onClick={() => { toast({ title: 'Flame Painter reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r71-fp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSphinxRiddlePanel && mounted && (() => {
+        const spState = sprAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSphinxRiddlePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🗿 Sphinx Riddle</h3><button onClick={() => setShowSphinxRiddlePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r72-sp-stat"><div className="text-[9px] text-amber-300">Oracle Level</div><div className="text-xs font-bold text-amber-200">{typeof spState === 'object' && spState !== null ? (spState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r72-sp-stat"><div className="text-[9px] text-amber-300">Solved</div><div className="text-xs font-bold text-amber-200">{typeof spState === 'object' && spState !== null ? (spState.riddlesSolved || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sphinx Riddle reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r72-sp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLeviathanDepthsPanel && mounted && (() => {
+        const epState = epAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLeviathanDepthsPanel(false)}>
+            <div className="bg-blue-950/95 border border-blue-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🌊 Leviathan Depths</h3><button onClick={() => setShowLeviathanDepthsPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r72-ep-stat"><div className="text-[9px] text-blue-300">Diver Level</div><div className="text-xs font-bold text-blue-200">{typeof epState === 'object' && epState !== null ? (epState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r72-ep-stat"><div className="text-[9px] text-blue-300">Max Depth</div><div className="text-xs font-bold text-blue-200">{typeof epState === 'object' && epState !== null ? (epState.maxDepth || 0) : 0}m</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Leviathan Depths reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r72-ep-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBloodDiamondPanel && mounted && (() => {
+        const bdState = bdAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBloodDiamondPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">💎 Blood Diamond</h3><button onClick={() => setShowBloodDiamondPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r72-bd-stat"><div className="text-[9px] text-red-300">Miner Level</div><div className="text-xs font-bold text-red-200">{typeof bdState === 'object' && bdState !== null ? (bdState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r72-bd-stat"><div className="text-[9px] text-red-300">Coins</div><div className="text-xs font-bold text-red-200">{typeof bdState === 'object' && bdState !== null ? (bdState.coins || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Blood Diamond reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r72-bd-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showManaNexusPanel && mounted && (() => {
+        const mnState = mnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowManaNexusPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">✨ Mana Nexus</h3><button onClick={() => setShowManaNexusPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r72-mn-stat"><div className="text-[9px] text-violet-300">Archmage Lv</div><div className="text-xs font-bold text-violet-200">{typeof mnState === 'object' && mnState !== null ? (mnState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r72-mn-stat"><div className="text-[9px] text-violet-300">Spells</div><div className="text-xs font-bold text-violet-200">{typeof mnState === 'object' && mnState !== null ? ((mnState.knownSpells || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mana Nexus reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r72-mn-action">Reset</button>
               </div>
             </div>
           </div>
