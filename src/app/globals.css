@@ -7848,3 +7848,61 @@
 .r72-spell-cast { animation: r72-spell-cast 0.5s ease-out forwards; }
 @keyframes r72-nexus-pulse { 0%, 100% { box-shadow: 0 0 8px rgba(139,92,246,0.3), inset 0 0 4px rgba(139,92,246,0.1); } 50% { box-shadow: 0 0 24px rgba(139,92,246,0.6), inset 0 0 12px rgba(139,92,246,0.3); } }
 .r72-nexus-pulse { animation: r72-nexus-pulse 2.5s ease-in-out infinite; }
+
+/* --- r73 (Reaper Gamble / Quartz Craft / Sky Valkyrie / Witch Coven) --- */
+
+/* Reaper Gamble (gray/dark theme) */
+@keyframes r73-rx-stat { 0% { opacity: 0; transform: translateX(-10px) scale(0.9); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+[class*="r73-rx-stat"] { animation: r73-rx-stat 0.3s ease-out; }
+@keyframes r73-rx-btn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+.r73-rx-btn { animation: r73-rx-btn 0.2s ease-out; }
+@keyframes r73-rx-action { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r73-rx-action { animation: r73-rx-action 0.15s ease-out; }
+@keyframes r73-card-deal { 0% { transform: translateY(-40px) rotate(-10deg); opacity: 0; } 100% { transform: translateY(0) rotate(0deg); opacity: 1; } }
+.r73-card-deal { animation: r73-card-deal 0.35s ease-out; }
+@keyframes r73-soul-drain { 0% { filter: brightness(1); } 50% { filter: brightness(0.4) hue-rotate(180deg); } 100% { filter: brightness(1); } }
+.r73-soul-drain { animation: r73-soul-drain 2s ease-in-out infinite; }
+@keyframes r73-dice-roll { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(90deg) scale(0.8); } 50% { transform: rotate(180deg) scale(1.1); } 75% { transform: rotate(270deg) scale(0.9); } 100% { transform: rotate(360deg) scale(1); } }
+.r73-dice-roll { animation: r73-dice-roll 0.6s ease-in-out; }
+
+/* Quartz Craft (fuchsia/pink theme) */
+@keyframes r73-qz-stat { 0% { opacity: 0; transform: scale(0.7) rotate(5deg); } 60% { transform: scale(1.05) rotate(-1deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+[class*="r73-qz-stat"] { animation: r73-qz-stat 0.35s ease-out; }
+@keyframes r73-qz-btn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+.r73-qz-btn { animation: r73-qz-btn 0.2s ease-out; }
+@keyframes r73-qz-action { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r73-qz-action { animation: r73-qz-action 0.2s ease-out; }
+@keyframes r73-crystal-glow { 0%, 100% { box-shadow: 0 0 6px rgba(217,70,239,0.4); } 50% { box-shadow: 0 0 20px rgba(217,70,239,0.8), 0 0 40px rgba(192,38,211,0.3); } }
+.r73-crystal-glow { animation: r73-crystal-glow 2.5s ease-in-out infinite; }
+@keyframes r73-grid-resonate { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+.r73-grid-resonate { animation: r73-grid-resonate 1.5s ease-in-out infinite; }
+@keyframes r73-bowl-vibrate { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+.r73-bowl-vibrate { animation: r73-bowl-vibrate 0.15s linear infinite; }
+
+/* Sky Valkyrie (sky/blue theme) */
+@keyframes r73-sk-stat { 0% { opacity: 0; transform: translateY(-12px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+[class*="r73-sk-stat"] { animation: r73-sk-stat 0.3s ease-out; }
+@keyframes r73-sk-btn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+.r73-sk-btn { animation: r73-sk-btn 0.2s ease-out; }
+@keyframes r73-sk-action { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r73-sk-action { animation: r73-sk-action 0.15s ease-out; }
+@keyframes r73-wing-flap { 0%, 100% { transform: scaleX(1); } 25% { transform: scaleX(0.8) rotate(-5deg); } 75% { transform: scaleX(0.85) rotate(3deg); } }
+.r73-wing-flap { animation: r73-wing-flap 1.2s ease-in-out infinite; }
+@keyframes r73-valkyrie-descend { 0% { transform: translateY(-20px); opacity: 0; } 60% { transform: translateY(3px); } 100% { transform: translateY(0); opacity: 1; } }
+.r73-valkyrie-descend { animation: r73-valkyrie-descend 0.4s ease-out; }
+@keyframes r73-aurora-shimmer { 0%, 100% { background-position: 0% 50%; opacity: 0.7; } 50% { background-position: 100% 50%; opacity: 1; } }
+.r73-aurora-shimmer { animation: r73-aurora-shimmer 3s ease-in-out infinite; }
+
+/* Witch Coven (purple theme) */
+@keyframes r73-wc-stat { 0% { opacity: 0; transform: scale(0.8) translateY(5px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+[class*="r73-wc-stat"] { animation: r73-wc-stat 0.3s ease-out; }
+@keyframes r73-wc-btn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+.r73-wc-btn { animation: r73-wc-btn 0.2s ease-out; }
+@keyframes r73-wc-action { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r73-wc-action { animation: r73-wc-action 0.15s ease-out; }
+@keyframes r73-cauldron-bubble { 0% { transform: translateY(0) scale(0.5); opacity: 0.8; } 100% { transform: translateY(-16px) scale(0); opacity: 0; } }
+.r73-cauldron-bubble { animation: r73-cauldron-bubble 1.5s ease-out infinite; }
+@keyframes r73-potion-brew { 0%, 100% { filter: hue-rotate(0deg) brightness(1); } 33% { filter: hue-rotate(30deg) brightness(1.2); } 66% { filter: hue-rotate(-20deg) brightness(0.9); } }
+.r73-potion-brew { animation: r73-potion-brew 2s ease-in-out infinite; }
+@keyframes r73-moon-glow { 0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.3); } 50% { box-shadow: 0 0 28px rgba(168,85,247,0.6), 0 0 56px rgba(147,51,234,0.2); } }
+.r73-moon-glow { animation: r73-moon-glow 3s ease-in-out infinite; }

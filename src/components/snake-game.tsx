@@ -452,6 +452,10 @@ import useSphinxRiddle from '@/lib/sphinx-riddle-wire'
 import useLeviathanDepths from '@/lib/leviathan-depths-wire'
 import useBloodDiamond from '@/lib/blood-diamond-wire'
 import useManaNexus from '@/lib/mana-nexus-wire'
+import useReaperGamble from '@/lib/reaper-gamble-wire'
+import useQuartzCraft from '@/lib/quartz-craft-wire'
+import useSkyValkyrie from '@/lib/sky-valkyrie-wire'
+import useWitchCoven from '@/lib/witch-coven-wire'
 
 import {
   Play,
@@ -1517,6 +1521,10 @@ export default function SnakeGame() {
   const [showLeviathanDepthsPanel, setShowLeviathanDepthsPanel] = useState(false)
   const [showBloodDiamondPanel, setShowBloodDiamondPanel] = useState(false)
   const [showManaNexusPanel, setShowManaNexusPanel] = useState(false)
+  const [showReaperGamblePanel, setShowReaperGamblePanel] = useState(false)
+  const [showQuartzCraftPanel, setShowQuartzCraftPanel] = useState(false)
+  const [showSkyValkyriePanel, setShowSkyValkyriePanel] = useState(false)
+  const [showWitchCovenPanel, setShowWitchCovenPanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1864,6 +1872,10 @@ export default function SnakeGame() {
   const epAPI = useLeviathanDepths()
   const bdAPI = useBloodDiamond()
   const mnAPI = useManaNexus()
+  const reapAPI = useReaperGamble()
+  const qzAPI = useQuartzCraft()
+  const skylAPI = useSkyValkyrie()
+  const wcAPI = useWitchCoven()
 
 
   // Easter egg active effects display state
@@ -9225,6 +9237,10 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowLeviathanDepthsPanel(!showLeviathanDepthsPanel)} variant="outline" className="border-blue-500/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r72-ep-btn" title="Leviathan Depths">🌊 LeviDep</Button>
                     <Button onClick={() => setShowBloodDiamondPanel(!showBloodDiamondPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r72-bd-btn" title="Blood Diamond">💎 BloDia</Button>
                     <Button onClick={() => setShowManaNexusPanel(!showManaNexusPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r72-mn-btn" title="Mana Nexus">✨ ManNex</Button>
+                    <Button onClick={() => setShowReaperGamblePanel(!showReaperGamblePanel)} variant="outline" className="border-gray-400/50 text-gray-200 hover:bg-gray-900/20 active:scale-95 transition-transform r73-rx-btn" title="Reaper Gamble">💀 ReapGamble</Button>
+                    <Button onClick={() => setShowQuartzCraftPanel(!showQuartzCraftPanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r73-qz-btn" title="Quartz Craft">💎 QrtCraft</Button>
+                    <Button onClick={() => setShowSkyValkyriePanel(!showSkyValkyriePanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r73-sk-btn" title="Sky Valkyrie">⚡ SkyValk</Button>
+                    <Button onClick={() => setShowWitchCovenPanel(!showWitchCovenPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r73-wc-btn" title="Witch Coven">🧹 WitchCov</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -20764,8 +20780,77 @@ export default function SnakeGame() {
         )
       })()}
 
+      {showReaperGamblePanel && mounted && (() => {
+        const rxState = reapAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowReaperGamblePanel(false)}>
+            <div className="bg-gray-950/95 border border-gray-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-200">💀 Reaper Gamble</h3><button onClick={() => setShowReaperGamblePanel(false)} className="text-gray-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r73-rx-stat"><div className="text-[9px] text-gray-300">Gambler Lv</div><div className="text-xs font-bold text-gray-200">{typeof rxState === 'object' && rxState !== null ? (rxState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r73-rx-stat"><div className="text-[9px] text-gray-300">Soul Coins</div><div className="text-xs font-bold text-gray-200">{typeof rxState === 'object' && rxState !== null ? (rxState.coins || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Reaper Gamble reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-800/30 to-gray-900/20 hover:opacity-80 text-gray-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r73-rx-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
+      {showQuartzCraftPanel && mounted && (() => {
+        const qzState = qzAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowQuartzCraftPanel(false)}>
+            <div className="bg-fuchsia-950/95 border border-fuchsia-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-fuchsia-200">💎 Quartz Craft</h3><button onClick={() => setShowQuartzCraftPanel(false)} className="text-fuchsia-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r73-qz-stat"><div className="text-[9px] text-fuchsia-300">Crafter Lv</div><div className="text-xs font-bold text-fuchsia-200">{typeof qzState === 'object' && qzState !== null ? (qzState.crafterLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r73-qz-stat"><div className="text-[9px] text-fuchsia-300">Crystals</div><div className="text-xs font-bold text-fuchsia-200">{typeof qzState === 'object' && qzState !== null ? (qzState.totalCrystalsDiscovered || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Quartz Craft reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-fuchsia-800/30 to-fuchsia-900/20 hover:opacity-80 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r73-qz-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
+      {showSkyValkyriePanel && mounted && (() => {
+        const skyState = skylAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSkyValkyriePanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">⚡ Sky Valkyrie</h3><button onClick={() => setShowSkyValkyriePanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r73-sk-stat"><div className="text-[9px] text-sky-300">Valkyrie Lv</div><div className="text-xs font-bold text-sky-200">{typeof skyState === 'object' && skyState !== null ? (skyState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r73-sk-stat"><div className="text-[9px] text-sky-300">Warriors</div><div className="text-xs font-bold text-sky-200">{typeof skyState === 'object' && skyState !== null ? (skyState.warriorsChosen || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sky Valkyrie reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r73-sk-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showWitchCovenPanel && mounted && (() => {
+        const wcState = wcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWitchCovenPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🧹 Witch Coven</h3><button onClick={() => setShowWitchCovenPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r73-wc-stat"><div className="text-[9px] text-purple-300">Witch Lv</div><div className="text-xs font-bold text-purple-200">{typeof wcState === 'object' && wcState !== null ? (wcState.witchLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r73-wc-stat"><div className="text-[9px] text-purple-300">Potions</div><div className="text-xs font-bold text-purple-200">{typeof wcState === 'object' && wcState !== null ? (wcState.potionsBrewed || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Witch Coven reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r73-wc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
