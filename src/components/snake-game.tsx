@@ -222,6 +222,229 @@ import { fhGetState, fhResetState, fhGetLevel, fhAddXP, fhGetXpProgress, fhGetCo
 import { efGetState, efResetState, efGetLevel, efAddXP, efGetXpProgress, efGetCoins, efGetElements, efGetElementMastery, efGetForgableItems, efGetItemsByCategory, efForgeItem, efGetForgeStations, efGetCurrentStation, efSetStation, efSetTemperature, efGetTemperature, efStartForge, efCancelForge, efGetActiveForge, efGetMaterials, efGetInventory, efBuyMaterial, efSellMaterial, efGetReactions, efTriggerReaction, efGetEnhancements, efEnhanceItem, efGetDailyChallenge, efCompleteDaily, efGetStreak, efGetBestStreak, efGetStats, efGetAchievements, efCheckAchievements, efGetHint, efGetOptimalTemperature } from '@/lib/elemental-forge-wire'
 import { sxGetState, sxResetState, sxGetLevel, sxAddXP, sxGetXpProgress, sxGetCoins, sxGetBiomes, sxGetAnimals, sxGetAnimalsByBiome, sxSpotAnimal, sxGetSpotted, sxStartExpedition, sxEndExpedition, sxGetExpeditionProgress, sxTakePhoto, sxGetPhotoGallery, sxGetBestPhotos, sxGetCameras, sxGetCurrentCamera, sxEquipCamera, sxUpgradeCamera, sxGetVehicles, sxGetCurrentVehicle, sxSetVehicle, sxGetGuides, sxGetCurrentGuide, sxHireGuide, sxGetWeather, sxAdvanceWeather, sxGetTimeOfDay, sxGetTracks, sxFollowTracks, sxIdentifyCall, sxGetEncyclopedia, sxDiscoveries, sxGetDailyChallenge, sxCompleteDaily, sxGetStreak, sxGetBestStreak, sxGetStats, sxGetAchievements, sxCheckAchievements, sxGetRunHistory, sxGetHint } from '@/lib/safari-expedition-wire'
 import { ncGetState, ncResetState, ncGetLevel, ncAddXP, ncGetXpProgress, ncGetCredits, ncGetDistricts, ncGetSystems, ncGetSystemsByDistrict, ncStartHack, ncBreachFirewall, ncDecrypt, ncExtractData, ncGetHackResult, ncAbortHack, ncGetCyberdecks, ncGetCurrentCyberdeck, ncEquipCyberdeck, ncGetSkills, ncGetSkillLevel, ncAddSkillXP, ncGetAugmentations, ncInstallAugmentation, ncUpgradeAugmentation, ncGetContacts, ncGetCurrentContact, ncHireContact, ncGetMarketItems, ncBuyItem, ncSellItem, ncGetReputation, ncGetFactionStanding, ncGetIntelligence, ncDecodeFragment, ncGetConspiracyProgress, ncGetDailyChallenge, ncCompleteDaily, ncGetStreak, ncGetBestStreak, ncGetStats, ncGetAchievements, ncCheckAchievements, ncGetRunHistory, ncGetHint, ncGetInventory, ncGetHackChance, ncGetLevelTitle } from '@/lib/neon-city-wire'
+// Round 64: World wire batch 1 (Alchemist Workshop -> Coral Forge)
+import useAlchemistWorkshop from '@/lib/alchemist-workshop-wire'
+import useAlienLaboratory from '@/lib/alien-laboratory-wire'
+import useAncientPyramid from '@/lib/ancient-pyramid-wire'
+import { acGetState, acGetStats, acGetLevel, acResetState } from '@/lib/ant-colony-wire'
+import { aoGetState, aoGetStats, aoGetLevelInfo, aoResetState } from '@/lib/aquarium-oasis-wire'
+import useArcaneRuins from '@/lib/arcane-ruins-wire'
+import useArcticExpedition from '@/lib/arctic-expedition-wire'
+import useAstralNexus from '@/lib/astral-nexus-wire'
+import useAtlantisDeep from '@/lib/atlantis-deep-wire'
+import useAuroraForge from '@/lib/aurora-forge-wire'
+import useAuroraObservatory from '@/lib/aurora-observatory-wire'
+import useBeeHive from '@/lib/bee-hive-wire'
+import useBirchGrove from '@/lib/birch-grove-wire'
+import useBlizzardThrone from '@/lib/blizzard-throne-wire'
+import useBloodVine from '@/lib/blood-vine-wire'
+import useBloodWych from '@/lib/blood-wych-wire'
+import useBoneTower from '@/lib/bone-tower-wire'
+import useBorealNexus from '@/lib/boreal-nexus-wire'
+import useBrassCitadel from '@/lib/brass-citadel-wire'
+import useBrimstoneCrag from '@/lib/brimstone-crag-wire'
+import useBubbleMarine from '@/lib/bubble-marine-wire'
+import useCandyKingdom from '@/lib/candy-kingdom-wire'
+import useClockTower from '@/lib/clock-tower-wire'
+import useClockworkKingdom from '@/lib/clockwork-kingdom-wire'
+import useCloudNine from '@/lib/cloud-nine-wire'
+import useCloudStrand from '@/lib/cloud-strand-wire'
+import useCobaltVault from '@/lib/cobalt-vault-wire'
+import useCopperVale from '@/lib/copper-vale-wire'
+import useCoralAbyss from '@/lib/coral-abyss-wire'
+import useCoralForge from '@/lib/coral-forge-wire'
+// Round 65: World wire batch 2 (Coral Observatory -> Enchanted Forest)
+import useCoralObservatory from '@/lib/coral-observatory-wire'
+import useCoralReef from '@/lib/coral-reef-wire'
+import useCrimsonDunes from '@/lib/crimson-dunes-wire'
+import { ccGetState as cc2GetState, ccGetLevel as cc2GetLevel, ccGetStats as cc2GetStats, ccResetState as cc2ResetState } from '@/lib/crystal-cave-wire'
+import useCrystalCrypt from '@/lib/crystal-crypt-wire'
+import useCrystalGlacier from '@/lib/crystal-glacier-wire'
+import useCrystalMine from '@/lib/crystal-mine-wire'
+import { useCyberArena } from '@/lib/cyber-arena-wire'
+import useDarkAquarium from '@/lib/dark-aquarium-wire'
+import useDeepSeaTrench from '@/lib/deep-sea-trench-wire'
+import useDeltaForge from '@/lib/delta-forge-wire'
+import useDesertOasis from '@/lib/desert-oasis-wire'
+import { dcGetState as dbGetState, dcGetStats as dbGetStats, dcResetState as dbResetState } from '@/lib/dice-board-wire'
+import useDinosaurPark from '@/lib/dinosaur-park-wire'
+import useDjinnOasis from '@/lib/djinn-oasis-wire'
+import useDragonDynasty from '@/lib/dragon-dynasty-wire'
+import useDragonRoost from '@/lib/dragon-roost-wire'
+import useDragonSanctuary from '@/lib/dragon-sanctuary-wire'
+import useDragonVault from '@/lib/dragon-vault-wire'
+import useDreamGarden from '@/lib/dream-garden-wire'
+import useDreamKingdom from '@/lib/dream-kingdom-wire'
+import useDriftFleet from '@/lib/drift-fleet-wire'
+import useDustMirage from '@/lib/dust-mirage-wire'
+import useEchoCanyon from '@/lib/echo-canyon-wire'
+import useElvenGrove from '@/lib/elven-grove-wire'
+import useEmberAbyss from '@/lib/ember-abyss-wire'
+import useEmberBay from '@/lib/ember-bay-wire'
+import useEmberWilds from '@/lib/ember-wilds-wire'
+import useEmeraldSpire from '@/lib/emerald-spire-wire'
+import useEnchantedForest from '@/lib/enchanted-forest-wire'
+// Round 66: World wire batch 3 (Fairy Garden -> Ink Dynasty)
+import useFairyGarden from '@/lib/fairy-garden-wire'
+import { fcGetState, fcGetLevel, fcResetState, fcGetSummary } from '@/lib/fantasy-castle-wire'
+import useFireIsle from '@/lib/fire-isle-wire'
+import useFluxRealm from '@/lib/flux-realm-wire'
+import useFortuneTemple from '@/lib/fortune-temple-wire'
+import useFossilOasis from '@/lib/fossil-oasis-wire'
+import useFrostAngel from '@/lib/frost-angel-wire'
+import useFrostCitadel from '@/lib/frost-citadel-wire'
+import useFrostReach from '@/lib/frost-reach-wire'
+import useFrostVine from '@/lib/frost-vine-wire'
+import useGalaxyGarden from '@/lib/galaxy-garden-wire'
+import useGhostCarnival from '@/lib/ghost-carnival-wire'
+import useGhostHospital from '@/lib/ghost-hospital-wire'
+import useGhostTrain from '@/lib/ghost-train-wire'
+import useGhostWeaver from '@/lib/ghost-weaver-wire'
+import useGlassCitadel from '@/lib/glass-citadel-wire'
+import useGlassRealm from '@/lib/glass-realm-wire'
+import useGnomeGarden from '@/lib/gnome-garden-wire'
+import useGoblinWarren from '@/lib/goblin-warren-wire'
+import useGoldDynasty from '@/lib/gold-dynasty-wire'
+import useGoldPrairie from '@/lib/gold-prairie-wire'
+import useGolemVillage from '@/lib/golem-village-wire'
+import useHailGarden from '@/lib/hail-garden-wire'
+import useHaloSanctum from '@/lib/halo-sanctum-wire'
+import useHauntedMansion from '@/lib/haunted-mansion-wire'
+import useHauntedTomb from '@/lib/haunted-tomb-wire'
+import useHollowEarth from '@/lib/hollow-earth-wire'
+import useHollowReach from '@/lib/hollow-reach-wire'
+import useIcePalace from '@/lib/ice-palace-wire'
+import useInkDynasty from '@/lib/ink-dynasty-wire'
+// Round 67: World wire batch 4 (Insect Kingdom -> Mystic Forge)
+import useInsectKingdom from '@/lib/insect-kingdom-wire'
+import useIronBay from '@/lib/iron-bay-wire'
+import useIronReach from '@/lib/iron-reach-wire'
+import useIvorySpire from '@/lib/ivory-spire-wire'
+import useJadeEmperor from '@/lib/jade-emperor-wire'
+import useJadeForest from '@/lib/jade-forest-wire'
+import useJadeHollow from '@/lib/jade-hollow-wire'
+import useJadeTemple from '@/lib/jade-temple-wire'
+import useJasperGorge from '@/lib/jasper-gorge-wire'
+import useKaolinCavern from '@/lib/kaolin-cavern-wire'
+import useKarmaMonastery from '@/lib/karma-monastery-wire'
+import useKelpForest from '@/lib/kelp-forest-wire'
+import useLavaForge from '@/lib/lava-forge-wire'
+import useLightningWeald from '@/lib/lightning-weald-wire'
+import useLostCivilization from '@/lib/lost-civilization-wire'
+import useLotusHarbor from '@/lib/lotus-harbor-wire'
+import useLunarMine from '@/lib/lunar-mine-wire'
+import useLunarNexus from '@/lib/lunar-nexus-wire'
+import useMagmaCore from '@/lib/magma-core-wire'
+import useMagnetKeep from '@/lib/magnet-keep-wire'
+import useMechWorkshop from '@/lib/mech-workshop-wire'
+import useMermaidLagoon from '@/lib/mermaid-lagoon-wire'
+import useMicroKingdom from '@/lib/micro-kingdom-wire'
+import useMidnightForge from '@/lib/midnight-forge-wire'
+import useMinotaurLabyrinth from '@/lib/minotaur-labyrinth-wire'
+import useMonsterSanctuary from '@/lib/monster-sanctuary-wire'
+import useMoonPool from '@/lib/moon-pool-wire'
+import useMossGarden from '@/lib/moss-garden-wire'
+import useMushroomCavern from '@/lib/mushroom-cavern-wire'
+import useMysticForge from '@/lib/mystic-forge-wire'
+// Round 68: World wire batch 5 (Mystic Tomb -> Quill Archive)
+import useMysticTomb from '@/lib/mystic-tomb-wire'
+import useMythicAbyss from '@/lib/mythic-abyss-wire'
+import useNebulaBastion from '@/lib/nebula-bastion-wire'
+import useNeonHive from '@/lib/neon-hive-wire'
+import useNeonShrine from '@/lib/neon-shrine-wire'
+import useNetherPact from '@/lib/nether-pact-wire'
+import useNightmareRealm from '@/lib/nightmare-realm-wire'
+import useNinjaDojo from '@/lib/ninja-dojo-wire'
+import useNovaCitadel from '@/lib/nova-citadel-wire'
+import useNovaLight from '@/lib/nova-light-wire'
+import { nuGetState as nulGetState, nuGetLevel as nulGetLevel, nuResetState as nulResetState, nuGetStats as nulGetStats } from '@/lib/nuclear-lab-wire'
+import useNyxVoid from '@/lib/nyx-void-wire'
+import useOasisMirage from '@/lib/oasis-mirage-wire'
+import useObsidianForge from '@/lib/obsidian-forge-wire'
+import useOchreWilds from '@/lib/ochre-wilds-wire'
+import useOnyxDomain from '@/lib/onyx-domain-wire'
+import useOpalLagoon from '@/lib/opal-lagoon-wire'
+import useOpalRidge from '@/lib/opal-ridge-wire'
+import usePearlAbyss from '@/lib/pearl-abyss-wire'
+import usePetalAcademy from '@/lib/petal-academy-wire'
+import usePhantomLibrary from '@/lib/phantom-library-wire'
+import usePhoenixNest from '@/lib/phoenix-nest-wire'
+import usePrismColosseum from '@/lib/prism-colosseum-wire'
+import usePrismRealm from '@/lib/prism-realm-wire'
+import usePumpkinVillage from '@/lib/pumpkin-village-wire'
+import usePyreYard from '@/lib/pyre-yard-wire'
+import useQuantumLab from '@/lib/quantum-lab-wire'
+import useQuantumMaze from '@/lib/quantum-maze-wire'
+import useQuantumSpires from '@/lib/quantum-spires-wire'
+import useQuillArchive from '@/lib/quill-archive-wire'
+import useRainbowBridge from '@/lib/rainbow-bridge-wire'
+import useRavenTower from '@/lib/raven-tower-wire'
+import useRosewoodManor from '@/lib/rosewood-manor-wire'
+import useRuneRiver from '@/lib/rune-river-wire'
+import useRuneSanctuary from '@/lib/rune-sanctuary-wire'
+import useRuneXyst from '@/lib/rune-xyst-wire'
+import useSaffronForge from '@/lib/saffron-forge-wire'
+import useSageGrove from '@/lib/sage-grove-wire'
+import useSakuraTemple from '@/lib/sakura-temple-wire'
+import useSamuraiDojo from '@/lib/samurai-dojo-wire'
+import useSerpentNile from '@/lib/serpent-nile-wire'
+import useShadowRealm from '@/lib/shadow-realm-wire'
+import useSilkDynasty from '@/lib/silk-dynasty-wire'
+import useSilverEnclave from '@/lib/silver-enclave-wire'
+import useSirenCove from '@/lib/siren-cove-wire'
+import useSkyCitadel from '@/lib/sky-citadel-wire'
+import useSkyGarden from '@/lib/sky-garden-wire'
+import useSkyTemple from '@/lib/sky-temple-wire'
+import useSolarForge from '@/lib/solar-forge-wire'
+import useSorcerersBakery from '@/lib/sorcerers-bakery-wire'
+import useSpaceColony from '@/lib/space-colony-wire'
+import useSpiritLantern from '@/lib/spirit-lantern-wire'
+import useSpiritPeaks from '@/lib/spirit-peaks-wire'
+import useStarForge from '@/lib/star-forge-wire'
+import useStarlightHarbor from '@/lib/starlight-harbor-wire'
+import useStarwood from '@/lib/starwood-wire'
+import useSteamMarsh from '@/lib/steam-marsh-wire'
+import useSteampunkFactory from '@/lib/steampunk-factory-wire'
+import useSteamshipSaga from '@/lib/steamship-saga-wire'
+import useStormChaser from '@/lib/storm-chaser-wire'
+import { useCloudKingdom } from '@/lib/cloud-kingdom-wire'
+import { coGetState as cmGetConstellationState } from '@/lib/constellation-map-wire'
+import { cmGetState } from '@/lib/crossword-master-wire'
+import { cwGetState } from '@/lib/crossword-puzzle-wire'
+import useJungleNavigator from '@/lib/jungle-navigator-wire'
+import { muGetState } from '@/lib/music-studio-wire'
+import { psGetState } from '@/lib/photo-safari-wire'
+import { usePirateBay } from '@/lib/pirate-bay-wire'
+import { rcGetState } from '@/lib/recipe-collection-wire'
+import useRobotColony from '@/lib/robot-colony-wire'
+import { seGetState } from '@/lib/space-explorer-wire'
+import useTeaParty from '@/lib/tea-party-wire'
+import useTerraQuest from '@/lib/terra-quest-wire'
+import useThunderNexus from '@/lib/thunder-nexus-wire'
+import useThunderPeak from '@/lib/thunder-peak-wire'
+import useTidalRift from '@/lib/tidal-rift-wire'
+import useTimeMonastery from '@/lib/time-monastery-wire'
+import { twGetState } from '@/lib/time-workshop-wire'
+import useTitanWorkshop from '@/lib/titan-workshop-wire'
+import useTombBlade from '@/lib/tomb-blade-wire'
+import useTradeVessel from '@/lib/trade-vessel-wire'
+import useUFOCommand from '@/lib/ufo-command-wire'
+import useVelvetBrood from '@/lib/velvet-brood-wire'
+import useVenomAbyss from '@/lib/venom-abyss-wire'
+import useVineNexus from '@/lib/vine-nexus-wire'
+import useVoidCitadel from '@/lib/void-citadel-wire'
+import useVoidGarden from '@/lib/void-garden-wire'
+import { vlGetState } from '@/lib/volcano-lab-wire'
+import useVolcanoPeak from '@/lib/volcano-peak-wire'
+import useWandererBazaar from '@/lib/wanderer-bazaar-wire'
+import useWillowLane from '@/lib/willow-lane-wire'
+import useWizardAcademy from '@/lib/wizard-academy-wire'
+import { wsGetState } from '@/lib/word-sniper-wire'
+import useXenoHive from '@/lib/xeno-hive-wire'
+import useYggdrasilXylem from '@/lib/yggdrasil-xylem-wire'
+import useZephyrHaven from '@/lib/zephyr-haven-wire'
+import useZephyrVault from '@/lib/zephyr-vault-wire'
+
 import {
   Play,
   RotateCcw,
@@ -1057,6 +1280,228 @@ export default function SnakeGame() {
   const [showElementalForgePanel, setShowElementalForgePanel] = useState(false)
   const [showSafariExpeditionPanel, setShowSafariExpeditionPanel] = useState(false)
   const [showNeonCityPanel, setShowNeonCityPanel] = useState(false)
+  const [showAlchemistWorkshopPanel, setShowAlchemistWorkshopPanel] = useState(false)
+  const [showAlienLaboratoryPanel, setShowAlienLaboratoryPanel] = useState(false)
+  const [showAncientPyramidPanel, setShowAncientPyramidPanel] = useState(false)
+  const [showAntColonyPanel, setShowAntColonyPanel] = useState(false)
+  const [showAquariumOasisPanel, setShowAquariumOasisPanel] = useState(false)
+  const [showArcaneRuinsPanel, setShowArcaneRuinsPanel] = useState(false)
+  const [showArcticExpeditionPanel, setShowArcticExpeditionPanel] = useState(false)
+  const [showAstralNexusPanel, setShowAstralNexusPanel] = useState(false)
+  const [showAtlantisDeepPanel, setShowAtlantisDeepPanel] = useState(false)
+  const [showAuroraForgePanel, setShowAuroraForgePanel] = useState(false)
+  const [showAuroraObservatoryPanel, setShowAuroraObservatoryPanel] = useState(false)
+  const [showBeeHivePanel, setShowBeeHivePanel] = useState(false)
+  const [showBirchGrovePanel, setShowBirchGrovePanel] = useState(false)
+  const [showBlizzardThronePanel, setShowBlizzardThronePanel] = useState(false)
+  const [showBloodVinePanel, setShowBloodVinePanel] = useState(false)
+  const [showBloodWychPanel, setShowBloodWychPanel] = useState(false)
+  const [showBoneTowerPanel, setShowBoneTowerPanel] = useState(false)
+  const [showBorealNexusPanel, setShowBorealNexusPanel] = useState(false)
+  const [showBrassCitadelPanel, setShowBrassCitadelPanel] = useState(false)
+  const [showBrimstoneCragPanel, setShowBrimstoneCragPanel] = useState(false)
+  const [showBubbleMarinePanel, setShowBubbleMarinePanel] = useState(false)
+  const [showCandyKingdomPanel, setShowCandyKingdomPanel] = useState(false)
+  const [showClockTowerPanel, setShowClockTowerPanel] = useState(false)
+  const [showClockworkKingdomPanel, setShowClockworkKingdomPanel] = useState(false)
+  const [showCloudNinePanel, setShowCloudNinePanel] = useState(false)
+  const [showCloudStrandPanel, setShowCloudStrandPanel] = useState(false)
+  const [showCobaltVaultPanel, setShowCobaltVaultPanel] = useState(false)
+  const [showCopperValePanel, setShowCopperValePanel] = useState(false)
+  const [showCoralAbyssPanel, setShowCoralAbyssPanel] = useState(false)
+  const [showCoralForgePanel, setShowCoralForgePanel] = useState(false)
+  // Round 65: World wire batch 2 panel states
+  const [showCoralObservatoryPanel, setShowCoralObservatoryPanel] = useState(false)
+  const [showCoralReefPanel, setShowCoralReefPanel] = useState(false)
+  const [showCrimsonDunesPanel, setShowCrimsonDunesPanel] = useState(false)
+  const [showCrystalCavePanel, setShowCrystalCavePanel] = useState(false)
+  const [showCrystalCryptPanel, setShowCrystalCryptPanel] = useState(false)
+  const [showCrystalGlacierPanel, setShowCrystalGlacierPanel] = useState(false)
+  const [showCrystalMinePanel, setShowCrystalMinePanel] = useState(false)
+  const [showCyberArenaPanel, setShowCyberArenaPanel] = useState(false)
+  const [showDarkAquariumPanel, setShowDarkAquariumPanel] = useState(false)
+  const [showDeepSeaTrenchPanel, setShowDeepSeaTrenchPanel] = useState(false)
+  const [showDeltaForgePanel, setShowDeltaForgePanel] = useState(false)
+  const [showDesertOasisPanel, setShowDesertOasisPanel] = useState(false)
+  const [showDiceBoardPanel, setShowDiceBoardPanel] = useState(false)
+  const [showDinosaurParkPanel, setShowDinosaurParkPanel] = useState(false)
+  const [showDjinnOasisPanel, setShowDjinnOasisPanel] = useState(false)
+  const [showDragonDynastyPanel, setShowDragonDynastyPanel] = useState(false)
+  const [showDragonRoostPanel, setShowDragonRoostPanel] = useState(false)
+  const [showDragonSanctuaryPanel, setShowDragonSanctuaryPanel] = useState(false)
+  const [showDragonVaultPanel, setShowDragonVaultPanel] = useState(false)
+  const [showDreamGardenPanel, setShowDreamGardenPanel] = useState(false)
+  const [showDreamKingdomPanel, setShowDreamKingdomPanel] = useState(false)
+  const [showDriftFleetPanel, setShowDriftFleetPanel] = useState(false)
+  const [showDustMiragePanel, setShowDustMiragePanel] = useState(false)
+  const [showEchoCanyonPanel, setShowEchoCanyonPanel] = useState(false)
+  const [showElvenGrovePanel, setShowElvenGrovePanel] = useState(false)
+  const [showEmberAbyssPanel, setShowEmberAbyssPanel] = useState(false)
+  const [showEmberBayPanel, setShowEmberBayPanel] = useState(false)
+  const [showEmberWildsPanel, setShowEmberWildsPanel] = useState(false)
+  const [showEmeraldSpirePanel, setShowEmeraldSpirePanel] = useState(false)
+  const [showEnchantedForestPanel, setShowEnchantedForestPanel] = useState(false)
+  const [showFairyGardenPanel, setShowFairyGardenPanel] = useState(false)
+  const [showFantasyCastlePanel, setShowFantasyCastlePanel] = useState(false)
+  const [showFireIslePanel, setShowFireIslePanel] = useState(false)
+  const [showFluxRealmPanel, setShowFluxRealmPanel] = useState(false)
+  const [showFortuneTemplePanel, setShowFortuneTemplePanel] = useState(false)
+  const [showFossilOasisPanel, setShowFossilOasisPanel] = useState(false)
+  const [showFrostAngelPanel, setShowFrostAngelPanel] = useState(false)
+  const [showFrostCitadelPanel, setShowFrostCitadelPanel] = useState(false)
+  const [showFrostReachPanel, setShowFrostReachPanel] = useState(false)
+  const [showFrostVinePanel, setShowFrostVinePanel] = useState(false)
+  const [showGalaxyGardenPanel, setShowGalaxyGardenPanel] = useState(false)
+  const [showGhostCarnivalPanel, setShowGhostCarnivalPanel] = useState(false)
+  const [showGhostHospitalPanel, setShowGhostHospitalPanel] = useState(false)
+  const [showGhostTrainPanel, setShowGhostTrainPanel] = useState(false)
+  const [showGhostWeaverPanel, setShowGhostWeaverPanel] = useState(false)
+  const [showGlassCitadelPanel, setShowGlassCitadelPanel] = useState(false)
+  const [showGlassRealmPanel, setShowGlassRealmPanel] = useState(false)
+  const [showGnomeGardenPanel, setShowGnomeGardenPanel] = useState(false)
+  const [showGoblinWarrenPanel, setShowGoblinWarrenPanel] = useState(false)
+  const [showGoldDynastyPanel, setShowGoldDynastyPanel] = useState(false)
+  const [showGoldPrairiePanel, setShowGoldPrairiePanel] = useState(false)
+  const [showGolemVillagePanel, setShowGolemVillagePanel] = useState(false)
+  const [showHailGardenPanel, setShowHailGardenPanel] = useState(false)
+  const [showHaloSanctumPanel, setShowHaloSanctumPanel] = useState(false)
+  const [showHauntedMansionPanel, setShowHauntedMansionPanel] = useState(false)
+  const [showHauntedTombPanel, setShowHauntedTombPanel] = useState(false)
+  const [showHollowEarthPanel, setShowHollowEarthPanel] = useState(false)
+  const [showHollowReachPanel, setShowHollowReachPanel] = useState(false)
+  const [showIcePalacePanel, setShowIcePalacePanel] = useState(false)
+  const [showInkDynastyPanel, setShowInkDynastyPanel] = useState(false)
+  // Round 67: World wire batch 4 panel states
+  const [showInsectKingdomPanel, setShowInsectKingdomPanel] = useState(false)
+  const [showIronBayPanel, setShowIronBayPanel] = useState(false)
+  const [showIronReachPanel, setShowIronReachPanel] = useState(false)
+  const [showIvorySpirePanel, setShowIvorySpirePanel] = useState(false)
+  const [showJadeEmperorPanel, setShowJadeEmperorPanel] = useState(false)
+  const [showJadeForestPanel, setShowJadeForestPanel] = useState(false)
+  const [showJadeHollowPanel, setShowJadeHollowPanel] = useState(false)
+  const [showJadeTemplePanel, setShowJadeTemplePanel] = useState(false)
+  const [showJasperGorgePanel, setShowJasperGorgePanel] = useState(false)
+  const [showKaolinCavernPanel, setShowKaolinCavernPanel] = useState(false)
+  const [showKarmaMonasteryPanel, setShowKarmaMonasteryPanel] = useState(false)
+  const [showKelpForestPanel, setShowKelpForestPanel] = useState(false)
+  const [showLavaForgePanel, setShowLavaForgePanel] = useState(false)
+  const [showLightningWealdPanel, setShowLightningWealdPanel] = useState(false)
+  const [showLostCivilizationPanel, setShowLostCivilizationPanel] = useState(false)
+  const [showLotusHarborPanel, setShowLotusHarborPanel] = useState(false)
+  const [showLunarMinePanel, setShowLunarMinePanel] = useState(false)
+  const [showLunarNexusPanel, setShowLunarNexusPanel] = useState(false)
+  const [showMagmaCorePanel, setShowMagmaCorePanel] = useState(false)
+  const [showMagnetKeepPanel, setShowMagnetKeepPanel] = useState(false)
+  const [showMechWorkshopPanel, setShowMechWorkshopPanel] = useState(false)
+  const [showMermaidLagoonPanel, setShowMermaidLagoonPanel] = useState(false)
+  const [showMicroKingdomPanel, setShowMicroKingdomPanel] = useState(false)
+  const [showMidnightForgePanel, setShowMidnightForgePanel] = useState(false)
+  const [showMinotaurLabyrinthPanel, setShowMinotaurLabyrinthPanel] = useState(false)
+  const [showMonsterSanctuaryPanel, setShowMonsterSanctuaryPanel] = useState(false)
+  const [showMoonPoolPanel, setShowMoonPoolPanel] = useState(false)
+  const [showMossGardenPanel, setShowMossGardenPanel] = useState(false)
+  const [showMushroomCavernPanel, setShowMushroomCavernPanel] = useState(false)
+  const [showMysticForgePanel, setShowMysticForgePanel] = useState(false)
+  const [showMysticTombPanel, setShowMysticTombPanel] = useState(false)
+  const [showMythicAbyssPanel, setShowMythicAbyssPanel] = useState(false)
+  const [showNebulaBastionPanel, setShowNebulaBastionPanel] = useState(false)
+  const [showNeonHivePanel, setShowNeonHivePanel] = useState(false)
+  const [showNeonShrinePanel, setShowNeonShrinePanel] = useState(false)
+  const [showNetherPactPanel, setShowNetherPactPanel] = useState(false)
+  const [showNightmareRealmPanel, setShowNightmareRealmPanel] = useState(false)
+  const [showNinjaDojoPanel, setShowNinjaDojoPanel] = useState(false)
+  const [showNovaCitadelPanel, setShowNovaCitadelPanel] = useState(false)
+  const [showNovaLightPanel, setShowNovaLightPanel] = useState(false)
+  const [showNuclearLabPanel, setShowNuclearLabPanel] = useState(false)
+  const [showNyxVoidPanel, setShowNyxVoidPanel] = useState(false)
+  const [showOasisMiragePanel, setShowOasisMiragePanel] = useState(false)
+  const [showObsidianForgePanel, setShowObsidianForgePanel] = useState(false)
+  const [showOchreWildsPanel, setShowOchreWildsPanel] = useState(false)
+  const [showOnyxDomainPanel, setShowOnyxDomainPanel] = useState(false)
+  const [showOpalLagoonPanel, setShowOpalLagoonPanel] = useState(false)
+  const [showOpalRidgePanel, setShowOpalRidgePanel] = useState(false)
+  const [showPearlAbyssPanel, setShowPearlAbyssPanel] = useState(false)
+  const [showPetalAcademyPanel, setShowPetalAcademyPanel] = useState(false)
+  const [showPhantomLibraryPanel, setShowPhantomLibraryPanel] = useState(false)
+  const [showPhoenixNestPanel, setShowPhoenixNestPanel] = useState(false)
+  const [showPrismColosseumPanel, setShowPrismColosseumPanel] = useState(false)
+  const [showPrismRealmPanel, setShowPrismRealmPanel] = useState(false)
+  const [showPumpkinVillagePanel, setShowPumpkinVillagePanel] = useState(false)
+  const [showPyreYardPanel, setShowPyreYardPanel] = useState(false)
+  const [showQuantumLabPanel, setShowQuantumLabPanel] = useState(false)
+  const [showQuantumMazePanel, setShowQuantumMazePanel] = useState(false)
+  const [showQuantumSpiresPanel, setShowQuantumSpiresPanel] = useState(false)
+  const [showQuillArchivePanel, setShowQuillArchivePanel] = useState(false)
+
+  // Round 69: Rainbow Bridge, Raven Tower, Rosewood Manor, Rune River, Rune Sanctuary panel states
+  const [showRainbowBridgePanel, setShowRainbowBridgePanel] = useState(false)
+  const [showRavenTowerPanel, setShowRavenTowerPanel] = useState(false)
+  const [showRosewoodManorPanel, setShowRosewoodManorPanel] = useState(false)
+  const [showRuneRiverPanel, setShowRuneRiverPanel] = useState(false)
+  const [showRuneSanctuaryPanel, setShowRuneSanctuaryPanel] = useState(false)
+  const [showRuneXystPanel, setShowRuneXystPanel] = useState(false)
+  const [showSaffronForgePanel, setShowSaffronForgePanel] = useState(false)
+  const [showSageGrovePanel, setShowSageGrovePanel] = useState(false)
+  const [showSakuraTemplePanel, setShowSakuraTemplePanel] = useState(false)
+  const [showSamuraiDojoPanel, setShowSamuraiDojoPanel] = useState(false)
+  const [showSerpentNilePanel, setShowSerpentNilePanel] = useState(false)
+  const [showShadowRealm2Panel, setShowShadowRealm2Panel] = useState(false)
+  const [showSilkDynastyPanel, setShowSilkDynastyPanel] = useState(false)
+  const [showSilverEnclavePanel, setShowSilverEnclavePanel] = useState(false)
+  const [showSirenCovePanel, setShowSirenCovePanel] = useState(false)
+  const [showSkyCitadelPanel, setShowSkyCitadelPanel] = useState(false)
+  const [showSkyGardenPanel, setShowSkyGardenPanel] = useState(false)
+  const [showSkyTemplePanel, setShowSkyTemplePanel] = useState(false)
+  const [showSolarForgePanel, setShowSolarForgePanel] = useState(false)
+  const [showSorcerersBakeryPanel, setShowSorcerersBakeryPanel] = useState(false)
+  const [showSpaceColonyPanel, setShowSpaceColonyPanel] = useState(false)
+  const [showSpiritLanternPanel, setShowSpiritLanternPanel] = useState(false)
+  const [showSpiritPeaksPanel, setShowSpiritPeaksPanel] = useState(false)
+  const [showStarForgePanel, setShowStarForgePanel] = useState(false)
+  const [showStarlightHarborPanel, setShowStarlightHarborPanel] = useState(false)
+  const [showStarwoodPanel, setShowStarwoodPanel] = useState(false)
+  const [showSteamMarshPanel, setShowSteamMarshPanel] = useState(false)
+  const [showSteampunkFactoryPanel, setShowSteampunkFactoryPanel] = useState(false)
+  const [showSteamshipSagaPanel, setShowSteamshipSagaPanel] = useState(false)
+  const [showStormChaserPanel, setShowStormChaserPanel] = useState(false)
+  const [showCloudKingdomPanel, setShowCloudKingdomPanel] = useState(false)
+  const [showConstellationMapPanel, setShowConstellationMapPanel] = useState(false)
+  const [showCrosswordMasterPanel, setShowCrosswordMasterPanel] = useState(false)
+  const [showCrosswordPuzzlePanel, setShowCrosswordPuzzlePanel] = useState(false)
+  const [showJungleNavigatorPanel, setShowJungleNavigatorPanel] = useState(false)
+  const [showMusicStudioPanel, setShowMusicStudioPanel] = useState(false)
+  const [showPhotoSafariPanel, setShowPhotoSafariPanel] = useState(false)
+  const [showPirateBayPanel, setShowPirateBayPanel] = useState(false)
+  const [showRecipeCollectionPanel, setShowRecipeCollectionPanel] = useState(false)
+  const [showRobotColonyPanel, setShowRobotColonyPanel] = useState(false)
+  const [showSpaceExplorerPanel, setShowSpaceExplorerPanel] = useState(false)
+  const [showTeaPartyPanel, setShowTeaPartyPanel] = useState(false)
+  const [showTerraQuestPanel, setShowTerraQuestPanel] = useState(false)
+  const [showThunderNexusPanel, setShowThunderNexusPanel] = useState(false)
+  const [showThunderPeakPanel, setShowThunderPeakPanel] = useState(false)
+  const [showTidalRiftPanel, setShowTidalRiftPanel] = useState(false)
+  const [showTimeMonasteryPanel, setShowTimeMonasteryPanel] = useState(false)
+  const [showTimeWorkshopPanel, setShowTimeWorkshopPanel] = useState(false)
+  const [showTitanWorkshopPanel, setShowTitanWorkshopPanel] = useState(false)
+  const [showTombBladePanel, setShowTombBladePanel] = useState(false)
+  const [showTradeVesselPanel, setShowTradeVesselPanel] = useState(false)
+  const [showUFOCommandPanel, setShowUFOCommandPanel] = useState(false)
+  const [showVelvetBroodPanel, setShowVelvetBroodPanel] = useState(false)
+  const [showVenomAbyssPanel, setShowVenomAbyssPanel] = useState(false)
+  const [showVineNexusPanel, setShowVineNexusPanel] = useState(false)
+  const [showVoidCitadelPanel, setShowVoidCitadelPanel] = useState(false)
+  const [showVoidGardenPanel, setShowVoidGardenPanel] = useState(false)
+  const [showVolcanoLabPanel, setShowVolcanoLabPanel] = useState(false)
+  const [showVolcanoPeakPanel, setShowVolcanoPeakPanel] = useState(false)
+  const [showWandererBazaarPanel, setShowWandererBazaarPanel] = useState(false)
+  const [showWillowLanePanel, setShowWillowLanePanel] = useState(false)
+  const [showWizardAcademyPanel, setShowWizardAcademyPanel] = useState(false)
+  const [showWordSniperPanel, setShowWordSniperPanel] = useState(false)
+  const [showXenoHivePanel, setShowXenoHivePanel] = useState(false)
+  const [showYggdrasilXylemPanel, setShowYggdrasilXylemPanel] = useState(false)
+  const [showZephyrHavenPanel, setShowZephyrHavenPanel] = useState(false)
+  const [showZephyrVaultPanel, setShowZephyrVaultPanel] = useState(false)
+
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
   const [showMiniMapPanel, setShowMiniMapPanel] = useState(false)
@@ -1189,6 +1634,213 @@ export default function SnakeGame() {
 
   // Grid theme switch ripple state for temporary class
   const [themeSwitchRipple, setThemeSwitchRipple] = useState(false)
+  const awAPI = useAlchemistWorkshop()
+  const alAPI = useAlienLaboratory()
+  const apAPI = useAncientPyramid()
+  // Ant Colony uses named function exports (no hook)
+  // Aquarium Oasis uses named function exports (no hook)
+  const arAPI = useArcaneRuins()
+  const aeAPI = useArcticExpedition()
+  const anAPI = useAstralNexus()
+  const atAPI = useAtlantisDeep()
+  const afAPI = useAuroraForge()
+  const ao2API = useAuroraObservatory()
+  const bhAPI = useBeeHive()
+  const bgAPI = useBirchGrove()
+  const btAPI = useBlizzardThrone()
+  const bvAPI = useBloodVine()
+  const bwAPI = useBloodWych()
+  const bnAPI = useBoneTower()
+  const bn2API = useBorealNexus()
+  const bcAPI = useBrassCitadel()
+  const bscAPI = useBrimstoneCrag()
+  const bmAPI = useBubbleMarine()
+  const ck2API = useCandyKingdom()
+  const ctAPI = useClockTower()
+  const cwAPI = useClockworkKingdom()
+  const cnAPI = useCloudNine()
+  const csAPI = useCloudStrand()
+  const cvAPI = useCobaltVault()
+  const cpvAPI = useCopperVale()
+  const caAPI = useCoralAbyss()
+  const cfAPI = useCoralForge()
+  // Round 65: World wire batch 2 hooks
+  const coObsAPI = useCoralObservatory()
+  const crAPI = useCoralReef()
+  const cdAPI = useCrimsonDunes()
+  const ccAPI = useCrystalCrypt()
+  const cgAPI = useCrystalGlacier()
+  const cmAPI = useCrystalMine()
+  const cyAPI = useCyberArena()
+  const daAPI = useDarkAquarium()
+  const dstAPI = useDeepSeaTrench()
+  const dfAPI = useDeltaForge()
+  const doAPI = useDesertOasis()
+  const dpAPI = useDinosaurPark()
+  const djAPI = useDjinnOasis()
+  const ddAPI = useDragonDynasty()
+  const drAPI = useDragonRoost()
+  const dsAPI = useDragonSanctuary()
+  const dvAPI = useDragonVault()
+  const dgAPI = useDreamGarden()
+  const dkAPI = useDreamKingdom()
+  const dflAPI = useDriftFleet()
+  const dmAPI = useDustMirage()
+  const ecAPI = useEchoCanyon()
+  const egAPI = useElvenGrove()
+  const eaAPI = useEmberAbyss()
+  const ebAPI = useEmberBay()
+  const ewAPI = useEmberWilds()
+  const esAPI = useEmeraldSpire()
+  const efAPI = useEnchantedForest()
+  const fgAPI = useFairyGarden()
+  const fiAPI = useFireIsle()
+  const frAPI = useFluxRealm()
+  const ftAPI = useFortuneTemple()
+  const foAPI = useFossilOasis()
+  const faAPI = useFrostAngel()
+  const fc2API = useFrostCitadel()
+  const frcAPI = useFrostReach()
+  const fvAPI = useFrostVine()
+  const ggAPI = useGalaxyGarden()
+  const gcAPI = useGhostCarnival()
+  const ghAPI = useGhostHospital()
+  const gtAPI = useGhostTrain()
+  const gwAPI = useGhostWeaver()
+  const glcAPI = useGlassCitadel()
+  const glrAPI = useGlassRealm()
+  const gnAPI = useGnomeGarden()
+  const gobAPI = useGoblinWarren()
+  const gdAPI = useGoldDynasty()
+  const gpAPI = useGoldPrairie()
+  const govAPI = useGolemVillage()
+  const hgAPI = useHailGarden()
+  const hlAPI = useHaloSanctum()
+  const hmAPI = useHauntedMansion()
+  const htAPI = useHauntedTomb()
+  const heAPI = useHollowEarth()
+  const hrAPI = useHollowReach()
+  const ipAPI = useIcePalace()
+  const idAPI = useInkDynasty()
+  // Round 67: World wire batch 4 hooks
+  const ikAPI = useInsectKingdom()
+  const ibAPI = useIronBay()
+  const irAPI = useIronReach()
+  const ivAPI = useIvorySpire()
+  const jeAPI = useJadeEmperor()
+  const jfAPI = useJadeForest()
+  const jhAPI = useJadeHollow()
+  const jtAPI = useJadeTemple()
+  const jgAPI = useJasperGorge()
+  const kcAPI = useKaolinCavern()
+  const kmAPI = useKarmaMonastery()
+  const kfAPI = useKelpForest()
+  const lfAPI = useLavaForge()
+  const lwAPI = useLightningWeald()
+  const lcAPI = useLostCivilization()
+  const lhAPI = useLotusHarbor()
+  const lmAPI = useLunarMine()
+  const lnAPI = useLunarNexus()
+  const mcAPI = useMagmaCore()
+  const mkAPI = useMagnetKeep()
+  const mwAPI = useMechWorkshop()
+  const mlAPI = useMermaidLagoon()
+  const micAPI = useMicroKingdom()
+  const mf2API = useMidnightForge()
+  const mlbAPI = useMinotaurLabyrinth()
+  const msAPI = useMonsterSanctuary()
+  const mpAPI = useMoonPool()
+  const moAPI = useMossGarden()
+  const mucAPI = useMushroomCavern()
+  const mfrAPI = useMysticForge()
+  const mtAPI = useMysticTomb()
+  const maAPI = useMythicAbyss()
+  const nbAPI = useNebulaBastion()
+  const nhAPI = useNeonHive()
+  const nsAPI = useNeonShrine()
+  const npAPI = useNetherPact()
+  const nrAPI = useNightmareRealm()
+  const ndAPI = useNinjaDojo()
+  const nc2API = useNovaCitadel()
+  const nlAPI = useNovaLight()
+  const nulAPI = { level: nulGetLevel() }
+  const nvAPI = useNyxVoid()
+  const omAPI = useOasisMirage()
+  const ofAPI = useObsidianForge()
+  const owAPI = useOchreWilds()
+  const odAPI = useOnyxDomain()
+  const olAPI = useOpalLagoon()
+  const or2API = useOpalRidge()
+  const paAPI = usePearlAbyss()
+  const peAPI = usePetalAcademy()
+  const plAPI = usePhantomLibrary()
+  const pnAPI = usePhoenixNest()
+  const pcAPI = usePrismColosseum()
+  const prAPI = usePrismRealm()
+  const pvAPI = usePumpkinVillage()
+  const pyAPI = usePyreYard()
+  const qlAPI = useQuantumLab()
+  const qmAPI = useQuantumMaze()
+  const qsAPI = useQuantumSpires()
+  const qaAPI = useQuillArchive()
+  const rbAPI = useRainbowBridge()
+  const rtAPI = useRavenTower()
+  const rmAPI = useRosewoodManor()
+  const rrAPI = useRuneRiver()
+  const rsAPI = useRuneSanctuary()
+  const rxAPI = useRuneXyst()
+  const sfAPI = useSaffronForge()
+  const sgAPI = useSageGrove()
+  const skAPI = useSakuraTemple()
+  const sdAPI = useSamuraiDojo()
+  const snAPI = useSerpentNile()
+  const sr2API = useShadowRealm()
+  const sidAPI = useSilkDynasty()
+  const seAPI = useSilverEnclave()
+  const scAPI = useSirenCove()
+  const sycAPI = useSkyCitadel()
+  const sygAPI = useSkyGarden()
+  const sytAPI = useSkyTemple()
+  const soAPI = useSolarForge()
+  const sbAPI = useSorcerersBakery()
+  const spcAPI = useSpaceColony()
+  const splAPI = useSpiritLantern()
+  const sppAPI = useSpiritPeaks()
+  const stfAPI = useStarForge()
+  const sthAPI = useStarlightHarbor()
+  const swAPI = useStarwood()
+  const stmAPI = useSteamMarsh()
+  const stpAPI = useSteampunkFactory()
+  const stsAPI = useSteamshipSaga()
+  const stcAPI = useStormChaser()
+  const ckAPI = useCloudKingdom()
+  const jnAPI = useJungleNavigator()
+  const pbAPI = usePirateBay()
+  const rc2API = useRobotColony()
+  const tpAPI = useTeaParty()
+  const tqAPI = useTerraQuest()
+  const tnAPI = useThunderNexus()
+  const tp2API = useThunderPeak()
+  const trAPI = useTidalRift()
+  const tmAPI = useTimeMonastery()
+  const tiAPI = useTitanWorkshop()
+  const tbAPI = useTombBlade()
+  const tvAPI = useTradeVessel()
+  const ucAPI = useUFOCommand()
+  const vbAPI = useVelvetBrood()
+  const vaAPI = useVenomAbyss()
+  const vnAPI = useVineNexus()
+  const vcAPI = useVoidCitadel()
+  const vgAPI = useVoidGarden()
+  const vpAPI = useVolcanoPeak()
+  const wbAPI = useWandererBazaar()
+  const wlAPI = useWillowLane()
+  const waAPI = useWizardAcademy()
+  const xhAPI = useXenoHive()
+  const yxAPI = useYggdrasilXylem()
+  const zhAPI = useZephyrHaven()
+  const zvAPI = useZephyrVault()
+
 
   // Easter egg active effects display state
   const [activeEasterEggs, setActiveEasterEggs] = useState<Array<{ id: string; name: string; emoji: string; effect: EasterEggEffect; expiresAt: number }>>([])
@@ -8321,6 +8973,227 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowElementalForgePanel(!showElementalForgePanel)} variant="outline" className="border-orange-500/50 text-orange-300 hover:bg-orange-900/20 active:scale-95 transition-transform elemental-forge-btn" title="Elemental Forge">🔥 Forge</Button>
                     <Button onClick={() => setShowSafariExpeditionPanel(!showSafariExpeditionPanel)} variant="outline" className="border-lime-500/50 text-lime-300 hover:bg-lime-900/20 active:scale-95 transition-transform safari-expedition-btn" title="Safari Expedition">🦁 Safari</Button>
                     <Button onClick={() => setShowNeonCityPanel(!showNeonCityPanel)} variant="outline" className="border-cyan-400/50 text-cyan-300 hover:bg-cyan-900/20 active:scale-95 transition-transform neon-city-btn" title="Neon City">🌃 Neon</Button>
+                    <Button onClick={() => setShowAlchemistWorkshopPanel(!showAlchemistWorkshopPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r64-aw-btn" title="Alchemist Workshop">⚗️ Alchemist</Button>
+                    <Button onClick={() => setShowAlienLaboratoryPanel(!showAlienLaboratoryPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r64-al-btn" title="Alien Laboratory">👽 Alien Lab</Button>
+                    <Button onClick={() => setShowAncientPyramidPanel(!showAncientPyramidPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r64-ap-btn" title="Ancient Pyramid">🏛️ Pyramid</Button>
+                    <Button onClick={() => setShowAntColonyPanel(!showAntColonyPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r64-ac-btn" title="Ant Colony">🐜 Ant Colony</Button>
+                    <Button onClick={() => setShowAquariumOasisPanel(!showAquariumOasisPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r64-ao-btn" title="Aquarium Oasis">🐠 Aquarium</Button>
+                    <Button onClick={() => setShowArcaneRuinsPanel(!showArcaneRuinsPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r64-ar-btn" title="Arcane Ruins">🔮 Arcane</Button>
+                    <Button onClick={() => setShowArcticExpeditionPanel(!showArcticExpeditionPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r64-ae-btn" title="Arctic Expedition">🧊 Arctic</Button>
+                    <Button onClick={() => setShowAstralNexusPanel(!showAstralNexusPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r64-an-btn" title="Astral Nexus">✨ Astral</Button>
+                    <Button onClick={() => setShowAtlantisDeepPanel(!showAtlantisDeepPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r64-at-btn" title="Atlantis Deep">🌊 Atlantis</Button>
+                    <Button onClick={() => setShowAuroraForgePanel(!showAuroraForgePanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r64-af-btn" title="Aurora Forge">🌌 Aurora Frg</Button>
+                    <Button onClick={() => setShowAuroraObservatoryPanel(!showAuroraObservatoryPanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r64-ao2-btn" title="Aurora Observatory">🌠 Aurora Obs</Button>
+                    <Button onClick={() => setShowBeeHivePanel(!showBeeHivePanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r64-bh-btn" title="Bee Hive">🐝 Bee Hive</Button>
+                    <Button onClick={() => setShowBirchGrovePanel(!showBirchGrovePanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r64-bg-btn" title="Birch Grove">🌳 Birch Grv</Button>
+                    <Button onClick={() => setShowBlizzardThronePanel(!showBlizzardThronePanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r64-bt-btn" title="Blizzard Throne">👑 Blizzard</Button>
+                    <Button onClick={() => setShowBloodVinePanel(!showBloodVinePanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r64-bv-btn" title="Blood Vine">🩸 Blood Vine</Button>
+                    <Button onClick={() => setShowBloodWychPanel(!showBloodWychPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r64-bw-btn" title="Blood Wych">🧪 Blood Wych</Button>
+                    <Button onClick={() => setShowBoneTowerPanel(!showBoneTowerPanel)} variant="outline" className="border-stone-400/50 text-stone-200 hover:bg-stone-900/20 active:scale-95 transition-transform r64-bn-btn" title="Bone Tower">💀 Bone Tower</Button>
+                    <Button onClick={() => setShowBorealNexusPanel(!showBorealNexusPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r64-bn2-btn" title="Boreal Nexus">🌲 Boreal Nx</Button>
+                    <Button onClick={() => setShowBrassCitadelPanel(!showBrassCitadelPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r64-bc-btn" title="Brass Citadel">🏰 Brass Ctd</Button>
+                    <Button onClick={() => setShowBrimstoneCragPanel(!showBrimstoneCragPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r64-bsc-btn" title="Brimstone Crag">🔥 Brimstone</Button>
+                    <Button onClick={() => setShowBubbleMarinePanel(!showBubbleMarinePanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r64-bm-btn" title="Bubble Marine">🫧 Bubble Mrn</Button>
+                    <Button onClick={() => setShowCandyKingdomPanel(!showCandyKingdomPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r64-ck2-btn" title="Candy Kingdom">🍬 Candy Kdm</Button>
+                    <Button onClick={() => setShowClockTowerPanel(!showClockTowerPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r64-ct-btn" title="Clock Tower">🕰️ Clock Twr</Button>
+                    <Button onClick={() => setShowClockworkKingdomPanel(!showClockworkKingdomPanel)} variant="outline" className="border-zinc-400/50 text-zinc-200 hover:bg-zinc-900/20 active:scale-95 transition-transform r64-cw-btn" title="Clockwork Kingdom">⚙️ Clockwork</Button>
+                    <Button onClick={() => setShowCloudNinePanel(!showCloudNinePanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r64-cn-btn" title="Cloud Nine">☁️ Cloud Nine</Button>
+                    <Button onClick={() => setShowCloudStrandPanel(!showCloudStrandPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r64-cs-btn" title="Cloud Strand">🌩️ Cloud Str</Button>
+                    <Button onClick={() => setShowCobaltVaultPanel(!showCobaltVaultPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r64-cv-btn" title="Cobalt Vault">💎 Cobalt Vlt</Button>
+                    <Button onClick={() => setShowCopperValePanel(!showCopperValePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r64-cpv-btn" title="Copper Vale">🏔️ Copper Vl</Button>
+                    <Button onClick={() => setShowCoralAbyssPanel(!showCoralAbyssPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r64-ca-btn" title="Coral Abyss">🪸 Coral Abs</Button>
+                    <Button onClick={() => setShowCoralForgePanel(!showCoralForgePanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r64-cf-btn" title="Coral Forge">🔨 Coral Frg</Button>
+                    {/* Round 65: World wire batch 2 buttons */}
+                    <Button onClick={() => setShowCoralObservatoryPanel(!showCoralObservatoryPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r65-co-btn" title="Coral Observatory">🔭 Coral Obs</Button>
+                    <Button onClick={() => setShowCoralReefPanel(!showCoralReefPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r65-cr-btn" title="Coral Reef">🐚 Coral Ref</Button>
+                    <Button onClick={() => setShowCrimsonDunesPanel(!showCrimsonDunesPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r65-cd-btn" title="Crimson Dunes">🏜️ Crim Duns</Button>
+                    <Button onClick={() => setShowCrystalCavePanel(!showCrystalCavePanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r65-cc2-btn" title="Crystal Cave">💎 Cryst Cav</Button>
+                    <Button onClick={() => setShowCrystalCryptPanel(!showCrystalCryptPanel)} variant="outline" className="border-stone-400/50 text-stone-200 hover:bg-stone-900/20 active:scale-95 transition-transform r65-cc-btn" title="Crystal Crypt">🪦 Cryst Crp</Button>
+                    <Button onClick={() => setShowCrystalGlacierPanel(!showCrystalGlacierPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r65-cg-btn" title="Crystal Glacier">🧊 Cryst Glc</Button>
+                    <Button onClick={() => setShowCrystalMinePanel(!showCrystalMinePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r65-cm-btn" title="Crystal Mine">⛏️ Cryst Min</Button>
+                    <Button onClick={() => setShowCyberArenaPanel(!showCyberArenaPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r65-cy-btn" title="Cyber Arena">🤖 Cyber Ar</Button>
+                    <Button onClick={() => setShowDarkAquariumPanel(!showDarkAquariumPanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r65-da-btn" title="Dark Aquarium">🐙 Dark Aqu</Button>
+                    <Button onClick={() => setShowDeepSeaTrenchPanel(!showDeepSeaTrenchPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r65-dst-btn" title="Deep Sea Trench">🦑 Deep Sea</Button>
+                    <Button onClick={() => setShowDeltaForgePanel(!showDeltaForgePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r65-df-btn" title="Delta Forge">🔩 Delta Fr</Button>
+                    <Button onClick={() => setShowDesertOasisPanel(!showDesertOasisPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r65-do-btn" title="Desert Oasis">🏝️ Dsrt Oas</Button>
+                    <Button onClick={() => setShowDiceBoardPanel(!showDiceBoardPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r65-db-btn" title="Dice Board">🎲 Dice Brd</Button>
+                    <Button onClick={() => setShowDinosaurParkPanel(!showDinosaurParkPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r65-dp-btn" title="Dinosaur Park">🦕 Dino Prk</Button>
+                    <Button onClick={() => setShowDjinnOasisPanel(!showDjinnOasisPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r65-dj-btn" title="Djinn Oasis">🧞 Djinn Oas</Button>
+                    <Button onClick={() => setShowDragonDynastyPanel(!showDragonDynastyPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r65-dd-btn" title="Dragon Dynasty">🐉 Drgn Dyn</Button>
+                    <Button onClick={() => setShowDragonRoostPanel(!showDragonRoostPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r65-dr-btn" title="Dragon Roost">🪽 Drgn Rst</Button>
+                    <Button onClick={() => setShowDragonSanctuaryPanel(!showDragonSanctuaryPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r65-ds-btn" title="Dragon Sanctuary">🏯 Drgn Sct</Button>
+                    <Button onClick={() => setShowDragonVaultPanel(!showDragonVaultPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r65-dv-btn" title="Dragon Vault">🗝️ Drgn Vlt</Button>
+                    <Button onClick={() => setShowDreamGardenPanel(!showDreamGardenPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r65-dg-btn" title="Dream Garden">🌸 Drm Grdn</Button>
+                    <Button onClick={() => setShowDreamKingdomPanel(!showDreamKingdomPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r65-dk-btn" title="Dream Kingdom">👑 Drm Kngm</Button>
+                    <Button onClick={() => setShowDriftFleetPanel(!showDriftFleetPanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r65-dfl-btn" title="Drift Fleet">⛵ Drift Flt</Button>
+                    <Button onClick={() => setShowDustMiragePanel(!showDustMiragePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r65-dm-btn" title="Dust Mirage">💨 Dust Mrg</Button>
+                    <Button onClick={() => setShowEchoCanyonPanel(!showEchoCanyonPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r65-ec-btn" title="Echo Canyon">🏜️ Echo Cyn</Button>
+                    <Button onClick={() => setShowElvenGrovePanel(!showElvenGrovePanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r65-eg-btn" title="Elven Grove">🧝 Elven Grv</Button>
+                    <Button onClick={() => setShowEmberAbyssPanel(!showEmberAbyssPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r65-ea-btn" title="Ember Abyss">🔥 Ember Abs</Button>
+                    <Button onClick={() => setShowEmberBayPanel(!showEmberBayPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r65-eb-btn" title="Ember Bay">🌅 Ember Bay</Button>
+                    <Button onClick={() => setShowEmberWildsPanel(!showEmberWildsPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r65-ew-btn" title="Ember Wilds">🌋 Ember Wld</Button>
+                    <Button onClick={() => setShowEmeraldSpirePanel(!showEmeraldSpirePanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r65-es-btn" title="Emerald Spire">💚 Em Spire</Button>
+                    <Button onClick={() => setShowEnchantedForestPanel(!showEnchantedForestPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r65-ef-btn" title="Enchanted Forest">🌲 Ench Frst</Button>
+                    <Button onClick={() => setShowFairyGardenPanel(!showFairyGardenPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r66-fg-btn" title="Fairy Garden">🧚 Fairy Gdn</Button>
+                    <Button onClick={() => setShowFantasyCastlePanel(!showFantasyCastlePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r66-fcs-btn" title="Fantasy Castle">🏰 Fntsy Cstl</Button>
+                    <Button onClick={() => setShowFireIslePanel(!showFireIslePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r66-fi-btn" title="Fire Isle">🏝️ Fire Isle</Button>
+                    <Button onClick={() => setShowFluxRealmPanel(!showFluxRealmPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r66-fr-btn" title="Flux Realm">🌀 Flux Rlm</Button>
+                    <Button onClick={() => setShowFortuneTemplePanel(!showFortuneTemplePanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r66-ft-btn" title="Fortune Temple">🏛️ Frtne Tmpl</Button>
+                    <Button onClick={() => setShowFossilOasisPanel(!showFossilOasisPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r66-fo-btn" title="Fossil Oasis">🦴 Fossil Oas</Button>
+                    <Button onClick={() => setShowFrostAngelPanel(!showFrostAngelPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r66-fa-btn" title="Frost Angel">👼 Frst Angel</Button>
+                    <Button onClick={() => setShowFrostCitadelPanel(!showFrostCitadelPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r66-fc2-btn" title="Frost Citadel">🏰 Frst Ctdl</Button>
+                    <Button onClick={() => setShowFrostReachPanel(!showFrostReachPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r66-frc-btn" title="Frost Reach">❄️ Frst Rch</Button>
+                    <Button onClick={() => setShowFrostVinePanel(!showFrostVinePanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r66-fv-btn" title="Frost Vine">🌿 Frst Vine</Button>
+                    <Button onClick={() => setShowGalaxyGardenPanel(!showGalaxyGardenPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r66-gg-btn" title="Galaxy Garden">🌌 Galxy Gdn</Button>
+                    <Button onClick={() => setShowGhostCarnivalPanel(!showGhostCarnivalPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r66-gc-btn" title="Ghost Carnival">🎪 Ghst Crnl</Button>
+                    <Button onClick={() => setShowGhostHospitalPanel(!showGhostHospitalPanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r66-gh-btn" title="Ghost Hospital">🏥 Ghst Hosp</Button>
+                    <Button onClick={() => setShowGhostTrainPanel(!showGhostTrainPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r66-gt-btn" title="Ghost Train">🚂 Ghst Trn</Button>
+                    <Button onClick={() => setShowGhostWeaverPanel(!showGhostWeaverPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r66-gw-btn" title="Ghost Weaver">👻 Ghst Wvr</Button>
+                    <Button onClick={() => setShowGlassCitadelPanel(!showGlassCitadelPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r66-glc-btn" title="Glass Citadel">🏛️ Gls Ctdl</Button>
+                    <Button onClick={() => setShowGlassRealmPanel(!showGlassRealmPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r66-glr-btn" title="Glass Realm">🪟 Gls Rlm</Button>
+                    <Button onClick={() => setShowGnomeGardenPanel(!showGnomeGardenPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r66-gn-btn" title="Gnome Garden">🍄 Gnome Gdn</Button>
+                    <Button onClick={() => setShowGoblinWarrenPanel(!showGoblinWarrenPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r66-gob-btn" title="Goblin Warren">👹 Goblin Wrn</Button>
+                    <Button onClick={() => setShowGoldDynastyPanel(!showGoldDynastyPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r66-gd-btn" title="Gold Dynasty">🥇 Gold Dyn</Button>
+                    <Button onClick={() => setShowGoldPrairiePanel(!showGoldPrairiePanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r66-gp-btn" title="Gold Prairie">🌾 Gold Prir</Button>
+                    <Button onClick={() => setShowGolemVillagePanel(!showGolemVillagePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r66-gov-btn" title="Golem Village">🗿 Golem Vlg</Button>
+                    <Button onClick={() => setShowHailGardenPanel(!showHailGardenPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r66-hg-btn" title="Hail Garden">🌨️ Hail Gdn</Button>
+                    <Button onClick={() => setShowHaloSanctumPanel(!showHaloSanctumPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r66-hl-btn" title="Halo Sanctum">😇 Halo Sncm</Button>
+                    <Button onClick={() => setShowHauntedMansionPanel(!showHauntedMansionPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r66-hm-btn" title="Haunted Mansion">🏚️ Hntd Mnsn</Button>
+                    <Button onClick={() => setShowHauntedTombPanel(!showHauntedTombPanel)} variant="outline" className="border-stone-400/50 text-stone-200 hover:bg-stone-900/20 active:scale-95 transition-transform r66-ht-btn" title="Haunted Tomb">⚰️ Hntd Tomb</Button>
+                    <Button onClick={() => setShowHollowEarthPanel(!showHollowEarthPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r66-he-btn" title="Hollow Earth">🌍 Hllw Erth</Button>
+                    <Button onClick={() => setShowHollowReachPanel(!showHollowReachPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r66-hr-btn" title="Hollow Reach">🕳️ Hllw Rch</Button>
+                    <Button onClick={() => setShowIcePalacePanel(!showIcePalacePanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r66-ip-btn" title="Ice Palace">🏰 Ice Palc</Button>
+                    <Button onClick={() => setShowInkDynastyPanel(!showInkDynastyPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r66-id-btn" title="Ink Dynasty">🖊️ Ink Dyn</Button>
+                    {/* Round 67: World wire batch 4 buttons */}
+                    <Button onClick={() => setShowInsectKingdomPanel(!showInsectKingdomPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r67-ik-btn" title="Insect Kingdom">🦟 Insect Kng</Button>
+                    <Button onClick={() => setShowIronBayPanel(!showIronBayPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r67-ib-btn" title="Iron Bay">⚓ Iron Bay</Button>
+                    <Button onClick={() => setShowIronReachPanel(!showIronReachPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r67-ir-btn" title="Iron Reach">🔗 Iron Rch</Button>
+                    <Button onClick={() => setShowIvorySpirePanel(!showIvorySpirePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r67-iv-btn" title="Ivory Spire">🦷 Ivory Spr</Button>
+                    <Button onClick={() => setShowJadeEmperorPanel(!showJadeEmperorPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r67-je-btn" title="Jade Emperor">👑 Jade Empr</Button>
+                    <Button onClick={() => setShowJadeForestPanel(!showJadeForestPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r67-jf-btn" title="Jade Forest">🎋 Jade Frst</Button>
+                    <Button onClick={() => setShowJadeHollowPanel(!showJadeHollowPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r67-jh-btn" title="Jade Hollow">🕳️ Jade Hllw</Button>
+                    <Button onClick={() => setShowJadeTemplePanel(!showJadeTemplePanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r67-jt-btn" title="Jade Temple">🛕 Jade Tmpl</Button>
+                    <Button onClick={() => setShowJasperGorgePanel(!showJasperGorgePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r67-jg-btn" title="Jasper Gorge">🪨 Jasper Gr</Button>
+                    <Button onClick={() => setShowKaolinCavernPanel(!showKaolinCavernPanel)} variant="outline" className="border-stone-400/50 text-stone-200 hover:bg-stone-900/20 active:scale-95 transition-transform r67-kc-btn" title="Kaolin Cavern">🏔️ Kaolin Cvn</Button>
+                    <Button onClick={() => setShowKarmaMonasteryPanel(!showKarmaMonasteryPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r67-km-btn" title="Karma Monastery">📿 Karma Mnst</Button>
+                    <Button onClick={() => setShowKelpForestPanel(!showKelpForestPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r67-kf-btn" title="Kelp Forest">🌿 Kelp Frst</Button>
+                    <Button onClick={() => setShowLavaForgePanel(!showLavaForgePanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r67-lf-btn" title="Lava Forge">🌋 Lava Frge</Button>
+                    <Button onClick={() => setShowLightningWealdPanel(!showLightningWealdPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r67-lw-btn" title="Lightning Weald">⚡ Lightning W</Button>
+                    <Button onClick={() => setShowLostCivilizationPanel(!showLostCivilizationPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r67-lc-btn" title="Lost Civilization">🗿 Lost Civ</Button>
+                    <Button onClick={() => setShowLotusHarborPanel(!showLotusHarborPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r67-lh-btn" title="Lotus Harbor">🪷 Lotus Hrb</Button>
+                    <Button onClick={() => setShowLunarMinePanel(!showLunarMinePanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r67-lm-btn" title="Lunar Mine">🌙 Lunar Mne</Button>
+                    <Button onClick={() => setShowLunarNexusPanel(!showLunarNexusPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r67-ln-btn" title="Lunar Nexus">🌑 Lunar Nxs</Button>
+                    <Button onClick={() => setShowMagmaCorePanel(!showMagmaCorePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r67-mc-btn" title="Magma Core">🌑 Magma Cre</Button>
+                    <Button onClick={() => setShowMagnetKeepPanel(!showMagnetKeepPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r67-mk-btn" title="Magnet Keep">🧲 Magnet Kp</Button>
+                    <Button onClick={() => setShowMechWorkshopPanel(!showMechWorkshopPanel)} variant="outline" className="border-zinc-400/50 text-zinc-200 hover:bg-zinc-900/20 active:scale-95 transition-transform r67-mw-btn" title="Mech Workshop">🔧 Mech Wksh</Button>
+                    <Button onClick={() => setShowMermaidLagoonPanel(!showMermaidLagoonPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r67-ml-btn" title="Mermaid Lagoon">🧜 Mermaid Lg</Button>
+                    <Button onClick={() => setShowMicroKingdomPanel(!showMicroKingdomPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r67-mic-btn" title="Micro Kingdom">🔬 Micro Kng</Button>
+                    <Button onClick={() => setShowMidnightForgePanel(!showMidnightForgePanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r67-mf2-btn" title="Midnight Forge">🔨 Midnght Fr</Button>
+                    <Button onClick={() => setShowMinotaurLabyrinthPanel(!showMinotaurLabyrinthPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r67-mlb-btn" title="Minotaur Labyrinth">🐂 Mino Laby</Button>
+                    <Button onClick={() => setShowMonsterSanctuaryPanel(!showMonsterSanctuaryPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r67-ms-btn" title="Monster Sanctuary">👾 Monstr Snc</Button>
+                    <Button onClick={() => setShowMoonPoolPanel(!showMoonPoolPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r67-mp-btn" title="Moon Pool">🌊 Moon Pool</Button>
+                    <Button onClick={() => setShowMossGardenPanel(!showMossGardenPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r67-mo-btn" title="Moss Garden">🌱 Moss Grdn</Button>
+                    <Button onClick={() => setShowMushroomCavernPanel(!showMushroomCavernPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r67-muc-btn" title="Mushroom Cavern">🍄 Mrm Cvrn</Button>
+                    <Button onClick={() => setShowMysticForgePanel(!showMysticForgePanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r67-mfr-btn" title="Mystic Forge">🔮 Mystic Frg</Button>
+                    <Button onClick={() => setShowMysticTombPanel(!showMysticTombPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r68-mt-btn" title="Mystic Tomb">🪦 MysTom</Button>
+                    <Button onClick={() => setShowMythicAbyssPanel(!showMythicAbyssPanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r68-ma-btn" title="Mythic Abyss">🕳️ MytAby</Button>
+                    <Button onClick={() => setShowNebulaBastionPanel(!showNebulaBastionPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r68-nb-btn" title="Nebula Bastion">🌌 NebBas</Button>
+                    <Button onClick={() => setShowNeonHivePanel(!showNeonHivePanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r68-nh-btn" title="Neon Hive">🐝 Neon Hive</Button>
+                    <Button onClick={() => setShowNeonShrinePanel(!showNeonShrinePanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r68-ns-btn" title="Neon Shrine">🏯 NeoShr</Button>
+                    <Button onClick={() => setShowNetherPactPanel(!showNetherPactPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r68-np-btn" title="Nether Pact">😈 NetPac</Button>
+                    <Button onClick={() => setShowNightmareRealmPanel(!showNightmareRealmPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r68-nr-btn" title="Nightmare Realm">😱 NigRea</Button>
+                    <Button onClick={() => setShowNinjaDojoPanel(!showNinjaDojoPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r68-nd-btn" title="Ninja Dojo">🥷 Ninja Dojo</Button>
+                    <Button onClick={() => setShowNovaCitadelPanel(!showNovaCitadelPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r68-nc2-btn" title="Nova Citadel">💫 NovCit</Button>
+                    <Button onClick={() => setShowNovaLightPanel(!showNovaLightPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r68-nl-btn" title="Nova Light">✨ Nova Light</Button>
+                    <Button onClick={() => setShowNuclearLabPanel(!showNuclearLabPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r68-nul-btn" title="Nuclear Lab">☢️ NucLab</Button>
+                    <Button onClick={() => setShowNyxVoidPanel(!showNyxVoidPanel)} variant="outline" className="border-gray-400/50 text-gray-200 hover:bg-gray-900/20 active:scale-95 transition-transform r68-nv-btn" title="Nyx Void">🌑 Nyx Void</Button>
+                    <Button onClick={() => setShowOasisMiragePanel(!showOasisMiragePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r68-om-btn" title="Oasis Mirage">🏜️ OasMir</Button>
+                    <Button onClick={() => setShowObsidianForgePanel(!showObsidianForgePanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r68-of-btn" title="Obsidian Forge">🪨 ObsFor</Button>
+                    <Button onClick={() => setShowOchreWildsPanel(!showOchreWildsPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r68-ow-btn" title="Ochre Wilds">🦁 OchWil</Button>
+                    <Button onClick={() => setShowOnyxDomainPanel(!showOnyxDomainPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r68-od-btn" title="Onyx Domain">💎 OnyDom</Button>
+                    <Button onClick={() => setShowOpalLagoonPanel(!showOpalLagoonPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r68-ol-btn" title="Opal Lagoon">🦪 OpaLag</Button>
+                    <Button onClick={() => setShowOpalRidgePanel(!showOpalRidgePanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r68-or2-btn" title="Opal Ridge">🏔️ Opal Ridge</Button>
+                    <Button onClick={() => setShowPearlAbyssPanel(!showPearlAbyssPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r68-pa-btn" title="Pearl Abyss">🦪 PeaAby</Button>
+                    <Button onClick={() => setShowPetalAcademyPanel(!showPetalAcademyPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r68-pe-btn" title="Petal Academy">🌺 PetAca</Button>
+                    <Button onClick={() => setShowPhantomLibraryPanel(!showPhantomLibraryPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r68-pl-btn" title="Phantom Library">📚 PhaLib</Button>
+                    <Button onClick={() => setShowPhoenixNestPanel(!showPhoenixNestPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r68-pn-btn" title="Phoenix Nest">🔥 PhoNes</Button>
+                    <Button onClick={() => setShowPrismColosseumPanel(!showPrismColosseumPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r68-pc-btn" title="Prism Colosseum">🔮 PriCol</Button>
+                    <Button onClick={() => setShowPrismRealmPanel(!showPrismRealmPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r68-pr-btn" title="Prism Realm">🌈 PriRea</Button>
+                    <Button onClick={() => setShowPumpkinVillagePanel(!showPumpkinVillagePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r68-pv-btn" title="Pumpkin Village">🎃 PumVil</Button>
+                    <Button onClick={() => setShowPyreYardPanel(!showPyreYardPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r68-py-btn" title="Pyre Yard">🔥 Pyre Yard</Button>
+                    <Button onClick={() => setShowQuantumLabPanel(!showQuantumLabPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r68-ql-btn" title="Quantum Lab">⚛️ QuaLab</Button>
+                    <Button onClick={() => setShowQuantumMazePanel(!showQuantumMazePanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r68-qm-btn" title="Quantum Maze">🌀 QuaMaz</Button>
+                    <Button onClick={() => setShowQuantumSpiresPanel(!showQuantumSpiresPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r68-qs-btn" title="Quantum Spires">🗼 QuaSpi</Button>
+                    <Button onClick={() => setShowQuillArchivePanel(!showQuillArchivePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r68-qa-btn" title="Quill Archive">🪶 QuiArc</Button>
+                    {/* Round 69: batch 6 wires */}
+                    <Button onClick={() => setShowRainbowBridgePanel(!showRainbowBridgePanel)} variant="outline" className="border-rainbow-400/50 text-rainbow-200 hover:bg-rainbow-900/20 active:scale-95 transition-transform r69-rb-btn" title="Rainbow Bridge">🌈 RainBri</Button>
+                    <Button onClick={() => setShowRavenTowerPanel(!showRavenTowerPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r69-rt-btn" title="Raven Tower">🏰 RavTow</Button>
+                    <Button onClick={() => setShowRosewoodManorPanel(!showRosewoodManorPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r69-rm-btn" title="Rosewood Manor">🏠 RosMan</Button>
+                    <Button onClick={() => setShowRuneRiverPanel(!showRuneRiverPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r69-rr-btn" title="Rune River">🏞️ RunRiv</Button>
+                    <Button onClick={() => setShowRuneSanctuaryPanel(!showRuneSanctuaryPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r69-rs-btn" title="Rune Sanctuary">🏛️ RunSan</Button>
+                    <Button onClick={() => setShowRuneXystPanel(!showRuneXystPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r69-rx-btn" title="Rune Xyst">✡️ RunXys</Button>
+                    <Button onClick={() => setShowSaffronForgePanel(!showSaffronForgePanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r69-sf-btn" title="Saffron Forge">🌶️ SafFor</Button>
+                    <Button onClick={() => setShowSageGrovePanel(!showSageGrovePanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r69-sg-btn" title="Sage Grove">🧙 SagGro</Button>
+                    <Button onClick={() => setShowSakuraTemplePanel(!showSakuraTemplePanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r69-sk-btn" title="Sakura Temple">🌸 SakTem</Button>
+                    <Button onClick={() => setShowSamuraiDojoPanel(!showSamuraiDojoPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r69-sd-btn" title="Samurai Dojo">⚔️ SamDoj</Button>
+                    <Button onClick={() => setShowSerpentNilePanel(!showSerpentNilePanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r69-sn-btn" title="Serpent Nile">🐍 SerNil</Button>
+                    <Button onClick={() => setShowShadowRealm2Panel(!showShadowRealm2Panel)} variant="outline" className="border-gray-400/50 text-gray-200 hover:bg-gray-900/20 active:scale-95 transition-transform r69-sr2-btn" title="Shadow Realm">🌑 ShaRea</Button>
+                    <Button onClick={() => setShowSilkDynastyPanel(!showSilkDynastyPanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r69-sid-btn" title="Silk Dynasty">🧵 SilDyn</Button>
+                    <Button onClick={() => setShowSilverEnclavePanel(!showSilverEnclavePanel)} variant="outline" className="border-gray-300/50 text-gray-300 hover:bg-gray-900/20 active:scale-95 transition-transform r69-se-btn" title="Silver Enclave">🥈 SilEnc</Button>
+                    <Button onClick={() => setShowSirenCovePanel(!showSirenCovePanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r69-sc-btn" title="Siren Cove">🧜 SirCov</Button>
+                    <Button onClick={() => setShowSkyCitadelPanel(!showSkyCitadelPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r69-syc-btn" title="Sky Citadel">☁️ SkyCit</Button>
+                    <Button onClick={() => setShowSkyGardenPanel(!showSkyGardenPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r69-syg-btn" title="Sky Garden">🌤️ SkyGar</Button>
+                    <Button onClick={() => setShowSkyTemplePanel(!showSkyTemplePanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r69-syt-btn" title="Sky Temple">⛩️ SkyTem</Button>
+                    <Button onClick={() => setShowSolarForgePanel(!showSolarForgePanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r69-so-btn" title="Solar Forge">☀️ SolFor</Button>
+                    <Button onClick={() => setShowSorcerersBakeryPanel(!showSorcerersBakeryPanel)} variant="outline" className="border-pink-400/50 text-pink-200 hover:bg-pink-900/20 active:scale-95 transition-transform r69-sb-btn" title="Sorcerers Bakery">🧁 SorBak</Button>
+                    <Button onClick={() => setShowSpaceColonyPanel(!showSpaceColonyPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r69-spc-btn" title="Space Colony">🚀 SpaCol</Button>
+                    <Button onClick={() => setShowSpiritLanternPanel(!showSpiritLanternPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r69-spl-btn" title="Spirit Lantern">🏮 SpiLan</Button>
+                    <Button onClick={() => setShowSpiritPeaksPanel(!showSpiritPeaksPanel)} variant="outline" className="border-stone-400/50 text-stone-200 hover:bg-stone-900/20 active:scale-95 transition-transform r69-spp-btn" title="Spirit Peaks">⛰️ SpiPea</Button>
+                    <Button onClick={() => setShowStarForgePanel(!showStarForgePanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r69-stf-btn" title="Star Forge">⭐ StaFor</Button>
+                    <Button onClick={() => setShowStarlightHarborPanel(!showStarlightHarborPanel)} variant="outline" className="border-yellow-300/50 text-yellow-300 hover:bg-yellow-900/20 active:scale-95 transition-transform r69-sth-btn" title="Starlight Harbor">🌟 StaHar</Button>
+                    <Button onClick={() => setShowStarwoodPanel(!showStarwoodPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r69-sw-btn" title="Starwood">🌲 StaWoo</Button>
+                    <Button onClick={() => setShowSteamMarshPanel(!showSteamMarshPanel)} variant="outline" className="border-gray-400/50 text-gray-200 hover:bg-gray-900/20 active:scale-95 transition-transform r69-stm-btn" title="Steam Marsh">♨️ SteMar</Button>
+                    <Button onClick={() => setShowSteampunkFactoryPanel(!showSteampunkFactoryPanel)} variant="outline" className="border-zinc-400/50 text-zinc-200 hover:bg-zinc-900/20 active:scale-95 transition-transform r69-stp-btn" title="Steampunk Factory">🏭 SteFac</Button>
+                    <Button onClick={() => setShowSteamshipSagaPanel(!showSteamshipSagaPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r69-sts-btn" title="Steamship Saga">🚢 SteSag</Button>
+                    <Button onClick={() => setShowStormChaserPanel(!showStormChaserPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r69-stc-btn" title="Storm Chaser">🌪️ StoCha</Button>
+                    <Button onClick={() => setShowCloudKingdomPanel(!showCloudKingdomPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r70-ck-btn" title="Cloud Kingdom">☁️ CldKin</Button>
+                    <Button onClick={() => setShowConstellationMapPanel(!showConstellationMapPanel)} variant="outline" className="border-indigo-400/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r70-cm-btn" title="Constellation Map">⭐ ConMap</Button>
+                    <Button onClick={() => setShowCrosswordMasterPanel(!showCrosswordMasterPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r70-cwm-btn" title="Crossword Master">📝 CroMas</Button>
+                    <Button onClick={() => setShowCrosswordPuzzlePanel(!showCrosswordPuzzlePanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r70-cwp-btn" title="Crossword Puzzle">✏️ CroPuz</Button>
+                    <Button onClick={() => setShowJungleNavigatorPanel(!showJungleNavigatorPanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r70-jn-btn" title="Jungle Navigator">🌿 JunNav</Button>
+                    <Button onClick={() => setShowMusicStudioPanel(!showMusicStudioPanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r70-ms-btn" title="Music Studio">🎵 MusStu</Button>
+                    <Button onClick={() => setShowPhotoSafariPanel(!showPhotoSafariPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r70-ps-btn" title="Photo Safari">📸 PhoSaf</Button>
+                    <Button onClick={() => setShowPirateBayPanel(!showPirateBayPanel)} variant="outline" className="border-amber-600/50 text-amber-300 hover:bg-amber-900/20 active:scale-95 transition-transform r70-pb-btn" title="Pirate Bay">☠️ PirBay</Button>
+                    <Button onClick={() => setShowRecipeCollectionPanel(!showRecipeCollectionPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r70-rc-btn" title="Recipe Collection">🍳 RecCol</Button>
+                    <Button onClick={() => setShowRobotColonyPanel(!showRobotColonyPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r70-rc2-btn" title="Robot Colony">🤖 RobCol</Button>
+                    <Button onClick={() => setShowSpaceExplorerPanel(!showSpaceExplorerPanel)} variant="outline" className="border-blue-400/50 text-blue-200 hover:bg-blue-900/20 active:scale-95 transition-transform r70-se-btn" title="Space Explorer">🚀 SpaExp</Button>
+                    <Button onClick={() => setShowTeaPartyPanel(!showTeaPartyPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r70-tp-btn" title="Tea Party">🫖 TeaPar</Button>
+                    <Button onClick={() => setShowTerraQuestPanel(!showTerraQuestPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r70-tq-btn" title="Terra Quest">🌍 TerQue</Button>
+                    <Button onClick={() => setShowThunderNexusPanel(!showThunderNexusPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r70-tn-btn" title="Thunder Nexus">⚡ ThuNex</Button>
+                    <Button onClick={() => setShowThunderPeakPanel(!showThunderPeakPanel)} variant="outline" className="border-gray-400/50 text-gray-200 hover:bg-gray-900/20 active:scale-95 transition-transform r70-tp2-btn" title="Thunder Peak">🏔️ ThuPea</Button>
+                    <Button onClick={() => setShowTidalRiftPanel(!showTidalRiftPanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r70-tr-btn" title="Tidal Rift">🌊 TidRif</Button>
+                    <Button onClick={() => setShowTimeMonasteryPanel(!showTimeMonasteryPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r70-tm-btn" title="Time Monastery">⏳ TimMon</Button>
+                    <Button onClick={() => setShowTimeWorkshopPanel(!showTimeWorkshopPanel)} variant="outline" className="border-zinc-400/50 text-zinc-200 hover:bg-zinc-900/20 active:scale-95 transition-transform r70-tw-btn" title="Time Workshop">🔧 TimWor</Button>
+                    <Button onClick={() => setShowTitanWorkshopPanel(!showTitanWorkshopPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r70-ti-btn" title="Titan Workshop">⚒️ TitWor</Button>
+                    <Button onClick={() => setShowTombBladePanel(!showTombBladePanel)} variant="outline" className="border-stone-400/50 text-stone-200 hover:bg-stone-900/20 active:scale-95 transition-transform r70-tb-btn" title="Tomb Blade">⚔️ TomBla</Button>
+                    <Button onClick={() => setShowTradeVesselPanel(!showTradeVesselPanel)} variant="outline" className="border-sky-400/50 text-sky-200 hover:bg-sky-900/20 active:scale-95 transition-transform r70-tv-btn" title="Trade Vessel">⚓ TraVes</Button>
+                    <Button onClick={() => setShowUFOCommandPanel(!showUFOCommandPanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r70-uc-btn" title="UFO Command">🛸 UfoCom</Button>
+                    <Button onClick={() => setShowVelvetBroodPanel(!showVelvetBroodPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r70-vb-btn" title="Velvet Brood">🕷️ VelBro</Button>
+                    <Button onClick={() => setShowVenomAbyssPanel(!showVenomAbyssPanel)} variant="outline" className="border-green-600/50 text-green-300 hover:bg-green-900/20 active:scale-95 transition-transform r70-va-btn" title="Venom Abyss">🐍 VenAby</Button>
+                    <Button onClick={() => setShowVineNexusPanel(!showVineNexusPanel)} variant="outline" className="border-emerald-400/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r70-vn-btn" title="Vine Nexus">🌱 VinNex</Button>
+                    <Button onClick={() => setShowVoidCitadelPanel(!showVoidCitadelPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r70-vc-btn" title="Void Citadel">🌑 VoiCit</Button>
+                    <Button onClick={() => setShowVoidGardenPanel(!showVoidGardenPanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r70-vg-btn" title="Void Garden">🕳️ VoiGar</Button>
+                    <Button onClick={() => setShowVolcanoLabPanel(!showVolcanoLabPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r70-vl-btn" title="Volcano Lab">🌋 VolLab</Button>
+                    <Button onClick={() => setShowVolcanoPeakPanel(!showVolcanoPeakPanel)} variant="outline" className="border-orange-500/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r70-vp-btn" title="Volcano Peak">🗻 VolPea</Button>
+                    <Button onClick={() => setShowWandererBazaarPanel(!showWandererBazaarPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r70-wb-btn" title="Wanderer Bazaar">🏪 WanBaz</Button>
+                    <Button onClick={() => setShowWillowLanePanel(!showWillowLanePanel)} variant="outline" className="border-green-400/50 text-green-200 hover:bg-green-900/20 active:scale-95 transition-transform r70-wl-btn" title="Willow Lane">🌿 WilLan</Button>
+                    <Button onClick={() => setShowWizardAcademyPanel(!showWizardAcademyPanel)} variant="outline" className="border-purple-400/50 text-purple-200 hover:bg-purple-900/20 active:scale-95 transition-transform r70-wa-btn" title="Wizard Academy">🧙 WizAca</Button>
+                    <Button onClick={() => setShowWordSniperPanel(!showWordSniperPanel)} variant="outline" className="border-red-400/50 text-red-200 hover:bg-red-900/20 active:scale-95 transition-transform r70-ws-btn" title="Word Sniper">🎯 WorSni</Button>
+                    <Button onClick={() => setShowXenoHivePanel(!showXenoHivePanel)} variant="outline" className="border-lime-400/50 text-lime-200 hover:bg-lime-900/20 active:scale-95 transition-transform r70-xh-btn" title="Xeno Hive">👽 XenHiv</Button>
+                    <Button onClick={() => setShowYggdrasilXylemPanel(!showYggdrasilXylemPanel)} variant="outline" className="border-emerald-500/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r70-yx-btn" title="Yggdrasil Xylem">🌳 YggXyl</Button>
+                    <Button onClick={() => setShowZephyrHavenPanel(!showZephyrHavenPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r70-zh-btn" title="Zephyr Haven">🌬️ ZepHav</Button>
+                    <Button onClick={() => setShowZephyrVaultPanel(!showZephyrVaultPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r70-zv-btn" title="Zephyr Vault">🔒 ZepVau</Button>
+
                     {/* Round 53: Leaderboard Button */}
                     <Button
                       onClick={() => setShowLeaderboardPanel(!showLeaderboardPanel)}
@@ -15767,6 +16640,3956 @@ export default function SnakeGame() {
           </div>
         )
       })()}
+      {showAlchemistWorkshopPanel && mounted && (() => {
+        const awState = awAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAlchemistWorkshopPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">⚗️ Alchemist Workshop</h3><button onClick={() => setShowAlchemistWorkshopPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r64-aw-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof awState === 'object' && awState !== null ? (awState.level || awState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r64-aw-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">⚗️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Alchemist Workshop reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-aw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAlienLaboratoryPanel && mounted && (() => {
+        const alState = alAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAlienLaboratoryPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">👽 Alien Laboratory</h3><button onClick={() => setShowAlienLaboratoryPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r64-al-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof alState === 'object' && alState !== null ? (alState.level || alState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r64-al-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">👽</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Alien Laboratory reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-al-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAncientPyramidPanel && mounted && (() => {
+        const apState = apAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAncientPyramidPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">🏛️ Ancient Pyramid</h3><button onClick={() => setShowAncientPyramidPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r64-ap-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof apState === 'object' && apState !== null ? (apState.level || apState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r64-ap-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">🏛️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ancient Pyramid reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ap-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAntColonyPanel && mounted && (() => {
+        const acState = acGetState()
+        const acStats = acGetStats()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAntColonyPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🐜 Ant Colony</h3><button onClick={() => setShowAntColonyPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r64-ac-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{acState?.level || acGetLevel() || 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r64-ac-stat"><div className="text-[9px] text-lime-300">Population</div><div className="text-xs font-bold text-lime-200">{acStats?.totalAnts || 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { acResetState?.(); toast({ title: 'Ant Colony reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ac-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAquariumOasisPanel && mounted && (() => {
+        const aoState = aoGetState()
+        const aoStats = aoGetStats()
+        const aoLevel = aoGetLevelInfo()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAquariumOasisPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🐠 Aquarium Oasis</h3><button onClick={() => setShowAquariumOasisPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r64-ao-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{aoLevel?.level || 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r64-ao-stat"><div className="text-[9px] text-cyan-300">Fish</div><div className="text-xs font-bold text-cyan-200">{aoState?.totalFish || 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { aoResetState?.(); toast({ title: 'Aquarium Oasis reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ao-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showArcaneRuinsPanel && mounted && (() => {
+        const arState = arAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowArcaneRuinsPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🔮 Arcane Ruins</h3><button onClick={() => setShowArcaneRuinsPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r64-ar-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof arState === 'object' && arState !== null ? (arState.level || arState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r64-ar-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🔮</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Arcane Ruins reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ar-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showArcticExpeditionPanel && mounted && (() => {
+        const aeState = aeAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowArcticExpeditionPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">🧊 Arctic Expedition</h3><button onClick={() => setShowArcticExpeditionPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r64-ae-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof aeState === 'object' && aeState !== null ? (aeState.level || aeState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r64-ae-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">🧊</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Arctic Expedition reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ae-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAstralNexusPanel && mounted && (() => {
+        const anState = anAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAstralNexusPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">✨ Astral Nexus</h3><button onClick={() => setShowAstralNexusPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r64-an-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof anState === 'object' && anState !== null ? (anState.level || anState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r64-an-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">✨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Astral Nexus reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-an-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAtlantisDeepPanel && mounted && (() => {
+        const atState = atAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAtlantisDeepPanel(false)}>
+            <div className="bg-blue-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🌊 Atlantis Deep</h3><button onClick={() => setShowAtlantisDeepPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r64-at-stat"><div className="text-[9px] text-blue-300">Level</div><div className="text-xs font-bold text-blue-200">{typeof atState === 'object' && atState !== null ? (atState.level || atState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r64-at-stat"><div className="text-[9px] text-blue-300">Status</div><div className="text-xs font-bold text-blue-200">🌊</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Atlantis Deep reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-at-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAuroraForgePanel && mounted && (() => {
+        const afState = afAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAuroraForgePanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🌌 Aurora Forge</h3><button onClick={() => setShowAuroraForgePanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r64-af-stat"><div className="text-[9px] text-teal-300">Level</div><div className="text-xs font-bold text-teal-200">{typeof afState === 'object' && afState !== null ? (afState.level || afState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r64-af-stat"><div className="text-[9px] text-teal-300">Status</div><div className="text-xs font-bold text-teal-200">🌌</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Aurora Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-af-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showAuroraObservatoryPanel && mounted && (() => {
+        const ao2State = ao2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowAuroraObservatoryPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">🌠 Aurora Observatory</h3><button onClick={() => setShowAuroraObservatoryPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r64-ao2-stat"><div className="text-[9px] text-indigo-300">Level</div><div className="text-xs font-bold text-indigo-200">{typeof ao2State === 'object' && ao2State !== null ? (ao2State.level || ao2State.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r64-ao2-stat"><div className="text-[9px] text-indigo-300">Status</div><div className="text-xs font-bold text-indigo-200">🌠</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Aurora Observatory reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ao2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBeeHivePanel && mounted && (() => {
+        const bhState = bhAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBeeHivePanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">🐝 Bee Hive</h3><button onClick={() => setShowBeeHivePanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r64-bh-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof bhState === 'object' && bhState !== null ? (bhState.level || bhState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r64-bh-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">🐝</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Bee Hive reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBirchGrovePanel && mounted && (() => {
+        const bgState = bgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBirchGrovePanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌳 Birch Grove</h3><button onClick={() => setShowBirchGrovePanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r64-bg-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof bgState === 'object' && bgState !== null ? (bgState.level || bgState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r64-bg-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🌳</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Birch Grove reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBlizzardThronePanel && mounted && (() => {
+        const btState = btAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBlizzardThronePanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">👑 Blizzard Throne</h3><button onClick={() => setShowBlizzardThronePanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r64-bt-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof btState === 'object' && btState !== null ? (btState.level || btState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r64-bt-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">👑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Blizzard Throne reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBloodVinePanel && mounted && (() => {
+        const bvState = bvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBloodVinePanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🩸 Blood Vine</h3><button onClick={() => setShowBloodVinePanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r64-bv-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof bvState === 'object' && bvState !== null ? (bvState.level || bvState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r64-bv-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🩸</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Blood Vine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBloodWychPanel && mounted && (() => {
+        const bwState = bwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBloodWychPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🧪 Blood Wych</h3><button onClick={() => setShowBloodWychPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r64-bw-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof bwState === 'object' && bwState !== null ? (bwState.level || bwState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r64-bw-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🧪</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Blood Wych reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBoneTowerPanel && mounted && (() => {
+        const bnState = bnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBoneTowerPanel(false)}>
+            <div className="bg-stone-950/95 border border-stone-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-stone-200">💀 Bone Tower</h3><button onClick={() => setShowBoneTowerPanel(false)} className="text-stone-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r64-bn-stat"><div className="text-[9px] text-stone-300">Level</div><div className="text-xs font-bold text-stone-200">{typeof bnState === 'object' && bnState !== null ? (bnState.level || bnState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r64-bn-stat"><div className="text-[9px] text-stone-300">Status</div><div className="text-xs font-bold text-stone-200">💀</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Bone Tower reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-stone-800/30 to-stone-900/20 hover:opacity-80 text-stone-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBorealNexusPanel && mounted && (() => {
+        const bn2State = bn2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBorealNexusPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🌲 Boreal Nexus</h3><button onClick={() => setShowBorealNexusPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r64-bn2-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof bn2State === 'object' && bn2State !== null ? (bn2State.level || bn2State.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r64-bn2-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🌲</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Boreal Nexus reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bn2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBrassCitadelPanel && mounted && (() => {
+        const bcState = bcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBrassCitadelPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🏰 Brass Citadel</h3><button onClick={() => setShowBrassCitadelPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r64-bc-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof bcState === 'object' && bcState !== null ? (bcState.level || bcState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r64-bc-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🏰</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Brass Citadel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBrimstoneCragPanel && mounted && (() => {
+        const bscState = bscAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBrimstoneCragPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🔥 Brimstone Crag</h3><button onClick={() => setShowBrimstoneCragPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r64-bsc-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof bscState === 'object' && bscState !== null ? (bscState.level || bscState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r64-bsc-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🔥</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Brimstone Crag reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bsc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showBubbleMarinePanel && mounted && (() => {
+        const bmState = bmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowBubbleMarinePanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">🫧 Bubble Marine</h3><button onClick={() => setShowBubbleMarinePanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r64-bm-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof bmState === 'object' && bmState !== null ? (bmState.level || bmState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r64-bm-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">🫧</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Bubble Marine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-bm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCandyKingdomPanel && mounted && (() => {
+        const ck2State = ck2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCandyKingdomPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🍬 Candy Kingdom</h3><button onClick={() => setShowCandyKingdomPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r64-ck2-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof ck2State === 'object' && ck2State !== null ? (ck2State.level || ck2State.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r64-ck2-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🍬</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Candy Kingdom reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ck2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showClockTowerPanel && mounted && (() => {
+        const ctState = ctAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowClockTowerPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🕰️ Clock Tower</h3><button onClick={() => setShowClockTowerPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r64-ct-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof ctState === 'object' && ctState !== null ? (ctState.level || ctState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r64-ct-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🕰️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Clock Tower reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ct-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showClockworkKingdomPanel && mounted && (() => {
+        const cwState = cwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowClockworkKingdomPanel(false)}>
+            <div className="bg-zinc-950/95 border border-zinc-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-zinc-200">⚙️ Clockwork Kingdom</h3><button onClick={() => setShowClockworkKingdomPanel(false)} className="text-zinc-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r64-cw-stat"><div className="text-[9px] text-zinc-300">Level</div><div className="text-xs font-bold text-zinc-200">{typeof cwState === 'object' && cwState !== null ? (cwState.level || cwState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r64-cw-stat"><div className="text-[9px] text-zinc-300">Status</div><div className="text-xs font-bold text-zinc-200">⚙️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Clockwork Kingdom reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-zinc-800/30 to-zinc-900/20 hover:opacity-80 text-zinc-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-cw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCloudNinePanel && mounted && (() => {
+        const cnState = cnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCloudNinePanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">☁️ Cloud Nine</h3><button onClick={() => setShowCloudNinePanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r64-cn-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof cnState === 'object' && cnState !== null ? (cnState.level || cnState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r64-cn-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">☁️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Cloud Nine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-cn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCloudStrandPanel && mounted && (() => {
+        const csState = csAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCloudStrandPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🌩️ Cloud Strand</h3><button onClick={() => setShowCloudStrandPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r64-cs-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof csState === 'object' && csState !== null ? (csState.level || csState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r64-cs-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🌩️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Cloud Strand reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-cs-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCobaltVaultPanel && mounted && (() => {
+        const cvState = cvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCobaltVaultPanel(false)}>
+            <div className="bg-blue-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">💎 Cobalt Vault</h3><button onClick={() => setShowCobaltVaultPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r64-cv-stat"><div className="text-[9px] text-blue-300">Level</div><div className="text-xs font-bold text-blue-200">{typeof cvState === 'object' && cvState !== null ? (cvState.level || cvState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r64-cv-stat"><div className="text-[9px] text-blue-300">Status</div><div className="text-xs font-bold text-blue-200">💎</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Cobalt Vault reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-cv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCopperValePanel && mounted && (() => {
+        const cpvState = cpvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCopperValePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🏔️ Copper Vale</h3><button onClick={() => setShowCopperValePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r64-cpv-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof cpvState === 'object' && cpvState !== null ? (cpvState.level || cpvState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r64-cpv-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🏔️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Copper Vale reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-cpv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCoralAbyssPanel && mounted && (() => {
+        const caState = caAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCoralAbyssPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🪸 Coral Abyss</h3><button onClick={() => setShowCoralAbyssPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r64-ca-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof caState === 'object' && caState !== null ? (caState.level || caState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r64-ca-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🪸</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Coral Abyss reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-ca-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCoralForgePanel && mounted && (() => {
+        const cfState = cfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCoralForgePanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🔨 Coral Forge</h3><button onClick={() => setShowCoralForgePanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r64-cf-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof cfState === 'object' && cfState !== null ? (cfState.level || cfState.btLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r64-cf-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🔨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Coral Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r64-cf-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* Round 65: World wire batch 2 panels */}
+      {showCoralObservatoryPanel && mounted && (() => {
+        const state = coObsAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCoralObservatoryPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🔭 Coral Observatory</h3><button onClick={() => setShowCoralObservatoryPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r65-co-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r65-co-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🔭</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Coral Observatory reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-co-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCoralReefPanel && mounted && (() => {
+        const state = crAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCoralReefPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🐚 Coral Reef</h3><button onClick={() => setShowCoralReefPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r65-cr-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r65-cr-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🐚</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Coral Reef reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCrimsonDunesPanel && mounted && (() => {
+        const state = cdAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrimsonDunesPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🏜️ Crimson Dunes</h3><button onClick={() => setShowCrimsonDunesPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-cd-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-cd-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🏜️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Crimson Dunes reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cd-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCrystalCavePanel && mounted && (() => {
+        const state = cc2GetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrystalCavePanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">💎 Crystal Cave</h3><button onClick={() => setShowCrystalCavePanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r65-cc2-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{cc2GetLevel()}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r65-cc2-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">💎</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { cc2ResetState(); toast({ title: 'Crystal Cave reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cc2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCrystalCryptPanel && mounted && (() => {
+        const state = ccAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrystalCryptPanel(false)}>
+            <div className="bg-stone-950/95 border border-stone-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-stone-200">🪦 Crystal Crypt</h3><button onClick={() => setShowCrystalCryptPanel(false)} className="text-stone-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r65-cc-stat"><div className="text-[9px] text-stone-300">Level</div><div className="text-xs font-bold text-stone-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r65-cc-stat"><div className="text-[9px] text-stone-300">Status</div><div className="text-xs font-bold text-stone-200">🪦</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Crystal Crypt reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-stone-800/30 to-stone-900/20 hover:opacity-80 text-stone-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCrystalGlacierPanel && mounted && (() => {
+        const state = cgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrystalGlacierPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🧊 Crystal Glacier</h3><button onClick={() => setShowCrystalGlacierPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r65-cg-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r65-cg-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🧊</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Crystal Glacier reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCrystalMinePanel && mounted && (() => {
+        const state = cmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrystalMinePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">⛏️ Crystal Mine</h3><button onClick={() => setShowCrystalMinePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-cm-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-cm-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">⛏️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Crystal Mine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCyberArenaPanel && mounted && (() => {
+        const state = cyAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCyberArenaPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🤖 Cyber Arena</h3><button onClick={() => setShowCyberArenaPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r65-cy-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r65-cy-stat"><div className="text-[9px] text-lime-300">Status</div><div className="text-xs font-bold text-lime-200">🤖</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Cyber Arena reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-cy-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDarkAquariumPanel && mounted && (() => {
+        const state = daAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDarkAquariumPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">🐙 Dark Aquarium</h3><button onClick={() => setShowDarkAquariumPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r65-da-stat"><div className="text-[9px] text-indigo-300">Level</div><div className="text-xs font-bold text-indigo-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r65-da-stat"><div className="text-[9px] text-indigo-300">Status</div><div className="text-xs font-bold text-indigo-200">🐙</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dark Aquarium reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-da-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDeepSeaTrenchPanel && mounted && (() => {
+        const state = dstAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDeepSeaTrenchPanel(false)}>
+            <div className="bg-blue-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🦑 Deep Sea Trench</h3><button onClick={() => setShowDeepSeaTrenchPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r65-dst-stat"><div className="text-[9px] text-blue-300">Level</div><div className="text-xs font-bold text-blue-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r65-dst-stat"><div className="text-[9px] text-blue-300">Status</div><div className="text-xs font-bold text-blue-200">🦑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Deep Sea Trench reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dst-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDeltaForgePanel && mounted && (() => {
+        const state = dfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDeltaForgePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🔩 Delta Forge</h3><button onClick={() => setShowDeltaForgePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r65-df-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r65-df-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🔩</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Delta Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-df-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDesertOasisPanel && mounted && (() => {
+        const state = doAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDesertOasisPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🏝️ Desert Oasis</h3><button onClick={() => setShowDesertOasisPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-do-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-do-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🏝️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Desert Oasis reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-do-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDiceBoardPanel && mounted && (() => {
+        const state = dbGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDiceBoardPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🎲 Dice Board</h3><button onClick={() => setShowDiceBoardPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r65-db-stat"><div className="text-[9px] text-purple-300">Coins</div><div className="text-xs font-bold text-purple-200">{state?.coins ?? 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r65-db-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🎲</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { dbResetState(); toast({ title: 'Dice Board reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-db-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDinosaurParkPanel && mounted && (() => {
+        const state = dpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDinosaurParkPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🦕 Dinosaur Park</h3><button onClick={() => setShowDinosaurParkPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r65-dp-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r65-dp-stat"><div className="text-[9px] text-lime-300">Status</div><div className="text-xs font-bold text-lime-200">🦕</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dinosaur Park reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDjinnOasisPanel && mounted && (() => {
+        const state = djAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDjinnOasisPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🧞 Djinn Oasis</h3><button onClick={() => setShowDjinnOasisPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-dj-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-dj-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🧞</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Djinn Oasis reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dj-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDragonDynastyPanel && mounted && (() => {
+        const state = ddAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDragonDynastyPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🐉 Dragon Dynasty</h3><button onClick={() => setShowDragonDynastyPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-dd-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-dd-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🐉</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dragon Dynasty reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dd-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDragonRoostPanel && mounted && (() => {
+        const state = drAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDragonRoostPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🪽 Dragon Roost</h3><button onClick={() => setShowDragonRoostPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r65-dr-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r65-dr-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🪽</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dragon Roost reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDragonSanctuaryPanel && mounted && (() => {
+        const state = dsAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDragonSanctuaryPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🏯 Dragon Sanctuary</h3><button onClick={() => setShowDragonSanctuaryPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r65-ds-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r65-ds-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🏯</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dragon Sanctuary reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-ds-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDragonVaultPanel && mounted && (() => {
+        const state = dvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDragonVaultPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">🗝️ Dragon Vault</h3><button onClick={() => setShowDragonVaultPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r65-dv-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r65-dv-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">🗝️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dragon Vault reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDreamGardenPanel && mounted && (() => {
+        const state = dgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDreamGardenPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🌸 Dream Garden</h3><button onClick={() => setShowDreamGardenPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r65-dg-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r65-dg-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🌸</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dream Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDreamKingdomPanel && mounted && (() => {
+        const state = dkAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDreamKingdomPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">👑 Dream Kingdom</h3><button onClick={() => setShowDreamKingdomPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r65-dk-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r65-dk-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">👑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dream Kingdom reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dk-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDriftFleetPanel && mounted && (() => {
+        const state = dflAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDriftFleetPanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">⛵ Drift Fleet</h3><button onClick={() => setShowDriftFleetPanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r65-dfl-stat"><div className="text-[9px] text-teal-300">Level</div><div className="text-xs font-bold text-teal-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r65-dfl-stat"><div className="text-[9px] text-teal-300">Status</div><div className="text-xs font-bold text-teal-200">⛵</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Drift Fleet reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dfl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDustMiragePanel && mounted && (() => {
+        const state = dmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDustMiragePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">💨 Dust Mirage</h3><button onClick={() => setShowDustMiragePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-dm-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r65-dm-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">💨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dust Mirage reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-dm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showEchoCanyonPanel && mounted && (() => {
+        const state = ecAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEchoCanyonPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🏜️ Echo Canyon</h3><button onClick={() => setShowEchoCanyonPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r65-ec-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r65-ec-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🏜️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Echo Canyon reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-ec-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showElvenGrovePanel && mounted && (() => {
+        const state = egAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowElvenGrovePanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🧝 Elven Grove</h3><button onClick={() => setShowElvenGrovePanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r65-eg-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r65-eg-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🧝</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Elven Grove reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-eg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showEmberAbyssPanel && mounted && (() => {
+        const state = eaAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEmberAbyssPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🔥 Ember Abyss</h3><button onClick={() => setShowEmberAbyssPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-ea-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-ea-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🔥</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ember Abyss reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-ea-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showEmberBayPanel && mounted && (() => {
+        const state = ebAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEmberBayPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🌅 Ember Bay</h3><button onClick={() => setShowEmberBayPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r65-eb-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r65-eb-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🌅</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ember Bay reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-eb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showEmberWildsPanel && mounted && (() => {
+        const state = ewAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEmberWildsPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🌋 Ember Wilds</h3><button onClick={() => setShowEmberWildsPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-ew-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r65-ew-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🌋</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ember Wilds reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-ew-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showEmeraldSpirePanel && mounted && (() => {
+        const state = esAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEmeraldSpirePanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">💚 Emerald Spire</h3><button onClick={() => setShowEmeraldSpirePanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r65-es-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r65-es-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">💚</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Emerald Spire reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-es-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showEnchantedForestPanel && mounted && (() => {
+        const state = efAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEnchantedForestPanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌲 Enchanted Forest</h3><button onClick={() => setShowEnchantedForestPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r65-ef-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r65-ef-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🌲</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Enchanted Forest reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r65-ef-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFairyGardenPanel && mounted && (() => {
+        const state = fgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFairyGardenPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🧚 Fairy Garden</h3><button onClick={() => setShowFairyGardenPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r66-fg-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r66-fg-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🧚</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Fairy Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFantasyCastlePanel && mounted && (() => {
+        const state = fcGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFantasyCastlePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🏰 Fantasy Castle</h3><button onClick={() => setShowFantasyCastlePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-fcs-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-fcs-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🏰</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Fantasy Castle reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fcs-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFireIslePanel && mounted && (() => {
+        const state = fiAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFireIslePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🏝️ Fire Isle</h3><button onClick={() => setShowFireIslePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r66-fi-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r66-fi-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🏝️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Fire Isle reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fi-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFluxRealmPanel && mounted && (() => {
+        const state = frAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFluxRealmPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🌀 Flux Realm</h3><button onClick={() => setShowFluxRealmPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r66-fr-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r66-fr-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🌀</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Flux Realm reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFortuneTemplePanel && mounted && (() => {
+        const state = ftAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFortuneTemplePanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">🏛️ Fortune Temple</h3><button onClick={() => setShowFortuneTemplePanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r66-ft-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r66-ft-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">🏛️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Fortune Temple reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-ft-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFossilOasisPanel && mounted && (() => {
+        const state = foAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFossilOasisPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🦴 Fossil Oasis</h3><button onClick={() => setShowFossilOasisPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-fo-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-fo-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🦴</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Fossil Oasis reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fo-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFrostAngelPanel && mounted && (() => {
+        const state = faAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFrostAngelPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">👼 Frost Angel</h3><button onClick={() => setShowFrostAngelPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r66-fa-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r66-fa-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">👼</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Frost Angel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fa-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFrostCitadelPanel && mounted && (() => {
+        const state = fc2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFrostCitadelPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🏰 Frost Citadel</h3><button onClick={() => setShowFrostCitadelPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r66-fc2-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r66-fc2-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🏰</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Frost Citadel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fc2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFrostReachPanel && mounted && (() => {
+        const state = frcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFrostReachPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">❄️ Frost Reach</h3><button onClick={() => setShowFrostReachPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r66-frc-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r66-frc-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">❄️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Frost Reach reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-frc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFrostVinePanel && mounted && (() => {
+        const state = fvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFrostVinePanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🌿 Frost Vine</h3><button onClick={() => setShowFrostVinePanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r66-fv-stat"><div className="text-[9px] text-teal-300">Level</div><div className="text-xs font-bold text-teal-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r66-fv-stat"><div className="text-[9px] text-teal-300">Status</div><div className="text-xs font-bold text-teal-200">🌿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Frost Vine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-fv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGalaxyGardenPanel && mounted && (() => {
+        const state = ggAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGalaxyGardenPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🌌 Galaxy Garden</h3><button onClick={() => setShowGalaxyGardenPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r66-gg-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r66-gg-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🌌</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Galaxy Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGhostCarnivalPanel && mounted && (() => {
+        const state = gcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGhostCarnivalPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🎪 Ghost Carnival</h3><button onClick={() => setShowGhostCarnivalPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r66-gc-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r66-gc-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🎪</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ghost Carnival reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGhostHospitalPanel && mounted && (() => {
+        const state = ghAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGhostHospitalPanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🏥 Ghost Hospital</h3><button onClick={() => setShowGhostHospitalPanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r66-gh-stat"><div className="text-[9px] text-teal-300">Level</div><div className="text-xs font-bold text-teal-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r66-gh-stat"><div className="text-[9px] text-teal-300">Status</div><div className="text-xs font-bold text-teal-200">🏥</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ghost Hospital reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGhostTrainPanel && mounted && (() => {
+        const state = gtAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGhostTrainPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🚂 Ghost Train</h3><button onClick={() => setShowGhostTrainPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r66-gt-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r66-gt-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🚂</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ghost Train reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGhostWeaverPanel && mounted && (() => {
+        const state = gwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGhostWeaverPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">👻 Ghost Weaver</h3><button onClick={() => setShowGhostWeaverPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r66-gw-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r66-gw-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">👻</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ghost Weaver reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGlassCitadelPanel && mounted && (() => {
+        const state = glcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGlassCitadelPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🏛️ Glass Citadel</h3><button onClick={() => setShowGlassCitadelPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r66-glc-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r66-glc-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🏛️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Glass Citadel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-glc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGlassRealmPanel && mounted && (() => {
+        const state = glrAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGlassRealmPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🪟 Glass Realm</h3><button onClick={() => setShowGlassRealmPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r66-glr-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r66-glr-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🪟</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Glass Realm reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-glr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGnomeGardenPanel && mounted && (() => {
+        const state = gnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGnomeGardenPanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🍄 Gnome Garden</h3><button onClick={() => setShowGnomeGardenPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r66-gn-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r66-gn-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🍄</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Gnome Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGoblinWarrenPanel && mounted && (() => {
+        const state = gobAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGoblinWarrenPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">👹 Goblin Warren</h3><button onClick={() => setShowGoblinWarrenPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r66-gob-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r66-gob-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">👹</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Goblin Warren reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gob-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGoldDynastyPanel && mounted && (() => {
+        const state = gdAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGoldDynastyPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🥇 Gold Dynasty</h3><button onClick={() => setShowGoldDynastyPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-gd-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-gd-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🥇</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Gold Dynasty reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gd-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGoldPrairiePanel && mounted && (() => {
+        const state = gpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGoldPrairiePanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🌾 Gold Prairie</h3><button onClick={() => setShowGoldPrairiePanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r66-gp-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r66-gp-stat"><div className="text-[9px] text-lime-300">Status</div><div className="text-xs font-bold text-lime-200">🌾</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Gold Prairie reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGolemVillagePanel && mounted && (() => {
+        const state = govAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGolemVillagePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🗿 Golem Village</h3><button onClick={() => setShowGolemVillagePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-gov-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-gov-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🗿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Golem Village reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-gov-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showHailGardenPanel && mounted && (() => {
+        const state = hgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowHailGardenPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🌨️ Hail Garden</h3><button onClick={() => setShowHailGardenPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r66-hg-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r66-hg-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🌨️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Hail Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-hg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showHaloSanctumPanel && mounted && (() => {
+        const state = hlAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowHaloSanctumPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">😇 Halo Sanctum</h3><button onClick={() => setShowHaloSanctumPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-hl-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-hl-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">😇</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Halo Sanctum reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-hl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showHauntedMansionPanel && mounted && (() => {
+        const state = hmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowHauntedMansionPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🏚️ Haunted Mansion</h3><button onClick={() => setShowHauntedMansionPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r66-hm-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r66-hm-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🏚️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Haunted Mansion reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-hm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showHauntedTombPanel && mounted && (() => {
+        const state = htAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowHauntedTombPanel(false)}>
+            <div className="bg-stone-950/95 border border-stone-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-stone-200">⚰️ Haunted Tomb</h3><button onClick={() => setShowHauntedTombPanel(false)} className="text-stone-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r66-ht-stat"><div className="text-[9px] text-stone-300">Level</div><div className="text-xs font-bold text-stone-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r66-ht-stat"><div className="text-[9px] text-stone-300">Status</div><div className="text-xs font-bold text-stone-200">⚰️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Haunted Tomb reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-stone-800/30 to-stone-900/20 hover:opacity-80 text-stone-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-ht-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showHollowEarthPanel && mounted && (() => {
+        const state = heAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowHollowEarthPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🌍 Hollow Earth</h3><button onClick={() => setShowHollowEarthPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-he-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r66-he-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🌍</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Hollow Earth reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-he-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showHollowReachPanel && mounted && (() => {
+        const state = hrAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowHollowReachPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🕳️ Hollow Reach</h3><button onClick={() => setShowHollowReachPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r66-hr-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r66-hr-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🕳️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Hollow Reach reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-hr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showIcePalacePanel && mounted && (() => {
+        const state = ipAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowIcePalacePanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🏰 Ice Palace</h3><button onClick={() => setShowIcePalacePanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r66-ip-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r66-ip-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🏰</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ice Palace reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-ip-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showInkDynastyPanel && mounted && (() => {
+        const state = idAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowInkDynastyPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🖊️ Ink Dynasty</h3><button onClick={() => setShowInkDynastyPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r66-id-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r66-id-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🖊️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ink Dynasty reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r66-id-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+      {showInsectKingdomPanel && mounted && (() => {
+        const state = ikAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowInsectKingdomPanel(false)}>
+            <div className="bg-slate-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🦟 Insect Kingdom</h3><button onClick={() => setShowInsectKingdomPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r67-ik-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r67-ik-stat"><div className="text-[9px] text-lime-300">Status</div><div className="text-xs font-bold text-lime-200">🦟</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Insect Kingdom reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-ik-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showIronBayPanel && mounted && (() => {
+        const state = ibAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowIronBayPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">⚓ Iron Bay</h3><button onClick={() => setShowIronBayPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r67-ib-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r67-ib-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">⚓</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Iron Bay reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-ib-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showIronReachPanel && mounted && (() => {
+        const state = irAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowIronReachPanel(false)}>
+            <div className="bg-slate-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🔗 Iron Reach</h3><button onClick={() => setShowIronReachPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r67-ir-stat"><div className="text-[9px] text-blue-300">Level</div><div className="text-xs font-bold text-blue-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r67-ir-stat"><div className="text-[9px] text-blue-300">Status</div><div className="text-xs font-bold text-blue-200">🔗</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Iron Reach reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-ir-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showIvorySpirePanel && mounted && (() => {
+        const state = ivAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowIvorySpirePanel(false)}>
+            <div className="bg-slate-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🦷 Ivory Spire</h3><button onClick={() => setShowIvorySpirePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-iv-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-iv-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🦷</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ivory Spire reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-iv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showJadeEmperorPanel && mounted && (() => {
+        const state = jeAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowJadeEmperorPanel(false)}>
+            <div className="bg-slate-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">👑 Jade Emperor</h3><button onClick={() => setShowJadeEmperorPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r67-je-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r67-je-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">👑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Jade Emperor reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-je-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showJadeForestPanel && mounted && (() => {
+        const state = jfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowJadeForestPanel(false)}>
+            <div className="bg-slate-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🎋 Jade Forest</h3><button onClick={() => setShowJadeForestPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-jf-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-jf-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🎋</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Jade Forest reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-jf-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showJadeHollowPanel && mounted && (() => {
+        const state = jhAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowJadeHollowPanel(false)}>
+            <div className="bg-slate-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🕳️ Jade Hollow</h3><button onClick={() => setShowJadeHollowPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r67-jh-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r67-jh-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🕳️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Jade Hollow reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-jh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showJadeTemplePanel && mounted && (() => {
+        const state = jtAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowJadeTemplePanel(false)}>
+            <div className="bg-slate-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🛕 Jade Temple</h3><button onClick={() => setShowJadeTemplePanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r67-jt-stat"><div className="text-[9px] text-teal-300">Level</div><div className="text-xs font-bold text-teal-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r67-jt-stat"><div className="text-[9px] text-teal-300">Status</div><div className="text-xs font-bold text-teal-200">🛕</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Jade Temple reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-jt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showJasperGorgePanel && mounted && (() => {
+        const state = jgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowJasperGorgePanel(false)}>
+            <div className="bg-slate-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🪨 Jasper Gorge</h3><button onClick={() => setShowJasperGorgePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r67-jg-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r67-jg-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🪨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Jasper Gorge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-jg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showKaolinCavernPanel && mounted && (() => {
+        const state = kcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowKaolinCavernPanel(false)}>
+            <div className="bg-slate-950/95 border border-stone-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-stone-200">🏔️ Kaolin Cavern</h3><button onClick={() => setShowKaolinCavernPanel(false)} className="text-stone-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r67-kc-stat"><div className="text-[9px] text-stone-300">Level</div><div className="text-xs font-bold text-stone-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r67-kc-stat"><div className="text-[9px] text-stone-300">Status</div><div className="text-xs font-bold text-stone-200">🏔️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Kaolin Cavern reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-stone-800/30 to-stone-900/20 hover:opacity-80 text-stone-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-kc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showKarmaMonasteryPanel && mounted && (() => {
+        const state = kmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowKarmaMonasteryPanel(false)}>
+            <div className="bg-slate-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">📿 Karma Monastery</h3><button onClick={() => setShowKarmaMonasteryPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-km-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-km-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">📿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Karma Monastery reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-km-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showKelpForestPanel && mounted && (() => {
+        const state = kfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowKelpForestPanel(false)}>
+            <div className="bg-slate-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌿 Kelp Forest</h3><button onClick={() => setShowKelpForestPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-kf-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-kf-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🌿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Kelp Forest reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-kf-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLavaForgePanel && mounted && (() => {
+        const state = lfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLavaForgePanel(false)}>
+            <div className="bg-slate-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🌋 Lava Forge</h3><button onClick={() => setShowLavaForgePanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r67-lf-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r67-lf-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🌋</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Lava Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-lf-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLightningWealdPanel && mounted && (() => {
+        const state = lwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLightningWealdPanel(false)}>
+            <div className="bg-slate-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">⚡ Lightning Weald</h3><button onClick={() => setShowLightningWealdPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r67-lw-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r67-lw-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">⚡</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Lightning Weald reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-lw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLostCivilizationPanel && mounted && (() => {
+        const state = lcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLostCivilizationPanel(false)}>
+            <div className="bg-slate-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🗿 Lost Civilization</h3><button onClick={() => setShowLostCivilizationPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-lc-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-lc-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🗿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Lost Civilization reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-lc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLotusHarborPanel && mounted && (() => {
+        const state = lhAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLotusHarborPanel(false)}>
+            <div className="bg-slate-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🪷 Lotus Harbor</h3><button onClick={() => setShowLotusHarborPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r67-lh-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r67-lh-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🪷</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Lotus Harbor reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-lh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLunarMinePanel && mounted && (() => {
+        const state = lmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLunarMinePanel(false)}>
+            <div className="bg-slate-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">🌙 Lunar Mine</h3><button onClick={() => setShowLunarMinePanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r67-lm-stat"><div className="text-[9px] text-indigo-300">Level</div><div className="text-xs font-bold text-indigo-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r67-lm-stat"><div className="text-[9px] text-indigo-300">Status</div><div className="text-xs font-bold text-indigo-200">🌙</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Lunar Mine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-lm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showLunarNexusPanel && mounted && (() => {
+        const state = lnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowLunarNexusPanel(false)}>
+            <div className="bg-slate-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🌑 Lunar Nexus</h3><button onClick={() => setShowLunarNexusPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r67-ln-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r67-ln-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🌑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Lunar Nexus reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-ln-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMagmaCorePanel && mounted && (() => {
+        const state = mcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMagmaCorePanel(false)}>
+            <div className="bg-slate-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🌑 Magma Core</h3><button onClick={() => setShowMagmaCorePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r67-mc-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r67-mc-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🌑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Magma Core reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMagnetKeepPanel && mounted && (() => {
+        const state = mkAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMagnetKeepPanel(false)}>
+            <div className="bg-slate-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🧲 Magnet Keep</h3><button onClick={() => setShowMagnetKeepPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r67-mk-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r67-mk-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🧲</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Magnet Keep reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mk-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMechWorkshopPanel && mounted && (() => {
+        const state = mwAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMechWorkshopPanel(false)}>
+            <div className="bg-slate-950/95 border border-zinc-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-zinc-200">🔧 Mech Workshop</h3><button onClick={() => setShowMechWorkshopPanel(false)} className="text-zinc-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r67-mw-stat"><div className="text-[9px] text-zinc-300">Level</div><div className="text-xs font-bold text-zinc-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r67-mw-stat"><div className="text-[9px] text-zinc-300">Status</div><div className="text-xs font-bold text-zinc-200">🔧</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mech Workshop reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-zinc-800/30 to-zinc-900/20 hover:opacity-80 text-zinc-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMermaidLagoonPanel && mounted && (() => {
+        const state = mlAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMermaidLagoonPanel(false)}>
+            <div className="bg-slate-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🧜 Mermaid Lagoon</h3><button onClick={() => setShowMermaidLagoonPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r67-ml-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r67-ml-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🧜</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mermaid Lagoon reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-ml-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMicroKingdomPanel && mounted && (() => {
+        const state = micAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMicroKingdomPanel(false)}>
+            <div className="bg-slate-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🔬 Micro Kingdom</h3><button onClick={() => setShowMicroKingdomPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r67-mic-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r67-mic-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🔬</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Micro Kingdom reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mic-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMidnightForgePanel && mounted && (() => {
+        const state = mf2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMidnightForgePanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🔨 Midnight Forge</h3><button onClick={() => setShowMidnightForgePanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r67-mf2-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r67-mf2-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🔨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Midnight Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mf2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMinotaurLabyrinthPanel && mounted && (() => {
+        const state = mlbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMinotaurLabyrinthPanel(false)}>
+            <div className="bg-slate-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🐂 Minotaur Labyrinth</h3><button onClick={() => setShowMinotaurLabyrinthPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-mlb-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r67-mlb-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🐂</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Minotaur Labyrinth reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mlb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMonsterSanctuaryPanel && mounted && (() => {
+        const state = msAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMonsterSanctuaryPanel(false)}>
+            <div className="bg-slate-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">👾 Monster Sanctuary</h3><button onClick={() => setShowMonsterSanctuaryPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-ms-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-ms-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">👾</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Monster Sanctuary reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-ms-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMoonPoolPanel && mounted && (() => {
+        const state = mpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMoonPoolPanel(false)}>
+            <div className="bg-slate-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🌊 Moon Pool</h3><button onClick={() => setShowMoonPoolPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r67-mp-stat"><div className="text-[9px] text-blue-300">Level</div><div className="text-xs font-bold text-blue-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r67-mp-stat"><div className="text-[9px] text-blue-300">Status</div><div className="text-xs font-bold text-blue-200">🌊</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Moon Pool reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMossGardenPanel && mounted && (() => {
+        const state = moAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMossGardenPanel(false)}>
+            <div className="bg-slate-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌱 Moss Garden</h3><button onClick={() => setShowMossGardenPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-mo-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r67-mo-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🌱</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Moss Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mo-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMushroomCavernPanel && mounted && (() => {
+        const state = mucAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMushroomCavernPanel(false)}>
+            <div className="bg-slate-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🍄 Mushroom Cavern</h3><button onClick={() => setShowMushroomCavernPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r67-muc-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r67-muc-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🍄</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mushroom Cavern reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-muc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMysticForgePanel && mounted && (() => {
+        const state = mfrAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMysticForgePanel(false)}>
+            <div className="bg-slate-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🔮 Mystic Forge</h3><button onClick={() => setShowMysticForgePanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r67-mfr-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r67-mfr-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🔮</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mystic Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r67-mfr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMysticTombPanel && mounted && (() => {
+        const state = mtAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMysticTombPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🪦 Mystic Tomb</h3><button onClick={() => setShowMysticTombPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-mt-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-mt-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🪦</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mystic Tomb reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-mt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMythicAbyssPanel && mounted && (() => {
+        const state = maAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMythicAbyssPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">🕳️ Mythic Abyss</h3><button onClick={() => setShowMythicAbyssPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r68-ma-stat"><div className="text-[9px] text-indigo-300">Level</div><div className="text-xs font-bold text-indigo-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r68-ma-stat"><div className="text-[9px] text-indigo-300">Status</div><div className="text-xs font-bold text-indigo-200">🕳️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Mythic Abyss reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-ma-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNebulaBastionPanel && mounted && (() => {
+        const state = nbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNebulaBastionPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🌌 Nebula Bastion</h3><button onClick={() => setShowNebulaBastionPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r68-nb-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r68-nb-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🌌</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nebula Bastion reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNeonHivePanel && mounted && (() => {
+        const state = nhAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNeonHivePanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🐝 Neon Hive</h3><button onClick={() => setShowNeonHivePanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r68-nh-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r68-nh-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🐝</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Neon Hive reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNeonShrinePanel && mounted && (() => {
+        const state = nsAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNeonShrinePanel(false)}>
+            <div className="bg-fuchsia-950/95 border border-fuchsia-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-fuchsia-200">🏯 Neon Shrine</h3><button onClick={() => setShowNeonShrinePanel(false)} className="text-fuchsia-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r68-ns-stat"><div className="text-[9px] text-fuchsia-300">Level</div><div className="text-xs font-bold text-fuchsia-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r68-ns-stat"><div className="text-[9px] text-fuchsia-300">Status</div><div className="text-xs font-bold text-fuchsia-200">🏯</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Neon Shrine reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-fuchsia-800/30 to-fuchsia-900/20 hover:opacity-80 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-ns-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNetherPactPanel && mounted && (() => {
+        const state = npAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNetherPactPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">😈 Nether Pact</h3><button onClick={() => setShowNetherPactPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r68-np-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r68-np-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">😈</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nether Pact reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-np-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNightmareRealmPanel && mounted && (() => {
+        const state = nrAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNightmareRealmPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">😱 Nightmare Realm</h3><button onClick={() => setShowNightmareRealmPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r68-nr-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r68-nr-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">😱</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nightmare Realm reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNinjaDojoPanel && mounted && (() => {
+        const state = ndAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNinjaDojoPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🥷 Ninja Dojo</h3><button onClick={() => setShowNinjaDojoPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r68-nd-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r68-nd-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🥷</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ninja Dojo reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nd-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNovaCitadelPanel && mounted && (() => {
+        const state = nc2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNovaCitadelPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">💫 Nova Citadel</h3><button onClick={() => setShowNovaCitadelPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r68-nc2-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r68-nc2-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">💫</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nova Citadel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nc2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNovaLightPanel && mounted && (() => {
+        const state = nlAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNovaLightPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">✨ Nova Light</h3><button onClick={() => setShowNovaLightPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r68-nl-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r68-nl-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">✨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nova Light reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNuclearLabPanel && mounted && (() => {
+        const state = nulAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNuclearLabPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">☢️ Nuclear Lab</h3><button onClick={() => setShowNuclearLabPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r68-nul-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r68-nul-stat"><div className="text-[9px] text-lime-300">Status</div><div className="text-xs font-bold text-lime-200">☢️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nuclear Lab reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nul-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNyxVoidPanel && mounted && (() => {
+        const state = nvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNyxVoidPanel(false)}>
+            <div className="bg-gray-950/95 border border-gray-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-200">🌑 Nyx Void</h3><button onClick={() => setShowNyxVoidPanel(false)} className="text-gray-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r68-nv-stat"><div className="text-[9px] text-gray-300">Level</div><div className="text-xs font-bold text-gray-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r68-nv-stat"><div className="text-[9px] text-gray-300">Status</div><div className="text-xs font-bold text-gray-200">🌑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nyx Void reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-800/30 to-gray-900/20 hover:opacity-80 text-gray-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-nv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOasisMiragePanel && mounted && (() => {
+        const state = omAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOasisMiragePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🏜️ Oasis Mirage</h3><button onClick={() => setShowOasisMiragePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-om-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-om-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🏜️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Oasis Mirage reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-om-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showObsidianForgePanel && mounted && (() => {
+        const state = ofAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowObsidianForgePanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🪨 Obsidian Forge</h3><button onClick={() => setShowObsidianForgePanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r68-of-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r68-of-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🪨</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Obsidian Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-of-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOchreWildsPanel && mounted && (() => {
+        const state = owAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOchreWildsPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🦁 Ochre Wilds</h3><button onClick={() => setShowOchreWildsPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r68-ow-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r68-ow-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🦁</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Ochre Wilds reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-ow-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOnyxDomainPanel && mounted && (() => {
+        const state = odAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOnyxDomainPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">💎 Onyx Domain</h3><button onClick={() => setShowOnyxDomainPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r68-od-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r68-od-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">💎</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Onyx Domain reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-od-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOpalLagoonPanel && mounted && (() => {
+        const state = olAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOpalLagoonPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🦪 Opal Lagoon</h3><button onClick={() => setShowOpalLagoonPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r68-ol-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r68-ol-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🦪</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Opal Lagoon reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-ol-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOpalRidgePanel && mounted && (() => {
+        const state = or2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOpalRidgePanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🏔️ Opal Ridge</h3><button onClick={() => setShowOpalRidgePanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r68-or2-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r68-or2-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🏔️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Opal Ridge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-or2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPearlAbyssPanel && mounted && (() => {
+        const state = paAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPearlAbyssPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">🦪 Pearl Abyss</h3><button onClick={() => setShowPearlAbyssPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r68-pa-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r68-pa-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">🦪</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Pearl Abyss reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pa-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPetalAcademyPanel && mounted && (() => {
+        const state = peAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPetalAcademyPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🌺 Petal Academy</h3><button onClick={() => setShowPetalAcademyPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r68-pe-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r68-pe-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🌺</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Petal Academy reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pe-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPhantomLibraryPanel && mounted && (() => {
+        const state = plAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPhantomLibraryPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">📚 Phantom Library</h3><button onClick={() => setShowPhantomLibraryPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-pl-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-pl-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">📚</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Phantom Library reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPhoenixNestPanel && mounted && (() => {
+        const state = pnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPhoenixNestPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🔥 Phoenix Nest</h3><button onClick={() => setShowPhoenixNestPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r68-pn-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r68-pn-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🔥</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Phoenix Nest reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPrismColosseumPanel && mounted && (() => {
+        const state = pcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPrismColosseumPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🔮 Prism Colosseum</h3><button onClick={() => setShowPrismColosseumPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r68-pc-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r68-pc-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🔮</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Prism Colosseum reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPrismRealmPanel && mounted && (() => {
+        const state = prAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPrismRealmPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🌈 Prism Realm</h3><button onClick={() => setShowPrismRealmPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r68-pr-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r68-pr-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🌈</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Prism Realm reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPumpkinVillagePanel && mounted && (() => {
+        const state = pvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPumpkinVillagePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🎃 Pumpkin Village</h3><button onClick={() => setShowPumpkinVillagePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r68-pv-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r68-pv-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🎃</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Pumpkin Village reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-pv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPyreYardPanel && mounted && (() => {
+        const state = pyAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPyreYardPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🔥 Pyre Yard</h3><button onClick={() => setShowPyreYardPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r68-py-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r68-py-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">🔥</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Pyre Yard reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-py-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showQuantumLabPanel && mounted && (() => {
+        const state = qlAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowQuantumLabPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">⚛️ Quantum Lab</h3><button onClick={() => setShowQuantumLabPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r68-ql-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r68-ql-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">⚛️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Quantum Lab reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-ql-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showQuantumMazePanel && mounted && (() => {
+        const state = qmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowQuantumMazePanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🌀 Quantum Maze</h3><button onClick={() => setShowQuantumMazePanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r68-qm-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r68-qm-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🌀</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Quantum Maze reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-qm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showQuantumSpiresPanel && mounted && (() => {
+        const state = qsAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowQuantumSpiresPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">🗼 Quantum Spires</h3><button onClick={() => setShowQuantumSpiresPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r68-qs-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r68-qs-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">🗼</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Quantum Spires reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-qs-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showQuillArchivePanel && mounted && (() => {
+        const state = qaAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowQuillArchivePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">🪶 Quill Archive</h3><button onClick={() => setShowQuillArchivePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-qa-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r68-qa-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">🪶</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Quill Archive reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r68-qa-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showRainbowBridgePanel && mounted && (() => {
+        const state = rbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRainbowBridgePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🌈 Rainbow Bridge</h3><button onClick={() => setShowRainbowBridgePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-rb-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-rb-stat"><div className="text-[9px] text-orange-300">XP</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.xp || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-rb-stat"><div className="text-[9px] text-orange-300">Coins</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.coins || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-rb-stat"><div className="text-[9px] text-orange-300">Guardians</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.recruitedGuardians?.length || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Rainbow Bridge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showRavenTowerPanel && mounted && (() => {
+        const state = rtAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRavenTowerPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🏰 Raven Tower</h3><button onClick={() => setShowRavenTowerPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r69-rt-stat"><div className="text-[9px] text-slate-300">Level</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r69-rt-stat"><div className="text-[9px] text-slate-300">Status</div><div className="text-xs font-bold text-slate-200">🏰</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Raven Tower reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showRosewoodManorPanel && mounted && (() => {
+        const state = rmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRosewoodManorPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🏠 Rosewood Manor</h3><button onClick={() => setShowRosewoodManorPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r69-rm-stat"><div className="text-[9px] text-rose-300">Level</div><div className="text-xs font-bold text-rose-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r69-rm-stat"><div className="text-[9px] text-rose-300">Status</div><div className="text-xs font-bold text-rose-200">🏠</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Rosewood Manor reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showRuneRiverPanel && mounted && (() => {
+        const state = rrAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRuneRiverPanel(false)}>
+            <div className="bg-blue-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🏞️ Rune River</h3><button onClick={() => setShowRuneRiverPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r69-rr-stat"><div className="text-[9px] text-blue-300">Level</div><div className="text-xs font-bold text-blue-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r69-rr-stat"><div className="text-[9px] text-blue-300">Flow Energy</div><div className="text-xs font-bold text-blue-200">{typeof state === 'object' && state !== null ? (state.flowEnergy || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Rune River reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showRuneSanctuaryPanel && mounted && (() => {
+        const state = rsAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRuneSanctuaryPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🏛️ Rune Sanctuary</h3><button onClick={() => setShowRuneSanctuaryPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r69-rs-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r69-rs-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🏛️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Rune Sanctuary reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rs-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showRuneXystPanel && mounted && (() => {
+        const state = rxAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRuneXystPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">✡️ Rune Xyst</h3><button onClick={() => setShowRuneXystPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r69-rx-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r69-rx-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">✡️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Rune Xyst reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-rx-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSaffronForgePanel && mounted && (() => {
+        const state = sfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSaffronForgePanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🌶️ Saffron Forge</h3><button onClick={() => setShowSaffronForgePanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-sf-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-sf-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🌶️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Saffron Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sf-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSageGrovePanel && mounted && (() => {
+        const state = sgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSageGrovePanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🧙 Sage Grove</h3><button onClick={() => setShowSageGrovePanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r69-sg-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r69-sg-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🧙</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sage Grove reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSakuraTemplePanel && mounted && (() => {
+        const state = skAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSakuraTemplePanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🌸 Sakura Temple</h3><button onClick={() => setShowSakuraTemplePanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r69-sk-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r69-sk-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🌸</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sakura Temple reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sk-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSamuraiDojoPanel && mounted && (() => {
+        const state = sdAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSamuraiDojoPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">⚔️ Samurai Dojo</h3><button onClick={() => setShowSamuraiDojoPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r69-sd-stat"><div className="text-[9px] text-red-300">Level</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r69-sd-stat"><div className="text-[9px] text-red-300">Status</div><div className="text-xs font-bold text-red-200">⚔️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Samurai Dojo reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sd-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSerpentNilePanel && mounted && (() => {
+        const state = snAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSerpentNilePanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🐍 Serpent Nile</h3><button onClick={() => setShowSerpentNilePanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r69-sn-stat"><div className="text-[9px] text-emerald-300">Level</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r69-sn-stat"><div className="text-[9px] text-emerald-300">Status</div><div className="text-xs font-bold text-emerald-200">🐍</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Serpent Nile reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showShadowRealm2Panel && mounted && (() => {
+        const state = sr2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowShadowRealm2Panel(false)}>
+            <div className="bg-gray-950/95 border border-gray-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-200">🌑 Shadow Realm</h3><button onClick={() => setShowShadowRealm2Panel(false)} className="text-gray-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r69-sr2-stat"><div className="text-[9px] text-gray-300">Level</div><div className="text-xs font-bold text-gray-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r69-sr2-stat"><div className="text-[9px] text-gray-300">Status</div><div className="text-xs font-bold text-gray-200">🌑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Shadow Realm reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-800/30 to-gray-900/20 hover:opacity-80 text-gray-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sr2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSilkDynastyPanel && mounted && (() => {
+        const state = sidAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSilkDynastyPanel(false)}>
+            <div className="bg-fuchsia-950/95 border border-fuchsia-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-fuchsia-200">🧵 Silk Dynasty</h3><button onClick={() => setShowSilkDynastyPanel(false)} className="text-fuchsia-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r69-sid-stat"><div className="text-[9px] text-fuchsia-300">Level</div><div className="text-xs font-bold text-fuchsia-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r69-sid-stat"><div className="text-[9px] text-fuchsia-300">Status</div><div className="text-xs font-bold text-fuchsia-200">🧵</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Silk Dynasty reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-fuchsia-800/30 to-fuchsia-900/20 hover:opacity-80 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sid-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSilverEnclavePanel && mounted && (() => {
+        const state = seAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSilverEnclavePanel(false)}>
+            <div className="bg-gray-900/95 border border-gray-300/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-300">🥈 Silver Enclave</h3><button onClick={() => setShowSilverEnclavePanel(false)} className="text-gray-300 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-800/30 to-gray-700/20 rounded-lg border border-gray-400/10 r69-se-stat"><div className="text-[9px] text-gray-400">Level</div><div className="text-xs font-bold text-gray-300">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-800/30 to-gray-700/20 rounded-lg border border-gray-400/10 r69-se-stat"><div className="text-[9px] text-gray-400">Status</div><div className="text-xs font-bold text-gray-300">🥈</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Silver Enclave reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-700/30 to-gray-800/20 hover:opacity-80 text-gray-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-se-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSirenCovePanel && mounted && (() => {
+        const state = scAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSirenCovePanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🧜 Siren Cove</h3><button onClick={() => setShowSirenCovePanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r69-sc-stat"><div className="text-[9px] text-teal-300">Level</div><div className="text-xs font-bold text-teal-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r69-sc-stat"><div className="text-[9px] text-teal-300">Status</div><div className="text-xs font-bold text-teal-200">🧜</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Siren Cove reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSkyCitadelPanel && mounted && (() => {
+        const state = sycAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSkyCitadelPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">☁️ Sky Citadel</h3><button onClick={() => setShowSkyCitadelPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r69-syc-stat"><div className="text-[9px] text-sky-300">Level</div><div className="text-xs font-bold text-sky-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r69-syc-stat"><div className="text-[9px] text-sky-300">Status</div><div className="text-xs font-bold text-sky-200">☁️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sky Citadel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-syc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSkyGardenPanel && mounted && (() => {
+        const state = sygAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSkyGardenPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🌤️ Sky Garden</h3><button onClick={() => setShowSkyGardenPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r69-syg-stat"><div className="text-[9px] text-lime-300">Level</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r69-syg-stat"><div className="text-[9px] text-lime-300">Status</div><div className="text-xs font-bold text-lime-200">🌤️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sky Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-syg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSkyTemplePanel && mounted && (() => {
+        const state = sytAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSkyTemplePanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">⛩️ Sky Temple</h3><button onClick={() => setShowSkyTemplePanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r69-syt-stat"><div className="text-[9px] text-indigo-300">Level</div><div className="text-xs font-bold text-indigo-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r69-syt-stat"><div className="text-[9px] text-indigo-300">Status</div><div className="text-xs font-bold text-indigo-200">⛩️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sky Temple reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-syt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSolarForgePanel && mounted && (() => {
+        const state = soAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSolarForgePanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">☀️ Solar Forge</h3><button onClick={() => setShowSolarForgePanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r69-so-stat"><div className="text-[9px] text-yellow-300">Level</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r69-so-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">☀️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Solar Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-so-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSorcerersBakeryPanel && mounted && (() => {
+        const state = sbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSorcerersBakeryPanel(false)}>
+            <div className="bg-pink-950/95 border border-pink-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-pink-200">🧁 Sorcerers Bakery</h3><button onClick={() => setShowSorcerersBakeryPanel(false)} className="text-pink-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r69-sb-stat"><div className="text-[9px] text-pink-300">Level</div><div className="text-xs font-bold text-pink-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-pink-900/30 to-pink-800/20 rounded-lg border border-pink-500/10 r69-sb-stat"><div className="text-[9px] text-pink-300">Status</div><div className="text-xs font-bold text-pink-200">🧁</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Sorcerers Bakery reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-pink-800/30 to-pink-900/20 hover:opacity-80 text-pink-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSpaceColonyPanel && mounted && (() => {
+        const state = spcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSpaceColonyPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🚀 Space Colony</h3><button onClick={() => setShowSpaceColonyPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r69-spc-stat"><div className="text-[9px] text-violet-300">Level</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r69-spc-stat"><div className="text-[9px] text-violet-300">Status</div><div className="text-xs font-bold text-violet-200">🚀</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Space Colony reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-spc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSpiritLanternPanel && mounted && (() => {
+        const state = splAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSpiritLanternPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🏮 Spirit Lantern</h3><button onClick={() => setShowSpiritLanternPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-spl-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r69-spl-stat"><div className="text-[9px] text-orange-300">Status</div><div className="text-xs font-bold text-orange-200">🏮</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Spirit Lantern reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-spl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSpiritPeaksPanel && mounted && (() => {
+        const state = sppAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSpiritPeaksPanel(false)}>
+            <div className="bg-stone-950/95 border border-stone-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-stone-200">⛰️ Spirit Peaks</h3><button onClick={() => setShowSpiritPeaksPanel(false)} className="text-stone-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r69-spp-stat"><div className="text-[9px] text-stone-300">Level</div><div className="text-xs font-bold text-stone-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r69-spp-stat"><div className="text-[9px] text-stone-300">Status</div><div className="text-xs font-bold text-stone-200">⛰️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Spirit Peaks reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-stone-800/30 to-stone-900/20 hover:opacity-80 text-stone-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-spp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showStarForgePanel && mounted && (() => {
+        const state = stfAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStarForgePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">⭐ Star Forge</h3><button onClick={() => setShowStarForgePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r69-stf-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r69-stf-stat"><div className="text-[9px] text-amber-300">Status</div><div className="text-xs font-bold text-amber-200">⭐</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Star Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-stf-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showStarlightHarborPanel && mounted && (() => {
+        const state = sthAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStarlightHarborPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-300/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-300">🌟 Starlight Harbor</h3><button onClick={() => setShowStarlightHarborPanel(false)} className="text-yellow-300 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-400/10 r69-sth-stat"><div className="text-[9px] text-yellow-400">Level</div><div className="text-xs font-bold text-yellow-300">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-400/10 r69-sth-stat"><div className="text-[9px] text-yellow-400">Status</div><div className="text-xs font-bold text-yellow-300">🌟</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Starlight Harbor reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-300 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sth-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showStarwoodPanel && mounted && (() => {
+        const state = swAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStarwoodPanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌲 Starwood</h3><button onClick={() => setShowStarwoodPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r69-sw-stat"><div className="text-[9px] text-green-300">Level</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r69-sw-stat"><div className="text-[9px] text-green-300">Status</div><div className="text-xs font-bold text-green-200">🌲</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Starwood reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSteamMarshPanel && mounted && (() => {
+        const state = stmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSteamMarshPanel(false)}>
+            <div className="bg-gray-950/95 border border-gray-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-200">♨️ Steam Marsh</h3><button onClick={() => setShowSteamMarshPanel(false)} className="text-gray-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r69-stm-stat"><div className="text-[9px] text-gray-300">Level</div><div className="text-xs font-bold text-gray-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r69-stm-stat"><div className="text-[9px] text-gray-300">Status</div><div className="text-xs font-bold text-gray-200">♨️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Steam Marsh reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-800/30 to-gray-900/20 hover:opacity-80 text-gray-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-stm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSteampunkFactoryPanel && mounted && (() => {
+        const state = stpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSteampunkFactoryPanel(false)}>
+            <div className="bg-zinc-950/95 border border-zinc-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-zinc-200">🏭 Steampunk Factory</h3><button onClick={() => setShowSteampunkFactoryPanel(false)} className="text-zinc-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r69-stp-stat"><div className="text-[9px] text-zinc-300">Level</div><div className="text-xs font-bold text-zinc-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r69-stp-stat"><div className="text-[9px] text-zinc-300">Status</div><div className="text-xs font-bold text-zinc-200">🏭</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Steampunk Factory reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-zinc-800/30 to-zinc-900/20 hover:opacity-80 text-zinc-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-stp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showSteamshipSagaPanel && mounted && (() => {
+        const state = stsAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSteamshipSagaPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🚢 Steamship Saga</h3><button onClick={() => setShowSteamshipSagaPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r69-sts-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r69-sts-stat"><div className="text-[9px] text-cyan-300">Status</div><div className="text-xs font-bold text-cyan-200">🚢</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Steamship Saga reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-sts-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showStormChaserPanel && mounted && (() => {
+        const state = stcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowStormChaserPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🌪️ Storm Chaser</h3><button onClick={() => setShowStormChaserPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r69-stc-stat"><div className="text-[9px] text-purple-300">Level</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r69-stc-stat"><div className="text-[9px] text-purple-300">Status</div><div className="text-xs font-bold text-purple-200">🌪️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Storm Chaser reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r69-stc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Cloud Kingdom */}
+      {showCloudKingdomPanel && mounted && (() => {
+        const state = ckAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCloudKingdomPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">☁️ Cloud Kingdom</h3><button onClick={() => setShowCloudKingdomPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r70-ck-stat"><div className="text-[9px] text-sky-300">Islands</div><div className="text-xs font-bold text-sky-200">{typeof state === 'object' && state !== null ? (state.islands?.length || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r70-ck-stat"><div className="text-[9px] text-sky-300">Weather</div><div className="text-xs font-bold text-sky-200">☁️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Cloud Kingdom reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-ck-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Constellation Map */}
+      {showConstellationMapPanel && mounted && (() => {
+        const state = cmGetConstellationState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowConstellationMapPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">⭐ Constellation Map</h3><button onClick={() => setShowConstellationMapPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r70-cm-stat"><div className="text-[9px] text-indigo-300">Stars</div><div className="text-xs font-bold text-indigo-200">{typeof state === 'object' && state !== null ? (state.discovered?.length || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r70-cm-stat"><div className="text-[9px] text-indigo-300">View</div><div className="text-xs font-bold text-indigo-200">⭐</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Constellation Map reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-cm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Crossword Master */}
+      {showCrosswordMasterPanel && mounted && (() => {
+        const state = cmGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrosswordMasterPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">📝 Crossword Master</h3><button onClick={() => setShowCrosswordMasterPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r70-cwm-stat"><div className="text-[9px] text-amber-300">Score</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.score || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r70-cwm-stat"><div className="text-[9px] text-amber-300">Solved</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.solved || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Crossword Master reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-cwm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Crossword Puzzle */}
+      {showCrosswordPuzzlePanel && mounted && (() => {
+        const state = cwGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCrosswordPuzzlePanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">✏️ Crossword Puzzle</h3><button onClick={() => setShowCrosswordPuzzlePanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r70-cwp-stat"><div className="text-[9px] text-yellow-300">Words</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.wordsFound || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r70-cwp-stat"><div className="text-[9px] text-yellow-300">Grid</div><div className="text-xs font-bold text-yellow-200">✏️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Crossword Puzzle reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-cwp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Jungle Navigator */}
+      {showJungleNavigatorPanel && mounted && (() => {
+        const state = jnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowJungleNavigatorPanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌿 Jungle Navigator</h3><button onClick={() => setShowJungleNavigatorPanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r70-jn-stat"><div className="text-[9px] text-green-300">Explored</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.explored || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r70-jn-stat"><div className="text-[9px] text-green-300">Terrain</div><div className="text-xs font-bold text-green-200">🌿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Jungle Navigator reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-jn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Music Studio */}
+      {showMusicStudioPanel && mounted && (() => {
+        const state = muGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMusicStudioPanel(false)}>
+            <div className="bg-violet-950/95 border border-violet-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-violet-200">🎵 Music Studio</h3><button onClick={() => setShowMusicStudioPanel(false)} className="text-violet-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r70-ms-stat"><div className="text-[9px] text-violet-300">Songs</div><div className="text-xs font-bold text-violet-200">{typeof state === 'object' && state !== null ? (state.songs?.length || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-violet-900/30 to-violet-800/20 rounded-lg border border-violet-500/10 r70-ms-stat"><div className="text-[9px] text-violet-300">Genre</div><div className="text-xs font-bold text-violet-200">🎵</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Music Studio reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-ms-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Photo Safari */}
+      {showPhotoSafariPanel && mounted && (() => {
+        const state = psGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPhotoSafariPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">📸 Photo Safari</h3><button onClick={() => setShowPhotoSafariPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r70-ps-stat"><div className="text-[9px] text-orange-300">Photos</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.photos || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r70-ps-stat"><div className="text-[9px] text-orange-300">Biome</div><div className="text-xs font-bold text-orange-200">📸</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Photo Safari reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-ps-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Pirate Bay */}
+      {showPirateBayPanel && mounted && (() => {
+        const state = pbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPirateBayPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-600/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-300">☠️ Pirate Bay</h3><button onClick={() => setShowPirateBayPanel(false)} className="text-amber-500 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r70-pb-stat"><div className="text-[9px] text-amber-300">Ships</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.ships?.length || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r70-pb-stat"><div className="text-[9px] text-amber-300">Crew</div><div className="text-xs font-bold text-amber-200">☠️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Pirate Bay reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-pb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Recipe Collection */}
+      {showRecipeCollectionPanel && mounted && (() => {
+        const state = rcGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRecipeCollectionPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🍳 Recipe Collection</h3><button onClick={() => setShowRecipeCollectionPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r70-rc-stat"><div className="text-[9px] text-rose-300">Recipes</div><div className="text-xs font-bold text-rose-200">{typeof state === 'object' && state !== null ? (state.recipes?.length || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r70-rc-stat"><div className="text-[9px] text-rose-300">Mastered</div><div className="text-xs font-bold text-rose-200">🍳</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Recipe Collection reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-rc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Robot Colony */}
+      {showRobotColonyPanel && mounted && (() => {
+        const state = rc2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowRobotColonyPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🤖 Robot Colony</h3><button onClick={() => setShowRobotColonyPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r70-rc2-stat"><div className="text-[9px] text-cyan-300">Robots</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.robots || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r70-rc2-stat"><div className="text-[9px] text-cyan-300">Zones</div><div className="text-xs font-bold text-cyan-200">🤖</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Robot Colony reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-rc2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Space Explorer */}
+      {showSpaceExplorerPanel && mounted && (() => {
+        const state = seGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowSpaceExplorerPanel(false)}>
+            <div className="bg-blue-950/95 border border-blue-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-blue-200">🚀 Space Explorer</h3><button onClick={() => setShowSpaceExplorerPanel(false)} className="text-blue-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r70-se-stat"><div className="text-[9px] text-blue-300">Planet</div><div className="text-xs font-bold text-blue-200">{typeof state === 'object' && state !== null ? (state.currentPlanet || 'Unknown') : 'Unknown'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-lg border border-blue-500/10 r70-se-stat"><div className="text-[9px] text-blue-300">Status</div><div className="text-xs font-bold text-blue-200">🚀</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Space Explorer reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-blue-800/30 to-blue-900/20 hover:opacity-80 text-blue-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-se-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Tea Party */}
+      {showTeaPartyPanel && mounted && (() => {
+        const state = tpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTeaPartyPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🫖 Tea Party</h3><button onClick={() => setShowTeaPartyPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r70-tp-stat"><div className="text-[9px] text-emerald-300">Blends</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.blends?.length || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r70-tp-stat"><div className="text-[9px] text-emerald-300">Guests</div><div className="text-xs font-bold text-emerald-200">🫖</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Tea Party reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Terra Quest */}
+      {showTerraQuestPanel && mounted && (() => {
+        const state = tqAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTerraQuestPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🌍 Terra Quest</h3><button onClick={() => setShowTerraQuestPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r70-tq-stat"><div className="text-[9px] text-lime-300">Region</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.region || 'Unknown') : 'Unknown'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r70-tq-stat"><div className="text-[9px] text-lime-300">Quests</div><div className="text-xs font-bold text-lime-200">🌍</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Terra Quest reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tq-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Thunder Nexus */}
+      {showThunderNexusPanel && mounted && (() => {
+        const state = tnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowThunderNexusPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">⚡ Thunder Nexus</h3><button onClick={() => setShowThunderNexusPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r70-tn-stat"><div className="text-[9px] text-yellow-300">Charge</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.charge || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r70-tn-stat"><div className="text-[9px] text-yellow-300">Status</div><div className="text-xs font-bold text-yellow-200">⚡</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Thunder Nexus reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Thunder Peak */}
+      {showThunderPeakPanel && mounted && (() => {
+        const state = tp2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowThunderPeakPanel(false)}>
+            <div className="bg-gray-950/95 border border-gray-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-200">🏔️ Thunder Peak</h3><button onClick={() => setShowThunderPeakPanel(false)} className="text-gray-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r70-tp2-stat"><div className="text-[9px] text-gray-300">Altitude</div><div className="text-xs font-bold text-gray-200">{typeof state === 'object' && state !== null ? (state.altitude || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r70-tp2-stat"><div className="text-[9px] text-gray-300">Storm</div><div className="text-xs font-bold text-gray-200">🏔️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Thunder Peak reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-800/30 to-gray-900/20 hover:opacity-80 text-gray-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tp2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Tidal Rift */}
+      {showTidalRiftPanel && mounted && (() => {
+        const state = trAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTidalRiftPanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🌊 Tidal Rift</h3><button onClick={() => setShowTidalRiftPanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r70-tr-stat"><div className="text-[9px] text-teal-300">Tide</div><div className="text-xs font-bold text-teal-200">{typeof state === 'object' && state !== null ? (state.tide || 'Low') : 'Low'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r70-tr-stat"><div className="text-[9px] text-teal-300">Depth</div><div className="text-xs font-bold text-teal-200">🌊</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Tidal Rift reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tr-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Time Monastery */}
+      {showTimeMonasteryPanel && mounted && (() => {
+        const state = tmAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTimeMonasteryPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">⏳ Time Monastery</h3><button onClick={() => setShowTimeMonasteryPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r70-tm-stat"><div className="text-[9px] text-amber-300">Era</div><div className="text-xs font-bold text-amber-200">{typeof state === 'object' && state !== null ? (state.era || 'Ancient') : 'Ancient'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r70-tm-stat"><div className="text-[9px] text-amber-300">Time</div><div className="text-xs font-bold text-amber-200">⏳</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Time Monastery reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tm-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Time Workshop */}
+      {showTimeWorkshopPanel && mounted && (() => {
+        const state = twGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTimeWorkshopPanel(false)}>
+            <div className="bg-zinc-950/95 border border-zinc-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-zinc-200">🔧 Time Workshop</h3><button onClick={() => setShowTimeWorkshopPanel(false)} className="text-zinc-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r70-tw-stat"><div className="text-[9px] text-zinc-300">Gadgets</div><div className="text-xs font-bold text-zinc-200">{typeof state === 'object' && state !== null ? (state.gadgets || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-zinc-900/30 to-zinc-800/20 rounded-lg border border-zinc-500/10 r70-tw-stat"><div className="text-[9px] text-zinc-300">Station</div><div className="text-xs font-bold text-zinc-200">🔧</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Time Workshop reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-zinc-800/30 to-zinc-900/20 hover:opacity-80 text-zinc-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tw-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Titan Workshop */}
+      {showTitanWorkshopPanel && mounted && (() => {
+        const state = tiAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTitanWorkshopPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">⚒️ Titan Workshop</h3><button onClick={() => setShowTitanWorkshopPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r70-ti-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r70-ti-stat"><div className="text-[9px] text-orange-300">Build</div><div className="text-xs font-bold text-orange-200">⚒️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Titan Workshop reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-ti-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Tomb Blade */}
+      {showTombBladePanel && mounted && (() => {
+        const state = tbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTombBladePanel(false)}>
+            <div className="bg-stone-950/95 border border-stone-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-stone-200">⚔️ Tomb Blade</h3><button onClick={() => setShowTombBladePanel(false)} className="text-stone-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r70-tb-stat"><div className="text-[9px] text-stone-300">Blades</div><div className="text-xs font-bold text-stone-200">{typeof state === 'object' && state !== null ? (state.blades || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-stone-900/30 to-stone-800/20 rounded-lg border border-stone-500/10 r70-tb-stat"><div className="text-[9px] text-stone-300">Depth</div><div className="text-xs font-bold text-stone-200">⚔️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Tomb Blade reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-stone-800/30 to-stone-900/20 hover:opacity-80 text-stone-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Trade Vessel */}
+      {showTradeVesselPanel && mounted && (() => {
+        const state = tvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowTradeVesselPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">⚓ Trade Vessel</h3><button onClick={() => setShowTradeVesselPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r70-tv-stat"><div className="text-[9px] text-sky-300">Cargo</div><div className="text-xs font-bold text-sky-200">{typeof state === 'object' && state !== null ? (state.cargo || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r70-tv-stat"><div className="text-[9px] text-sky-300">Port</div><div className="text-xs font-bold text-sky-200">⚓</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Trade Vessel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-tv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: UFO Command */}
+      {showUFOCommandPanel && mounted && (() => {
+        const state = ucAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowUFOCommandPanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">🛸 UFO Command</h3><button onClick={() => setShowUFOCommandPanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r70-uc-stat"><div className="text-[9px] text-lime-300">Fleet</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.fleet || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r70-uc-stat"><div className="text-[9px] text-lime-300">Planet</div><div className="text-xs font-bold text-lime-200">🛸</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'UFO Command reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-uc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Velvet Brood */}
+      {showVelvetBroodPanel && mounted && (() => {
+        const state = vbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVelvetBroodPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🕷️ Velvet Brood</h3><button onClick={() => setShowVelvetBroodPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r70-vb-stat"><div className="text-[9px] text-purple-300">Colony</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.colony || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r70-vb-stat"><div className="text-[9px] text-purple-300">Silk</div><div className="text-xs font-bold text-purple-200">🕷️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Velvet Brood reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-vb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Venom Abyss */}
+      {showVenomAbyssPanel && mounted && (() => {
+        const state = vaAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVenomAbyssPanel(false)}>
+            <div className="bg-green-950/95 border border-green-600/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-300">🐍 Venom Abyss</h3><button onClick={() => setShowVenomAbyssPanel(false)} className="text-green-500 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r70-va-stat"><div className="text-[9px] text-green-300">Venom</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.venom || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r70-va-stat"><div className="text-[9px] text-green-300">Depth</div><div className="text-xs font-bold text-green-200">🐍</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Venom Abyss reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-va-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Vine Nexus */}
+      {showVineNexusPanel && mounted && (() => {
+        const state = vnAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVineNexusPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🌱 Vine Nexus</h3><button onClick={() => setShowVineNexusPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r70-vn-stat"><div className="text-[9px] text-emerald-300">Vines</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.vines || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r70-vn-stat"><div className="text-[9px] text-emerald-300">Growth</div><div className="text-xs font-bold text-emerald-200">🌱</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Vine Nexus reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-vn-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Void Citadel */}
+      {showVoidCitadelPanel && mounted && (() => {
+        const state = vcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVoidCitadelPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🌑 Void Citadel</h3><button onClick={() => setShowVoidCitadelPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r70-vc-stat"><div className="text-[9px] text-slate-300">Guard</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.guard || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r70-vc-stat"><div className="text-[9px] text-slate-300">Void</div><div className="text-xs font-bold text-slate-200">🌑</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Void Citadel reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-vc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Void Garden */}
+      {showVoidGardenPanel && mounted && (() => {
+        const state = vgAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVoidGardenPanel(false)}>
+            <div className="bg-fuchsia-950/95 border border-fuchsia-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-fuchsia-200">🕳️ Void Garden</h3><button onClick={() => setShowVoidGardenPanel(false)} className="text-fuchsia-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r70-vg-stat"><div className="text-[9px] text-fuchsia-300">Plants</div><div className="text-xs font-bold text-fuchsia-200">{typeof state === 'object' && state !== null ? (state.plants || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r70-vg-stat"><div className="text-[9px] text-fuchsia-300">Bloom</div><div className="text-xs font-bold text-fuchsia-200">🕳️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Void Garden reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-fuchsia-800/30 to-fuchsia-900/20 hover:opacity-80 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-vg-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Volcano Lab */}
+      {showVolcanoLabPanel && mounted && (() => {
+        const state = vlGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVolcanoLabPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🌋 Volcano Lab</h3><button onClick={() => setShowVolcanoLabPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r70-vl-stat"><div className="text-[9px] text-red-300">Minerals</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.minerals || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r70-vl-stat"><div className="text-[9px] text-red-300">Phase</div><div className="text-xs font-bold text-red-200">🌋</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Volcano Lab reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-vl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Volcano Peak */}
+      {showVolcanoPeakPanel && mounted && (() => {
+        const state = vpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowVolcanoPeakPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🗻 Volcano Peak</h3><button onClick={() => setShowVolcanoPeakPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r70-vp-stat"><div className="text-[9px] text-orange-300">Eruption</div><div className="text-xs font-bold text-orange-200">{typeof state === 'object' && state !== null ? (state.eruption || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r70-vp-stat"><div className="text-[9px] text-orange-300">Peak</div><div className="text-xs font-bold text-orange-200">🗻</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Volcano Peak reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-vp-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Wanderer Bazaar */}
+      {showWandererBazaarPanel && mounted && (() => {
+        const state = wbAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWandererBazaarPanel(false)}>
+            <div className="bg-yellow-950/95 border border-yellow-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-yellow-200">🏪 Wanderer Bazaar</h3><button onClick={() => setShowWandererBazaarPanel(false)} className="text-yellow-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r70-wb-stat"><div className="text-[9px] text-yellow-300">Items</div><div className="text-xs font-bold text-yellow-200">{typeof state === 'object' && state !== null ? (state.items || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-lg border border-yellow-500/10 r70-wb-stat"><div className="text-[9px] text-yellow-300">Gold</div><div className="text-xs font-bold text-yellow-200">🏪</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Wanderer Bazaar reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-yellow-800/30 to-yellow-900/20 hover:opacity-80 text-yellow-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-wb-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Willow Lane */}
+      {showWillowLanePanel && mounted && (() => {
+        const state = wlAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWillowLanePanel(false)}>
+            <div className="bg-green-950/95 border border-green-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-green-200">🌿 Willow Lane</h3><button onClick={() => setShowWillowLanePanel(false)} className="text-green-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r70-wl-stat"><div className="text-[9px] text-green-300">Season</div><div className="text-xs font-bold text-green-200">{typeof state === 'object' && state !== null ? (state.season || 'Spring') : 'Spring'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-green-900/30 to-green-800/20 rounded-lg border border-green-500/10 r70-wl-stat"><div className="text-[9px] text-green-300">Trees</div><div className="text-xs font-bold text-green-200">🌿</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Willow Lane reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-green-800/30 to-green-900/20 hover:opacity-80 text-green-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-wl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Wizard Academy */}
+      {showWizardAcademyPanel && mounted && (() => {
+        const state = waAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWizardAcademyPanel(false)}>
+            <div className="bg-purple-950/95 border border-purple-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-purple-200">🧙 Wizard Academy</h3><button onClick={() => setShowWizardAcademyPanel(false)} className="text-purple-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r70-wa-stat"><div className="text-[9px] text-purple-300">Spells</div><div className="text-xs font-bold text-purple-200">{typeof state === 'object' && state !== null ? (state.spells || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-purple-900/30 to-purple-800/20 rounded-lg border border-purple-500/10 r70-wa-stat"><div className="text-[9px] text-purple-300">Rank</div><div className="text-xs font-bold text-purple-200">🧙</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Wizard Academy reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-purple-800/30 to-purple-900/20 hover:opacity-80 text-purple-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-wa-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Word Sniper */}
+      {showWordSniperPanel && mounted && (() => {
+        const state = wsGetState()
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowWordSniperPanel(false)}>
+            <div className="bg-red-950/95 border border-red-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-red-200">🎯 Word Sniper</h3><button onClick={() => setShowWordSniperPanel(false)} className="text-red-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r70-ws-stat"><div className="text-[9px] text-red-300">Kills</div><div className="text-xs font-bold text-red-200">{typeof state === 'object' && state !== null ? (state.kills || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-red-900/30 to-red-800/20 rounded-lg border border-red-500/10 r70-ws-stat"><div className="text-[9px] text-red-300">Accuracy</div><div className="text-xs font-bold text-red-200">🎯</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Word Sniper reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-red-800/30 to-red-900/20 hover:opacity-80 text-red-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-ws-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Xeno Hive */}
+      {showXenoHivePanel && mounted && (() => {
+        const state = xhAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowXenoHivePanel(false)}>
+            <div className="bg-lime-950/95 border border-lime-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-lime-200">👽 Xeno Hive</h3><button onClick={() => setShowXenoHivePanel(false)} className="text-lime-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r70-xh-stat"><div className="text-[9px] text-lime-300">Drones</div><div className="text-xs font-bold text-lime-200">{typeof state === 'object' && state !== null ? (state.drones || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-lime-900/30 to-lime-800/20 rounded-lg border border-lime-500/10 r70-xh-stat"><div className="text-[9px] text-lime-300">Hive</div><div className="text-xs font-bold text-lime-200">👽</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Xeno Hive reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-lime-800/30 to-lime-900/20 hover:opacity-80 text-lime-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-xh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Yggdrasil Xylem */}
+      {showYggdrasilXylemPanel && mounted && (() => {
+        const state = yxAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowYggdrasilXylemPanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-500/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🌳 Yggdrasil Xylem</h3><button onClick={() => setShowYggdrasilXylemPanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r70-yx-stat"><div className="text-[9px] text-emerald-300">Roots</div><div className="text-xs font-bold text-emerald-200">{typeof state === 'object' && state !== null ? (state.roots || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r70-yx-stat"><div className="text-[9px] text-emerald-300">Realm</div><div className="text-xs font-bold text-emerald-200">🌳</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Yggdrasil Xylem reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-yx-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Zephyr Haven */}
+      {showZephyrHavenPanel && mounted && (() => {
+        const state = zhAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowZephyrHavenPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">🌬️ Zephyr Haven</h3><button onClick={() => setShowZephyrHavenPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r70-zh-stat"><div className="text-[9px] text-cyan-300">Wind</div><div className="text-xs font-bold text-cyan-200">{typeof state === 'object' && state !== null ? (state.wind || 'Calm') : 'Calm'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r70-zh-stat"><div className="text-[9px] text-cyan-300">Haven</div><div className="text-xs font-bold text-cyan-200">🌬️</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Zephyr Haven reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-zh-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* r70: Zephyr Vault */}
+      {showZephyrVaultPanel && mounted && (() => {
+        const state = zvAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowZephyrVaultPanel(false)}>
+            <div className="bg-slate-950/95 border border-slate-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🔒 Zephyr Vault</h3><button onClick={() => setShowZephyrVaultPanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r70-zv-stat"><div className="text-[9px] text-slate-300">Locked</div><div className="text-xs font-bold text-slate-200">{typeof state === 'object' && state !== null ? (state.locked || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-900/30 to-slate-800/20 rounded-lg border border-slate-500/10 r70-zv-stat"><div className="text-[9px] text-slate-300">Vault</div><div className="text-xs font-bold text-slate-200">🔒</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Zephyr Vault reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-zv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+
+
     </div>
   )
 }

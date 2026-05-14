@@ -7644,3 +7644,75 @@
 .fishing-harbor-panel .r63-achievement-item, .elemental-forge-panel .r63-achievement-item, .safari-expedition-panel .r63-achievement-item, .neon-city-panel .r63-achievement-item { animation: r63-achievement-item 0.3s ease-out; }
 @keyframes r63-daily-card { 0%,100% { border-color: rgba(99,102,241,0.2); } 50% { border-color: rgba(99,102,241,0.5); } }
 .fishing-harbor-panel .r63-daily-card, .elemental-forge-panel .r63-daily-card, .safari-expedition-panel .r63-daily-card, .neon-city-panel .r63-daily-card { animation: r63-daily-card 3s ease-in-out infinite; }
+
+/* ===== Rounds 64–70 Wire Feature Animations ===== */
+
+/* --- r64 (Fantasy Castle / Aquarium Oasis / Time Warp / Nuclear Lab) --- */
+@keyframes r64-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r64-stat"] { animation: r64-stat 0.25s ease-out; }
+@keyframes r64-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r64-action-btn { animation: r64-action-btn 0.15s ease-out; }
+@keyframes r64-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r64-achievement-item { animation: r64-achievement-item 0.3s ease-out; }
+@keyframes r64-daily-card { 0%, 100% { border-color: rgba(245, 158, 11, 0.2); } 50% { border-color: rgba(245, 158, 11, 0.5); } }
+.r64-daily-card { animation: r64-daily-card 3s ease-in-out infinite; }
+
+/* --- r65 (Dragon Sanctuary / Pirate Island / Crystal Kingdom / Cyber Arena) --- */
+@keyframes r65-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r65-stat"] { animation: r65-stat 0.25s ease-out; }
+@keyframes r65-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r65-action-btn { animation: r65-action-btn 0.15s ease-out; }
+@keyframes r65-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r65-achievement-item { animation: r65-achievement-item 0.3s ease-out; }
+@keyframes r65-daily-card { 0%, 100% { border-color: rgba(16, 185, 129, 0.2); } 50% { border-color: rgba(16, 185, 129, 0.5); } }
+.r65-daily-card { animation: r65-daily-card 3s ease-in-out infinite; }
+
+/* --- r66 (Sugar Bakery / Djinn Wishes / Robot Colony) --- */
+@keyframes r66-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r66-stat"] { animation: r66-stat 0.25s ease-out; }
+@keyframes r66-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r66-action-btn { animation: r66-action-btn 0.15s ease-out; }
+@keyframes r66-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r66-achievement-item { animation: r66-achievement-item 0.3s ease-out; }
+@keyframes r66-daily-card { 0%, 100% { border-color: rgba(244, 63, 94, 0.2); } 50% { border-color: rgba(244, 63, 94, 0.5); } }
+.r66-daily-card { animation: r66-daily-card 3s ease-in-out infinite; }
+
+/* --- r67 (Arcane Workshop / Bee Hive / Fairy Garden / Marine Lab / Tea House / Ghost Hospital / Monster Sanctuary / Jungle Explorer) --- */
+@keyframes r67-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r67-stat"] { animation: r67-stat 0.25s ease-out; }
+@keyframes r67-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r67-action-btn { animation: r67-action-btn 0.15s ease-out; }
+@keyframes r67-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r67-achievement-item { animation: r67-achievement-item 0.3s ease-out; }
+@keyframes r67-daily-card { 0%, 100% { border-color: rgba(139, 92, 246, 0.2); } 50% { border-color: rgba(139, 92, 246, 0.5); } }
+.r67-daily-card { animation: r67-daily-card 3s ease-in-out infinite; }
+
+/* --- r68 (Ghost Train / Wizard School / Ninja Dojo / Steampunk Factory) --- */
+@keyframes r68-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r68-stat"] { animation: r68-stat 0.25s ease-out; }
+@keyframes r68-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r68-action-btn { animation: r68-action-btn 0.15s ease-out; }
+@keyframes r68-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r68-achievement-item { animation: r68-achievement-item 0.3s ease-out; }
+@keyframes r68-daily-card { 0%, 100% { border-color: rgba(14, 165, 233, 0.2); } 50% { border-color: rgba(14, 165, 233, 0.5); } }
+.r68-daily-card { animation: r68-daily-card 3s ease-in-out infinite; }
+
+/* --- r69 (Phoenix Nest / Samurai Dojo / Atlantis / Aurora Observatory) --- */
+@keyframes r69-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r69-stat"] { animation: r69-stat 0.25s ease-out; }
+@keyframes r69-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r69-action-btn { animation: r69-action-btn 0.15s ease-out; }
+@keyframes r69-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r69-achievement-item { animation: r69-achievement-item 0.3s ease-out; }
+@keyframes r69-daily-card { 0%, 100% { border-color: rgba(132, 204, 22, 0.2); } 50% { border-color: rgba(132, 204, 22, 0.5); } }
+.r69-daily-card { animation: r69-daily-card 3s ease-in-out infinite; }
+
+/* --- r70 (Dino Park / Music Studio / Space Colony) --- */
+@keyframes r70-stat { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r70-stat"] { animation: r70-stat 0.25s ease-out; }
+@keyframes r70-action-btn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r70-action-btn { animation: r70-action-btn 0.15s ease-out; }
+@keyframes r70-achievement-item { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+.r70-achievement-item { animation: r70-achievement-item 0.3s ease-out; }
+@keyframes r70-daily-card { 0%, 100% { border-color: rgba(217, 70, 239, 0.2); } 50% { border-color: rgba(217, 70, 239, 0.5); } }
+.r70-daily-card { animation: r70-daily-card 3s ease-in-out infinite; }
