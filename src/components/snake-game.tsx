@@ -464,6 +464,11 @@ import usePhoenixWatch from '@/lib/phoenix-watch-wire'
 import useStarCrusader from '@/lib/star-crusader-wire'
 import useThunderNest from '@/lib/thunder-nest-wire'
 import useWarpLane from '@/lib/warp-lane-wire'
+// Round 75: Coral Reef City, Moon Temple, Frost Frontier, Occult Circle
+import useCoralReefCity from '@/lib/coral-reef-city-wire'
+import useMoonTemple from '@/lib/moon-temple-wire'
+import useFrostFrontier from '@/lib/frost-frontier-wire'
+import useOccultCircle from '@/lib/occult-circle-wire'
 
 import {
   Play,
@@ -1542,6 +1547,11 @@ export default function SnakeGame() {
   const [showStarCrusaderPanel, setShowStarCrusaderPanel] = useState(false)
   const [showThunderNestPanel, setShowThunderNestPanel] = useState(false)
   const [showWarpLanePanel, setShowWarpLanePanel] = useState(false)
+  // Round 75: Coral Reef City, Moon Temple, Frost Frontier, Occult Circle panel states
+  const [showCoralReefCityPanel, setShowCoralReefCityPanel] = useState(false)
+  const [showMoonTemplePanel, setShowMoonTemplePanel] = useState(false)
+  const [showFrostFrontierPanel, setShowFrostFrontierPanel] = useState(false)
+  const [showOccultCirclePanel, setShowOccultCirclePanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1902,6 +1912,11 @@ export default function SnakeGame() {
   const crusAPI = useStarCrusader()
   const thnAPI = useThunderNest()
   const warpAPI = useWarpLane()
+  // Round 75 hooks
+  const crcAPI = useCoralReefCity()
+  const mt2API = useMoonTemple()
+  const frtAPI = useFrostFrontier()
+  const occAPI = useOccultCircle()
 
 
   // Easter egg active effects display state
@@ -9276,6 +9291,11 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowStarCrusaderPanel(!showStarCrusaderPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r74-sc-btn" title="Star Crusader">⭐ StarCru</Button>
                     <Button onClick={() => setShowThunderNestPanel(!showThunderNestPanel)} variant="outline" className="border-yellow-400/50 text-yellow-200 hover:bg-yellow-900/20 active:scale-95 transition-transform r74-tn-btn" title="Thunder Nest">⚡ ThunNest</Button>
                     <Button onClick={() => setShowWarpLanePanel(!showWarpLanePanel)} variant="outline" className="border-violet-400/50 text-violet-200 hover:bg-violet-900/20 active:scale-95 transition-transform r74-wl-btn" title="Warp Lane">🌀 WarpLane</Button>
+                    {/* Round 75: Coral Reef City, Moon Temple, Frost Frontier, Occult Circle */}
+                    <Button onClick={() => setShowCoralReefCityPanel(!showCoralReefCityPanel)} variant="outline" className="border-teal-400/50 text-teal-200 hover:bg-teal-900/20 active:scale-95 transition-transform r75-crc-btn" title="Coral Reef City">🪸 CoralCity</Button>
+                    <Button onClick={() => setShowMoonTemplePanel(!showMoonTemplePanel)} variant="outline" className="border-slate-300/50 text-slate-200 hover:bg-slate-700/20 active:scale-95 transition-transform r75-mt2-btn" title="Moon Temple">🌙 MoonTemp</Button>
+                    <Button onClick={() => setShowFrostFrontierPanel(!showFrostFrontierPanel)} variant="outline" className="border-sky-300/50 text-sky-200 hover:bg-sky-800/20 active:scale-95 transition-transform r75-frt-btn" title="Frost Frontier">🧊 FrostFront</Button>
+                    <Button onClick={() => setShowOccultCirclePanel(!showOccultCirclePanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r75-occ-btn" title="Occult Circle">🔮 OccCircle</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -21017,6 +21037,86 @@ export default function SnakeGame() {
               </div>
               <div className="flex gap-1.5 mb-3">
                 <button onClick={() => { toast({ title: 'Warp Lane reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-violet-800/30 to-violet-900/20 hover:opacity-80 text-violet-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r74-wl-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showCoralReefCityPanel && mounted && (() => {
+        const crcState = crcAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCoralReefCityPanel(false)}>
+            <div className="bg-teal-950/95 border border-teal-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-teal-200">🪸 Coral Reef City</h3><button onClick={() => setShowCoralReefCityPanel(false)} className="text-teal-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r75-crc-stat"><div className="text-[9px] text-teal-300">Mayor Lv</div><div className="text-xs font-bold text-teal-200">{typeof crcState === 'object' && crcState !== null ? (crcState.mayorLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r75-crc-stat"><div className="text-[9px] text-teal-300">Happiness</div><div className="text-xs font-bold text-teal-200">{typeof crcState === 'object' && crcState !== null ? (crcState.happiness || 50) : 50}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r75-crc-stat"><div className="text-[9px] text-teal-300">Districts</div><div className="text-xs font-bold text-teal-200">{typeof crcState === 'object' && crcState !== null ? ((crcState.districts || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-teal-900/30 to-teal-800/20 rounded-lg border border-teal-500/10 r75-crc-stat"><div className="text-[9px] text-teal-300">Creatures</div><div className="text-xs font-bold text-teal-200">{typeof crcState === 'object' && crcState !== null ? ((crcState.creatures || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Coral Reef City reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-teal-800/30 to-teal-900/20 hover:opacity-80 text-teal-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r75-crc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showMoonTemplePanel && mounted && (() => {
+        const mt2State = mt2API
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowMoonTemplePanel(false)}>
+            <div className="bg-slate-800/95 border border-slate-300/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-slate-200">🌙 Moon Temple</h3><button onClick={() => setShowMoonTemplePanel(false)} className="text-slate-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-slate-700/30 to-slate-600/20 rounded-lg border border-slate-400/10 r75-mt2-stat"><div className="text-[9px] text-slate-300">Priest Lv</div><div className="text-xs font-bold text-slate-200">{typeof mt2State === 'object' && mt2State !== null ? (mt2State.priestLevel || mt2State.rank || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-700/30 to-slate-600/20 rounded-lg border border-slate-400/10 r75-mt2-stat"><div className="text-[9px] text-slate-300">Artifacts</div><div className="text-xs font-bold text-slate-200">{typeof mt2State === 'object' && mt2State !== null ? ((mt2State.artifacts || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-700/30 to-slate-600/20 rounded-lg border border-slate-400/10 r75-mt2-stat"><div className="text-[9px] text-slate-300">Riddles</div><div className="text-xs font-bold text-slate-200">{typeof mt2State === 'object' && mt2State !== null ? (mt2State.riddlesSolved || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-slate-700/30 to-slate-600/20 rounded-lg border border-slate-400/10 r75-mt2-stat"><div className="text-[9px] text-slate-300">Moon Phase</div><div className="text-xs font-bold text-slate-200">{typeof mt2State === 'object' && mt2State !== null ? (mt2State.currentPhase || 'Full') : 'Full'}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Moon Temple reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-700/30 to-slate-800/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r75-mt2-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFrostFrontierPanel && mounted && (() => {
+        const frtState = frtAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFrostFrontierPanel(false)}>
+            <div className="bg-sky-950/95 border border-sky-300/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-sky-200">🧊 Frost Frontier</h3><button onClick={() => setShowFrostFrontierPanel(false)} className="text-sky-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r75-frt-stat"><div className="text-[9px] text-sky-300">Explorer Lv</div><div className="text-xs font-bold text-sky-200">{typeof frtState === 'object' && frtState !== null ? (frtState.explorerLevel || frtState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r75-frt-stat"><div className="text-[9px] text-sky-300">Warmth</div><div className="text-xs font-bold text-sky-200">{typeof frtState === 'object' && frtState !== null ? (frtState.warmth || 50) : 50}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r75-frt-stat"><div className="text-[9px] text-sky-300">Buildings</div><div className="text-xs font-bold text-sky-200">{typeof frtState === 'object' && frtState !== null ? ((frtState.buildings || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-sky-900/30 to-sky-800/20 rounded-lg border border-sky-500/10 r75-frt-stat"><div className="text-[9px] text-sky-300">Morale</div><div className="text-xs font-bold text-sky-200">{typeof frtState === 'object' && frtState !== null ? (frtState.morale || 50) : 50}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Frost Frontier reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-sky-800/30 to-sky-900/20 hover:opacity-80 text-sky-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r75-frt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOccultCirclePanel && mounted && (() => {
+        const occState = occAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOccultCirclePanel(false)}>
+            <div className="bg-fuchsia-950/95 border border-fuchsia-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-fuchsia-200">🔮 Occult Circle</h3><button onClick={() => setShowOccultCirclePanel(false)} className="text-fuchsia-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r75-occ-stat"><div className="text-[9px] text-fuchsia-300">Mastery Lv</div><div className="text-xs font-bold text-fuchsia-200">{typeof occState === 'object' && occState !== null ? (occState.masteryLevel || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r75-occ-stat"><div className="text-[9px] text-fuchsia-300">Spells</div><div className="text-xs font-bold text-fuchsia-200">{typeof occState === 'object' && occState !== null ? ((occState.spells || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r75-occ-stat"><div className="text-[9px] text-fuchsia-300">Familiars</div><div className="text-xs font-bold text-fuchsia-200">{typeof occState === 'object' && occState !== null ? ((occState.familiars || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-fuchsia-900/30 to-fuchsia-800/20 rounded-lg border border-fuchsia-500/10 r75-occ-stat"><div className="text-[9px] text-fuchsia-300">Tomes</div><div className="text-xs font-bold text-fuchsia-200">{typeof occState === 'object' && occState !== null ? ((occState.tomes || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Occult Circle reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-fuchsia-800/30 to-fuchsia-900/20 hover:opacity-80 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r75-occ-action">Reset</button>
               </div>
             </div>
           </div>

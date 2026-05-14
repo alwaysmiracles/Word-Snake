@@ -7970,3 +7970,67 @@
 .r74-nebula-drift { animation: r74-nebula-drift 5s ease-in-out infinite; }
 @keyframes r74-warp-tunnel { 0% { transform: perspective(100px) rotateX(0deg); } 100% { transform: perspective(100px) rotateX(360deg); } }
 .r74-warp-tunnel { animation: r74-warp-tunnel 4s linear infinite; }
+
+/* Round 75: Coral Reef City animations (7) */
+@keyframes r75-crc-stat { from { opacity: 0; transform: translateY(8px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.r75-crc-stat { animation: r75-crc-stat 0.4s ease-out; }
+@keyframes r75-crc-btn { from { opacity: 0; transform: scale(0.7) rotate(-3deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r75-crc-btn { animation: r75-crc-btn 0.3s ease-out; }
+@keyframes r75-crc-action { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.r75-crc-action { animation: r75-crc-action 0.3s ease-out; }
+@keyframes r75-crc-achievement { from { opacity: 0; transform: scale(0) rotate(180deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r75-crc-achievement { animation: r75-crc-achievement 0.5s ease-out; }
+@keyframes r75-coral-grow { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.05); } }
+.r75-coral-grow { animation: r75-coral-grow 3s ease-in-out infinite; }
+@keyframes r75-bubble-rise { 0% { transform: translateY(10px); opacity: 0; } 30% { opacity: 0.8; } 100% { transform: translateY(-20px); opacity: 0; } }
+.r75-bubble-rise { animation: r75-bubble-rise 2.5s ease-in-out infinite; }
+@keyframes r75-reef-shimmer { 0%, 100% { filter: hue-rotate(0deg) brightness(1); } 50% { filter: hue-rotate(15deg) brightness(1.15); } }
+.r75-reef-shimmer { animation: r75-reef-shimmer 4s ease-in-out infinite; }
+
+/* Round 75: Moon Temple animations (7) */
+@keyframes r75-mt2-stat { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+.r75-mt2-stat { animation: r75-mt2-stat 0.4s ease-out; }
+@keyframes r75-mt2-btn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+.r75-mt2-btn { animation: r75-mt2-btn 0.25s ease-out; }
+@keyframes r75-mt2-action { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.r75-mt2-action { animation: r75-mt2-action 0.3s ease-out; }
+@keyframes r75-mt2-achievement { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.r75-mt2-achievement { animation: r75-mt2-achievement 0.5s ease-out; }
+@keyframes r75-moonbeam { 0%, 100% { box-shadow: 0 0 6px rgba(226,232,240,0.2); } 50% { box-shadow: 0 0 22px rgba(226,232,240,0.5), 0 0 44px rgba(203,213,225,0.15); } }
+.r75-moonbeam { animation: r75-moonbeam 3s ease-in-out infinite; }
+@keyframes r75-ritual-glow { 0%, 100% { filter: brightness(1) drop-shadow(0 0 4px transparent); } 50% { filter: brightness(1.2) drop-shadow(0 0 12px rgba(168,162,158,0.4)); } }
+.r75-ritual-glow { animation: r75-ritual-glow 2.5s ease-in-out infinite; }
+@keyframes r75-phase-shift { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+.r75-phase-shift { animation: r75-phase-shift 5s ease-in-out infinite; }
+
+/* Round 75: Frost Frontier animations (7) */
+@keyframes r75-frt-stat { from { opacity: 0; transform: translateY(6px) rotate(-2deg); } to { opacity: 1; transform: translateY(0) rotate(0deg); } }
+.r75-frt-stat { animation: r75-frt-stat 0.4s ease-out; }
+@keyframes r75-frt-btn { from { opacity: 0; transform: scale(0.85) rotate(2deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r75-frt-btn { animation: r75-frt-btn 0.3s ease-out; }
+@keyframes r75-frt-action { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }
+.r75-frt-action { animation: r75-frt-action 0.3s ease-out; }
+@keyframes r75-frt-achievement { from { opacity: 0; transform: scale(0.5) rotate(-5deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r75-frt-achievement { animation: r75-frt-achievement 0.5s ease-out; }
+@keyframes r75-snowfall { 0% { transform: translateY(-15px) rotate(0deg); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(15px) rotate(180deg); opacity: 0; } }
+.r75-snowfall { animation: r75-snowfall 3s linear infinite; }
+@keyframes r75-aurora { 0%, 100% { background-position: 0% 50%; filter: hue-rotate(0deg); } 33% { background-position: 50% 50%; filter: hue-rotate(60deg); } 66% { background-position: 100% 50%; filter: hue-rotate(120deg); } }
+.r75-aurora { animation: r75-aurora 6s ease-in-out infinite; }
+@keyframes r75-ice-crack { 0%, 85%, 100% { opacity: 0; transform: scaleX(1); } 90% { opacity: 1; transform: scaleX(1.05); } 95% { opacity: 0.5; transform: scaleX(0.98); } }
+.r75-ice-crack { animation: r75-ice-crack 4s ease-in-out infinite; }
+
+/* Round 75: Occult Circle animations (7) */
+@keyframes r75-occ-stat { from { opacity: 0; transform: scale(0.9) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.r75-occ-stat { animation: r75-occ-stat 0.35s ease-out; }
+@keyframes r75-occ-btn { from { opacity: 0; transform: rotate(-8deg) scale(0.8); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r75-occ-btn { animation: r75-occ-btn 0.3s ease-out; }
+@keyframes r75-occ-action { from { opacity: 0; transform: scale(1.15); } to { opacity: 1; transform: scale(1); } }
+.r75-occ-action { animation: r75-occ-action 0.25s ease-out; }
+@keyframes r75-occ-achievement { from { opacity: 0; transform: rotate(90deg) scale(0); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r75-occ-achievement { animation: r75-occ-achievement 0.5s ease-out; }
+@keyframes r75-ritual-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.r75-ritual-spin { animation: r75-ritual-spin 8s linear infinite; }
+@keyframes r75-dark-pulse { 0%, 100% { box-shadow: 0 0 8px rgba(192,38,211,0.2); } 50% { box-shadow: 0 0 28px rgba(192,38,211,0.5), 0 0 56px rgba(162,28,175,0.15); } }
+.r75-dark-pulse { animation: r75-dark-pulse 2.5s ease-in-out infinite; }
+@keyframes r75-spirit-float { 0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; } 25% { transform: translateY(-8px) translateX(4px); opacity: 0.9; } 50% { transform: translateY(-4px) translateX(-4px); opacity: 0.5; } 75% { transform: translateY(-10px) translateX(-2px); opacity: 0.8; } }
+.r75-spirit-float { animation: r75-spirit-float 4s ease-in-out infinite; }
