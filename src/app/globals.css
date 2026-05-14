@@ -7716,3 +7716,69 @@
 .r70-achievement-item { animation: r70-achievement-item 0.3s ease-out; }
 @keyframes r70-daily-card { 0%, 100% { border-color: rgba(217, 70, 239, 0.2); } 50% { border-color: rgba(217, 70, 239, 0.5); } }
 .r70-daily-card { animation: r70-daily-card 3s ease-in-out infinite; }
+
+/* --- r71 (Gem Crusher / Frost Fury / Dawn Tower / Flame Painter) --- */
+
+/* Gem Crusher animations (amber theme) */
+@keyframes r71-gc-stat { 0% { opacity: 0; transform: translateY(8px) rotate(-2deg); } 100% { opacity: 1; transform: translateY(0) rotate(0deg); } }
+[class*="r71-gc-stat"] { animation: r71-gc-stat 0.3s ease-out; }
+@keyframes r71-gc-btn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+.r71-gc-btn { animation: r71-gc-btn 0.2s ease-out; }
+@keyframes r71-gc-action { 0% { opacity: 0; transform: scale(0.9) translateY(4px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.r71-gc-action { animation: r71-gc-action 0.2s ease-out; }
+@keyframes r71-gc-achievement { 0% { opacity: 0; transform: scale(0.5) rotate(-10deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r71-gc-achievement { animation: r71-gc-achievement 0.35s ease-out; }
+@keyframes r71-gem-shimmer { 0%, 100% { filter: brightness(1); } 25% { filter: brightness(1.4); } 50% { filter: brightness(0.8); } 75% { filter: brightness(1.3); } }
+.r71-gem-shimmer { animation: r71-gem-shimmer 2.5s ease-in-out infinite; }
+@keyframes r71-gem-crush { 0% { transform: scale(1); opacity: 1; } 30% { transform: scale(1.3); } 60% { transform: scale(0.5); opacity: 0.7; } 100% { transform: scale(0); opacity: 0; } }
+.r71-gem-crush { animation: r71-gem-crush 0.4s ease-in forwards; }
+@keyframes r71-gem-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+.r71-gem-float { animation: r71-gem-float 3s ease-in-out infinite; }
+
+/* Frost Fury animations (cyan theme) */
+@keyframes r71-ff-stat { 0% { opacity: 0; transform: translateX(-8px); filter: blur(2px); } 100% { opacity: 1; transform: translateX(0); filter: blur(0); } }
+[class*="r71-ff-stat"] { animation: r71-ff-stat 0.3s ease-out; }
+@keyframes r71-ff-btn { 0% { opacity: 0; transform: scale(0.85) rotate(-1deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r71-ff-btn { animation: r71-ff-btn 0.25s ease-out; }
+@keyframes r71-ff-action { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+.r71-ff-action { animation: r71-ff-action 0.15s ease-out; }
+@keyframes r71-ff-achievement { 0% { opacity: 0; transform: scale(0.6) translateY(-8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.r71-ff-achievement { animation: r71-ff-achievement 0.3s ease-out; }
+@keyframes r71-ice-crystal { 0%, 100% { opacity: 0.6; transform: rotate(0deg) scale(1); } 50% { opacity: 1; transform: rotate(180deg) scale(1.1); } }
+.r71-ice-crystal { animation: r71-ice-crystal 4s ease-in-out infinite; }
+@keyframes r71-frost-pulse { 0%, 100% { box-shadow: 0 0 4px rgba(34,211,238,0.3); } 50% { box-shadow: 0 0 16px rgba(34,211,238,0.6); } }
+.r71-frost-pulse { animation: r71-frost-pulse 2s ease-in-out infinite; }
+@keyframes r71-snowfall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(10px) rotate(360deg); opacity: 0; } }
+.r71-snowfall { animation: r71-snowfall 2.5s ease-in-out infinite; }
+
+/* Dawn Tower animations (rose theme) */
+@keyframes r71-dt-stat { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
+[class*="r71-dt-stat"] { animation: r71-dt-stat 0.3s ease-out; }
+@keyframes r71-dt-btn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+.r71-dt-btn { animation: r71-dt-btn 0.2s ease-out; }
+@keyframes r71-dt-action { 0% { opacity: 0; transform: translateY(6px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.r71-dt-action { animation: r71-dt-action 0.25s ease-out; }
+@keyframes r71-dt-achievement { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+.r71-dt-achievement { animation: r71-dt-achievement 0.35s ease-out; }
+@keyframes r71-tower-glow { 0%, 100% { filter: brightness(1) saturate(1); } 50% { filter: brightness(1.2) saturate(1.3); } }
+.r71-tower-glow { animation: r71-tower-glow 3s ease-in-out infinite; }
+@keyframes r71-floor-climb { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.r71-floor-climb { animation: r71-floor-climb 0.4s ease-out; }
+@keyframes r71-dawn-ray { 0%, 100% { opacity: 0.3; transform: scaleX(0.8); } 50% { opacity: 0.8; transform: scaleX(1.2); } }
+.r71-dawn-ray { animation: r71-dawn-ray 2.5s ease-in-out infinite; }
+
+/* Flame Painter animations (orange theme) */
+@keyframes r71-fp-stat { 0% { opacity: 0; transform: scale(0.8) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+[class*="r71-fp-stat"] { animation: r71-fp-stat 0.3s ease-out; }
+@keyframes r71-fp-btn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+.r71-fp-btn { animation: r71-fp-btn 0.2s ease-out; }
+@keyframes r71-fp-action { 0% { opacity: 0; transform: scale(0.9) translateY(4px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.r71-fp-action { animation: r71-fp-action 0.2s ease-out; }
+@keyframes r71-fp-achievement { 0% { opacity: 0; transform: scale(0.6) rotate(-5deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r71-fp-achievement { animation: r71-fp-achievement 0.3s ease-out; }
+@keyframes r71-flame-dance { 0%, 100% { transform: scaleY(1) scaleX(1); } 25% { transform: scaleY(1.1) scaleX(0.95); } 50% { transform: scaleY(0.9) scaleX(1.05); } 75% { transform: scaleY(1.05) scaleX(0.98); } }
+.r71-flame-dance { animation: r71-flame-dance 1.5s ease-in-out infinite; }
+@keyframes r71-ember-rise { 0% { transform: translateY(8px) scale(1); opacity: 1; } 100% { transform: translateY(-12px) scale(0.3); opacity: 0; } }
+.r71-ember-rise { animation: r71-ember-rise 1.8s ease-out infinite; }
+@keyframes r71-inferno-spread { 0% { box-shadow: 0 0 4px rgba(251,146,60,0.3); } 50% { box-shadow: 0 0 20px rgba(251,146,60,0.6), 0 0 40px rgba(239,68,68,0.3); } 100% { box-shadow: 0 0 4px rgba(251,146,60,0.3); } }
+.r71-inferno-spread { animation: r71-inferno-spread 2.5s ease-in-out infinite; }

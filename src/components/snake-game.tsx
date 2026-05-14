@@ -444,6 +444,10 @@ import useXenoHive from '@/lib/xeno-hive-wire'
 import useYggdrasilXylem from '@/lib/yggdrasil-xylem-wire'
 import useZephyrHaven from '@/lib/zephyr-haven-wire'
 import useZephyrVault from '@/lib/zephyr-vault-wire'
+import useGemCrusher from '@/lib/gem-crusher-wire'
+import useFrostFury from '@/lib/frost-fury-wire'
+import useDawnTower from '@/lib/dawn-tower-wire'
+import useFlamePainter from '@/lib/flame-painter-wire'
 
 import {
   Play,
@@ -1501,6 +1505,10 @@ export default function SnakeGame() {
   const [showYggdrasilXylemPanel, setShowYggdrasilXylemPanel] = useState(false)
   const [showZephyrHavenPanel, setShowZephyrHavenPanel] = useState(false)
   const [showZephyrVaultPanel, setShowZephyrVaultPanel] = useState(false)
+  const [showGemCrusherPanel, setShowGemCrusherPanel] = useState(false)
+  const [showFrostFuryPanel, setShowFrostFuryPanel] = useState(false)
+  const [showDawnTowerPanel, setShowDawnTowerPanel] = useState(false)
+  const [showFlamePainterPanel, setShowFlamePainterPanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1840,6 +1848,10 @@ export default function SnakeGame() {
   const yxAPI = useYggdrasilXylem()
   const zhAPI = useZephyrHaven()
   const zvAPI = useZephyrVault()
+  const gemcrAPI = useGemCrusher()
+  const ffAPI = useFrostFury()
+  const dtAPI = useDawnTower()
+  const fpAPI = useFlamePainter()
 
 
   // Easter egg active effects display state
@@ -9193,6 +9205,10 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowYggdrasilXylemPanel(!showYggdrasilXylemPanel)} variant="outline" className="border-emerald-500/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r70-yx-btn" title="Yggdrasil Xylem">🌳 YggXyl</Button>
                     <Button onClick={() => setShowZephyrHavenPanel(!showZephyrHavenPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r70-zh-btn" title="Zephyr Haven">🌬️ ZepHav</Button>
                     <Button onClick={() => setShowZephyrVaultPanel(!showZephyrVaultPanel)} variant="outline" className="border-slate-400/50 text-slate-200 hover:bg-slate-900/20 active:scale-95 transition-transform r70-zv-btn" title="Zephyr Vault">🔒 ZepVau</Button>
+                    <Button onClick={() => setShowGemCrusherPanel(!showGemCrusherPanel)} variant="outline" className="border-amber-400/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r71-gc-btn" title="Gem Crusher">💎 GemCru</Button>
+                    <Button onClick={() => setShowFrostFuryPanel(!showFrostFuryPanel)} variant="outline" className="border-cyan-400/50 text-cyan-200 hover:bg-cyan-900/20 active:scale-95 transition-transform r71-ff-btn" title="Frost Fury">❄️ FrosFur</Button>
+                    <Button onClick={() => setShowDawnTowerPanel(!showDawnTowerPanel)} variant="outline" className="border-rose-400/50 text-rose-200 hover:bg-rose-900/20 active:scale-95 transition-transform r71-dt-btn" title="Dawn Tower">🌅 DawTow</Button>
+                    <Button onClick={() => setShowFlamePainterPanel(!showFlamePainterPanel)} variant="outline" className="border-orange-400/50 text-orange-200 hover:bg-orange-900/20 active:scale-95 transition-transform r71-fp-btn" title="Flame Painter">🔥 FlaPai</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -20582,6 +20598,78 @@ export default function SnakeGame() {
               </div>
               <div className="flex gap-1.5 mb-3">
                 <button onClick={() => { toast({ title: 'Zephyr Vault reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-slate-800/30 to-slate-900/20 hover:opacity-80 text-slate-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r70-zv-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showGemCrusherPanel && mounted && (() => {
+        const gcState = gemcrAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowGemCrusherPanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">💎 Gem Crusher</h3><button onClick={() => setShowGemCrusherPanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+          <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r71-gc-stat"><div className="text-[9px] text-amber-300">Level</div><div className="text-xs font-bold text-amber-200">{typeof gemcrAPI === 'object' && gemcrAPI !== null ? (gemcrAPI.level || 1) : 1}</div></div>
+          <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r71-gc-stat"><div className="text-[9px] text-amber-300">Gems Crushed</div><div className="text-xs font-bold text-amber-200">{typeof gemcrAPI === 'object' && gemcrAPI !== null ? (gemcrAPI.gemsCrushed || 0) : 0}</div></div>
+        </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Gem Crusher reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r71-gc-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFrostFuryPanel && mounted && (() => {
+        const ffState = ffAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFrostFuryPanel(false)}>
+            <div className="bg-cyan-950/95 border border-cyan-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-cyan-200">❄️ Frost Fury</h3><button onClick={() => setShowFrostFuryPanel(false)} className="text-cyan-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+          <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r71-ff-stat"><div className="text-[9px] text-cyan-300">Level</div><div className="text-xs font-bold text-cyan-200">{typeof ffAPI === 'object' && ffAPI !== null ? (ffAPI.player?.level || 1) : 1}</div></div>
+          <div className="p-2 bg-gradient-to-br from-cyan-900/30 to-cyan-800/20 rounded-lg border border-cyan-500/10 r71-ff-stat"><div className="text-[9px] text-cyan-300">Streak</div><div className="text-xs font-bold text-cyan-200">{typeof ffAPI === 'object' && ffAPI !== null ? (ffAPI.streak || 0) : 0}</div></div>
+        </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Frost Fury reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-cyan-800/30 to-cyan-900/20 hover:opacity-80 text-cyan-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r71-ff-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showDawnTowerPanel && mounted && (() => {
+        const dtState = dtAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDawnTowerPanel(false)}>
+            <div className="bg-rose-950/95 border border-rose-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-rose-200">🌅 Dawn Tower</h3><button onClick={() => setShowDawnTowerPanel(false)} className="text-rose-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+          <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r71-dt-stat"><div className="text-[9px] text-rose-300">Floor</div><div className="text-xs font-bold text-rose-200">{typeof dtAPI === 'object' && dtAPI !== null ? (dtAPI.currentFloor || 1) : 1}</div></div>
+          <div className="p-2 bg-gradient-to-br from-rose-900/30 to-rose-800/20 rounded-lg border border-rose-500/10 r71-dt-stat"><div className="text-[9px] text-rose-300">Best Floor</div><div className="text-xs font-bold text-rose-200">{typeof dtAPI === 'object' && dtAPI !== null ? (dtAPI.bestFloor || 1) : 1}</div></div>
+        </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Dawn Tower reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-rose-800/30 to-rose-900/20 hover:opacity-80 text-rose-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r71-dt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showFlamePainterPanel && mounted && (() => {
+        const fpState = fpAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowFlamePainterPanel(false)}>
+            <div className="bg-orange-950/95 border border-orange-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-orange-200">🔥 Flame Painter</h3><button onClick={() => setShowFlamePainterPanel(false)} className="text-orange-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+          <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r71-fp-stat"><div className="text-[9px] text-orange-300">Level</div><div className="text-xs font-bold text-orange-200">{typeof fpAPI === 'object' && fpAPI !== null ? (fpAPI.playerLevel || 1) : 1}</div></div>
+          <div className="p-2 bg-gradient-to-br from-orange-900/30 to-orange-800/20 rounded-lg border border-orange-500/10 r71-fp-stat"><div className="text-[9px] text-orange-300">Gallery</div><div className="text-xs font-bold text-orange-200">{typeof fpAPI === 'object' && fpAPI !== null ? ((fpAPI.gallery || []).length) : 0}</div></div>
+        </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Flame Painter reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-orange-800/30 to-orange-900/20 hover:opacity-80 text-orange-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r71-fp-action">Reset</button>
               </div>
             </div>
           </div>
