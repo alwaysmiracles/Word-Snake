@@ -8034,3 +8034,71 @@
 .r75-dark-pulse { animation: r75-dark-pulse 2.5s ease-in-out infinite; }
 @keyframes r75-spirit-float { 0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; } 25% { transform: translateY(-8px) translateX(4px); opacity: 0.9; } 50% { transform: translateY(-4px) translateX(-4px); opacity: 0.5; } 75% { transform: translateY(-10px) translateX(-2px); opacity: 0.8; } }
 .r75-spirit-float { animation: r75-spirit-float 4s ease-in-out infinite; }
+
+/* ==========================================
+   Round 76: Zen Temple (zt), Nether Underground (nu), Oracle Guild (og), Pixel Forge (px)
+   ========================================== */
+
+/* --- Zen Temple Animations --- */
+@keyframes r76-zt-stat { 0% { opacity: 0; transform: translateY(-8px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.r76-zt-stat { animation: r76-zt-stat 0.3s ease-out; }
+@keyframes r76-zt-btn { 0% { opacity: 0; transform: scale(0.8); } 60% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+.r76-zt-btn { animation: r76-zt-btn 0.25s ease-out; }
+@keyframes r76-zt-action { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+.r76-zt-action { animation: r76-zt-action 0.2s ease-out; }
+@keyframes r76-zt-achievement { 0% { opacity: 0; transform: rotate(-10deg) scale(0.8); } 100% { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r76-zt-achievement { animation: r76-zt-achievement 0.4s ease-out; }
+@keyframes r76-zen-glow { 0%, 100% { box-shadow: 0 0 8px rgba(251,191,36,0.15); } 50% { box-shadow: 0 0 24px rgba(251,191,36,0.35), 0 0 48px rgba(245,158,11,0.1); } }
+.r76-zen-glow { animation: r76-zen-glow 3s ease-in-out infinite; }
+@keyframes r76-incense-rise { 0% { transform: translateY(0) scaleX(1); opacity: 0.7; } 50% { transform: translateY(-20px) scaleX(1.5); opacity: 0.4; } 100% { transform: translateY(-40px) scaleX(2); opacity: 0; } }
+.r76-incense-rise { animation: r76-incense-rise 3s ease-out infinite; }
+@keyframes r76-koan-reveal { 0% { filter: blur(8px); opacity: 0; } 100% { filter: blur(0); opacity: 1; } }
+.r76-koan-reveal { animation: r76-koan-reveal 1s ease-out; }
+
+/* --- Nether Underground Animations --- */
+@keyframes r76-nu-stat { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+.r76-nu-stat { animation: r76-nu-stat 0.3s ease-out; }
+@keyframes r76-nu-btn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+.r76-nu-btn { animation: r76-nu-btn 0.25s ease-out; }
+@keyframes r76-nu-action { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+.r76-nu-action { animation: r76-nu-action 0.2s ease-out; }
+@keyframes r76-nu-achievement { 0% { opacity: 0; transform: translateY(8px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.r76-nu-achievement { animation: r76-nu-achievement 0.35s ease-out; }
+@keyframes r76-torch-flicker { 0%, 100% { box-shadow: 0 0 6px rgba(251,146,60,0.3); } 25% { box-shadow: 0 0 12px rgba(251,146,60,0.5); } 50% { box-shadow: 0 0 4px rgba(251,146,60,0.2); } 75% { box-shadow: 0 0 18px rgba(251,146,60,0.6), 0 0 36px rgba(234,88,12,0.15); } }
+.r76-torch-flicker { animation: r76-torch-flicker 1.5s ease-in-out infinite; }
+@keyframes r76-stalactite-drip { 0% { transform: translateY(0) scaleY(1); opacity: 0.6; } 60% { transform: translateY(12px) scaleY(0.5); opacity: 1; } 100% { transform: translateY(16px) scaleY(0.3); opacity: 0; } }
+.r76-stalactite-drip { animation: r76-stalactite-drip 2s ease-in infinite; }
+@keyframes r76-cave-echo { 0% { transform: scale(1); opacity: 0.3; } 100% { transform: scale(2.5); opacity: 0; } }
+.r76-cave-echo { animation: r76-cave-echo 1.2s ease-out infinite; }
+
+/* --- Oracle Guild Animations --- */
+@keyframes r76-og-stat { 0% { opacity: 0; transform: rotate(-5deg) scale(0.9); } 100% { opacity: 1; transform: rotate(0deg) scale(1); } }
+.r76-og-stat { animation: r76-og-stat 0.3s ease-out; }
+@keyframes r76-og-btn { 0% { opacity: 0; transform: scale(0.9); } 50% { transform: scale(1.04); } 100% { opacity: 1; transform: scale(1); } }
+.r76-og-btn { animation: r76-og-btn 0.3s ease-out; }
+@keyframes r76-og-action { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+.r76-og-action { animation: r76-og-action 0.2s ease-out; }
+@keyframes r76-og-achievement { 0% { opacity: 0; transform: scale(0.7) rotate(180deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.r76-og-achievement { animation: r76-og-achievement 0.5s ease-out; }
+@keyframes r76-orb-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-6px) rotate(3deg); } 50% { transform: translateY(-2px) rotate(-2deg); } 75% { transform: translateY(-8px) rotate(1deg); } }
+.r76-orb-float { animation: r76-orb-float 4s ease-in-out infinite; }
+@keyframes r76-prophecy-glow { 0%, 100% { text-shadow: 0 0 4px rgba(129,140,248,0.3); } 50% { text-shadow: 0 0 16px rgba(129,140,248,0.6), 0 0 32px rgba(99,102,241,0.2); } }
+.r76-prophecy-glow { animation: r76-prophecy-glow 2.5s ease-in-out infinite; }
+@keyframes r76-tarot-spread { 0% { transform: rotateY(90deg) scale(0.8); opacity: 0; } 100% { transform: rotateY(0deg) scale(1); opacity: 1; } }
+.r76-tarot-spread { animation: r76-tarot-spread 0.6s ease-out; }
+
+/* --- Pixel Forge Animations --- */
+@keyframes r76-px-stat { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+.r76-px-stat { animation: r76-px-stat 0.25s ease-out; }
+@keyframes r76-px-btn { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+.r76-px-btn { animation: r76-px-btn 0.25s ease-out; }
+@keyframes r76-px-action { 0% { opacity: 0; transform: translateX(6px); } 100% { opacity: 1; transform: translateX(0); } }
+.r76-px-action { animation: r76-px-action 0.2s ease-out; }
+@keyframes r76-px-achievement { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+.r76-px-achievement { animation: r76-px-achievement 0.35s ease-out; }
+@keyframes r76-pixel-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.2; } }
+.r76-pixel-blink { animation: r76-pixel-blink 1s step-end infinite; }
+@keyframes r76-cursor-blink { 0%, 49% { border-color: rgba(52,211,153,0.8); } 50%, 100% { border-color: rgba(52,211,153,0.1); } }
+.r76-cursor-blink { animation: r76-cursor-blink 0.8s step-end infinite; }
+@keyframes r76-pixel-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+.r76-pixel-scan { animation: r76-pixel-scan 2s linear infinite; }

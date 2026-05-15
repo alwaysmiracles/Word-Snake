@@ -469,6 +469,10 @@ import useCoralReefCity from '@/lib/coral-reef-city-wire'
 import useMoonTemple from '@/lib/moon-temple-wire'
 import useFrostFrontier from '@/lib/frost-frontier-wire'
 import useOccultCircle from '@/lib/occult-circle-wire'
+import useZenTemple from '@/lib/zen-temple-wire'
+import useNetherUnderground from '@/lib/nether-underground-wire'
+import useOracleGuild from '@/lib/oracle-guild-wire'
+import usePixelForge from '@/lib/pixel-forge-wire'
 
 import {
   Play,
@@ -1552,6 +1556,10 @@ export default function SnakeGame() {
   const [showMoonTemplePanel, setShowMoonTemplePanel] = useState(false)
   const [showFrostFrontierPanel, setShowFrostFrontierPanel] = useState(false)
   const [showOccultCirclePanel, setShowOccultCirclePanel] = useState(false)
+  const [showZenTemplePanel, setShowZenTemplePanel] = useState(false)
+  const [showNetherUndergroundPanel, setShowNetherUndergroundPanel] = useState(false)
+  const [showOracleGuildPanel, setShowOracleGuildPanel] = useState(false)
+  const [showPixelForgePanel, setShowPixelForgePanel] = useState(false)
 
   // Round 55: Bingo, Mini Map, Power-Up Factory, Daily Fortune panel states
   const [showBingoPanel, setShowBingoPanel] = useState(false)
@@ -1917,6 +1925,10 @@ export default function SnakeGame() {
   const mt2API = useMoonTemple()
   const frtAPI = useFrostFrontier()
   const occAPI = useOccultCircle()
+  const ztAPI = useZenTemple()
+  const nuAPI = useNetherUnderground()
+  const ogAPI = useOracleGuild()
+  const pxAPI = usePixelForge()
 
 
   // Easter egg active effects display state
@@ -9296,6 +9308,10 @@ export default function SnakeGame() {
                     <Button onClick={() => setShowMoonTemplePanel(!showMoonTemplePanel)} variant="outline" className="border-slate-300/50 text-slate-200 hover:bg-slate-700/20 active:scale-95 transition-transform r75-mt2-btn" title="Moon Temple">🌙 MoonTemp</Button>
                     <Button onClick={() => setShowFrostFrontierPanel(!showFrostFrontierPanel)} variant="outline" className="border-sky-300/50 text-sky-200 hover:bg-sky-800/20 active:scale-95 transition-transform r75-frt-btn" title="Frost Frontier">🧊 FrostFront</Button>
                     <Button onClick={() => setShowOccultCirclePanel(!showOccultCirclePanel)} variant="outline" className="border-fuchsia-400/50 text-fuchsia-200 hover:bg-fuchsia-900/20 active:scale-95 transition-transform r75-occ-btn" title="Occult Circle">🔮 OccCircle</Button>
+                    <Button onClick={() => setShowZenTemplePanel(!showZenTemplePanel)} variant="outline" className="border-amber-300/50 text-amber-200 hover:bg-amber-900/20 active:scale-95 transition-transform r76-zt-btn" title="Zen Temple">📿 ZenTemp</Button>
+                    <Button onClick={() => setShowNetherUndergroundPanel(!showNetherUndergroundPanel)} variant="outline" className="border-gray-400/50 text-gray-200 hover:bg-gray-900/20 active:scale-95 transition-transform r76-nu-btn" title="Nether Underground">🕳️ NetherUg</Button>
+                    <Button onClick={() => setShowOracleGuildPanel(!showOracleGuildPanel)} variant="outline" className="border-indigo-300/50 text-indigo-200 hover:bg-indigo-900/20 active:scale-95 transition-transform r76-og-btn" title="Oracle Guild">🔮 OraGuild</Button>
+                    <Button onClick={() => setShowPixelForgePanel(!showPixelForgePanel)} variant="outline" className="border-emerald-300/50 text-emerald-200 hover:bg-emerald-900/20 active:scale-95 transition-transform r76-px-btn" title="Pixel Forge">🎨 PixForge</Button>
 
                     {/* Round 53: Leaderboard Button */}
                     <Button
@@ -21117,6 +21133,86 @@ export default function SnakeGame() {
               </div>
               <div className="flex gap-1.5 mb-3">
                 <button onClick={() => { toast({ title: 'Occult Circle reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-fuchsia-800/30 to-fuchsia-900/20 hover:opacity-80 text-fuchsia-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r75-occ-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showZenTemplePanel && mounted && (() => {
+        const ztState = ztAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowZenTemplePanel(false)}>
+            <div className="bg-amber-950/95 border border-amber-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-amber-200">📿 Zen Temple</h3><button onClick={() => setShowZenTemplePanel(false)} className="text-amber-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r76-zt-stat"><div className="text-[9px] text-amber-300">Monk Lv</div><div className="text-xs font-bold text-amber-200">{typeof ztState === 'object' && ztState !== null ? (ztState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r76-zt-stat"><div className="text-[9px] text-amber-300">Serenity</div><div className="text-xs font-bold text-amber-200">{typeof ztState === 'object' && ztState !== null ? (ztState.serenity || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r76-zt-stat"><div className="text-[9px] text-amber-300">Koans Solved</div><div className="text-xs font-bold text-amber-200">{typeof ztState === 'object' && ztState !== null ? (ztState.koansSolved || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-amber-900/30 to-amber-800/20 rounded-lg border border-amber-500/10 r76-zt-stat"><div className="text-[9px] text-amber-300">Bonsai</div><div className="text-xs font-bold text-amber-200">{typeof ztState === 'object' && ztState !== null ? ((ztState.bonsai || []).length) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Zen Temple reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-amber-800/30 to-amber-900/20 hover:opacity-80 text-amber-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r76-zt-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showNetherUndergroundPanel && mounted && (() => {
+        const nuState = nuAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowNetherUndergroundPanel(false)}>
+            <div className="bg-gray-950/95 border border-gray-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-gray-200">🕳️ Nether Underground</h3><button onClick={() => setShowNetherUndergroundPanel(false)} className="text-gray-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r76-nu-stat"><div className="text-[9px] text-gray-300">Explorer Lv</div><div className="text-xs font-bold text-gray-200">{typeof nuState === 'object' && nuState !== null ? (nuState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r76-nu-stat"><div className="text-[9px] text-gray-300">Current Zone</div><div className="text-xs font-bold text-gray-200">{typeof nuState === 'object' && nuState !== null ? (nuState.currentZone || 'Mossy Caverns') : 'Mossy Caverns'}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r76-nu-stat"><div className="text-[9px] text-gray-300">Ore Mined</div><div className="text-xs font-bold text-gray-200">{typeof nuState === 'object' && nuState !== null ? (nuState.totalOreMined || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-gray-900/30 to-gray-800/20 rounded-lg border border-gray-500/10 r76-nu-stat"><div className="text-[9px] text-gray-300">Creatures</div><div className="text-xs font-bold text-gray-200">{typeof nuState === 'object' && nuState !== null ? (nuState.creaturesDefeated || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Nether Underground reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-gray-800/30 to-gray-900/20 hover:opacity-80 text-gray-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r76-nu-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showOracleGuildPanel && mounted && (() => {
+        const ogState = ogAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowOracleGuildPanel(false)}>
+            <div className="bg-indigo-950/95 border border-indigo-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-indigo-200">🔮 Oracle Guild</h3><button onClick={() => setShowOracleGuildPanel(false)} className="text-indigo-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r76-og-stat"><div className="text-[9px] text-indigo-300">Oracle Lv</div><div className="text-xs font-bold text-indigo-200">{typeof ogState === 'object' && ogState !== null ? (ogState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r76-og-stat"><div className="text-[9px] text-indigo-300">Prophecies</div><div className="text-xs font-bold text-indigo-200">{typeof ogState === 'object' && ogState !== null ? (ogState.propheciesFulfilled || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r76-og-stat"><div className="text-[9px] text-indigo-300">Crystals</div><div className="text-xs font-bold text-indigo-200">{typeof ogState === 'object' && ogState !== null ? ((ogState.crystals || []).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 rounded-lg border border-indigo-500/10 r76-og-stat"><div className="text-[9px] text-indigo-300">Intuition</div><div className="text-xs font-bold text-indigo-200">{typeof ogState === 'object' && ogState !== null ? (ogState.intuition || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Oracle Guild reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-indigo-800/30 to-indigo-900/20 hover:opacity-80 text-indigo-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r76-og-action">Reset</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {showPixelForgePanel && mounted && (() => {
+        const pxState = pxAPI
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPixelForgePanel(false)}>
+            <div className="bg-emerald-950/95 border border-emerald-400/30 rounded-xl p-4 max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-emerald-200">🎨 Pixel Forge</h3><button onClick={() => setShowPixelForgePanel(false)} className="text-emerald-400 hover:text-white text-xs">✕</button></div>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r76-px-stat"><div className="text-[9px] text-emerald-300">Artist Lv</div><div className="text-xs font-bold text-emerald-200">{typeof pxState === 'object' && pxState !== null ? (pxState.level || 1) : 1}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r76-px-stat"><div className="text-[9px] text-emerald-300">Creativity</div><div className="text-xs font-bold text-emerald-200">{typeof pxState === 'object' && pxState !== null ? (pxState.creativity || 0) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r76-px-stat"><div className="text-[9px] text-emerald-300">Gallery</div><div className="text-xs font-bold text-emerald-200">{typeof pxState === 'object' && pxState !== null ? ((pxState.gallery || []).filter(Boolean).length) : 0}</div></div>
+                <div className="p-2 bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-lg border border-emerald-500/10 r76-px-stat"><div className="text-[9px] text-emerald-300">Challenges</div><div className="text-xs font-bold text-emerald-200">{typeof pxState === 'object' && pxState !== null ? (pxState.challengesCompleted || 0) : 0}</div></div>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                <button onClick={() => { toast({ title: 'Pixel Forge reset!' }) }} className="flex-1 px-2 py-1.5 bg-gradient-to-br from-emerald-800/30 to-emerald-900/20 hover:opacity-80 text-emerald-200 text-[8px] font-semibold rounded-lg transition-all active:scale-95 r76-px-action">Reset</button>
               </div>
             </div>
           </div>
